@@ -1,0 +1,374 @@
+<!DOCTYPE html><html xmlns:date="http://exslt.org/dates-and-times" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+<meta charset="utf-8">
+<title>phpDocumentor » Default</title>
+<meta name="author" content="Mike van Riel">
+<meta name="description" content="">
+<link href="../css/template.css" rel="stylesheet" media="all">
+<script src="../js/jquery-1.7.1.min.js" type="text/javascript"></script><script src="../js/jquery-ui-1.8.2.custom.min.js" type="text/javascript"></script><script src="../js/jquery.mousewheel.min.js" type="text/javascript"></script><script src="../js/bootstrap.js" type="text/javascript"></script><script src="../js/template.js" type="text/javascript"></script><script src="../js/prettify/prettify.min.js" type="text/javascript"></script><link rel="shortcut icon" href="../img/favicon.ico">
+<link rel="apple-touch-icon" href="../img/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="72x72" href="../img/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="114x114" href="../img/apple-touch-icon-114x114.png">
+</head>
+<body>
+<div class="navbar navbar-fixed-top">
+<div class="navbar-inner"><div class="container">
+<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></a><a class="brand" href="../index.html">phpDocumentor</a><div class="nav-collapse"><ul class="nav">
+<li class="dropdown">
+<a href="#api" class="dropdown-toggle" data-toggle="dropdown">
+                                    API Documentation <b class="caret"></b></a><ul class="dropdown-menu">
+<li><a>Namespaces</a></li>
+<li><a href="../namespaces/Aomebo.html"><i class="icon-th"></i> Aomebo</a></li>
+</ul>
+</li>
+<li class="dropdown" id="charts-menu">
+<a href="#charts" class="dropdown-toggle" data-toggle="dropdown">
+                                    Charts <b class="caret"></b></a><ul class="dropdown-menu"><li><a href="../graph_class.html"><i class="icon-list-alt"></i> Class hierarchy diagram</a></li></ul>
+</li>
+<li class="dropdown" id="reports-menu">
+<a href="#reports" class="dropdown-toggle" data-toggle="dropdown">
+                                    Reports <b class="caret"></b></a><ul class="dropdown-menu">
+<li><a href="../errors.html"><i class="icon-remove-sign"></i> Errors 
+                <span class="label label-info">488</span></a></li>
+<li><a href="../markers.html"><i class="icon-map-marker"></i> Markers 
+                <ul></ul></a></li>
+<li><a href="../deprecated.html"><i class="icon-stop"></i> Deprecated elements 
+                <span class="label label-info">0</span></a></li>
+</ul>
+</li>
+</ul></div>
+</div></div>
+<div class="go_to_top"><a href="#___" style="color: inherit">Back to top  <i class="icon-upload icon-white"></i></a></div>
+</div>
+<div id="___" class="container">
+<noscript><div class="alert alert-warning">
+                            Javascript is disabled; several features are only available
+                            if Javascript is enabled.
+                        </div></noscript>
+<div class="row">
+<div class="span4">
+<div class="btn-group view pull-right" data-toggle="buttons-radio">
+<button class="btn details" title="Show descriptions and method names"><i class="icon-list"></i></button><button class="btn simple" title="Show only method names"><i class="icon-align-justify"></i></button>
+</div>
+<ul class="side-nav nav nav-list">
+<li class="nav-header">
+<i class="icon-map-marker"></i> Packages</li>
+<li>
+<a href="../packages/Default.html" title="Default"><i class="icon-folder-open"></i>Default</a><ul class="nav nav-list nav-packages"></ul>
+</li>
+<li class="nav-header">
+<i class="icon-custom icon-class"></i> Classes</li>
+<li><a href="#System" title="This class handles cache in different forms and
+ for different usages throught the framework">System</a></li>
+<li><a href="#Debug" title="This class handles framework feedback">Debug</a></li>
+<li><a href="#Cleanup" title="This class is responsible for cleanup">Cleanup</a></li>
+<li><a href="#Adapter" title="This class handles all contact with the database
+ by using different database adapters">Adapter</a></li>
+<li><a href="#Adapter" title="This is a adapater class for mysql 5 with php mysqli library">Adapter</a></li>
+<li><a href="#Resultset" title="This is our resultset for mysql 5 php mysqli library">Resultset</a></li>
+<li><a href="#Base" title="This is a general base for database adapters">Base</a></li>
+<li><a href="#Resultset" title="This is a general base for database resultsets">Resultset</a></li>
+<li><a href="#Configuration" title="This class handles configuration of framework">Configuration</a></li>
+<li><a href="#Base" title="This class is our general base for session-blocks">Base</a></li>
+<li><a href="#Handler" title="This class is handling our root session
+ and pushes events to session-blocks">Handler</a></li>
+<li><a href="#Engine" title="This class handles presentation of output">Engine</a></li>
+<li><a href="#Engine" title="This class handles indexing of output,
+ this class is optional meaning it can be disabled
+ and errors in this class will not stop process">Engine</a></li>
+<li><a href="#Engine" title="This class is responsible for interpretation of pages
+ through the different page adapters">Engine</a></li>
+<li><a href="#Adapter" title="This class is a interpreation adapter for xml files">Adapter</a></li>
+<li><a href="#Base" title="This class is our general base for interpretation adapters">Base</a></li>
+<li><a href="#Internal" title="This class handles internal configuration of framework">Internal</a></li>
+<li><a href="#External" title="This class handles external configuration">External</a></li>
+<li><a href="#Base" title="This class is a general base for different configurations">Base</a></li>
+<li><a href="#Merged" title="This class handles combined configuration">Merged</a></li>
+<li><a href="#Parser" title="This class handles parsing of dependencies (client-side packages)">Parser</a></li>
+<li><a href="#Dependency" title="When extending this class one can do two things:
+ 1. To be able to specify if a dependency has subdependencies,
+ if it has, they will be included before the dependecy
+ itself.">Dependency</a></li>
+<li><a href="#Engine" title="This class handles the associative resources need to
+ view each page-requests. Modules can have associated
+ styles or scripts bound to variant of site.">Engine</a></li>
+<li><a href="#Application" title="This class will start upp processing of the Aomebo framework
+ and use different parts depending on the HTTP request received">Application</a></li>
+<li><a href="#View" title="This class is our MVC-view class for MVC design">View</a></li>
+<li><a href="#Bridge" title="This class is a general base for all bridge modules">Bridge</a></li>
+<li><a href="#Base" title="This class is a general base for all modules">Base</a></li>
+<li><a href="#Base" title="This class is here to help automating general
+ functionality throughout the framework">Base</a></li>
+<li><a href="#View" title="This class is the MVC-view for models">View</a></li>
+<li><a href="#Base" title="This class is general base for all models">Base</a></li>
+<li><a href="#Site" title="This class handles configuration of framework">Site</a></li>
+<li><a href="#Referer" title="This class handles referer requests">Referer</a></li>
+<li><a href="#System" title="This class handles parsing of requests">System</a></li>
+</ul>
+</div>
+<div class="span8 package-contents">
+<ul class="breadcrumb">
+<li>
+<a href="../index.html"><i class="icon-folder-open"></i></a><span class="divider">\</span>
+</li>
+<li class="active"><a href="../packages/Default.html">Default</a></li>
+</ul>
+<div class="package-indent">
+<h3>
+<i class="icon-custom icon-class"></i> Classes and interfaces</h3>
+<a name="Application" id="Application"></a><div class="element ajax clickable class" href="../classes/Aomebo.Application.html">
+<h1>Application<a href="../classes/Aomebo.Application.html">¶</a>
+</h1>
+<p class="short_description">This class will start upp processing of the Aomebo framework
+ and use different parts depending on the HTTP request received</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Application.html" class="more">« More »</a>
+</div>
+<a name="Dependency" id="Dependency"></a><div class="element ajax clickable class" href="../classes/Aomebo.Associatives.Dependency.html">
+<h1>Dependency<a href="../classes/Aomebo.Associatives.Dependency.html">¶</a>
+</h1>
+<p class="short_description">When extending this class one can do two things:
+ 1. To be able to specify if a dependency has subdependencies,
+ if it has, they will be included before the dependecy
+ itself.</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Associatives.Dependency.html" class="more">« More »</a>
+</div>
+<a name="Engine" id="Engine"></a><div class="element ajax clickable class" href="../classes/Aomebo.Associatives.Engine.html">
+<h1>Engine<a href="../classes/Aomebo.Associatives.Engine.html">¶</a>
+</h1>
+<p class="short_description">This class handles the associative resources need to
+ view each page-requests. Modules can have associated
+ styles or scripts bound to variant of site.</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Associatives.Engine.html" class="more">« More »</a>
+</div>
+<a name="Parser" id="Parser"></a><div class="element ajax clickable class" href="../classes/Aomebo.Associatives.Parser.html">
+<h1>Parser<a href="../classes/Aomebo.Associatives.Parser.html">¶</a>
+</h1>
+<p class="short_description">This class handles parsing of dependencies (client-side packages)</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Associatives.Parser.html" class="more">« More »</a>
+</div>
+<a name="Base" id="Base"></a><div class="element ajax clickable class" href="../classes/Aomebo.Base.html">
+<h1>Base<a href="../classes/Aomebo.Base.html">¶</a>
+</h1>
+<p class="short_description">This class is here to help automating general
+ functionality throughout the framework</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Base.html" class="more">« More »</a>
+</div>
+<a name="System" id="System"></a><div class="element ajax clickable class" href="../classes/Aomebo.Cache.System.html">
+<h1>System<a href="../classes/Aomebo.Cache.System.html">¶</a>
+</h1>
+<p class="short_description">This class handles cache in different forms and
+ for different usages throught the framework</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Cache.System.html" class="more">« More »</a>
+</div>
+<a name="Configuration" id="Configuration"></a><div class="element ajax clickable class" href="../classes/Aomebo.Configuration.html">
+<h1>Configuration<a href="../classes/Aomebo.Configuration.html">¶</a>
+</h1>
+<p class="short_description">This class handles configuration of framework</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Configuration.html" class="more">« More »</a>
+</div>
+<a name="Base" id="Base"></a><div class="element ajax clickable class" href="../classes/Aomebo.Configuration.Base.html">
+<h1>Base<a href="../classes/Aomebo.Configuration.Base.html">¶</a>
+</h1>
+<p class="short_description">This class is a general base for different configurations</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Configuration.Base.html" class="more">« More »</a>
+</div>
+<a name="External" id="External"></a><div class="element ajax clickable class" href="../classes/Aomebo.Configuration.External.html">
+<h1>External<a href="../classes/Aomebo.Configuration.External.html">¶</a>
+</h1>
+<p class="short_description">This class handles external configuration</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Configuration.External.html" class="more">« More »</a>
+</div>
+<a name="Internal" id="Internal"></a><div class="element ajax clickable class" href="../classes/Aomebo.Configuration.Internal.html">
+<h1>Internal<a href="../classes/Aomebo.Configuration.Internal.html">¶</a>
+</h1>
+<p class="short_description">This class handles internal configuration of framework</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Configuration.Internal.html" class="more">« More »</a>
+</div>
+<a name="Merged" id="Merged"></a><div class="element ajax clickable class" href="../classes/Aomebo.Configuration.Merged.html">
+<h1>Merged<a href="../classes/Aomebo.Configuration.Merged.html">¶</a>
+</h1>
+<p class="short_description">This class handles combined configuration</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Configuration.Merged.html" class="more">« More »</a>
+</div>
+<a name="Adapter" id="Adapter"></a><div class="element ajax clickable class" href="../classes/Aomebo.Database.Adapter.html">
+<h1>Adapter<a href="../classes/Aomebo.Database.Adapter.html">¶</a>
+</h1>
+<p class="short_description">This class handles all contact with the database
+ by using different database adapters</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Database.Adapter.html" class="more">« More »</a>
+</div>
+<a name="Base" id="Base"></a><div class="element ajax clickable class" href="../classes/Aomebo.Database.Adapters.Base.html">
+<h1>Base<a href="../classes/Aomebo.Database.Adapters.Base.html">¶</a>
+</h1>
+<p class="short_description">This is a general base for database adapters</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Database.Adapters.Base.html" class="more">« More »</a>
+</div>
+<a name="Adapter" id="Adapter"></a><div class="element ajax clickable class" href="../classes/Aomebo.Database.Adapters.Mysqli.Adapter.html">
+<h1>Adapter<a href="../classes/Aomebo.Database.Adapters.Mysqli.Adapter.html">¶</a>
+</h1>
+<p class="short_description">This is a adapater class for mysql 5 with php mysqli library</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Database.Adapters.Mysqli.Adapter.html" class="more">« More »</a>
+</div>
+<a name="Resultset" id="Resultset"></a><div class="element ajax clickable class" href="../classes/Aomebo.Database.Adapters.Mysqli.Resultset.html">
+<h1>Resultset<a href="../classes/Aomebo.Database.Adapters.Mysqli.Resultset.html">¶</a>
+</h1>
+<p class="short_description">This is our resultset for mysql 5 php mysqli library</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Database.Adapters.Mysqli.Resultset.html" class="more">« More »</a>
+</div>
+<a name="Resultset" id="Resultset"></a><div class="element ajax clickable class" href="../classes/Aomebo.Database.Adapters.Resultset.html">
+<h1>Resultset<a href="../classes/Aomebo.Database.Adapters.Resultset.html">¶</a>
+</h1>
+<p class="short_description">This is a general base for database resultsets</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Database.Adapters.Resultset.html" class="more">« More »</a>
+</div>
+<a name="Referer" id="Referer"></a><div class="element ajax clickable class" href="../classes/Aomebo.Dispatcher.Referer.html">
+<h1>Referer<a href="../classes/Aomebo.Dispatcher.Referer.html">¶</a>
+</h1>
+<p class="short_description">This class handles referer requests</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Dispatcher.Referer.html" class="more">« More »</a>
+</div>
+<a name="System" id="System"></a><div class="element ajax clickable class" href="../classes/Aomebo.Dispatcher.System.html">
+<h1>System<a href="../classes/Aomebo.Dispatcher.System.html">¶</a>
+</h1>
+<p class="short_description">This class handles parsing of requests</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Dispatcher.System.html" class="more">« More »</a>
+</div>
+<a name="Debug" id="Debug"></a><div class="element ajax clickable class" href="../classes/Aomebo.Feedback.Debug.html">
+<h1>Debug<a href="../classes/Aomebo.Feedback.Debug.html">¶</a>
+</h1>
+<p class="short_description">This class handles framework feedback</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Feedback.Debug.html" class="more">« More »</a>
+</div>
+<a name="Engine" id="Engine"></a><div class="element ajax clickable class" href="../classes/Aomebo.Indexing.Engine.html">
+<h1>Engine<a href="../classes/Aomebo.Indexing.Engine.html">¶</a>
+</h1>
+<p class="short_description">This class handles indexing of output,
+ this class is optional meaning it can be disabled
+ and errors in this class will not stop process</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Indexing.Engine.html" class="more">« More »</a>
+</div>
+<a name="Base" id="Base"></a><div class="element ajax clickable class" href="../classes/Aomebo.Interpreter.Adapters.Base.html">
+<h1>Base<a href="../classes/Aomebo.Interpreter.Adapters.Base.html">¶</a>
+</h1>
+<p class="short_description">This class is our general base for interpretation adapters</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Interpreter.Adapters.Base.html" class="more">« More »</a>
+</div>
+<a name="Adapter" id="Adapter"></a><div class="element ajax clickable class" href="../classes/Aomebo.Interpreter.Adapters.Xml.Adapter.html">
+<h1>Adapter<a href="../classes/Aomebo.Interpreter.Adapters.Xml.Adapter.html">¶</a>
+</h1>
+<p class="short_description">This class is a interpreation adapter for xml files</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Interpreter.Adapters.Xml.Adapter.html" class="more">« More »</a>
+</div>
+<a name="Engine" id="Engine"></a><div class="element ajax clickable class" href="../classes/Aomebo.Interpreter.Engine.html">
+<h1>Engine<a href="../classes/Aomebo.Interpreter.Engine.html">¶</a>
+</h1>
+<p class="short_description">This class is responsible for interpretation of pages
+ through the different page adapters</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Interpreter.Engine.html" class="more">« More »</a>
+</div>
+<a name="Base" id="Base"></a><div class="element ajax clickable class" href="../classes/Aomebo.Models.Base.html">
+<h1>Base<a href="../classes/Aomebo.Models.Base.html">¶</a>
+</h1>
+<p class="short_description">This class is general base for all models</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Models.Base.html" class="more">« More »</a>
+</div>
+<a name="View" id="View"></a><div class="element ajax clickable class" href="../classes/Aomebo.Models.View.html">
+<h1>View<a href="../classes/Aomebo.Models.View.html">¶</a>
+</h1>
+<p class="short_description">This class is the MVC-view for models</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Models.View.html" class="more">« More »</a>
+</div>
+<a name="Base" id="Base"></a><div class="element ajax clickable class" href="../classes/Aomebo.Modules.Base.html">
+<h1>Base<a href="../classes/Aomebo.Modules.Base.html">¶</a>
+</h1>
+<p class="short_description">This class is a general base for all modules</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Modules.Base.html" class="more">« More »</a>
+</div>
+<a name="Bridge" id="Bridge"></a><div class="element ajax clickable class" href="../classes/Aomebo.Modules.Bridge.html">
+<h1>Bridge<a href="../classes/Aomebo.Modules.Bridge.html">¶</a>
+</h1>
+<p class="short_description">This class is a general base for all bridge modules</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Modules.Bridge.html" class="more">« More »</a>
+</div>
+<a name="View" id="View"></a><div class="element ajax clickable class" href="../classes/Aomebo.Modules.View.html">
+<h1>View<a href="../classes/Aomebo.Modules.View.html">¶</a>
+</h1>
+<p class="short_description">This class is our MVC-view class for MVC design</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Modules.View.html" class="more">« More »</a>
+</div>
+<a name="Engine" id="Engine"></a><div class="element ajax clickable class" href="../classes/Aomebo.Presenter.Engine.html">
+<h1>Engine<a href="../classes/Aomebo.Presenter.Engine.html">¶</a>
+</h1>
+<p class="short_description">This class handles presentation of output</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Presenter.Engine.html" class="more">« More »</a>
+</div>
+<a name="Base" id="Base"></a><div class="element ajax clickable class" href="../classes/Aomebo.Session.Blocks.Base.html">
+<h1>Base<a href="../classes/Aomebo.Session.Blocks.Base.html">¶</a>
+</h1>
+<p class="short_description">This class is our general base for session-blocks</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Session.Blocks.Base.html" class="more">« More »</a>
+</div>
+<a name="Handler" id="Handler"></a><div class="element ajax clickable class" href="../classes/Aomebo.Session.Handler.html">
+<h1>Handler<a href="../classes/Aomebo.Session.Handler.html">¶</a>
+</h1>
+<p class="short_description">This class is handling our root session
+ and pushes events to session-blocks</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Session.Handler.html" class="more">« More »</a>
+</div>
+<a name="Site" id="Site"></a><div class="element ajax clickable class" href="../classes/Aomebo.Site.html">
+<h1>Site<a href="../classes/Aomebo.Site.html">¶</a>
+</h1>
+<p class="short_description">This class handles configuration of framework</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.Site.html" class="more">« More »</a>
+</div>
+<a name="Cleanup" id="Cleanup"></a><div class="element ajax clickable class" href="../classes/Aomebo.System.Cleanup.html">
+<h1>Cleanup<a href="../classes/Aomebo.System.Cleanup.html">¶</a>
+</h1>
+<p class="short_description">This class is responsible for cleanup</p>
+<div class="details collapse"></div>
+<a href="../classes/Aomebo.System.Cleanup.html" class="more">« More »</a>
+</div>
+</div>
+</div>
+</div>
+<div class="row"><footer class="span12">
+            Template is built using <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap 2</a> and icons provided by <a href="http://glyphicons.com/">Glyphicons</a>.<br>
+            Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor 2.0.0a2</a> and<br>
+            generated on 2012-04-07T01:25:23+02:00.<br></footer></div>
+</div>
+</body>
+</html>

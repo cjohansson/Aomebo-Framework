@@ -1,0 +1,39 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Karlheinz Toni <karlheinz.toni@gmail.com>
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: smarty i18n gettext examples 1.0\n"
+"Report-Msgid-Bugs-To: Karlheinz Toni <karlheinz.toni@gmail.com>\n"
+"POT-Creation-Date: 2012-11-28 17:07+0100\n"
+"Last-Translator: Karlheinz Toni <karlheinz.toni@gmail.com>\n"
+"Language-Team: Karlheinz Toni <karlheinz.toni@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Language: de_DE\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#: example_01.tpl:28 example_02.tpl:28 example_03.tpl:28
+msgid "This is my first translation message"
+msgstr "de_DE locale: Dies ist meine erste Übersetzungsnachricht"
+
+#: example_01.tpl:30 example_02.tpl:30 example_03.tpl:30
+msgid "This is my yet another translation message with a custom modifier"
+msgstr "de_DE locale: Dies ist noch eine Übersetzungsnachricht mit einem 'Modifier'"
+
+#: example_01.tpl:32 example_01.tpl:34 example_01.tpl:36 example_02.tpl:32
+#: example_02.tpl:34 example_02.tpl:36 example_03.tpl:32 example_03.tpl:37
+#: example_03.tpl:39
+#, php-format
+msgid "%d comment"
+msgid_plural "%d comments"
+msgstr[0] "de_DE locale: %d Kommentar"
+msgstr[1] "de_DE locale: %d Kommentare"
+
+#: example_included_file_with_same_domain.tpl:16
+msgid "Actually we don't really have to do anything here"
+msgstr "de_DE locale: Um die Wahrheit zu sagen, wir müssen hier gar nichts tun"

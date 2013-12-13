@@ -1,0 +1,9 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = true
+	ignorecase = true
+	precomposeunicode = false
+[remote "GitHub"]
+	url = https://github.com/cjohansson/Aomebo-Framework.git
+	fetch = +refs/heads/*:refs/remotes/GitHub/*

@@ -1,0 +1,483 @@
+# This file contains default structure for Aomebo Framework configuration
+---
+framework:
+    name:
+        type: string
+        required: true
+        default: Aomebo
+    version:
+        type: string
+        required: true
+        default: 1.0
+    website:
+        type: string
+        required: true
+        default: http://www.aomebo.org
+    contact:
+        type: string
+        required: true
+        default: info@aomebo.org
+    show credits:
+        type: boolean
+        required: true
+        default: false
+    show statistics:
+        type: boolean
+        required: true
+        default: false
+
+indexing:
+    expiration days:
+        type: integer
+        required: true
+        default: 180
+    enabled:
+        type: boolean
+        required: true
+        default: true
+
+application:
+    memory required:
+        type: integer
+        required: true
+        default: 2
+
+paths:
+    resources dir:
+        type: string
+        required: true
+        default: Resources
+    resources dir is absolute:
+        type: boolean
+        required: true
+        default: false
+    uploads dir:
+        type: string
+        required: true
+        default: Uploads
+    uploads dir is absolute:
+        type: boolean
+        required: true
+        default: false
+    associatives dir:
+        type: string
+        required: true
+        default: Associatives
+    default file mod:
+        type: string
+        required: true
+        default: "770"
+    file owner username:
+        type: string
+        required: true
+        default: 'www-data'
+    file owner groupname:
+        type: string
+        required: true
+        default: 'www-data'
+    runtime site directories:
+        type: array
+        required: true
+        default:
+            Modules
+            Models
+            Controllers
+    runtime public directories:
+        type: array
+        required: true
+        default: []
+    create runtime directories:
+        type: boolean
+        required: true
+        default: false
+    create associatives directories:
+        type: boolean
+        required: true
+        default: false
+
+internationalization:
+    enabled:
+        type: boolean
+        required: true
+        default: false
+    locale:
+        type: string
+        required: true
+        default: en
+    text domains:
+        type: array
+        required: true
+        default: []
+    adapter:
+        type: string
+        required: true
+        default: PhpGettext
+
+output:
+    format:
+        type: boolean
+        required: true
+        default: false
+    chunk size:
+        type: unsigned integer
+        required: true
+        default: 512
+    character set:
+        type: string
+        required: true
+        default: utf-8
+    linebreak character:
+        type: string
+        required: true
+        default: \n
+    tab character:
+        type: string
+        required: true
+        default: #x9
+    language:
+        type: string
+        required: true
+        default: en
+    doctype:
+        type: string
+        required: true
+        default: xhtml 1.0 strict
+    default dateformat:
+        type: string
+        required: true
+        default: Y-m-d H:i:s
+    show credits:
+        type: boolean
+        required: true
+        default: true
+    show statistics:
+        type: boolean
+        required: true
+        default: false
+    module cache:
+        type: boolean
+        required: true
+        default: true
+    indexing enabled:
+        type: boolean
+        required: true
+        default: true
+    minify associatives:
+        type: boolean
+        required: true
+        default: false
+    associatives cache:
+        type: boolean
+        required: true
+        default: true
+    add resources cache tag:
+        type: boolean
+        required: true
+        default: false
+    add resources statistics tag:
+        type: boolean
+        required: true
+        default: false
+    add resources sections:
+        type: boolean
+        required: true
+        default: false
+    autoload failure triggers exception:
+        type: boolean
+        required: true
+        default: true
+    favicon directs to site shortcut icon:
+        type: boolean
+        required: true
+        default: true
+    output headers in shell mode:
+        type: boolean
+        required: true
+        default: false
+    mime:
+        type: string
+        required: true
+        default: 'text/html'
+
+settings:
+    ajax mode:
+        type: string
+        required: true
+        default: ajax
+    associatives mode:
+        type: string
+        required: true
+        default: associatives
+
+feedback:
+    error reporting:
+        type: unsigned integer
+        required: true
+        default: 32767
+    display errors:
+        type: boolean
+        required: true
+        default: true
+    display startup errors:
+        type: boolean
+        required: true
+        default: true
+    log errors:
+        type: boolean
+        required: true
+        default: true
+    error log:
+        type: string
+        required: true
+        default: error_log.txt
+    debug mode:
+        type: boolean
+        required: true
+        default: false
+    include backtrace:
+        type: boolean
+        required: true
+        default: true
+    backtrace limit:
+        type: integer
+        required: true
+        default: 0
+    halt on runtime exceptions:
+        type: boolean
+        required: true
+        default: false
+    log runtime exceptions:
+        type: boolean
+        required: true
+        default: true
+    truncate error log:
+        type: boolean
+        required: true
+        default: false
+    truncate error log size:
+        type: integer
+        required: true
+        default: 1048576
+
+session:
+    table:
+        type: string
+        required: true
+        default: sessions
+    blocks table:
+        type: string
+        required: true
+        default: sessions_blocks_data
+    cookie key:
+        type: string
+        required: true
+        default: aoe
+    cookie delimiter:
+        type: string
+        required: true
+        default: _
+    cookie path:
+        type: string
+        required: true
+        default: /
+    expires:
+        type: unsigned integer
+        required: true
+        default: 1800
+    handler:
+        type: string
+        required: false
+        default:
+    always use session:
+        type: boolean
+        required: true
+        default: false
+    renew existing session:
+        normal:
+            type: boolean
+            required: true
+            default: true
+        ajax:
+            type: boolean
+            required: true
+            default: false
+
+dispatch:
+    pages uri:
+        type: associative array
+        required: true
+        default:
+            home: index.php
+    uri pages:
+        type: associative array
+        required: false
+        default:
+    default page:
+        type: string
+        required: true
+        default: index
+    page adapter:
+        type: string
+        required: true
+        default: Xml
+    file not found page:
+        type: string
+        required: true
+        default: file_not_found
+    redirect to file not found page:
+        type: boolean
+        required: true
+        default: true
+    error page:
+        type: string
+        required: true
+        default: error.html
+    allow shell requests:
+        type: boolean
+        required: true
+        default: true
+    allow only associatives request with matching referer:
+        type: boolean
+        required: true
+        default: false
+    allow ajax get requests:
+        type: boolean
+        required: true
+        default: false
+    allow ajax post requests:
+        type: boolean
+        required: true
+        default: true
+    page syntax regexp:
+        type: string
+        required: true
+        default: '/^([a-zA-Z\_\-]+)$/'
+
+site:
+    class path:
+        type: string
+        required: true
+        default: Site.php
+    salt:
+        type: string
+        required: true
+        default: oiwe012ake
+    title:
+        type: string
+        required: true
+        default: Untitled Site
+    title delimiter:
+        type: string
+        required: true
+        default: -
+    title direction:
+        type: string
+        required: true
+        default: prepend
+    slogan:
+        type: string
+        required: true
+        default: Because it's a new site
+    shortcut icon:
+        type: string
+        required: true
+        default: shortcut_icon.ico
+    show generator:
+        type: boolean
+        required: true
+        default: true
+    description:
+        type: string
+        required: true
+        default: Here you'll find information about this brand new site
+    keywords:
+        type: string
+        required: true
+        default: new site, aomebo site
+    default time-zone:
+        type: string
+        required: true
+        default: Europe/London
+    protocol:
+        type: string
+        required: true
+        default: http
+    protocol version:
+        type: string
+        required: true
+        default: 1.1
+    server name:
+        type: string
+        required: true
+        default: localhost
+    mod_rewrite:
+        type: boolean
+        required: true
+        default: false
+
+templates:
+    variables:
+        type: array
+        required: false
+        default: []
+
+database:
+    create database:
+        type: boolean
+        required: true
+        default: false
+    system table prefix:
+        type: string
+        required: true
+        default: aomebo_
+    site table prefix:
+        type: string
+        required: true
+        default: site_
+    adapter:
+        type: string
+        required: true
+        default: 'mysqli'
+    version:
+        type: string
+        required: false
+        default: 5
+    storage engine:
+        type: string
+        required: true
+        default: 'MyISAM'
+    host:
+        type: string
+        required: false
+        default: localhost
+    username:
+        type: string
+        required: false
+        default: root
+    password:
+        type: string
+        required: false
+        default:
+    database:
+        type: string
+        required: false
+        default:
+    options:
+        type: array
+        required: false
+    ansi quotes:
+        type: boolean
+        required: true
+        default: false
+    data charset:
+        type: string
+        required: true
+        default: 'utf8'
+    collate charset:
+        type: string
+        required: true
+        default: 'utf8_general_ci'
+    handle charset:
+        type: string
+        required: true
+        default: 'utf8'

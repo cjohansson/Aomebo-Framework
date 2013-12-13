@@ -1,0 +1,22 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Karlheinz Toni <karlheinz.toni@gmail.com>
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: smarty i18n gettext examples 1.0\n"
+"Report-Msgid-Bugs-To: Karlheinz Toni <karlheinz.toni@gmail.com>\n"
+"POT-Creation-Date: 2012-11-28 17:07+0100\n"
+"Last-Translator: Karlheinz Toni <karlheinz.toni@gmail.com>\n"
+"Language-Team: Karlheinz Toni <karlheinz.toni@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Language: de_DE\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#: example_included_file_with_different_domain.tpl:22
+msgid "We have included this file from somewhere else and we use a custom domain for this"
+msgstr "en_GB locale: We have included this file from somewhere else and we use a custom domain for this"

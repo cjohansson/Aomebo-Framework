@@ -1,0 +1,44 @@
+/**
+ * <F>
+ * @namespace #<F>
+ */
+#/* F */
+{
+    margin: 40px;
+    padding: 0;
+}
+#/* F */ form
+{
+    padding: 0;
+    margin: 40px 0;
+    font-size: 16px;
+    line-height: 1.2;
+}
+#/* F */ form input[type="text"],
+#/* F */ form input[type="password"]
+{
+    width: 400px;
+}
+#/* F */ form fieldset
+{
+    padding: 10px 20px;
+    border: 1px #cccccc solid;
+    margin: 20px 0;
+}
+#/* F */ form fieldset legend
+{
+    font-weight: bold;
+    color: #cccccc;
+}
+#/* F */ form label
+{
+    font-weight: bold;
+}
+#/* F */ form p
+{
+    margin: 5px 0;
+}
+#/* F */ form div
+{
+    margin: 10px 0;
+}
