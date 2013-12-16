@@ -103,7 +103,14 @@ namespace Aomebo\Template\Adapters
 
             unset($this->_module);
 
-            $callers = debug_backtrace();
+            /**
+             * @see http://www.php.net/function.debug-backtrace
+             */
+            if (phpversion() >= '5.3.6') {
+                $callers = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
+            } else {
+                $callers = debug_backtrace(true);
+            }
 
             if (isset($callers[1]['object'])) {
                 if (is_a($callers[1]['object'], '\Aomebo\Runtime')) {
