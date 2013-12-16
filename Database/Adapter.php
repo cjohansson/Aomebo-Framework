@@ -127,6 +127,10 @@ namespace Aomebo\Database
                 parent::__construct();
 
                 if ($this->_connect()) {
+
+                    \Aomebo\Trigger\System::processTriggers(
+                        \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_CONNECTION_SUCCESS);
+
                     if (!self::_isInstalled()) {
                         if (!self::_install()) {
                             Throw new \Exception(
@@ -137,17 +141,30 @@ namespace Aomebo\Database
                     if (self::selectDatabase(
                         \Aomebo\Configuration::getSetting('database,database'))
                     ) {
+
+                        \Aomebo\Trigger\System::processTriggers(
+                            \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_SELECTED_SUCCESS);
+
                         self::_flagThisConstructed();
                     } else {
+
+                        \Aomebo\Trigger\System::processTriggers(
+                            \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_SELECTED_FAIL);
+
                         Throw new \Exception(
                             'Could not select database in ' . __METHOD__
-                                . ' in ' . __FILE__);
+                            . ' in ' . __FILE__);
                     }
                 } else {
+
+                    \Aomebo\Trigger\System::processTriggers(
+                        \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_CONNECTION_FAIL);
+
                     Throw new \Exception(
                         'Could not connect to database server in '
                         . __METHOD__ . ' in ' . __FILE__
                         . '. Check your configuration.');
+
                 }
 
             }
@@ -343,118 +360,127 @@ namespace Aomebo\Database
             $unbuffered = false, $throwExceptionOnFailure = true)
         {
 
-            // Do we have any triggers?
-            if ($newSql = \Aomebo\Trigger\System::processTriggers(
-                \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_QUERY,
-                $sql)
-            ) {
-                $sql = $newSql;
-            }
+            if (self::isConnected()) {
 
-            $queries = explode(';', $sql);
-            if (is_array($queries)) {
-                $queryCount = sizeof($queries);
-            } else {
-                $queries = array($sql);
-                $queryCount = (int) 1;
-            }
+                // Do we have any triggers?
+                if ($newSql = \Aomebo\Trigger\System::processTriggers(
+                    \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_QUERY,
+                    $sql)
+                ) {
+                    $sql = $newSql;
+                }
 
-            if (isset($values)
-                && is_array($values)
-            ) {
-                $valuesCount = sizeof($values);
-            } else {
-                $valuesCount = 0;
-            }
+                $queries = explode(';', $sql);
+                if (is_array($queries)) {
+                    $queryCount = sizeof($queries);
+                } else {
+                    $queries = array($sql);
+                    $queryCount = (int) 1;
+                }
 
-            $results = array();
+                if (isset($values)
+                    && is_array($values)
+                ) {
+                    $valuesCount = sizeof($values);
+                } else {
+                    $valuesCount = 0;
+                }
 
-            foreach ($queries as $rawQuery)
-            {
-                $rawQuery = trim($rawQuery);
-                $query = str_replace(
-                    self::$_replaceKeys,
-                    self::$_replaceValues,
-                    $rawQuery);
+                $results = array();
 
-                if ($valuesCount > 0) {
-                    reset($values);
-                    foreach ($values as $key => $valueArray)
-                    {
-                        if (isset($valueArray)) {
-                            if (is_array($valueArray)) {
-                                if (isset($valueArray['value'])) {
+                foreach ($queries as $rawQuery)
+                {
+                    $rawQuery = trim($rawQuery);
+                    $query = str_replace(
+                        self::$_replaceKeys,
+                        self::$_replaceValues,
+                        $rawQuery);
 
-                                    if (!empty($valueArray['quoted'])) {
-                                        $replaceWith =
-                                            self::quote($valueArray['value'],
-                                                empty($valueArray['raw']));
+                    if ($valuesCount > 0) {
+                        reset($values);
+                        foreach ($values as $key => $valueArray)
+                        {
+                            if (isset($valueArray)) {
+                                if (is_array($valueArray)) {
+                                    if (isset($valueArray['value'])) {
+
+                                        if (!empty($valueArray['quoted'])) {
+                                            $replaceWith =
+                                                self::quote($valueArray['value'],
+                                                    empty($valueArray['raw']));
+                                        } else if (!empty($valueArray['backquoted'])) {
+                                            $replaceWith =
+                                                self::backquote(
+                                                    $valueArray['value'],
+                                                    empty($valueArray['raw']));
+                                        } else if (empty($valueArray['raw'])) {
+                                            $replaceWith =
+                                                self::escape($valueArray['value']);
+                                        } else {
+                                            $replaceWith =
+                                                $valueArray['value'];
+                                        }
+
+                                        $query = str_replace(
+                                            self::formatQueryReplaceKey($key),
+                                            $replaceWith,
+                                            $query);
+
+                                    } else if (!empty($valueArray['quoted'])) {
+
+                                        $query = str_replace(
+                                            self::formatQueryReplaceKey($key),
+                                            self::query('', false),
+                                            $query);
+
                                     } else if (!empty($valueArray['backquoted'])) {
-                                        $replaceWith =
-                                            self::backquote(
-                                                $valueArray['value'],
-                                                empty($valueArray['raw']));
-                                    } else if (empty($valueArray['raw'])) {
-                                        $replaceWith =
-                                            self::escape($valueArray['value']);
-                                    } else {
-                                        $replaceWith =
-                                            $valueArray['value'];
+
+                                        $query = str_replace(
+                                            self::formatQueryReplaceKey($key),
+                                            self::backquote('', false),
+                                            $query);
+
                                     }
+                                } else {
 
                                     $query = str_replace(
                                         self::formatQueryReplaceKey($key),
-                                        $replaceWith,
-                                        $query);
-
-                                } else if (!empty($valueArray['quoted'])) {
-
-                                    $query = str_replace(
-                                        self::formatQueryReplaceKey($key),
-                                        self::query('', false),
-                                        $query);
-
-                                } else if (!empty($valueArray['backquoted'])) {
-
-                                    $query = str_replace(
-                                        self::formatQueryReplaceKey($key),
-                                        self::backquote('', false),
+                                        self::escape($valueArray),
                                         $query);
 
                                 }
-                            } else {
-
-                                $query = str_replace(
-                                    self::formatQueryReplaceKey($key),
-                                    self::escape($valueArray),
-                                    $query);
-
                             }
+                        }
+                    }
+
+                    if (!empty($query)) {
+
+                        $sqlKey = strtoupper(trim(
+                            substr($query, 0, stripos($query, ' '))));
+                        self::$_lastSql = $query;
+
+                        if ($queryCount === 1) {
+                            return self::_query($query, $unbuffered, $sqlKey, $queryCount, $throwExceptionOnFailure);
+                        } else {
+                            self::_query($query, $unbuffered, $sqlKey, $queryCount, $throwExceptionOnFailure);
+                        }
+
+                    } else {
+                        if (!empty($rawQuery)) {
+                            Throw new \Exception(
+                                'SQL: "' . print_r($rawQuery, true)
+                                . '" evaluated into empty query in ' . __FUNCTION__);
                         }
                     }
                 }
 
-                if (!empty($query)) {
+                return true;
 
-                    $sqlKey = strtoupper(trim(
-                        substr($query, 0, stripos($query, ' '))));
-                    self::$_lastSql = $query;
-
-                    if ($queryCount === 1) {
-                        return self::_query($query, $unbuffered, $sqlKey, $queryCount, $throwExceptionOnFailure);
-                    } else {
-                        self::_query($query, $unbuffered, $sqlKey, $queryCount, $throwExceptionOnFailure);
-                    }
-
-                } else {
-                    if (!empty($rawQuery)) {
-                        Throw new \Exception(
-                            'SQL: "' . print_r($rawQuery, true)
-                            . '" evaluated into empty query in ' . __FUNCTION__);
-                    }
-                }
+            } else {
+                Throw new \Exception('Can\'t query "' . $sql . '" when database '
+                . 'connection hasn\'t been established.');
             }
-            return true;
+
         }
 
         /**
