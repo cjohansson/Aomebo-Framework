@@ -128,10 +128,15 @@ namespace Aomebo\Indexing
         public function index()
         {
 
+            $uri = \Aomebo\Dispatcher\System::getPageBaseUri()
+                . \Aomebo\Dispatcher\System::getFullRequest();
+
             $indexingEnabled =
                 \Aomebo\Configuration::getSetting('indexing,enabled');
             $session =
                 \Aomebo\Session\Handler::getInstance();
+
+            $isQueryStringUri = (strpos($uri, '?') !== false);
 
             /**
              * For automatic indexing, following criteria must be met:
@@ -148,6 +153,11 @@ namespace Aomebo\Indexing
                 && $indexingEnabled
                 && !\Aomebo\Dispatcher\System::isCurrentPageFileNotFoundPage()
                 && !\Aomebo\Dispatcher\System::isRedirecting()
+                && (!$isQueryStringUri
+                    || (\Aomebo\Dispatcher\System::isRewriteEnabled()
+                        && \Aomebo\Configuration::getSetting('indexing,index query string uris using mod_rewrite'))
+                    || (!\Aomebo\Dispatcher\System::isRewriteEnabled()
+                        && \Aomebo\Configuration::getSetting('indexing,index query string uris')))
             ) {
 
                 \Aomebo\Dispatcher\System::setHttpHeaderField(

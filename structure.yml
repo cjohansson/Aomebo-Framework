@@ -35,6 +35,14 @@ indexing:
         type: boolean
         required: true
         default: true
+    index query string uris using mod_rewrite:
+        type: boolean
+        required: true
+        default: false
+    index query string uris:
+        type: boolean
+        required: true
+        default: true
 
 application:
     memory required:
