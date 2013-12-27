@@ -39,7 +39,7 @@ site:
     session-handler:
     protocol: http
     protocol version: 1.1,
-    server name: aomebo.org
+    server name: aomebo.cvj.se
     mod_rewrite: true
 
 database:

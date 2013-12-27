@@ -107,7 +107,7 @@ namespace Aomebo\Template\Adapters
              * @see http://www.php.net/function.debug-backtrace
              */
             if (phpversion() >= '5.3.6') {
-                $callers = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
+                $callers = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
             } else {
                 $callers = debug_backtrace(true);
             }
