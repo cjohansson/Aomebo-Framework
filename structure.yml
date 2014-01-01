@@ -461,7 +461,7 @@ database:
     username:
         type: string
         required: false
-        default: root
+        default:
     password:
         type: string
         required: false

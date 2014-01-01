@@ -41,9 +41,3 @@ site:
     protocol version: 1.1,
     server name: aomebo.cvj.se
     mod_rewrite: true
-
-database:
-    host: localhost
-    username: aomebo
-    password: A0m3b0
-    database: aomebo_testing

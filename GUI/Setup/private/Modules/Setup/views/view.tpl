@@ -8,6 +8,15 @@
     </div>
     <form action="" method="post" enctype="application/x-www-form-urlencoded">
         <fieldset>
+            <legend>Paths</legend>
+            <div>
+                <p>
+                    <label for="paths_default_file_mod">Default file mod</label>
+                </p>
+                <input type="text" name="paths_default_file_mod" id="paths_default_file_mod" value="{$submit.pathsDefaultFileMod|escape}" />
+            </div>
+        </fieldset>
+        <fieldset>
             <legend>Site</legend>
             <div>
                 <p>
@@ -53,7 +62,4 @@
             <input type="submit" value="Save" />
         </div>
     </form>
-    <div>
-        Testing "{'öleof  KEO !? fkaple'|asciiEncode}"
-    </div>
 </div>
