@@ -173,27 +173,32 @@ namespace Aomebo\Session
         public function __construct()
         {
 
-            parent::__construct();
-
             if (!self::_isConstructed()) {
 
-                if (!self::_isInstalled())
-                {
-                    self::_install();
-                    if (!self::_isInstalled()) {
-                        Throw new \Exception(
-                            'Could not install ' . __CLASS__ . ' in ' . __FILE__);
+                parent::__construct();
+
+                if (\Aomebo\Database\Adapter::useDatabase()) {
+
+                    if (!self::_isInstalled())
+                    {
+                        self::_install();
+                        if (!self::_isInstalled()) {
+                            Throw new \Exception(
+                                'Could not install ' . __CLASS__ . ' in ' . __FILE__);
+                        }
                     }
+
+                    self::_loadRootSession();
+                    self::_loadSessionBlocks();
+
+                    if (\Aomebo\Dispatcher\System::isPageRequest()) {
+                        self::_sessionGarbageCollect();
+                    }
+
+                    self::_initSessionEvent();
+
                 }
 
-                self::_loadRootSession();
-                self::_loadSessionBlocks();
-
-                if (\Aomebo\Dispatcher\System::isPageRequest()) {
-                    self::_sessionGarbageCollect();
-                }
-
-                self::_initSessionEvent();
                 self::_flagThisConstructed();
 
             }
@@ -241,28 +246,29 @@ namespace Aomebo\Session
         {
 
             if (!\Aomebo\Dispatcher\System::isShellRequest()) {
+                if (\Aomebo\Database\Adapter::useDatabase()) {
 
-                // Save root session
-                self::_saveSessionInStorage();
+                    // Save root session
+                    self::_saveSessionInStorage();
 
-
-
-                // Save all availible session-blocks
-                foreach (self::$_blockNameToSaveBlockData as
-                    $blockName => $saveBlockData
-                ) {
-                    if ($saveBlockData) {
-                        $blockData = self::$_blockNameToBlockData[$blockName];
-                        self::_saveSessionBlockData($blockName, $blockData);
+                    // Save all availible session-blocks
+                    foreach (self::$_blockNameToSaveBlockData as
+                        $blockName => $saveBlockData
+                    ) {
+                        if ($saveBlockData) {
+                            $blockData = self::$_blockNameToBlockData[$blockName];
+                            self::_saveSessionBlockData($blockName, $blockData);
+                        }
                     }
-                }
 
-                // Should we always send cookie header or is it the right time to send cookie?
-                if ((self::$_sendCookie && self::alwaysUserSession())
-                    || (self::$_sendCookie && self::isChangeOfSessionState())
-                    || (self::$_sendCookie && self::isOverrideSendCookie())
-                ) {
-                    self::_sendSessionCookie(self::$_sessionData['session_id']);
+                    // Should we always send cookie header or is it the right time to send cookie?
+                    if ((self::$_sendCookie && self::alwaysUserSession())
+                        || (self::$_sendCookie && self::isChangeOfSessionState())
+                        || (self::$_sendCookie && self::isOverrideSendCookie())
+                    ) {
+                        self::_sendSessionCookie(self::$_sessionData['session_id']);
+                    }
+
                 }
 
             }

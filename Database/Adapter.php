@@ -118,6 +118,13 @@ namespace Aomebo\Database
         private static $_lastError;
 
         /**
+         * @internal
+         * @static
+         * @var bool|null
+         */
+        private static $_useDatabase;
+
+        /**
          * @throws \Exception
          */
         public function __construct()
@@ -126,44 +133,68 @@ namespace Aomebo\Database
 
                 parent::__construct();
 
-                if ($this->_connect()) {
+                $databaseConfiguration =
+                    \Aomebo\Configuration::getSetting('database');
 
-                    \Aomebo\Trigger\System::processTriggers(
-                        \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_CONNECTION_SUCCESS);
+                if (!empty($databaseConfiguration['host'])
+                    && !empty($databaseConfiguration['username'])
+                    && !empty($databaseConfiguration['database'])
+                ) {
 
-                    if (!self::_isInstalled()) {
-                        if (!self::_install()) {
-                            Throw new \Exception(
-                                'Could not install database in '
-                                . __METHOD__ . ' in ' . __FILE__);
-                        }
-                    }
-                    if (self::selectDatabase(
-                        \Aomebo\Configuration::getSetting('database,database'))
+                    self::$_useDatabase = true;
+
+                    if (self::_connect(
+                        $databaseConfiguration['host'],
+                        $databaseConfiguration['username'],
+                        $databaseConfiguration['password'],
+                        $databaseConfiguration['database'],
+                        (isset($databaseConfiguration['options']) ? $databaseConfiguration['options'] : null))
                     ) {
 
                         \Aomebo\Trigger\System::processTriggers(
-                            \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_SELECTED_SUCCESS);
+                            \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_CONNECTION_SUCCESS);
 
-                        self::_flagThisConstructed();
+                        if (!self::_isInstalled()) {
+                            if (!self::_install()) {
+                                Throw new \Exception(
+                                    'Could not install database in '
+                                    . __METHOD__ . ' in ' . __FILE__);
+                            }
+                        }
+                        if (self::selectDatabase(
+                            \Aomebo\Configuration::getSetting('database,database'))
+                        ) {
+
+                            \Aomebo\Trigger\System::processTriggers(
+                                \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_SELECTED_SUCCESS);
+
+                            self::_flagThisConstructed();
+
+                        } else {
+
+                            \Aomebo\Trigger\System::processTriggers(
+                                \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_SELECTED_FAIL);
+
+                            Throw new \Exception(
+                                'Could not select database in ' . __METHOD__
+                                . ' in ' . __FILE__);
+                        }
                     } else {
 
                         \Aomebo\Trigger\System::processTriggers(
-                            \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_SELECTED_FAIL);
+                            \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_CONNECTION_FAIL);
 
                         Throw new \Exception(
-                            'Could not select database in ' . __METHOD__
-                            . ' in ' . __FILE__);
+                            'Could not connect to database server in '
+                            . __METHOD__ . ' in ' . __FILE__
+                            . '. Check your configuration.');
+
                     }
+
                 } else {
 
-                    \Aomebo\Trigger\System::processTriggers(
-                        \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_CONNECTION_FAIL);
-
-                    Throw new \Exception(
-                        'Could not connect to database server in '
-                        . __METHOD__ . ' in ' . __FILE__
-                        . '. Check your configuration.');
+                    self::$_useDatabase = false;
+                    self::_flagThisConstructed();
 
                 }
 
@@ -178,6 +209,15 @@ namespace Aomebo\Database
             if ($this->isConnected()) {
                 $this->disconnect();
             }
+        }
+
+        /**
+         * @static
+         * @return bool
+         */
+        public static function useDatabase()
+        {
+            return !empty(self::$_useDatabase);
         }
 
         /**
@@ -636,10 +676,17 @@ namespace Aomebo\Database
          * This method tries to establish a database connection.
          *
          * @internal
+         * @static
+         * @param string $host
+         * @param string $username
+         * @param string $password
+         * @param string $database
+         * @param array|null [$options = null]
          * @throws \Exception
          * @return bool
          */
-        private function _connect()
+        private static function _connect($host, $username,
+            $password, $database, $options = null)
         {
 
             self::$_connected = false;
@@ -668,13 +715,11 @@ namespace Aomebo\Database
                 self::$_quoteChar = $dbObject->getQuoteCharacter($userAnsiQuotes);
                 self::$_backQuoteChar = $dbObject->getBackQuoteCharacter($userAnsiQuotes);
 
-                $options = \Aomebo\Configuration::getSetting('database,options', false);
-
                 if ($dbObject->connect(
-                    \Aomebo\Configuration::getSetting('database,host'),
-                    \Aomebo\Configuration::getSetting('database,username'),
-                    \Aomebo\Configuration::getSetting('database,password'),
-                    \Aomebo\Configuration::getSetting('database,database'),
+                    $host,
+                    $username,
+                    $password,
+                    $database,
                     $options)
                 ) {
 

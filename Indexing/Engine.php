@@ -94,20 +94,29 @@ namespace Aomebo\Indexing
          */
         public function __construct()
         {
-            parent::__construct();
+
             if (!$this->_isConstructed()) {
-                if (\Aomebo\Configuration::getSetting(
-                    'output,indexing enabled')
-                ) {
-                    if (!self::$_enabled =
-                        $this->_isInstalled()
+
+                parent::__construct();
+
+                if (\Aomebo\Database\Adapter::useDatabase()) {
+
+                    if (\Aomebo\Configuration::getSetting(
+                        'output,indexing enabled')
                     ) {
-                        $this->_install();
-                        self::$_enabled =
-                            $this->_isInstalled();
+                        if (!self::$_enabled =
+                            $this->_isInstalled()
+                        ) {
+                            $this->_install();
+                            self::$_enabled =
+                                $this->_isInstalled();
+                        }
                     }
+
                 }
+
                 $this->_flagThisConstructed();
+
             }
         }
 
