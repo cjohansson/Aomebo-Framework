@@ -26,7 +26,7 @@ namespace Aomebo
 
     /**
      * This class will be used by both models, controllers and modules
-     * class to get access to features such as Cacheable, Routable,
+     * and gives access to features such as Cacheable, Routable,
      * Dependent, Executable, Installable, Associatable.
      *
      * @method static \Aomebo\Runtime getInstance()
@@ -928,7 +928,7 @@ namespace Aomebo
                     $array[$key],
                     $matches) === 1
             ) {
-                return (int) $_POST[$key];
+                return (int) $array[$key];
             }
             return $default;
         }
