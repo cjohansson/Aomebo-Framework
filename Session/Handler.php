@@ -1174,14 +1174,13 @@ namespace Aomebo\Session
         private static function _sessionGarbageCollect()
         {
 
-            $expires = date('Y-m-d H:i:s',
-                time() - \Aomebo\Configuration::getSetting('session,expires'));
+            $expires = \Aomebo\Configuration::getSetting('session,expires');
 
             if (\Aomebo\Database\Adapter::query(
                 'DELETE FROM `' . self::getTableSessionsBlocksData() . '` '
                 . 'WHERE `session_id` IN '
                 . '(SELECT `session_id` FROM `' . self::getTableSessions() . '` '
-                . 'WHERE `session_time_last` < {expires})',
+                . 'WHERE `session_time_last` < NOW - INTERVAL {expires} SECOND)',
                 array(
                     'expires' => array(
                         'value' => $expires,
@@ -1191,7 +1190,7 @@ namespace Aomebo\Session
             ) {
                 \Aomebo\Database\Adapter::query(
                     'DELETE FROM `' . self::getTableSessions() . '` '
-                    . 'WHERE `session_time_last` < {expires}',
+                    . 'WHERE `session_time_last` < NOW() - INTERVAL {expires} SECOND',
                     array(
                         'expires' => array(
                             'value' => $expires,
