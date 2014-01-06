@@ -392,7 +392,6 @@ namespace Aomebo\Indexing
                     $title = $interpreter->getMetaData('title');
                     $description = $interpreter->getMetaData('description');
                     $keywords = $interpreter->getMetaData('keywords');
-                    $added = 'NOW()';
                     $contentLastModified = date('Y-m-d H:i:s', $now);
                     $contentModificationNumber =
                         (int) $row['content_modification_number'] + 1;
@@ -764,11 +763,8 @@ namespace Aomebo\Indexing
                 . 'WHERE `edited` <= NOW - INTERVAL {days} DAY '
                 . 'AND `edited` != {none}',
                 array(
-                    'days' => array(
-                        'value' => \Aomebo\Configuration::getSetting(
+                    'days' => \Aomebo\Configuration::getSetting(
                             'indexing,expiration days'),
-                        'quoted' => true,
-                    ),
                     'none' => array(
                         'value' => '0000-00-00 00:00:00',
                         'quoted' => true,
