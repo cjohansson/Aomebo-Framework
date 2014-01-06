@@ -765,7 +765,7 @@ namespace Aomebo\Session
          * @param array $blockData
          * @return bool
          */
-        private function _saveSessionBlockData($blockName, $blockData)
+        private static function _saveSessionBlockData($blockName, $blockData)
         {
 
             $accBool = true;
@@ -1206,7 +1206,7 @@ namespace Aomebo\Session
          * @static
          * @return bool
          */
-        private function _isInstalled()
+        private static function _isInstalled()
         {
             if (\Aomebo\Database\Adapter::tableExists(
                     self::getTableSessions())
