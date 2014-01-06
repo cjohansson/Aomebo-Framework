@@ -760,7 +760,7 @@ namespace Aomebo\Indexing
             if ($resultset = \Aomebo\Database\Adapter::query(
                 'SELECT * FROM `{TABLE PREFIX}'
                 . '{SYSTEM TABLE PREFIX}' . self::TABLE . '` '
-                . 'WHERE `edited` <= NOW - INTERVAL {days} DAY '
+                . 'WHERE `edited` <= NOW() - INTERVAL {days} DAY '
                 . 'AND `edited` != {none}',
                 array(
                     'days' => \Aomebo\Configuration::getSetting(
