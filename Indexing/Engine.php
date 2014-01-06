@@ -758,18 +758,15 @@ namespace Aomebo\Indexing
          */
         private function _getExpiredItems()
         {
-            $dba =
-                \Aomebo\Database\Adapter::getInstance();
-            $expiredDays =
-                \Aomebo\Configuration::getSetting('indexing,expiration days');
-            $expired = strtotime('-' . $expiredDays . ' days', time());
-            if ($resultset = $dba->query('SELECT * FROM `{TABLE PREFIX}'
+            if ($resultset = \Aomebo\Database\Adapter::query(
+                'SELECT * FROM `{TABLE PREFIX}'
                 . '{SYSTEM TABLE PREFIX}' . self::TABLE . '` '
-                . 'WHERE `edited` <= {expired} '
+                . 'WHERE `edited` <= NOW - INTERVAL {days} DAY '
                 . 'AND `edited` != {none}',
                 array(
-                    'expired' => array(
-                        'value' => $expired,
+                    'days' => array(
+                        'value' => \Aomebo\Configuration::getSetting(
+                            'indexing,expiration days'),
                         'quoted' => true,
                     ),
                     'none' => array(
