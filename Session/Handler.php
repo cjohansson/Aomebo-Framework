@@ -654,18 +654,51 @@ namespace Aomebo\Session
                         . '`session_request_query_string` = {session_request_query_string},'
                         . '`session_request_path_info` = {session_request_path_info} '
                         . 'WHERE `session_id` = {session_id}', array(
-                            'session_id' => array('value' => self::$_sessionData['session_id'], 'quoted' => true),
-                            'session_time_last' => array('value' => self::$_sessionData['session_time_last'], 'quoted' => true),
-                            'session_remote_ip' => array('value' => self::$_sessionData['session_remote_ip'], 'quoted' => true),
-                            'session_remote_port' => array('value' => self::$_sessionData['session_remote_port'], 'quoted' => true),
-                            'session_http_agent' => array('value' => self::$_sessionData['session_http_agent'], 'quoted' => true),
-                            'session_http_accept' => array('value' => self::$_sessionData['session_http_accept'], 'quoted' => true),
-                            'session_http_accept_language' => array('value' => self::$_sessionData['session_http_accept_language'], 'quoted' => true),
-                            'session_http_accept_encoding' => array('value' => self::$_sessionData['session_http_accept_encoding'], 'quoted' => true),
-                            'session_http_connection' => array('value' => self::$_sessionData['session_http_connection'], 'quoted' => true),
-                            'session_request_uri' => array('value' => self::$_sessionData['session_request_uri'], 'quoted' => true),
-                            'session_request_query_string' => array('value' => self::$_sessionData['session_request_query_string'], 'quoted' => true),
-                            'session_request_path_info' => array('value' => self::$_sessionData['session_request_path_info'], 'quoted' => true)))
+                            'session_id' => array(
+                                    'value' => self::$_sessionData['session_id'],
+                                    'quoted' => true,
+                            ),
+                            'session_time_last' => 'NOW()',
+                            'session_remote_ip' => array(
+                                'value' => self::$_sessionData['session_remote_ip'],
+                                'quoted' => true,
+                            ),
+                            'session_remote_port' => array(
+                                'value' => self::$_sessionData['session_remote_port'],
+                                'quoted' => true,
+                            ),
+                            'session_http_agent' => array(
+                                'value' => self::$_sessionData['session_http_agent'],
+                                'quoted' => true,
+                            ),
+                            'session_http_accept' => array(
+                                'value' => self::$_sessionData['session_http_accept'],
+                                'quoted' => true,
+                            ),
+                            'session_http_accept_language' => array(
+                                'value' => self::$_sessionData['session_http_accept_language'],
+                                'quoted' => true,
+                            ),
+                            'session_http_accept_encoding' => array(
+                                'value' => self::$_sessionData['session_http_accept_encoding'],
+                                'quoted' => true,
+                            ),
+                            'session_http_connection' => array(
+                                'value' => self::$_sessionData['session_http_connection'],
+                                'quoted' => true,
+                            ),
+                            'session_request_uri' => array(
+                                'value' => self::$_sessionData['session_request_uri'],
+                                'quoted' => true,
+                            ),
+                            'session_request_query_string' => array(
+                                'value' => self::$_sessionData['session_request_query_string'],
+                                'quoted' => true,
+                            ),
+                            'session_request_path_info' => array(
+                                'value' => self::$_sessionData['session_request_path_info'],
+                                'quoted' => true,
+                            )))
                     ) {
                         Throw new \Exception('Could not update old session. (query: "'
                             . \Aomebo\Database\Adapter::getLastSql()
@@ -704,14 +737,8 @@ namespace Aomebo\Session
                                 'value' => self::$_sessionData['session_id'],
                                 'quoted' => true,
                             ),
-                            'session_time_start' => array(
-                                'value' => self::$_sessionData['session_time_last'],
-                                'quoted' => true,
-                            ),
-                            'session_time_last' => array(
-                                'value' => self::$_sessionData['session_time_last'],
-                                'quoted' => true,
-                            ),
+                            'session_time_start' => 'NOW()',
+                            'session_time_last' => 'NOW()',
                             'session_remote_ip' => array(
                                 'value' => self::$_sessionData['session_remote_ip'],
                                 'quoted' => true,
