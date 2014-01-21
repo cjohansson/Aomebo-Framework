@@ -11,6 +11,13 @@ dispatch:
     default page: index
     file not found page: file_not_found
 
+database:
+    host: localhost
+    username: aomebo
+    password: A0m3b0
+    database: aomebo_testing
+    site table prefix: site_
+
 feedback:
     error reporting: 32767
     display errors: true
@@ -41,3 +48,6 @@ site:
     protocol version: 1.1,
     server name: aomebo.cvj.se
     mod_rewrite: true
+
+session:
+    always use session: true

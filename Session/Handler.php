@@ -624,9 +624,8 @@ namespace Aomebo\Session
         private static function _saveSessionInStorage()
         {
 
-
             // Does session id already exist?
-            if (self::_sessionExists()) {
+            if (self::_sessionExists(self::getSessionId())) {
 
                 $renewNormal =
                     \Aomebo\Configuration::getSetting('session,renew existing session,normal');
@@ -678,78 +677,86 @@ namespace Aomebo\Session
 
             // Otherwise - session is new
             } else {
-                if (!\Aomebo\Database\Adapter::query(
-                    'INSERT INTO `'  . self::getTableSessions() . '`'
-                    . '(`session_id`,`session_time_start`,'
-                    . '`session_time_last`,`session_remote_ip`,`session_remote_port`,'
-                    . '`session_http_agent`,`session_http_connection`,'
-                    . '`session_http_accept`,`session_http_accept_language`,'
-                    . '`session_http_accept_encoding`,'
-                    . '`session_request_uri`,`session_request_query_string`,'
-                    . '`session_request_path_info`) VALUES'
-                    . '({session_id},{session_time_start},'
-                    . '{session_time_last},{session_remote_ip},{session_remote_port},'
-                    . '{session_http_agent},{session_http_connection},'
-                    . '{session_http_accept},{session_http_accept_language},'
-                    . '{session_http_accept_encoding},'
-                    . '{session_request_uri},{session_request_query_string},'
-                    . '{session_request_path_info})',
-                    array(
-                        'session_id' => array(
-                            'value' => self::$_sessionData['session_id'],
-                            'quoted' => true,
-                        ),
-                        'session_time_start' => array(
-                            'value' => self::$_sessionData['session_time_last'],
-                            'quoted' => true,
-                        ),
-                        'session_time_last' => array(
-                            'value' => self::$_sessionData['session_time_last'],
-                            'quoted' => true,
-                        ),
-                        'session_remote_ip' => array(
-                            'value' => self::$_sessionData['session_remote_ip'],
-                            'quoted' => true,
-                        ),
-                        'session_remote_port' => array(
-                            'value' => self::$_sessionData['session_remote_port'],
-                            'quoted' => true,
-                        ),
-                        'session_http_agent' => array(
-                            'value' => self::$_sessionData['session_http_agent'],
-                            'quoted' => true,
-                        ),
-                        'session_http_accept' => array(
-                            'value' => self::$_sessionData['session_http_accept'],
-                            'quoted' => true,
-                        ),
-                        'session_http_accept_language' => array(
-                            'value' => self::$_sessionData['session_http_accept_language'],
-                            'quoted' => true,
-                        ),
-                        'session_http_accept_encoding' => array(
-                            'value' => self::$_sessionData['session_http_accept_encoding'],
-                            'quoted' => true,
-                        ),
-                        'session_http_connection' => array(
-                            'value' => self::$_sessionData['session_http_connection'],
-                            'quoted' => true,
-                        ),
-                        'session_request_uri' => array(
-                            'value' => self::$_sessionData['session_request_uri'],
-                            'quoted' => true,
-                        ),
-                        'session_request_query_string' => array(
-                            'value' => self::$_sessionData['session_request_query_string'],
-                            'quoted' => true,
-                        ),
-                        'session_request_path_info' => array(
-                            'value' => self::$_sessionData['session_request_path_info'],
-                            'quoted' => true,
-                        )), false, false)
+
+                // Should sessions always be used or is it a change of session state?
+                if (\Aomebo\Configuration::getSetting('session,always use session')
+                    || self::isChangeOfSessionState()
                 ) {
 
-                    // This occurs probably when a request from same client already has stored the session
+                    if (!\Aomebo\Database\Adapter::query(
+                        'INSERT INTO `'  . self::getTableSessions() . '`'
+                        . '(`session_id`,`session_time_start`,'
+                        . '`session_time_last`,`session_remote_ip`,`session_remote_port`,'
+                        . '`session_http_agent`,`session_http_connection`,'
+                        . '`session_http_accept`,`session_http_accept_language`,'
+                        . '`session_http_accept_encoding`,'
+                        . '`session_request_uri`,`session_request_query_string`,'
+                        . '`session_request_path_info`) VALUES'
+                        . '({session_id},{session_time_start},'
+                        . '{session_time_last},{session_remote_ip},{session_remote_port},'
+                        . '{session_http_agent},{session_http_connection},'
+                        . '{session_http_accept},{session_http_accept_language},'
+                        . '{session_http_accept_encoding},'
+                        . '{session_request_uri},{session_request_query_string},'
+                        . '{session_request_path_info})',
+                        array(
+                            'session_id' => array(
+                                'value' => self::$_sessionData['session_id'],
+                                'quoted' => true,
+                            ),
+                            'session_time_start' => array(
+                                'value' => self::$_sessionData['session_time_last'],
+                                'quoted' => true,
+                            ),
+                            'session_time_last' => array(
+                                'value' => self::$_sessionData['session_time_last'],
+                                'quoted' => true,
+                            ),
+                            'session_remote_ip' => array(
+                                'value' => self::$_sessionData['session_remote_ip'],
+                                'quoted' => true,
+                            ),
+                            'session_remote_port' => array(
+                                'value' => self::$_sessionData['session_remote_port'],
+                                'quoted' => true,
+                            ),
+                            'session_http_agent' => array(
+                                'value' => self::$_sessionData['session_http_agent'],
+                                'quoted' => true,
+                            ),
+                            'session_http_accept' => array(
+                                'value' => self::$_sessionData['session_http_accept'],
+                                'quoted' => true,
+                            ),
+                            'session_http_accept_language' => array(
+                                'value' => self::$_sessionData['session_http_accept_language'],
+                                'quoted' => true,
+                            ),
+                            'session_http_accept_encoding' => array(
+                                'value' => self::$_sessionData['session_http_accept_encoding'],
+                                'quoted' => true,
+                            ),
+                            'session_http_connection' => array(
+                                'value' => self::$_sessionData['session_http_connection'],
+                                'quoted' => true,
+                            ),
+                            'session_request_uri' => array(
+                                'value' => self::$_sessionData['session_request_uri'],
+                                'quoted' => true,
+                            ),
+                            'session_request_query_string' => array(
+                                'value' => self::$_sessionData['session_request_query_string'],
+                                'quoted' => true,
+                            ),
+                            'session_request_path_info' => array(
+                                'value' => self::$_sessionData['session_request_path_info'],
+                                'quoted' => true,
+                            )), false, false)
+                    ) {
+
+                        // This occurs probably when a request from same client already has stored the session
+
+                    }
 
                 }
 
@@ -1174,29 +1181,28 @@ namespace Aomebo\Session
         private static function _sessionGarbageCollect()
         {
 
-            $expires = \Aomebo\Configuration::getSetting('session,expires');
+            $expires =
+                \Aomebo\Configuration::getSetting('session,expires');
 
             if (\Aomebo\Database\Adapter::query(
                 'DELETE FROM `' . self::getTableSessionsBlocksData() . '` '
                 . 'WHERE `session_id` IN '
                 . '(SELECT `session_id` FROM `' . self::getTableSessions() . '` '
-                . 'WHERE `session_time_last` < NOW - INTERVAL {expires} SECOND)',
+                . 'WHERE `session_time_last` < NOW() - INTERVAL {expires} SECOND)',
                 array(
-                    'expires' => array(
-                        'value' => $expires,
-                        'quoted' => true,
-                    )
+                    'expires' => (int) $expires,
                 ), true, false)
             ) {
+
                 \Aomebo\Database\Adapter::query(
                     'DELETE FROM `' . self::getTableSessions() . '` '
                     . 'WHERE `session_time_last` < NOW() - INTERVAL {expires} SECOND',
                     array(
-                        'expires' => array(
-                            'value' => $expires,
-                            'quoted' => true,
-                        )), true, false);
+                        'expires' => (int) $expires,
+                    ), true, false);
+
             }
+
         }
 
         /**
