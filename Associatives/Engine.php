@@ -418,6 +418,8 @@ namespace Aomebo\Associatives
                     $csName = $runtime->getField('name');
                     $cisName = strtolower($csName);
 
+                    $options = array();
+
                     if ($runtime->isAssociatable()) {
 
                         /** @var \Aomebo\Runtime\Associatable $runtime */
