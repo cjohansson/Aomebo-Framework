@@ -267,11 +267,11 @@ namespace Aomebo
                             $this->setAutoloadFailureTriggersException(
                                 \Aomebo\Configuration::getSetting('output,autoload failure triggers exception'));
 
-                            // Load runtimes
-                            self::_loadRuntimes();
-
                             // Load site class (if any)
                             self::_loadSiteClass();
+
+                            // Load runtimes
+                            self::_loadRuntimes();
 
                             // Load feedback engine
                             new \Aomebo\Feedback\Debug();
