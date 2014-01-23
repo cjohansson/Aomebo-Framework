@@ -120,6 +120,13 @@ namespace Aomebo
         private static $_autoloadFailureTriggersException = false;
 
         /**
+         * @internal
+         * @static
+         * @var array
+         */
+        private static $_runtimes = array();
+
+        /**
          * This starts up the framework.
          *
          * @param array|null [$parameters = null]       Contains all site-specific parameters.
@@ -256,12 +263,15 @@ namespace Aomebo
                         // Does server has enough free memory for handling request?
                         if (\Aomebo\System\Memory::systemHasEnoughMemory()) {
 
-                            // Load site class (if any)
-                            $this->_loadSiteClass();
-
                             // Store setting if autoload should trigger exception
                             $this->setAutoloadFailureTriggersException(
-                                    \Aomebo\Configuration::getSetting('output,autoload failure triggers exception'));
+                                \Aomebo\Configuration::getSetting('output,autoload failure triggers exception'));
+
+                            // Load runtimes
+                            self::_loadRuntimes();
+
+                            // Load site class (if any)
+                            self::_loadSiteClass();
 
                             // Load feedback engine
                             new \Aomebo\Feedback\Debug();
@@ -409,6 +419,16 @@ namespace Aomebo
                 }
             }
 
+        }
+
+        /**
+         * @static
+         * @return array|bool
+         */
+        public static function getRuntimes()
+        {
+            return (sizeof(self::$_runtimes) > 0 ?
+                self::$_runtimes : false);
         }
 
         /**
@@ -638,8 +658,9 @@ namespace Aomebo
 
         /**
          * @internal
+         * @static
          */
-        private function _loadSiteClass()
+        private static function _loadSiteClass()
         {
             $classPath =
                 \Aomebo\Configuration::getSetting('site,class path');
@@ -652,6 +673,153 @@ namespace Aomebo
             }
             if (file_exists($classPath)) {
                 require_once($classPath);
+            }
+        }
+
+        /**
+         * This method starts the scanning of filesystem
+         * for Runtimes.
+         *
+         * @internal
+         * @static
+         * @throws \Exception
+         */
+        private static function _loadRuntimes()
+        {
+
+            $roots = array();
+
+            if ($siteDirectories = \Aomebo\Configuration::getSetting(
+                'paths,runtime site directories')
+            ) {
+                foreach ($siteDirectories as $siteDirectory)
+                {
+                    $roots[] = _SITE_ROOT_ . $siteDirectory;
+                }
+            }
+
+            if ($publicDirectories = \Aomebo\Configuration::getSetting(
+                'paths,runtime public directories')
+            ) {
+                foreach ($publicDirectories as $publicDirectory)
+                {
+                    $roots[] = _PUBLIC_ROOT_ . $publicDirectory;
+                }
+            }
+
+            // Iterate through all roots
+            foreach ($roots as $root)
+            {
+
+                if (!is_dir($root)
+                    && \Aomebo\Configuration::getSetting('paths,create runtime directories')
+                ) {
+                    \Aomebo\Filesystem::makeDirectory($root);
+                }
+
+                if (is_dir($root))
+                {
+
+                    $dirs = scandir($root);
+
+                    // Iterate through all directories
+                    foreach ($dirs as $dir)
+                    {
+
+                        // Is directory not current dir or parent dir pointer?
+                        if (!empty($dir)
+                            && $dir != '.'
+                            && $dir != '..'
+                        ) {
+
+                            $absPath =
+                                $root . DIRECTORY_SEPARATOR . $dir;
+
+                            // Is it a valid directory?
+                            if (is_dir($absPath)) {
+                                self::_loadRuntimesFromDirectory(
+                                    $absPath);
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+
+        /**
+         * This method scans directory for runtimes and
+         * loads them into memory.
+         *
+         * @internal
+         * @static
+         * @param string $absPath
+         * @throws \Exception
+         */
+        private static function _loadRuntimesFromDirectory($absPath)
+        {
+            if (!empty($absPath)
+                && is_dir($absPath)
+            ) {
+
+                $namespaceName = basename(dirname($absPath));
+                $namespaceClassName = substr($namespaceName, 0, -1);
+                $dir = basename($absPath);
+                $foundFile = false;
+
+                $file = $absPath . DIRECTORY_SEPARATOR
+                    . $namespaceClassName . _PHP_EX_;
+                $alternateFile = $absPath . DIRECTORY_SEPARATOR
+                    . $dir . _PHP_EX_;
+
+                if (file_exists($file)) {
+                    $foundFileName = $file;
+                    $foundFile = true;
+                } else if (file_exists($alternateFile)) {
+                    $foundFileName = $alternateFile;
+                    $foundFile = true;
+                }
+
+                // Can we find a runtime file?
+                if ($foundFile) {
+
+                    /** @var string $foundFileName */
+
+                    require_once($foundFileName);
+
+                    // Build class names
+                    $className = '\\' . $namespaceName . '\\'
+                        . $dir . '\\' . $namespaceClassName;
+
+                    $foundClass = false;
+
+                    if (class_exists($className, false)) {
+                        $foundClassName = $className;
+                        $foundClass = true;
+                    }
+
+                    if ($foundClass) {
+
+                        /** @var string $foundClassName */
+
+                        try
+                        {
+
+                            /** @var \Aomebo\Runtime $runtime */
+                            $runtime = new $foundClassName();
+
+                            if (is_a($runtime, '\\Aomebo\\Runtime'))
+                            {
+
+                                self::$_runtimes[] = $runtime;
+
+                            }
+
+                        } catch (\Exception $e) {}
+
+                    }
+                }
+
             }
         }
 

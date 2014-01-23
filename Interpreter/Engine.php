@@ -214,9 +214,9 @@ namespace Aomebo\Interpreter
             if (!self::_isConstructed()) {
 
                 parent::__construct();
-                $this->_checkMode();
-                $this->_loadRuntimes();
-                $this->_loadPages();
+                self::_checkMode();
+                self::_loadRuntimes();
+                self::_loadPages();
                 self::_flagThisConstructed();
 
             }
@@ -1196,8 +1196,9 @@ namespace Aomebo\Interpreter
          * This method checks what mode we are in.
          *
          * @internal
+         * @static
          */
-        private function _checkMode()
+        private static function _checkMode()
         {
         }
 
@@ -1206,8 +1207,9 @@ namespace Aomebo\Interpreter
          * which pages each runtime exists.
          *
          * @internal
+         * @static
          */
-        private function _loadPages()
+        private static function _loadPages()
         {
         }
 
@@ -1216,163 +1218,34 @@ namespace Aomebo\Interpreter
          * for Runtimes.
          *
          * @internal
-         * @throws \Exception
-         */
-        private function _loadRuntimes()
-        {
-
-            $roots = array();
-
-            if ($siteDirectories = \Aomebo\Configuration::getSetting(
-                'paths,runtime site directories')
-            ) {
-                foreach ($siteDirectories as $siteDirectory)
-                {
-                    $roots[] = _SITE_ROOT_ . $siteDirectory;
-                }
-            }
-
-            if ($publicDirectories = \Aomebo\Configuration::getSetting(
-                'paths,runtime public directories')
-            ) {
-                foreach ($publicDirectories as $publicDirectory)
-                {
-                    $roots[] = _PUBLIC_ROOT_ . $publicDirectory;
-                }
-            }
-
-            // Iterate through all roots
-            foreach ($roots as $root)
-            {
-
-                if (!is_dir($root)
-                    && \Aomebo\Configuration::getSetting('paths,create runtime directories')
-                ) {
-                    \Aomebo\Filesystem::makeDirectory($root);
-                }
-
-                if (is_dir($root))
-                {
-
-                    $dirs = scandir($root);
-
-                    // Iterate through all directories
-                    foreach ($dirs as $dir)
-                    {
-
-                        // Is directory not current dir or parent dir pointer?
-                        if (!empty($dir)
-                            && $dir != '.'
-                            && $dir != '..'
-                        ) {
-
-                            $absPath =
-                                $root . DIRECTORY_SEPARATOR . $dir;
-
-                            // Is it a valid directory?
-                            if (is_dir($absPath)) {
-                                self::_loadRuntimesFromDirectory(
-                                    $absPath);
-                            }
-
-                        }
-                    }
-                }
-            }
-        }
-
-        /**
-         * This method scans directory for runtimes and
-         * loads them into memory.
-         *
-         * @internal
          * @static
-         * @param string $absPath
          * @throws \Exception
          */
-        private static function _loadRuntimesFromDirectory($absPath)
+        private static function _loadRuntimes()
         {
-            if (!empty($absPath)
-                && is_dir($absPath)
-            ) {
 
-                $namespaceName = basename(dirname($absPath));
-                $namespaceClassName = substr($namespaceName, 0, -1);
-                $dir = basename($absPath);
-                $foundFile = false;
+            if ($runtimes = \Aomebo\Application::getRuntimes()) {
+                foreach ($runtimes as & $runtime)
+                {
 
-                $file = $absPath . DIRECTORY_SEPARATOR
-                    . $namespaceClassName . _PHP_EX_;
-                $alternateFile = $absPath . DIRECTORY_SEPARATOR
-                    . $dir . _PHP_EX_;
+                    /** @var \Aomebo\Runtime $runtime */
 
-                if (file_exists($file)) {
-                    $foundFileName = $file;
-                    $foundFile = true;
-                } else if (file_exists($alternateFile)) {
-                    $foundFileName = $alternateFile;
-                    $foundFile = true;
-                }
+                    if ($runtime->isExecutable()) {
 
-                // Can we find a runtime file?
-                if ($foundFile) {
+                        $name = strtolower($runtime->getField('name'));
 
-                    /** @var string $foundFileName */
-
-                    require_once($foundFileName);
-
-                    // Build class names
-                    $className = '\\' . $namespaceName . '\\'
-                        . $dir . '\\' . $namespaceClassName;
-
-                    $foundClass = false;
-
-                    if (class_exists($className, false)) {
-                        $foundClassName = $className;
-                        $foundClass = true;
-                    }
-
-                    if ($foundClass) {
-
-                        /** @var string $foundClassName */
-
-                        try
-                        {
-
-                            /** @var \Aomebo\Runtime $runtime */
-                            $runtime = new $foundClassName();
-
-                            if (is_a($runtime, '\\Aomebo\\Runtime'))
-                            {
-
-                                // Is class object a module?
-                                if ($runtime->isExecutable()) {
-
-                                    $name = strtolower($dir);
-
-                                    // Is this runtime new?
-                                    if (!isset(self::$_runtimeNameToObject[$name]))
-                                    {
-
-                                        self::$_runtimeNameToData[$name]['parameters'] =
-                                            $runtime->getFieldsToIndex();
-                                        self::$_runtimeNameToObject[$name] =
-                                            $runtime;
-                                        self::$_runtimeNameToData[$name]['parameter_count'] =
-                                            sizeof(self::$_runtimeNameToData[$name]['parameters']);
-
-                                    }
-
-                                }
-
-                            }
-
-                        } catch (\Exception $e) {}
+                        self::$_runtimeNameToData[$name]['parameters'] =
+                            $runtime->getFieldsToIndex();
+                        self::$_runtimeNameToObject[$name] =
+                            & $runtime;
+                        self::$_runtimeNameToData[$name]['parameter_count'] =
+                            sizeof(self::$_runtimeNameToData[$name]['parameters']);
 
                     }
-                }
 
+                }
             }
+
         }
 
         /**

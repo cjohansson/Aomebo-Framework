@@ -83,6 +83,13 @@ namespace Aomebo
         protected $_parameters = array();
 
         /**
+         * @internal
+         * @var array
+         * @deprecated
+         */
+        protected $_routes = array();
+
+        /**
          * @var \Aomebo|null
          */
         protected static $_aomebo = null;
@@ -584,44 +591,8 @@ namespace Aomebo
                         }
                     }
 
-                }
-
-                if ($this->isExecutionParameters()) {
-
-                    /** @var \Aomebo\Runtime\ExecutionParameters $ref */
-                    $ref = & $this;
-
-                    if ($parameters = $ref->getParameters()) {
-                        if (is_array($parameters)
-                            && sizeof($parameters) > 0
-                        ) {
-                            foreach ($parameters as $parameterIndex => $parameterKey)
-                            {
-                                $this->_parameterToIndex[$parameterKey] =
-                                    $parameterIndex;
-                                $this->_indexToParameter[$parameterIndex] =
-                                    $parameterKey;
-                            }
-                        }
-                    }
-
-                // TODO: This below is deprecated and will be removed.
-                } else if (isset($this->_parameters)
-                    && is_array($this->_parameters)
-                    && sizeof($this->_parameters) > 0
-                ) {
-                    $sizeof =
-                        sizeof($this->_parameters);
-                    for ($i = 0; $i < $sizeof; $i++)
-                    {
-                        $parameter = $this->_parameters[$i];
-                        $this->_parameterToIndex[$parameter] = $i;
-                        $this->_indexToParameter[$i] = $parameter;
-                    }
-                }
-
-                // Is routes specified as protected array?
-                if (isset($this->_routes)
+                // TODO: This below is deprecated and will be removed in next major version.
+                } else if (isset($this->_routes)
                     && is_array($this->_routes)
                     && sizeof($this->_routes) > 0
                 ) {
@@ -647,6 +618,41 @@ namespace Aomebo
                     }
                 }
 
+
+                if ($this->isExecutionParameters()) {
+
+                    /** @var \Aomebo\Runtime\ExecutionParameters $ref */
+                    $ref = & $this;
+
+                    if ($parameters = $ref->getParameters()) {
+                        if (is_array($parameters)
+                            && sizeof($parameters) > 0
+                        ) {
+                            foreach ($parameters as $parameterIndex => $parameterKey)
+                            {
+                                $this->_parameterToIndex[$parameterKey] =
+                                    $parameterIndex;
+                                $this->_indexToParameter[$parameterIndex] =
+                                    $parameterKey;
+                            }
+                        }
+                    }
+
+                // TODO: This below is deprecated and will be removed in next major version.
+                } else if (isset($this->_parameters)
+                    && is_array($this->_parameters)
+                    && sizeof($this->_parameters) > 0
+                ) {
+                    $sizeof =
+                        sizeof($this->_parameters);
+                    for ($i = 0; $i < $sizeof; $i++)
+                    {
+                        $parameter = $this->_parameters[$i];
+                        $this->_parameterToIndex[$parameter] = $i;
+                        $this->_indexToParameter[$i] = $parameter;
+                    }
+                }
+
             }
 
         }
@@ -665,6 +671,20 @@ namespace Aomebo
             return '';
         }
 
+        /**
+         *
+         */
+        public function getAssociativesPublicDirectory()
+        {
+
+        }
+
+        /**
+         *
+         */
+        public function getAssociativesSiteDirectory()
+        {
+        }
 
         /**
          * @static
