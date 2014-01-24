@@ -699,10 +699,11 @@ namespace Aomebo\Interpreter
          * This method interprets whole tree.
          *
          * @internal
+         * @static
          * @throws \Exception
          * @return bool
          */
-        public function interpret()
+        public static function interpret()
         {
 
             \Aomebo\Trigger\System::processTriggers(
@@ -726,9 +727,9 @@ namespace Aomebo\Interpreter
                     self::$_runtimeCallIndex = 0;
                     self::$_lastEvaluatedRuntime = null;
                     self::$_insertPoints = array();
-                    self::$_output = $this->_interpretNode($processed);
+                    self::$_output = self::_interpretNode($processed);
 
-                    if ($this->_hasOKStatus()) {
+                    if (self::_hasOKStatus()) {
 
                         \Aomebo\Trigger\System::processTriggers(
                             \Aomebo\Trigger\System::TRIGGER_KEY_AFTER_INTERPRETATION);
@@ -745,7 +746,7 @@ namespace Aomebo\Interpreter
                         if (self::$_interpretationStatus ==
                             self::INTERPRETATION_STATUS_RESTART
                         ) {
-                            return $this->interpret();
+                            return self::interpret();
                         } else if (self::$_interpretationStatus ==
                             self::INTERPRETATION_STATUS_ABORT
                         ) {
@@ -760,7 +761,9 @@ namespace Aomebo\Interpreter
                     Throw new \Exception('Couldn\'t process page.');
                 }
             }
+
             return false;
+
         }
 
         /**
@@ -918,17 +921,20 @@ namespace Aomebo\Interpreter
          * This method interprets a single node in tree.
          *
          * @internal
+         * @static
          * @param mixed $node
          * @param mixed [$parent = null]
          * @throws \Exception
          * @return string|bool
          */
-        private function _interpretNode(& $node, & $parent = null)
+        private static function _interpretNode(& $node, & $parent = null)
         {
-            if ($this->_hasOKStatus()) {
+            if (self::_hasOKStatus()) {
+
                 $output = '';
                 $parameters = array();
                 self::$_lastEvaluatedRuntime = null;
+
                 if (is_array($node)) {
                     foreach ($node as $child)
                     {
@@ -936,23 +942,23 @@ namespace Aomebo\Interpreter
                             if (isset($child['key'], $child['value'])) {
                                 $key = strtolower($child['key']);
                                 $value = $child['value'];
-                                if ($this->_isRuntimeName($key)) {
+                                if (self::_isRuntimeName($key)) {
                                     if (is_array($value)) {
-                                        $output .= $this->
+                                        $output .= self::
                                             _interpretNode($value, $key);
                                     } else {
                                         $lowValue = strtolower($value);
                                         if (!empty($value)) {
-                                            if ($this->_isRuntimeName($lowValue)) {
-                                                $output .= $this->
-                                                    _evaluateRuntime($key,
-                                                    $this->_evaluateRuntime($lowValue));
+                                            if (self::_isRuntimeName($lowValue)) {
+                                                $output .=
+                                                    self::_evaluateRuntime($key,
+                                                        self::_evaluateRuntime($lowValue));
                                             } else {
-                                                $output .= $this->
+                                                $output .= self::
                                                     _evaluateRuntime($key, $value);
                                             }
                                         } else {
-                                            $output .= $this->
+                                            $output .= self::
                                                 _evaluateRuntime($key);
                                         }
                                     }
@@ -961,12 +967,13 @@ namespace Aomebo\Interpreter
                                     $parent, $key)
                                 ) {
                                     $parameters[$key] =
-                                        $this->_interpretNode($value);
+                                        self::_interpretNode($value);
                                 } else {
                                     Throw new \Exception(
                                         '"' . $key . '" is neither a Runtime or a Runtime '
                                         . 'parameter to "' . $parent . '". Loaded Runtimes: "'
-                                        . print_r(self::$_runtimeNameToObject, true) . '"');
+                                        . print_r(self::$_runtimeNameToObject, true) . '" '
+                                        . ', $_SERVER: "' . print_r($_SERVER, true) . '"');
                                 }
                             } else {
                                 Throw new \Exception(
@@ -978,16 +985,16 @@ namespace Aomebo\Interpreter
                         }
                     }
                     if (isset($parent)
-                        && $this->_isRuntimeName($parent)
+                        && self::_isRuntimeName($parent)
                     ) {
-                        return $this->_evaluateRuntime(
+                        return self::_evaluateRuntime(
                             $parent, $parameters, $output);
                     } else {
                         return $output;
                     }
                 } else {
-                    if ($this->_isRuntimeName($node)) {
-                        return $this->_evaluateRuntime($node);
+                    if (self::_isRuntimeName($node)) {
+                        return self::_evaluateRuntime($node);
                     } else {
                         return $node;
                     }
@@ -1001,16 +1008,17 @@ namespace Aomebo\Interpreter
          * This method evaluates a Runtime with parameters.
          *
          * @internal
+         * @static
          * @param string $name
          * @param mixed [$parameters = null]
          * @param string [$output = null]
          * @throws \Exception
          * @return string|bool
          */
-        private function _evaluateRuntime($name,
+        private static function _evaluateRuntime($name,
             $parameters = null, $output = null)
         {
-            if ($this->_hasOKStatus()) {
+            if (self::_hasOKStatus()) {
                 if ($runtime =
                     self::getRuntimeByName($name)
                 ) {

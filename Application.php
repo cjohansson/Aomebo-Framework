@@ -343,7 +343,7 @@ namespace Aomebo
                                     \Aomebo\Database\Adapter::getInstance();
 
                                     // Load interpreter for parsing of pages
-                                    $interpreter = \Aomebo\Interpreter\Engine::getInstance();
+                                    \Aomebo\Interpreter\Engine::getInstance();
 
                                     // Load cache system
                                     \Aomebo\Cache\System::getInstance();
@@ -354,7 +354,7 @@ namespace Aomebo
                                     new \Aomebo();
 
                                     // Interpret page
-                                    $interpreter->interpret();
+                                    \Aomebo\Interpreter\Engine::interpret();
 
                                     // Present our output
                                     $presenter = \Aomebo\Presenter\Engine::getInstance();
@@ -377,8 +377,7 @@ namespace Aomebo
                                 \Aomebo\Associatives\Engine::getInstance();
 
                                 // Load interpreter for parsing of pages
-                                $interpreter =
-                                    \Aomebo\Interpreter\Engine::getInstance();
+                                \Aomebo\Interpreter\Engine::getInstance();
 
                                 // Load cache system
                                 \Aomebo\Cache\System::getInstance();
@@ -390,7 +389,7 @@ namespace Aomebo
                                 new \Aomebo();
 
                                 // Interpret page
-                                $interpreter->interpret();
+                                \Aomebo\Interpreter\Engine::interpret();
 
                                 // Index our output
                                 $indexing->index();
