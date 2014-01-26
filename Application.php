@@ -143,12 +143,12 @@ namespace Aomebo
 
                 // Set public internal path
 
-                $backtrace = self::getDebugBacktrace(1);
+                $backtrace = self::getDebugBacktrace(2);
 
-                if (isset($backtrace[0]['file'])) {
+                if (isset($backtrace[1]['file'])) {
                     self::setParameter(
                         self::PARAMETER_PUBLIC_INTERNAL_PATH,
-                        dirname($backtrace[0]['file']));
+                        dirname($backtrace[1]['file']));
                 }
 
                 // Set public external path
