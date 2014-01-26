@@ -1820,7 +1820,7 @@ namespace Aomebo\Dispatcher
                 && is_array($uriParameters)
                 && sizeof($uriParameters) > 0
             ) {
-                if ($hashKey = self::generateRouteHashKey(
+                if ($hashKey = \Aomebo\Dispatcher\Route::generateRouteHashKey(
                     array_keys($uriParameters))
                 ) {
                     return $hashKey;
@@ -1890,17 +1890,6 @@ namespace Aomebo\Dispatcher
         public static function setRequestUri($uri)
         {
             self::$_requestUri = $uri;
-        }
-
-        /**
-         * @static
-         * @param array $getArray       non-associative array containing keys
-         * @return string
-         */
-        public static function generateRouteHashKey($getArray)
-        {
-            sort($getArray, SORT_STRING);
-            return md5(implode('', $getArray));
         }
 
         /**

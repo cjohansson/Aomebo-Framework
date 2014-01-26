@@ -972,8 +972,7 @@ namespace Aomebo\Interpreter
                                     Throw new \Exception(
                                         '"' . $key . '" is neither a Runtime or a Runtime '
                                         . 'parameter to "' . $parent . '". Loaded Runtimes: "'
-                                        . print_r(self::$_runtimeNameToObject, true) . '" '
-                                        . ', $_SERVER: "' . print_r($_SERVER, true) . '"');
+                                        . print_r(self::$_runtimeNameToObject, true) . '"');
                                 }
                             } else {
                                 Throw new \Exception(

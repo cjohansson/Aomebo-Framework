@@ -173,12 +173,21 @@ namespace Aomebo\Dispatcher
                 $this->page = $page;
             }
             if ($this->isValid()) {
-                $dispatcher =
-                    \Aomebo\Dispatcher\System::getInstance();
-                $this->_hashKey = $dispatcher->generateRouteHashKey(
+                $this->_hashKey = self::generateRouteHashKey(
                     $this->keys);
             }
 
+        }
+
+        /**
+         * @static
+         * @param array $getArray       non-associative array containing keys
+         * @return string
+         */
+        public static function generateRouteHashKey($getArray)
+        {
+            sort($getArray, SORT_STRING);
+            return md5(implode('', $getArray));
         }
 
         /**
@@ -200,9 +209,7 @@ namespace Aomebo\Dispatcher
         {
             if ($this->isValid()) {
                 if (empty($this->_hashKey)) {
-                    $dispatcher =
-                        \Aomebo\Dispatcher\System::getInstance();
-                    $this->_hashKey = $dispatcher->generateRouteHashKey(
+                    $this->_hashKey = self::generateRouteHashKey(
                         $this->keys);
                 }
                 return $this->_hashKey;
