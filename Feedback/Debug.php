@@ -187,29 +187,14 @@ namespace Aomebo\Feedback
                         && $backtraceLimit > 0
                     ) {
 
-                        /**
-                         * @see http://www.php.net/function.debug-backtrace
-                         */
-                        if (phpversion() >= '5.3.6') {
-                            $debugBacktrance = debug_backtrace(
-                                DEBUG_BACKTRACE_PROVIDE_OBJECT, $backtraceLimit);
-                        } else {
-                            $debugBacktrance = debug_backtrace(
-                                true);
-                        }
+                        $debugBacktrance =
+                            \Aomebo\Application::getDebugBacktrace(
+                                $backtraceLimit);
 
                     } else {
 
-                        /**
-                         * @see http://www.php.net/function.debug-backtrace
-                         */
-                        if (phpversion() >= '5.3.6') {
-                            $debugBacktrance = debug_backtrace(
-                                DEBUG_BACKTRACE_PROVIDE_OBJECT);
-                        } else {
-                            $debugBacktrance = debug_backtrace(
-                                true);
-                        }
+                        $debugBacktrance =
+                            \Aomebo\Application::getDebugBacktrace();
 
                     }
 
@@ -229,7 +214,8 @@ namespace Aomebo\Feedback
                             'dispatch,error page');
 
                     if (file_exists($errorPage)) {
-                        echo file_get_contents($errorPage);
+                        echo \Aomebo\Filesystem::getFileContents(
+                            $errorPage);
                     } else {
                         Throw new \Exception(
                             'Errorpage not found at "'
@@ -331,27 +317,14 @@ namespace Aomebo\Feedback
                     && $backtraceLimit > 0
                 ) {
 
-                    /**
-                     * @see http://www.php.net/function.debug-backtrace
-                     */
-                    if (phpversion() >= '5.3.6') {
-                        $debugBacktrance = debug_backtrace(
-                            DEBUG_BACKTRACE_PROVIDE_OBJECT, $backtraceLimit);
-                    } else {
-                        $debugBacktrance = debug_backtrace(true);
-                    }
+                    $debugBacktrance =
+                        \Aomebo\Application::getDebugBacktrace(
+                            $backtraceLimit);
 
                 } else {
 
-                    /**
-                     * @see http://www.php.net/function.debug-backtrace
-                     */
-                    if (phpversion() >= '5.3.6') {
-                        $debugBacktrance = debug_backtrace(
-                            DEBUG_BACKTRACE_PROVIDE_OBJECT);
-                    } else {
-                        $debugBacktrance = debug_backtrace(true);
-                    }
+                    $debugBacktrance =
+                        \Aomebo\Application::getDebugBacktrace();
 
                 }
 
@@ -396,7 +369,8 @@ namespace Aomebo\Feedback
                     . \Aomebo\Configuration::getSetting('dispatch,error page');
 
                 if (file_exists($errorPage)) {
-                    echo file_get_contents($errorPage);
+                    echo \Aomebo\Filesystem::getFileContents(
+                        $errorPage);
                 } else {
                     Throw new \Exception(
                         'Errorpage not found at "'

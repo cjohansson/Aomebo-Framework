@@ -131,19 +131,12 @@ namespace Aomebo\Dispatcher
                 $this->reference = & $reference;
             } else {
 
-                /**
-                 * @see http://www.php.net/function.debug-backtrace
-                 */
-                if (phpversion() >= '5.3.6') {
-                    $backtrace = debug_backtrace(
-                        DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-                } else {
-                    $backtrace = debug_backtrace(true);
-                }
+                $backtrace =
+                    \Aomebo\Application::getDebugBacktrace(3);
 
-                if (isset($backtrace[1]['object'])
-                    && is_a($backtrace[1]['object'], '\Aomebo\Runtime')
-                    && is_a($backtrace[1]['object'], '\Aomebo\Runtime\Routable')
+                if (isset($backtrace[2]['object'])
+                    && is_a($backtrace[2]['object'], '\Aomebo\Runtime')
+                    && is_a($backtrace[2]['object'], '\Aomebo\Runtime\Routable')
                 ) {
                     $this->reference = & $backtrace[1]['object'];
                 }

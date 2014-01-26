@@ -103,20 +103,14 @@ namespace Aomebo\Template\Adapters
 
             unset($this->_module);
 
-            /**
-             * @see http://www.php.net/function.debug-backtrace
-             */
-            if (phpversion() >= '5.3.6') {
-                $callers = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-            } else {
-                $callers = debug_backtrace(true);
-            }
+            $callers =
+                \Aomebo\Application::getDebugBacktrace(3);
 
-            if (isset($callers[1]['object'])) {
-                if (is_a($callers[1]['object'], '\Aomebo\Runtime')) {
+            if (isset($callers[2]['object'])) {
+                if (is_a($callers[2]['object'], '\Aomebo\Runtime')) {
 
                     /** @var \Aomebo\Runtime $object  */
-                    $object = $callers[1]['object'];
+                    $object = $callers[2]['object'];
 
                     $directory = dirname($object->getAbsoluteFilename());
 

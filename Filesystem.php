@@ -86,6 +86,7 @@ namespace Aomebo
                             'Could not make directory: '
                                 . '"' . $absolutePath . '"  in ' . __FUNCTION__
                                 . ' in ' . __FILE__);
+
                     }
 
                 } catch (\Exception $e) {
@@ -97,6 +98,36 @@ namespace Aomebo
 
                 }
             }
+
+        }
+
+        /**
+         * @param string $absolutePath
+         * @return string
+         * @throws \Exception
+         */
+        public static function getFileContents($absolutePath)
+        {
+
+            if (!empty($absolutePath)
+                && file_exists($absolutePath)
+            ) {
+
+                if ($file = fopen($absolutePath, 'ab+')) {
+                    if (flock($file, LOCK_SH)) {
+                        $fileContents =
+                            file_get_contents($absolutePath);
+                        flock($file, LOCK_UN);
+                        fclose($file);
+                        return $fileContents;
+                    }
+                }
+
+            } else {
+                Throw new \Exception('Invalid parameters');
+            }
+
+            return '';
 
         }
 

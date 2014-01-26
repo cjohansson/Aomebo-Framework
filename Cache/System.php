@@ -70,7 +70,8 @@ namespace Aomebo\Cache
             if (self::cacheExists($parameters, $key)) {
                 if ($cachePath = self::getCachePath($parameters, $key)) {
 
-                    $formattedData = file_get_contents($cachePath);
+                    $formattedData = \Aomebo\Filesystem::getFileContents(
+                        $cachePath);
 
                     // Format data
                     if ($format == self::FORMAT_JSON_ENCODE) {

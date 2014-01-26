@@ -127,7 +127,7 @@ namespace Aomebo\Template\Adapters\Php
                 try
                 {
 
-                    $viewscript = file_get_contents(
+                    $viewscript = \Aomebo\Filesystem::getFileContents(
                         $this->_viewfile);
 
                     if ($useOb) {

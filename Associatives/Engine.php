@@ -650,7 +650,8 @@ namespace Aomebo\Associatives
                                                 $associative['has_scripts'] = true;
                                                 $associative['has_inline_scripts'] = true;
                                                 $associative['inline_scripts'][] =
-                                                    file_get_contents($fileFullPath);
+                                                    \Aomebo\Filesystem::getFileContents(
+                                                        $fileFullPath);
                                             }
 
                                         } else if ($fileMime === self::MIME_STYLESHEET)
@@ -671,7 +672,8 @@ namespace Aomebo\Associatives
                                                 $associative['has_styles'] = true;
                                                 $associative['has_inline_styles'] = true;
                                                 $associative['inline_styles'][] =
-                                                    file_get_contents($fileFullPath);
+                                                    \Aomebo\Filesystem::getFileContents(
+                                                        $fileFullPath);
                                             }
                                         } else if ($fileMime === self::MIME_MARKUP) {
 
@@ -680,7 +682,8 @@ namespace Aomebo\Associatives
                                                 $associative['has_markups'] = true;
                                                 $associative['has_inline_markups'] = true;
                                                 $associative['inline_markups'][] =
-                                                    file_get_contents($fileFullPath);
+                                                    \Aomebo\Filesystem::getFileContents(
+                                                        $fileFullPath);
                                             }
 
                                         }
@@ -938,6 +941,7 @@ namespace Aomebo\Associatives
                                             if ($subfileMode ==
                                                 \Aomebo\Associatives\Dependency::MODE_EXTERNAL
                                             ) {
+
                                                 $dependency['has_scripts'] = true;
                                                 $dependency['has_external_scripts'] = true;
                                                 $dependency['external_scripts'][] =
@@ -946,13 +950,17 @@ namespace Aomebo\Associatives
                                                     $dependency['external_scripts_hash'] .=
                                                         $fileCacheHash;
                                                 }
+
                                             } else if ($subfileMode ==
                                                 \Aomebo\Associatives\Dependency::MODE_INLINE
                                             ) {
+
                                                 $dependency['has_scripts'] = true;
                                                 $dependency['has_inline_scripts'] = true;
                                                 $dependency['inline_scripts'][] =
-                                                    file_get_contents($subfileFullPath);
+                                                    \Aomebo\Filesystem::getFileContents(
+                                                        $subfileFullPath);
+
                                             }
                                         } else if ($subfileMime ===
                                             \Aomebo\Associatives\Dependency::MIME_STYLESHEET
@@ -960,6 +968,7 @@ namespace Aomebo\Associatives
                                             if ($subfileMode ==
                                                 \Aomebo\Associatives\Dependency::MODE_EXTERNAL
                                             ) {
+
                                                 $dependency['has_styles'] = true;
                                                 $dependency['has_external_styles'] = true;
                                                 $dependency['external_styles'][] =
@@ -968,25 +977,33 @@ namespace Aomebo\Associatives
                                                     $dependency['external_styles_hash'] .=
                                                         $fileCacheHash;
                                                 }
+
                                             } else if ($subfileMode ==
                                                 \Aomebo\Associatives\Dependency::MODE_INLINE
                                             ) {
+
                                                 $dependency['has_styles'] = true;
                                                 $dependency['has_inline_styles'] = true;
                                                 $dependency['inline_styles'][] =
-                                                    file_get_contents($subfileFullPath);
+                                                    \Aomebo\Filesystem::getFileContents(
+                                                        $subfileFullPath);
+
                                             }
                                         } else if ($subfileMime ===
                                             \Aomebo\Associatives\Dependency::MIME_MARKUP
                                         ) {
+
                                             if ($subfileMode ==
                                                 \Aomebo\Associatives\Dependency::MODE_INLINE
                                             ) {
+
                                                 $dependency['has_markups'] = true;
                                                 $dependency['has_inline_markups'] = true;
                                                 $dependency['inline_markups'][] =
-                                                    file_get_contents($subfileFullPath);
+                                                    \Aomebo\Filesystem::getFileContents(
+                                                        $subfileFullPath);
                                             }
+
                                         }
                                     }
                                 }

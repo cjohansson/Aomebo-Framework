@@ -1140,7 +1140,9 @@ namespace Aomebo\Interpreter
 
                         if (file_exists($path)) {
 
-                            $pageData = file_get_contents($path);
+                            $pageData = \Aomebo\Filesystem::getFileContents(
+                                $path);
+
                             if (method_exists($adapter, 'applyDefaultEncapsulation')) {
                                 $pageData =
                                     $adapter->applyDefaultEncapsulation($pageData);

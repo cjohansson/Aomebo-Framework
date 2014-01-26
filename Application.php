@@ -143,14 +143,8 @@ namespace Aomebo
 
                 // Set public internal path
 
-                /**
-                 * @see http://www.php.net/function.debug-backtrace
-                 */
-                if (phpversion() >= '5.3.6') {
-                    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-                } else {
-                    $backtrace = debug_backtrace(true);
-                }
+                $backtrace = self::getDebugBacktrace(1);
+
                 if (isset($backtrace[0]['file'])) {
                     self::setParameter(
                         self::PARAMETER_PUBLIC_INTERNAL_PATH,
@@ -493,6 +487,46 @@ namespace Aomebo
 
         /**
          * @static
+         * @param int [$limit = 0]
+         * @return array
+         */
+        public static function getDebugBacktrace($limit = 0)
+        {
+
+            if (!empty($limit)
+                && $limit > 0
+            ) {
+
+                /**
+                 * @see http://www.php.net/function.debug-backtrace
+                 */
+                if (phpversion() >= '5.3.6') {
+                    $debugBacktrance = debug_backtrace(
+                        DEBUG_BACKTRACE_PROVIDE_OBJECT, $limit);
+                } else {
+                    $debugBacktrance = debug_backtrace(true);
+                }
+
+            } else {
+
+                /**
+                 * @see http://www.php.net/function.debug-backtrace
+                 */
+                if (phpversion() >= '5.3.6') {
+                    $debugBacktrance = debug_backtrace(
+                        DEBUG_BACKTRACE_PROVIDE_OBJECT);
+                } else {
+                    $debugBacktrance = debug_backtrace(true);
+                }
+
+            }
+
+            return $debugBacktrance;
+
+        }
+
+        /**
+         * @static
          * @param string $key
          * @return bool
          */
@@ -784,18 +818,23 @@ namespace Aomebo
 
                     /** @var string $foundFileName */
 
-                    require_once($foundFileName);
-
-                    // Build class names
-                    $className = '\\' . $namespaceName . '\\'
-                        . $dir . '\\' . $namespaceClassName;
-
                     $foundClass = false;
 
-                    if (class_exists($className, false)) {
-                        $foundClassName = $className;
-                        $foundClass = true;
-                    }
+                    try
+                    {
+
+                        require_once($foundFileName);
+
+                        // Build class names
+                        $className = '\\' . $namespaceName . '\\'
+                            . $dir . '\\' . $namespaceClassName;
+
+                        if (class_exists($className, false)) {
+                            $foundClassName = $className;
+                            $foundClass = true;
+                        }
+
+                    } catch (\Exception $e) {}
 
                     if ($foundClass) {
 
