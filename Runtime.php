@@ -90,6 +90,13 @@ namespace Aomebo
         protected $_routes = array();
 
         /**
+         * @internal
+         * @var array
+         * @deprecated
+         */
+        protected $_dependencies = array();
+
+        /**
          * @var \Aomebo|null
          */
         protected static $_aomebo = null;
@@ -1007,18 +1014,25 @@ namespace Aomebo
                     }
 
                 } catch (\Exception $e) {
+
                     $this->setField('error', $e->getMessage());
 
-                    if (\Aomebo\Configuration::getSetting(
-                        'feedback,log runtime exceptions')
-                    ) {
-                        error_log('Aomebo Runtime: { '
-                            . 'name: "' . $this->getField('name') . '", '
-                            . 'file: "' . $this->getAbsoluteFilename() . '", '
-                            . 'error-file: "'. $e->getFile() . '",'
-                            . 'error-line: "' . $e->getLine() . '",'
-                            . 'error-message: "' . $e->getMessage() . '"');
-                    }
+                    $displayRuntimeExceptions =
+                        \Aomebo\Configuration::getSetting(
+                            'feedback,display runtime exceptions');
+                    $logRuntimeExceptions =
+                        \Aomebo\Configuration::getSetting(
+                            'feedback,log runtime exceptions');
+
+                    self::$_aomebo->Feedback()->Debug()->output(
+                        'Aomebo Runtime: { '
+                        . 'name: "' . $this->getField('name') . '", '
+                        . 'file: "' . $this->getAbsoluteFilename() . '", '
+                        . 'error-file: "'. $e->getFile() . '",'
+                        . 'error-line: "' . $e->getLine() . '",'
+                        . 'error-message: "' . $e->getMessage() . '"',
+                        $displayRuntimeExceptions,
+                        $logRuntimeExceptions);
 
                     if (\Aomebo\Configuration::getSetting(
                         'feedback,halt on runtime exceptions')

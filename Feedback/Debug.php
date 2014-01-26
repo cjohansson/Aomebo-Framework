@@ -43,7 +43,9 @@ namespace Aomebo\Feedback
         public function __construct()
         {
             if (!$this->_isConstructed()) {
+
                 parent::__construct();
+
                 ini_set('error_reporting',
                     \Aomebo\Configuration::getSetting('feedback,error reporting'));
                 ini_set('display_errors',
@@ -122,7 +124,6 @@ namespace Aomebo\Feedback
                 set_exception_handler(
                     array($this, 'exceptionHandler'));
 
-
                 $this->_flagThisConstructed();
 
             }
@@ -143,7 +144,7 @@ namespace Aomebo\Feedback
          */
         public static function getDebugMode()
         {
-            return self::$_debugMode;
+            return (!empty(self::$_debugMode));
         }
 
         /**
@@ -158,6 +159,9 @@ namespace Aomebo\Feedback
         public function errorHandler($errno, $errstr, $errfile = null,
             $errline = null, $errcontext = null)
         {
+
+            $message = '';
+
             if (error_reporting() === 0) {
                 return false;
             }
@@ -171,9 +175,14 @@ namespace Aomebo\Feedback
             ) {
 
                 // Backtrace
-                if (\Aomebo\Configuration::getSetting('feedback,include backtrace')) {
+                if (\Aomebo\Configuration::getSetting(
+                    'feedback,include backtrace')
+                ) {
+
                     $backtraceLimit =
-                        (int) \Aomebo\Configuration::getSetting('feedback,backtrace limit');
+                        (int) \Aomebo\Configuration::getSetting(
+                        'feedback,backtrace limit');
+
                     if (!empty($backtraceLimit)
                         && $backtraceLimit > 0
                     ) {
@@ -190,6 +199,7 @@ namespace Aomebo\Feedback
                         }
 
                     } else {
+
                         /**
                          * @see http://www.php.net/function.debug-backtrace
                          */
@@ -200,16 +210,24 @@ namespace Aomebo\Feedback
                             $debugBacktrance = debug_backtrace(
                                 true);
                         }
+
                     }
-                    error_log('Error-backtrace (limit: ' . $backtraceLimit . '): ' . print_r($debugBacktrance, true));
-                } else {
-                    $debugBacktrance = '';
+
+                    $message .= 'Error-backtrace (limit: ' . $backtraceLimit . '): '
+                        . print_r($debugBacktrance, true);
+
                 }
 
+                self::output($message);
+
                 // Show error page
-                try {
+                try
+                {
+
                     $errorPage = _SITE_ROOT_
-                        . \Aomebo\Configuration::getSetting('dispatch,error page');
+                        . \Aomebo\Configuration::getSetting(
+                            'dispatch,error page');
+
                     if (file_exists($errorPage)) {
                         echo file_get_contents($errorPage);
                     } else {
@@ -217,19 +235,76 @@ namespace Aomebo\Feedback
                             'Errorpage not found at "'
                             . $errorPage . '".');
                     }
+
                 } catch (\Exception $e) {
-                    error_log('Error: "' . $e->getMessage() . '", backtrace: "'
-                        . print_r($debugBacktrance, true) . '"');
+                    self::output('Error: "' . $e->getMessage() . '"');
                 }
 
                 $dispatcher =
                     \Aomebo\Dispatcher\System::getInstance();
-                $dispatcher->setHttpResponseStatus500InternalServerError();
-
-                exit;
+                $dispatcher->
+                    setHttpResponseStatus500InternalServerError();
 
             }
+
             return true;
+
+        }
+
+        /**
+         * @static
+         * @param string $message
+         * @param bool|null [$display = null]
+         * @param bool|null [$log = null]
+         */
+        public static function output($message, $display = null, $log = null)
+        {
+            if (!empty($message)) {
+
+                if (\Aomebo\Configuration::getSetting(
+                    'feedback,dump environment variables')
+                ) {
+                    $message .=
+                        \Aomebo\Configuration::getSetting(
+                            'output,linebreak character')
+                        . '$_POST: "' . (isset($_POST) ?
+                            print_r($_POST, true) : 'null') . '",'
+                        . '$_GET: "' . (isset($_GET) ?
+                            print_r($_GET, true) : 'null') . '",'
+                        . '$_SERVER: "' . (isset($_SERVER) ?
+                            print_r($_SERVER, true) : 'null') . '"';
+                }
+
+                if (!isset($log)) {
+                    $log = \Aomebo\Configuration::getSetting(
+                        'feedback,log errors');
+                }
+
+                if ($log) {
+                    error_log($message);
+                }
+
+                if (!isset($display)) {
+                    $display = \Aomebo\Configuration::getSetting(
+                        'feedback,display errors');
+                }
+
+                if ($display) {
+
+                    if (\Aomebo\Dispatcher\System::isShellRequest()) {
+                        echo $message .
+                            \Aomebo\Configuration::getSetting(
+                                'output,linebreak character');
+                    } else {
+                        echo '<pre>' . $message .
+                            \Aomebo\Configuration::getSetting(
+                            'output,linebreak character')
+                            . '</pre>';
+                    }
+
+                }
+
+            }
         }
 
         /**
@@ -241,15 +316,17 @@ namespace Aomebo\Feedback
         public function exceptionHandler($exception = null)
         {
 
-            $logErrors = \Aomebo\Configuration::getSetting('feedback,log errors');
-            $displayErrors = \Aomebo\Configuration::getSetting('feedback,display errors');
-
-            $debugBacktrance = array();
+            $message = '';
 
             // Backtrace
-            if (\Aomebo\Configuration::getSetting('feedback,include backtrace')) {
+            if (\Aomebo\Configuration::getSetting(
+                'feedback,include backtrace')
+            ) {
+
                 $backtraceLimit =
-                    (int) \Aomebo\Configuration::getSetting('feedback,backtrace limit');
+                    (int) \Aomebo\Configuration::getSetting(
+                        'feedback,backtrace limit');
+
                 if (!empty($backtraceLimit)
                     && $backtraceLimit > 0
                 ) {
@@ -277,41 +354,47 @@ namespace Aomebo\Feedback
                     }
 
                 }
-                $message = 'Exception-backtrace (limit:' . $backtraceLimit . '): "' . print_r($debugBacktrance, true) . '"';
-                if ($logErrors) {
-                    error_log($message);
-                }
-                if ($displayErrors) {
-                    echo $message . "\n<br />";
-                }
+
+                $message .=
+                    'Exception-backtrace (limit:' . $backtraceLimit . '): "'
+                    . print_r($debugBacktrance, true) . '"';
+
+            }
+
+            if (\Aomebo\Configuration::getSetting(
+                'feedback,dump environment variables')
+            ) {
+
+                $message .= '$_POST: "' . (isset($_POST) ?
+                    print_r($_POST, true) : 'null') . '",'
+                    . '$_GET: "' . (isset($_GET) ?
+                    print_r($_GET, true) : 'null') . '",'
+                    . '$_SERVER: "' . (isset($_SERVER) ?
+                    print_r($_SERVER, true) : 'null') . '"';
+
             }
 
             // Exception message
             if (isset($exception)) {
 
                 /** @var \Exception $exception */
-                $message = 'Exception-message: "' . $exception->getMessage() . '"';
+                $message .= 'Exception-message: "' . $exception->getMessage() . '"';
 
-                if ($logErrors) {
-                    error_log($message);
-                }
-                if ($displayErrors) {
-                    echo $message . "\n<br />";
-                }
             } else {
-                $message = 'Unspecified exception';
-                if ($logErrors) {
-                    error_log($message);
-                }
-                if ($displayErrors) {
-                    echo $message . "\n<br />";
-                }
+
+                $message .= 'Unspecified exception';
+
             }
 
+            self::output($message);
+
             // Show error-page
-            try {
+            try
+            {
+
                 $errorPage = _SITE_ROOT_
                     . \Aomebo\Configuration::getSetting('dispatch,error page');
+
                 if (file_exists($errorPage)) {
                     echo file_get_contents($errorPage);
                 } else {
@@ -320,13 +403,13 @@ namespace Aomebo\Feedback
                         . $errorPage . '".');
                 }
             } catch (\Exception $e) {
-                error_log('Exception: "' . $e->getMessage() . '", backtrace: "'
-                    . print_r($debugBacktrance, true) . '"');
+                self::output('Exception: "' . $e->getMessage() . '"');
             }
 
             $dispatcher =
                 \Aomebo\Dispatcher\System::getInstance();
-            $dispatcher->setHttpResponseStatus500InternalServerError();
+            $dispatcher->
+                setHttpResponseStatus500InternalServerError();
 
         }
 

@@ -258,6 +258,10 @@ feedback:
         type: boolean
         required: true
         default: true
+    display runtime exceptions:
+        type: boolean
+        required: true
+        default: false
     truncate error log:
         type: boolean
         required: true
@@ -266,6 +270,10 @@ feedback:
         type: integer
         required: true
         default: 1048576
+    dump environment variables:
+        type: boolean
+        required: true
+        default: true
 
 session:
     table:

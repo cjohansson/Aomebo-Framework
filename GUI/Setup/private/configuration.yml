@@ -25,6 +25,7 @@ feedback:
     log errors: true
     error log: Logs/errors.txt
     debug mode: false
+    display runtime exceptions: true
 
 session:
     cookie key: aom
