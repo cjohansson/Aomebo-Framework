@@ -33,41 +33,64 @@ namespace Aomebo
         /**
          * @static
          * @param string $absolutePath
+         * @param bool [$throwException = true]
          * @throws \Exception
          * @return bool
          */
-        public static function makeDirectories($absolutePath)
+        public static function makeDirectories($absolutePath,
+            $throwException = true)
         {
-            if ($components = explode(DIRECTORY_SEPARATOR, $absolutePath)) {
+
+            $accBool = true;
+
+            if ($components = explode(
+                DIRECTORY_SEPARATOR, $absolutePath)
+            ) {
+
                 $path = '';
                 $pathIndex = 0;
                 $pathSize = sizeof($components);
+
                 foreach ($components as $component)
                 {
                     if ($component !== '') {
                         if ($pathIndex < $pathSize - 1) {
+
                             if ($pathIndex > 0) {
                                 $path .= DIRECTORY_SEPARATOR;
                             }
+
                             $path .= $component;
+
                             if (!is_dir($path)) {
-                                self::makeDirectory($path);
+                                if (!self::makeDirectory(
+                                    $path, $throwException)
+                                ) {
+                                    $accBool = false;
+                                }
                             }
+
                         }
                     }
+
                     $pathIndex++;
+
                 }
+
             }
-            return true;
+
+            return $accBool;
+
         }
 
         /**
          * @static
          * @param string $absolutePath
+         * @param bool [$throwException = true]
          * @throws \Exception
          * @return bool
          */
-        public static function makeDirectory($absolutePath)
+        public static function makeDirectory($absolutePath, $throwException = true)
         {
 
             if (is_dir($absolutePath)) {
@@ -82,31 +105,39 @@ namespace Aomebo
 
                     } else {
 
-                        Throw new \Exception(
-                            'Could not make directory: '
-                                . '"' . $absolutePath . '"  in ' . __FUNCTION__
-                                . ' in ' . __FILE__);
+                        if ($throwException) {
+                            Throw new \Exception(
+                                'Could not make directory: '
+                                    . '"' . $absolutePath . '"');
+                        }
 
                     }
 
                 } catch (\Exception $e) {
 
-                    Throw new \Exception(
-                        'Could not make directory: '
-                            . '"' . $absolutePath . '" in ' . __FUNCTION__
-                            . ' in ' . __FILE__);
+                    if ($throwException) {
+
+                        Throw new \Exception(
+                            'Could not make directory: '
+                                . '"' . $absolutePath . '"');
+
+                    }
 
                 }
             }
+
+            return false;
 
         }
 
         /**
          * @param string $absolutePath
+         * @param bool [$throwException = true]
          * @return string
          * @throws \Exception
          */
-        public static function getFileContents($absolutePath)
+        public static function getFileContents($absolutePath,
+            $throwException = true)
         {
 
             if (!empty($absolutePath)
@@ -124,7 +155,9 @@ namespace Aomebo
                 }
 
             } else {
-                Throw new \Exception('Invalid parameters');
+                if ($throwException) {
+                    Throw new \Exception('Invalid parameters');
+                }
             }
 
             return '';
@@ -170,13 +203,20 @@ namespace Aomebo
          * @throws \Exception
          * @return bool
          */
-        public static function makeFile($absolutePath, $contents = '')
+        public static function makeFile($absolutePath, $contents = '',
+            $throwException = true)
         {
+
             self::makeDirectories($absolutePath);
-            if (self::_writeFile($absolutePath, $contents, null, true)) {
+
+            if (self::_writeFile($absolutePath, $contents, null,
+                true)
+            ) {
                 return true;
             }
+
             return false;
+
         }
 
         /**
