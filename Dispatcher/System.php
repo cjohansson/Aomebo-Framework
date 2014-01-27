@@ -212,7 +212,7 @@ namespace Aomebo\Dispatcher
          * @static
          * @var array
          */
-        private static $_routes;
+        private static $_routes = array();
 
         /**
          * @internal
@@ -1893,6 +1893,9 @@ namespace Aomebo\Dispatcher
         }
 
         /**
+         * Notice, this method is often called without
+         * this class being initialized.
+         *
          * @static
          * @param \Aomebo\Dispatcher\Route $route
          * @return bool
@@ -2306,7 +2309,6 @@ namespace Aomebo\Dispatcher
                 \Aomebo\Configuration::getSetting('dispatch,default page');
 
             self::setFileNotFoundFlag(false);
-            self::$_routes = array();
 
             // Is it a shell request?
             if (self::isShellRequest()) {
