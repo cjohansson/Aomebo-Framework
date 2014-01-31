@@ -138,7 +138,8 @@ namespace Aomebo\Dispatcher
                     && is_a($backtrace[2]['object'], '\Aomebo\Runtime')
                     && is_a($backtrace[2]['object'], '\Aomebo\Runtime\Routable')
                 ) {
-                    $this->reference = & $backtrace[1]['object'];
+                    $this->reference =
+                        & $backtrace[2]['object'];
                 }
             }
             if (!empty($name)) {
