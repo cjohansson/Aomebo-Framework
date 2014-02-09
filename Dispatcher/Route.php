@@ -263,20 +263,22 @@ namespace Aomebo\Dispatcher
 
             $uri = \Aomebo\Dispatcher\System::getPageBaseUri();
 
-            if (!empty($page)
-                && \Aomebo\Dispatcher\System::uriExistsForPage($page)
-                && !\Aomebo\Dispatcher\System::isDefaultPage($page)
-            ) {
-                $uri .=
-                    \Aomebo\Dispatcher\System::getUriForPage($page)
-                    . '/';
-            } else if (!empty($this->page)
-                && \Aomebo\Dispatcher\System::uriExistsForPage($this->page)
-                && !\Aomebo\Dispatcher\System::isDefaultPage($this->page)
-            ) {
-                $uri .=
-                    \Aomebo\Dispatcher\System::getUriForPage($this->page)
-                    . '/';
+            if (!empty($page)) {
+                if (\Aomebo\Dispatcher\System::uriExistsForPage($page)
+                    && !\Aomebo\Dispatcher\System::isDefaultPage($page)
+                ) {
+                    $uri .=
+                        \Aomebo\Dispatcher\System::getUriForPage($page)
+                        . '/';
+                }
+            } else if (!empty($this->page)) {
+                if (\Aomebo\Dispatcher\System::uriExistsForPage($this->page)
+                    && !\Aomebo\Dispatcher\System::isDefaultPage($this->page)
+                ) {
+                    $uri .=
+                        \Aomebo\Dispatcher\System::getUriForPage($this->page)
+                        . '/';
+                }
             } else if (!\Aomebo\Dispatcher\System::isCurrentPageDefaultPage()) {
                 $uri .=
                     \Aomebo\Dispatcher\System::getUriForPage(
