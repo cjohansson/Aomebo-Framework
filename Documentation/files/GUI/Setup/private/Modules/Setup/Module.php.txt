@@ -35,7 +35,7 @@ namespace Modules\Setup
         }
 
         /**
-         * @return null|string
+         * @return string
          */
         public function getCacheKey()
         {
@@ -58,19 +58,28 @@ namespace Modules\Setup
         }
 
         /**
-         * @return bool|mixed|string
+         * @return string
          */
         public function execute()
         {
 
-/*
-            $view = \Aomebo\Template\Adapters\Php\Adapter::getInstance();
-            $view->setFile('views/view.php');
-            return $view->parse();
-*/
-
             $view = \Aomebo\Template\Adapters\Smarty\Adapter::getInstance();
             $view->setFile('views/view.tpl');
+
+            $submit = array();
+            if ($siteSettings = self::$_aomebo->Configuration()->getSetting('site')) {
+                $submit['siteTitle'] = $siteSettings['title'];
+                $submit['siteTitleDelimiter'] = $siteSettings['title delimiter'];
+                $submit['siteTitleDirection'] = $siteSettings['title direction'];
+                $submit['siteSlogan'] = $siteSettings['slogan'];
+            }
+
+            if ($pathsSettings = self::$_aomebo->Configuration()->getSetting('paths')) {
+                $submit['pathsDefaultFileMod'] = $pathsSettings['default file mod'];
+            }
+
+            $view->attachVariable('submit', $submit);
+
             return $view->parse();
 
         }

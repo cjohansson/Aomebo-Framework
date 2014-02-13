@@ -849,7 +849,7 @@ namespace Aomebo\Session
                             'value' => 'NOW()',
                             'quoted' => false,
                         ),
-                    ))
+                    ), false, false)
                 ) {
                     $accBool = ($accBool && true);
                 } else {

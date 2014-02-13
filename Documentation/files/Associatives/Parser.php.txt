@@ -252,7 +252,8 @@ namespace Aomebo\Associatives
             );
             ksort($replacements);
 
-            $date = date(\Aomebo\Configuration::getSetting('output,default dateformat'));
+            $date = date(\Aomebo\Configuration::getSetting(
+                'output,default dateformat'));
 
             // Add cache stamp optionally
             if (\Aomebo\Configuration::getSetting(

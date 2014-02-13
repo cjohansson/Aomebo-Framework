@@ -76,6 +76,26 @@ namespace Aomebo\Trigger
         const TRIGGER_KEY_DATABASE_QUERY = 'af_database_query';
 
         /**
+         * @var string
+         */
+        const TRIGGER_KEY_DATABASE_CONNECTION_SUCCESS = 'af_database_connection_success';
+
+        /**
+         * @var string
+         */
+        const TRIGGER_KEY_DATABASE_CONNECTION_FAIL = 'af_database_connection_fail';
+
+        /**
+         * @var string
+         */
+        const TRIGGER_KEY_DATABASE_SELECTED_SUCCESS = 'af_database_selected_database_success';
+
+        /**
+         * @var string
+         */
+        const TRIGGER_KEY_DATABASE_SELECTED_FAIL = 'af_database_selected_database_fail';
+
+        /**
          * @static
          * @var array
          */

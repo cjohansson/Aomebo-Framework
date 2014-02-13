@@ -26,7 +26,7 @@ namespace Aomebo
 
     /**
      * This class will be used by both models, controllers and modules
-     * class to get access to features such as Cacheable, Routable,
+     * and gives access to features such as Cacheable, Routable,
      * Dependent, Executable, Installable, Associatable.
      *
      * @method static \Aomebo\Runtime getInstance()
@@ -81,6 +81,20 @@ namespace Aomebo
          * @deprecated
          */
         protected $_parameters = array();
+
+        /**
+         * @internal
+         * @var array
+         * @deprecated
+         */
+        protected $_routes = array();
+
+        /**
+         * @internal
+         * @var array
+         * @deprecated
+         */
+        protected $_dependencies = array();
 
         /**
          * @var \Aomebo|null
@@ -584,44 +598,8 @@ namespace Aomebo
                         }
                     }
 
-                }
-
-                if ($this->isExecutionParameters()) {
-
-                    /** @var \Aomebo\Runtime\ExecutionParameters $ref */
-                    $ref = & $this;
-
-                    if ($parameters = $ref->getParameters()) {
-                        if (is_array($parameters)
-                            && sizeof($parameters) > 0
-                        ) {
-                            foreach ($parameters as $parameterIndex => $parameterKey)
-                            {
-                                $this->_parameterToIndex[$parameterKey] =
-                                    $parameterIndex;
-                                $this->_indexToParameter[$parameterIndex] =
-                                    $parameterKey;
-                            }
-                        }
-                    }
-
-                // TODO: This below is deprecated and will be removed.
-                } else if (isset($this->_parameters)
-                    && is_array($this->_parameters)
-                    && sizeof($this->_parameters) > 0
-                ) {
-                    $sizeof =
-                        sizeof($this->_parameters);
-                    for ($i = 0; $i < $sizeof; $i++)
-                    {
-                        $parameter = $this->_parameters[$i];
-                        $this->_parameterToIndex[$parameter] = $i;
-                        $this->_indexToParameter[$i] = $parameter;
-                    }
-                }
-
-                // Is routes specified as protected array?
-                if (isset($this->_routes)
+                // TODO: This below is deprecated and will be removed in next major version.
+                } else if (isset($this->_routes)
                     && is_array($this->_routes)
                     && sizeof($this->_routes) > 0
                 ) {
@@ -647,6 +625,41 @@ namespace Aomebo
                     }
                 }
 
+
+                if ($this->isExecutionParameters()) {
+
+                    /** @var \Aomebo\Runtime\ExecutionParameters $ref */
+                    $ref = & $this;
+
+                    if ($parameters = $ref->getParameters()) {
+                        if (is_array($parameters)
+                            && sizeof($parameters) > 0
+                        ) {
+                            foreach ($parameters as $parameterIndex => $parameterKey)
+                            {
+                                $this->_parameterToIndex[$parameterKey] =
+                                    $parameterIndex;
+                                $this->_indexToParameter[$parameterIndex] =
+                                    $parameterKey;
+                            }
+                        }
+                    }
+
+                // TODO: This below is deprecated and will be removed in next major version.
+                } else if (isset($this->_parameters)
+                    && is_array($this->_parameters)
+                    && sizeof($this->_parameters) > 0
+                ) {
+                    $sizeof =
+                        sizeof($this->_parameters);
+                    for ($i = 0; $i < $sizeof; $i++)
+                    {
+                        $parameter = $this->_parameters[$i];
+                        $this->_parameterToIndex[$parameter] = $i;
+                        $this->_indexToParameter[$i] = $parameter;
+                    }
+                }
+
             }
 
         }
@@ -665,6 +678,20 @@ namespace Aomebo
             return '';
         }
 
+        /**
+         *
+         */
+        public function getAssociativesPublicDirectory()
+        {
+
+        }
+
+        /**
+         *
+         */
+        public function getAssociativesSiteDirectory()
+        {
+        }
 
         /**
          * @static
@@ -928,7 +955,7 @@ namespace Aomebo
                     $array[$key],
                     $matches) === 1
             ) {
-                return (int) $_POST[$key];
+                return (int) $array[$key];
             }
             return $default;
         }
@@ -987,18 +1014,25 @@ namespace Aomebo
                     }
 
                 } catch (\Exception $e) {
+
                     $this->setField('error', $e->getMessage());
 
-                    if (\Aomebo\Configuration::getSetting(
-                        'feedback,log runtime exceptions')
-                    ) {
-                        error_log('Aomebo Runtime: { '
-                            . 'name: "' . $this->getField('name') . '", '
-                            . 'file: "' . $this->getAbsoluteFilename() . '", '
-                            . 'error-file: "'. $e->getFile() . '",'
-                            . 'error-line: "' . $e->getLine() . '",'
-                            . 'error-message: "' . $e->getMessage() . '"');
-                    }
+                    $displayRuntimeExceptions =
+                        \Aomebo\Configuration::getSetting(
+                            'feedback,display runtime exceptions');
+                    $logRuntimeExceptions =
+                        \Aomebo\Configuration::getSetting(
+                            'feedback,log runtime exceptions');
+
+                    self::$_aomebo->Feedback()->Debug()->output(
+                        'Aomebo Runtime: { '
+                        . 'name: "' . $this->getField('name') . '", '
+                        . 'file: "' . $this->getAbsoluteFilename() . '", '
+                        . 'error-file: "'. $e->getFile() . '",'
+                        . 'error-line: "' . $e->getLine() . '",'
+                        . 'error-message: "' . $e->getMessage() . '"',
+                        $displayRuntimeExceptions,
+                        $logRuntimeExceptions);
 
                     if (\Aomebo\Configuration::getSetting(
                         'feedback,halt on runtime exceptions')

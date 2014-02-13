@@ -131,21 +131,15 @@ namespace Aomebo\Dispatcher
                 $this->reference = & $reference;
             } else {
 
-                /**
-                 * @see http://www.php.net/function.debug-backtrace
-                 */
-                if (phpversion() >= '5.3.6') {
-                    $backtrace = debug_backtrace(
-                        DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-                } else {
-                    $backtrace = debug_backtrace(true);
-                }
+                $backtrace =
+                    \Aomebo\Application::getDebugBacktrace(3);
 
-                if (isset($backtrace[1]['object'])
-                    && is_a($backtrace[1]['object'], '\Aomebo\Runtime')
-                    && is_a($backtrace[1]['object'], '\Aomebo\Runtime\Routable')
+                if (isset($backtrace[2]['object'])
+                    && is_a($backtrace[2]['object'], '\Aomebo\Runtime')
+                    && is_a($backtrace[2]['object'], '\Aomebo\Runtime\Routable')
                 ) {
-                    $this->reference = & $backtrace[1]['object'];
+                    $this->reference =
+                        & $backtrace[2]['object'];
                 }
             }
             if (!empty($name)) {
@@ -173,12 +167,21 @@ namespace Aomebo\Dispatcher
                 $this->page = $page;
             }
             if ($this->isValid()) {
-                $dispatcher =
-                    \Aomebo\Dispatcher\System::getInstance();
-                $this->_hashKey = $dispatcher->generateRouteHashKey(
+                $this->_hashKey = self::generateRouteHashKey(
                     $this->keys);
             }
 
+        }
+
+        /**
+         * @static
+         * @param array $getArray       non-associative array containing keys
+         * @return string
+         */
+        public static function generateRouteHashKey($getArray)
+        {
+            sort($getArray, SORT_STRING);
+            return md5(implode('', $getArray));
         }
 
         /**
@@ -200,9 +203,7 @@ namespace Aomebo\Dispatcher
         {
             if ($this->isValid()) {
                 if (empty($this->_hashKey)) {
-                    $dispatcher =
-                        \Aomebo\Dispatcher\System::getInstance();
-                    $this->_hashKey = $dispatcher->generateRouteHashKey(
+                    $this->_hashKey = self::generateRouteHashKey(
                         $this->keys);
                 }
                 return $this->_hashKey;
@@ -262,18 +263,22 @@ namespace Aomebo\Dispatcher
 
             $uri = \Aomebo\Dispatcher\System::getPageBaseUri();
 
-            if (!empty($page)
-                && \Aomebo\Dispatcher\System::uriExistsForPage($page)
-            ) {
-                $uri .=
-                    \Aomebo\Dispatcher\System::getUriForPage($page)
-                    . '/';
-            } else if (!empty($this->page)
-                && \Aomebo\Dispatcher\System::uriExistsForPage($this->page)
-            ) {
-                $uri .=
-                    \Aomebo\Dispatcher\System::getUriForPage($this->page)
-                    . '/';
+            if (!empty($page)) {
+                if (\Aomebo\Dispatcher\System::uriExistsForPage($page)
+                    && !\Aomebo\Dispatcher\System::isDefaultPage($page)
+                ) {
+                    $uri .=
+                        \Aomebo\Dispatcher\System::getUriForPage($page)
+                        . '/';
+                }
+            } else if (!empty($this->page)) {
+                if (\Aomebo\Dispatcher\System::uriExistsForPage($this->page)
+                    && !\Aomebo\Dispatcher\System::isDefaultPage($this->page)
+                ) {
+                    $uri .=
+                        \Aomebo\Dispatcher\System::getUriForPage($this->page)
+                        . '/';
+                }
             } else if (!\Aomebo\Dispatcher\System::isCurrentPageDefaultPage()) {
                 $uri .=
                     \Aomebo\Dispatcher\System::getUriForPage(

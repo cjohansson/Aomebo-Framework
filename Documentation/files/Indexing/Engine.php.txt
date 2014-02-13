@@ -94,20 +94,29 @@ namespace Aomebo\Indexing
          */
         public function __construct()
         {
-            parent::__construct();
+
             if (!$this->_isConstructed()) {
-                if (\Aomebo\Configuration::getSetting(
-                    'output,indexing enabled')
-                ) {
-                    if (!self::$_enabled =
-                        $this->_isInstalled()
+
+                parent::__construct();
+
+                if (\Aomebo\Database\Adapter::useDatabase()) {
+
+                    if (\Aomebo\Configuration::getSetting(
+                        'output,indexing enabled')
                     ) {
-                        $this->_install();
-                        self::$_enabled =
-                            $this->_isInstalled();
+                        if (!self::$_enabled =
+                            $this->_isInstalled()
+                        ) {
+                            $this->_install();
+                            self::$_enabled =
+                                $this->_isInstalled();
+                        }
                     }
+
                 }
+
                 $this->_flagThisConstructed();
+
             }
         }
 
@@ -128,10 +137,15 @@ namespace Aomebo\Indexing
         public function index()
         {
 
+            $uri = \Aomebo\Dispatcher\System::getPageBaseUri()
+                . \Aomebo\Dispatcher\System::getFullRequest();
+
             $indexingEnabled =
                 \Aomebo\Configuration::getSetting('indexing,enabled');
             $session =
                 \Aomebo\Session\Handler::getInstance();
+
+            $isQueryStringUri = (strpos($uri, '?') !== false);
 
             /**
              * For automatic indexing, following criteria must be met:
@@ -148,6 +162,11 @@ namespace Aomebo\Indexing
                 && $indexingEnabled
                 && !\Aomebo\Dispatcher\System::isCurrentPageFileNotFoundPage()
                 && !\Aomebo\Dispatcher\System::isRedirecting()
+                && (!$isQueryStringUri
+                    || (\Aomebo\Dispatcher\System::isRewriteEnabled()
+                        && \Aomebo\Configuration::getSetting('indexing,index query string uris using mod_rewrite'))
+                    || (!\Aomebo\Dispatcher\System::isRewriteEnabled()
+                        && \Aomebo\Configuration::getSetting('indexing,index query string uris')))
             ) {
 
                 \Aomebo\Dispatcher\System::setHttpHeaderField(
@@ -373,7 +392,6 @@ namespace Aomebo\Indexing
                     $title = $interpreter->getMetaData('title');
                     $description = $interpreter->getMetaData('description');
                     $keywords = $interpreter->getMetaData('keywords');
-                    $added = 'NOW()';
                     $contentLastModified = date('Y-m-d H:i:s', $now);
                     $contentModificationNumber =
                         (int) $row['content_modification_number'] + 1;
@@ -739,20 +757,14 @@ namespace Aomebo\Indexing
          */
         private function _getExpiredItems()
         {
-            $dba =
-                \Aomebo\Database\Adapter::getInstance();
-            $expiredDays =
-                \Aomebo\Configuration::getSetting('indexing,expiration days');
-            $expired = strtotime('-' . $expiredDays . ' days', time());
-            if ($resultset = $dba->query('SELECT * FROM `{TABLE PREFIX}'
+            if ($resultset = \Aomebo\Database\Adapter::query(
+                'SELECT * FROM `{TABLE PREFIX}'
                 . '{SYSTEM TABLE PREFIX}' . self::TABLE . '` '
-                . 'WHERE `edited` <= {expired} '
+                . 'WHERE `edited` <= NOW() - INTERVAL {days} DAY '
                 . 'AND `edited` != {none}',
                 array(
-                    'expired' => array(
-                        'value' => $expired,
-                        'quoted' => true,
-                    ),
+                    'days' => \Aomebo\Configuration::getSetting(
+                            'indexing,expiration days'),
                     'none' => array(
                         'value' => '0000-00-00 00:00:00',
                         'quoted' => true,

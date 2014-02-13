@@ -35,13 +35,6 @@ namespace Aomebo\Associatives
          * @static
          * @var array
          */
-        private static $_modules;
-
-        /**
-         * @internal
-         * @static
-         * @var array
-         */
         private static $_dependencies;
 
         /**
@@ -187,6 +180,12 @@ namespace Aomebo\Associatives
         private static $_supressOutput = false;
 
         /**
+         * @static
+         * @var string
+         */
+        private static $_media = '';
+
+        /**
          * @throws \Exception
          */
         public function __construct()
@@ -194,9 +193,8 @@ namespace Aomebo\Associatives
             parent::__construct();
             if (!self::_isConstructed()) {
 
-                $this->_scanDependencies();
-                $this->_scanModules();
-                $this->_scanAssociatives();
+                self::_scanDependencies();
+                self::_scanAssociatives();
 
                 if (!\Aomebo\Configuration::getSetting(
                     'paths,resources dir is absolute')
@@ -214,6 +212,15 @@ namespace Aomebo\Associatives
                     __CLASS__ . ' is instanciated more than one time');
             }
             self::_flagThisConstructed();
+        }
+
+        /**
+         * @static
+         * @param string $media
+         */
+        public static function setMedia($media)
+        {
+            self::$_media = $media;
         }
 
         /**
@@ -345,9 +352,10 @@ namespace Aomebo\Associatives
         {
 
             $tmp = '';
+
             if (!self::$_supressOutput) {
-                $tmp .= $this->_getDependencyData();
-                $tmp .= $this->_getAssociativeData();
+                $tmp .= $this->_getDependencyData(self::$_media);
+                $tmp .= $this->_getAssociativeData(self::$_media);
             }
 
             $tmp .= \Aomebo\Trigger\System::processTriggers(
@@ -358,117 +366,30 @@ namespace Aomebo\Associatives
         }
 
         /**
-         * This function scans filesystem for
-         * all availible modules.
-         *
-         * @internal
-         * @throws \Exception
-         */
-        private function _scanModules()
-        {
-
-            $roots = array();
-
-            if ($siteDirectories = \Aomebo\Configuration::getSetting(
-                'paths,runtime site directories')
-            ) {
-                foreach ($siteDirectories as $siteDirectory)
-                {
-                    $roots[] = _SITE_ROOT_ . $siteDirectory;
-                }
-            }
-
-            if ($publicDirectories = \Aomebo\Configuration::getSetting(
-                'paths,runtime public directories')
-            ) {
-                foreach ($publicDirectories as $publicDirectory)
-                {
-                    $roots[] = _PUBLIC_ROOT_ . $publicDirectory;
-                }
-            }
-
-            self::$_modules = array();
-
-            foreach ($roots as $root)
-            {
-
-                $dirs = scandir($root);
-                foreach ($dirs as $dir)
-                {
-
-                    $path = $root . DIRECTORY_SEPARATOR . $dir;
-                    $moduleCsName = $dir;
-                    $moduleCisName = strtolower($dir);
-
-                    if ($dir != '.'
-                        && $dir != '..'
-                        && is_dir($path)
-                        && !isset(self::$_associatives[$moduleCisName])
-                    ) {
-
-                        $namespaceName = basename(dirname($path));
-                        $namespaceClassName = substr($namespaceName, 0, -1);
-
-                        $file = $path . DIRECTORY_SEPARATOR
-                            . $namespaceClassName . _PHP_EX_;
-                        $alternateFile = $path . DIRECTORY_SEPARATOR
-                            . $dir . _PHP_EX_;
-
-                        if (file_exists($file)
-                            || file_exists($alternateFile)
-                        ) {
-
-                            self::$_modules[$moduleCisName] =
-                                array(
-                                    'cs_name' => $moduleCsName,
-                                    'cis_name' => $moduleCisName,
-                                );
-
-                        }
-                    }
-                }
-            }
-        }
-
-        /**
          * This function should store flags which associatives
          * have associative data and where it is located and which
          * type of data (variant-related or default).
          *
          * @internal
+         * @static
          * @throws \Exception
          */
-        private function _scanAssociatives()
+        private static function _scanAssociatives()
         {
 
-            $session = \Aomebo\Session\Handler::getInstance();
+            $session =
+                \Aomebo\Session\Handler::getInstance();
             $sessionBlock = $session->getSessionBlock();
-            $associativesDir = \Aomebo\Configuration::getSetting('paths,associatives dir');
+            $associativesDir =
+                \Aomebo\Configuration::getSetting('paths,associatives dir');
             $dispatcher = \Aomebo\Dispatcher\System::getInstance();
-            $requestType = ($dispatcher::isAjaxRequest() ? self::REQUEST_TYPE_AJAX : self::REQUEST_TYPE_DEFAULT);
+
+            $requestType = ($dispatcher::isAjaxRequest() ?
+                self::REQUEST_TYPE_AJAX : self::REQUEST_TYPE_DEFAULT);
+
             $extraKey = (isset($_GET['extra']) ? $_GET['extra'] : false);
             self::$_associatives = array();
             self::$_selectedAssociatives = array();
-
-            $roots = array();
-
-            if ($siteDirectories = \Aomebo\Configuration::getSetting(
-                'paths,runtime site directories')
-            ) {
-                foreach ($siteDirectories as $siteDirectory)
-                {
-                    $roots[] = _SITE_ROOT_ . $siteDirectory;
-                }
-            }
-
-            if ($publicDirectories = \Aomebo\Configuration::getSetting(
-                'paths,runtime public directories')
-            ) {
-                foreach ($publicDirectories as $publicDirectory)
-                {
-                    $roots[] = _PUBLIC_ROOT_ . $publicDirectory;
-                }
-            }
 
             $suffixToMimeArray = array(
                 self::SUFFIX_JAVASCRIPT => self::MIME_JAVASCRIPT,
@@ -486,304 +407,295 @@ namespace Aomebo\Associatives
                 self::MODE_IGNORE => true,
                 self::MODE_INLINE => true,
             );
+            
+            if ($runtimes = \Aomebo\Application::getRuntimes()) {
+                
+                foreach ($runtimes as $runtime)
+                {
+                    
+                    /** @var \Aomebo\Runtime $runtime */
+                    
+                    $csName = $runtime->getField('name');
+                    $cisName = strtolower($csName);
 
-            // Iterate through modules
-            foreach (self::$_modules as & $module)
-            {
+                    $options = array();
 
-                $moduleName =
-                    '\\Modules\\' . $module['cs_name'] . '\\Module';
+                    if ($runtime->isAssociatable()) {
 
-                $options = array();
-
-                if (class_exists($moduleName, false)) {
-
-                    /** @var \Aomebo\Runtime $object */
-                    $object = new $moduleName();
-
-                    if ($object->isAssociatable()) {
-
-                        /** @var \Aomebo\Runtime\Associatable $object */
-                        $options = $object->getAssociatives();
+                        /** @var \Aomebo\Runtime\Associatable $runtime */
+                        $options = $runtime->getAssociatives();
 
                     }
+                    
+                    $dir = dirname($runtime->getAbsoluteFilename())
+                        . DIRECTORY_SEPARATOR . $associativesDir; 
 
-                }
-
-                // Iterate through roots
-                foreach ($roots as $root)
-                {
-
-                    // Make array of directories
-                    $dirs = array(
-                        $root . DIRECTORY_SEPARATOR
-                            . $module['cs_name'] . DIRECTORY_SEPARATOR
-                            . $associativesDir,
-                        $root . $associativesDir . DIRECTORY_SEPARATOR
-                            . $module['cs_name']);
-
-                    // Iterate through directories
-                    foreach ($dirs as $dir)
+                    // Does directory exist?
+                    if (is_dir($dir))
                     {
 
-                        // Does directory exist?
-                        if (is_dir($dir)) {
+                        // Get associatives files
+                        if ($files = scandir($dir)) {
 
-                            // Get associatives files
-                            if ($files = scandir($dir)) {
+                            // Iterate through files
+                            foreach ($files as $file)
+                            {
 
-                                // Iterate through files
-                                foreach ($files as $file)
-                                {
+                                // File is not a sybolic directory
+                                if ($file != '.'
+                                    && $file != '..'
+                                ) {
 
-                                    // File is not a sybolic directory
-                                    if ($file != '.'
-                                        && $file != '..'
-                                    ) {
+                                    $fileSuffix = substr($file, strrpos($file, '.'));
 
-                                        $fileSuffix = substr($file, strrpos($file, '.'));
-                                        if (isset($suffixToMimeArray[$fileSuffix])) {
-                                            $fileMime = $suffixToMimeArray[$fileSuffix];
-                                        } else {
-                                            $fileMime = 'unknown';
+                                    if (isset($suffixToMimeArray[$fileSuffix])) {
+                                        $fileMime = $suffixToMimeArray[$fileSuffix];
+                                    } else {
+                                        $fileMime = 'unknown';
+                                    }
+
+                                    $fileFullPath = $dir . DIRECTORY_SEPARATOR . $file;
+                                    $fileSessionApproved = true;
+                                    $fileExtraKeyApproved = (empty($extraKey));
+                                    $fileHttpAgentApproved = true;
+                                    $fileMode = self::MODE_EXTERNAL;
+                                    $fileRequestTypeApproved = true;
+                                    $fileRequestMethodApproved = true;
+                                    $fileCacheHash = filemtime($fileFullPath);
+
+                                    // There exists options specified for file
+                                    if (isset($options[$file]))
+                                    {
+
+                                        // Custom mode?
+                                        if (isset($options[$file]['mode'])) {
+                                            $fileMode = $options[$file]['mode'];
                                         }
-                                        $fileFullPath = $dir . DIRECTORY_SEPARATOR . $file;
-                                        $fileSessionApproved = true;
-                                        $fileExtraKeyApproved = (empty($extraKey));
-                                        $fileHttpAgentApproved = true;
-                                        $fileMode = self::MODE_EXTERNAL;
-                                        $fileRequestTypeApproved = true;
-                                        $fileRequestMethodApproved = true;
-                                        $fileCacheHash = filemtime($fileFullPath);
 
-                                        // There exists options specified for file
-                                        if (isset($options[$file])) {
+                                        // Any requirements on session?
+                                        if (isset($options[$file]['session_requirement'])) {
+                                            if (is_array($options[$file]['session_requirement']))
+                                            {
 
-                                            // Custom mode?
-                                            if (isset($options[$file]['mode'])) {
-                                                $fileMode = $options[$file]['mode'];
-                                            }
+                                                if (sizeof($options[$file]['session_requirement']) == 1) {
 
-                                            // Any requirements on session?
-                                            if (isset($options[$file]['session_requirement'])) {
-                                                if (is_array($options[$file]['session_requirement']))
-                                                {
-
-                                                    if (sizeof($options[$file]['session_requirement']) == 1) {
-
-                                                        foreach ($options[$file]['session_requirement'] as
-                                                            $sessionAuthFunctionName => $sessionAuthFunctionValue
+                                                    foreach ($options[$file]['session_requirement'] as
+                                                        $sessionAuthFunctionName => $sessionAuthFunctionValue
+                                                    ) {
+                                                        if (method_exists($sessionBlock,
+                                                            $sessionAuthFunctionName)
                                                         ) {
-                                                            if (method_exists($sessionBlock,
-                                                                $sessionAuthFunctionName)
-                                                            ) {
 
-                                                                /** @method mixed $sessionBlock->$sessionAuthFunctionName() */
+                                                            /** @method mixed $sessionBlock->$sessionAuthFunctionName() */
 
-                                                                $sessionValue =
-                                                                    $sessionBlock->$sessionAuthFunctionName($file);
+                                                            $sessionValue =
+                                                                $sessionBlock->$sessionAuthFunctionName($file);
 
-                                                                if ($sessionValue == $sessionAuthFunctionValue) {
-                                                                    $fileSessionApproved = true;
-                                                                    $fileCacheHash .= '1';
-                                                                } else {
-                                                                    $fileSessionApproved = false;
-                                                                    $fileCacheHash .= '0';
-                                                                }
+                                                            if ($sessionValue == $sessionAuthFunctionValue) {
+                                                                $fileSessionApproved = true;
+                                                                $fileCacheHash .= '1';
                                                             } else {
-
                                                                 $fileSessionApproved = false;
                                                                 $fileCacheHash .= '0';
-
-                                                                Throw new \Exception(
-                                                                    'Invalid session requirement method specified! '
-                                                                    . 'Could not find ' . $sessionAuthFunctionName
-                                                                    . ' in ' . $sessionBlock . ', ' . __FILE__);
                                                             }
-                                                        }
-                                                    }
-                                                } else {
-                                                    $sessionAuthFunctionName =
-                                                        $options[$file]['session_requirement'];
-                                                    if (method_exists($sessionBlock, $sessionAuthFunctionName)) {
-                                                        if ($sessionBlock->$sessionAuthFunctionName()) {
-                                                            $fileSessionApproved = true;
-                                                            $fileCacheHash .= '1';
                                                         } else {
+
                                                             $fileSessionApproved = false;
                                                             $fileCacheHash .= '0';
+
+                                                            Throw new \Exception(
+                                                                'Invalid session requirement method specified! '
+                                                                . 'Could not find ' . $sessionAuthFunctionName
+                                                                . ' in ' . $sessionBlock . ', ' . __FILE__);
                                                         }
+                                                    }
+                                                }
+                                            } else {
+                                                $sessionAuthFunctionName =
+                                                    $options[$file]['session_requirement'];
+                                                if (method_exists($sessionBlock, $sessionAuthFunctionName)) {
+                                                    if ($sessionBlock->$sessionAuthFunctionName()) {
+                                                        $fileSessionApproved = true;
+                                                        $fileCacheHash .= '1';
                                                     } else {
                                                         $fileSessionApproved = false;
                                                         $fileCacheHash .= '0';
                                                     }
-                                                }
-                                            }
-
-                                            // User agent specified
-                                            if (isset($options[$file]['http_agent'])) {
-                                                if (is_array($options[$file]['http_agent'])
-                                                ) {
-                                                    if (in_array($_SERVER['HTTP_USER_AGENT'],
-                                                        $options[$file]['http_agent'])
-                                                    ) {
-                                                        $fileHttpAgentApproved = true;
-                                                        $fileCacheHash .= '1';
-                                                    } else {
-                                                        $fileHttpAgentApproved = false;
-                                                        $fileCacheHash .= '0';
-                                                    }
                                                 } else {
-                                                    if ($_SERVER['HTTP_USER_AGENT'] ==
-                                                        $options[$file]['http_agent']
-                                                    ) {
-                                                        $fileHttpAgentApproved = true;
-                                                        $fileCacheHash .= '1';
-                                                    } else {
-                                                        $fileHttpAgentApproved = false;
-                                                        $fileCacheHash .= '0';
-                                                    }
-                                                }
-                                            }
-
-                                            /** Custom mime? */
-                                            if (isset($options[$file]['mime'])) {
-                                                $fileMime = $options[$file]['mime'];
-                                            }
-
-                                            /** Request requirement? */
-                                            if (isset($options[$file]['request_type'])) {
-                                                if ($options[$file]['request_type'] ==
-                                                    $requestType
-                                                ) {
-                                                    $fileRequestTypeApproved = true;
-                                                    $fileCacheHash .= '1';
-                                                } else {
-                                                    $fileRequestTypeApproved = false;
+                                                    $fileSessionApproved = false;
                                                     $fileCacheHash .= '0';
                                                 }
                                             }
-
-                                            /** Request method requirement? */
-                                            if (isset($options[$file]['request_mode'])) {
-                                                if ($options[$file]['request_mode'] ==
-                                                    $_SERVER['REQUEST_METHOD']
-                                                ) {
-                                                    $fileRequestMethodApproved = true;
-                                                    $fileCacheHash .= '1';
-                                                } else {
-                                                    $fileRequestMethodApproved = false;
-                                                    $fileCacheHash .= '0';
-                                                }
-                                            }
-
                                         }
 
-                                        /** Resource is approved? */
-                                        if ($fileSessionApproved
-                                            && isset($allowedMimes[$fileMime])
-                                            && isset($allowedModes[$fileMode])
-                                            && $fileRequestMethodApproved
-                                            && $fileRequestTypeApproved
-                                            && $fileMode != self::MODE_IGNORE
-                                        ) {
-
-                                            /** First resource for module? */
-                                            if (!isset(self::$_associatives[$module['cis_name']]))
-                                            {
-                                                self::$_associatives[$module['cis_name']] =
-                                                    array(
-                                                        'cis_name' => $module['cis_name'],
-                                                        'cs_name' => $module['cs_name'],
-                                                        'centralized_path' => \Aomebo\Dispatcher\System::getBaseUri()
-                                                            . $associativesDir . DIRECTORY_SEPARATOR
-                                                            . $module['cs_name'],
-                                                        'modularized_path' => \Aomebo\Dispatcher\System::getBaseUri()
-                                                            . $module['cs_name'] . DIRECTORY_SEPARATOR
-                                                            . $associativesDir,
-                                                        'options' => $options,
-                                                        'has_scripts' => false,
-                                                        'has_styles' => false,
-                                                        'has_markups' => false,
-                                                        'has_external_scripts' => false,
-                                                        'external_scripts' => array(),
-                                                        'external_scripts_hash' => '',
-                                                        'has_inline_scripts' => false,
-                                                        'inline_scripts' => array(),
-                                                        'has_external_styles' => false,
-                                                        'external_styles' => array(),
-                                                        'external_styles_hash' => '',
-                                                        'has_inline_styles' => false,
-                                                        'inline_styles' => array(),
-                                                        'has_inline_markups' => false,
-                                                        'inline_markups' => array(),
-                                                    );
+                                        // User agent specified
+                                        if (isset($options[$file]['http_agent'])) {
+                                            if (is_array($options[$file]['http_agent'])
+                                            ) {
+                                                if (in_array($_SERVER['HTTP_USER_AGENT'],
+                                                    $options[$file]['http_agent'])
+                                                ) {
+                                                    $fileHttpAgentApproved = true;
+                                                    $fileCacheHash .= '1';
+                                                } else {
+                                                    $fileHttpAgentApproved = false;
+                                                    $fileCacheHash .= '0';
+                                                }
+                                            } else {
+                                                if ($_SERVER['HTTP_USER_AGENT'] ==
+                                                    $options[$file]['http_agent']
+                                                ) {
+                                                    $fileHttpAgentApproved = true;
+                                                    $fileCacheHash .= '1';
+                                                } else {
+                                                    $fileHttpAgentApproved = false;
+                                                    $fileCacheHash .= '0';
+                                                }
                                             }
-                                            $associative = & self::$_associatives[$module['cis_name']];
+                                        }
 
-                                            // Is resource-mime javascript? */
-                                            if ($fileMime == self::MIME_JAVASCRIPT) {
+                                        // Custom mime?
+                                        if (isset($options[$file]['mime'])) {
+                                            $fileMime = $options[$file]['mime'];
+                                        }
 
-                                                // Is file external?
-                                                if ($fileMode == self::MODE_EXTERNAL)
-                                                {
-                                                    $associative['has_scripts'] = true;
-                                                    $associative['has_external_scripts'] = true;
-                                                    $associative['external_scripts'][] =
-                                                        $fileFullPath;
-                                                    if ($fileCacheHash !== '')
-                                                    {
-                                                        $associative['external_scripts_hash'] .=
-                                                            $fileCacheHash;
-                                                    }
-                                                } else if ($fileMode == self::MODE_INLINE) {
-                                                    $associative['has_scripts'] = true;
-                                                    $associative['has_inline_scripts'] = true;
-                                                    $associative['inline_scripts'][] =
-                                                        file_get_contents($fileFullPath);
-                                                }
-
-                                            } else if ($fileMime === self::MIME_STYLESHEET)
-                                            {
-
-                                                if ($fileMode == self::MODE_EXTERNAL)
-                                                {
-                                                    $associative['has_styles'] = true;
-                                                    $associative['has_external_styles'] = true;
-                                                    $associative['external_styles'][] =
-                                                        $fileFullPath;
-                                                    if ($fileCacheHash !== '') {
-                                                        $associative['external_styles_hash'] .=
-                                                            $fileCacheHash;
-                                                    }
-                                                } else if ($fileMode == self::MODE_INLINE)
-                                                {
-                                                    $associative['has_styles'] = true;
-                                                    $associative['has_inline_styles'] = true;
-                                                    $associative['inline_styles'][] =
-                                                        file_get_contents($fileFullPath);
-                                                }
-                                            } else if ($fileMime === self::MIME_MARKUP) {
-
-                                                if ($fileMode == self::MODE_INLINE)
-                                                {
-                                                    $associative['has_markups'] = true;
-                                                    $associative['has_inline_markups'] = true;
-                                                    $associative['inline_markups'][] =
-                                                        file_get_contents($fileFullPath);
-                                                }
-
+                                        // Request requirement?
+                                        if (isset($options[$file]['request_type'])) {
+                                            if ($options[$file]['request_type'] ==
+                                                $requestType
+                                            ) {
+                                                $fileRequestTypeApproved = true;
+                                                $fileCacheHash .= '1';
+                                            } else {
+                                                $fileRequestTypeApproved = false;
+                                                $fileCacheHash .= '0';
                                             }
+                                        }
+
+                                        // Request method requirement?
+                                        if (isset($options[$file]['request_mode'])) {
+                                            if ($options[$file]['request_mode'] ==
+                                                $_SERVER['REQUEST_METHOD']
+                                            ) {
+                                                $fileRequestMethodApproved = true;
+                                                $fileCacheHash .= '1';
+                                            } else {
+                                                $fileRequestMethodApproved = false;
+                                                $fileCacheHash .= '0';
+                                            }
+                                        }
+
+                                    }
+
+                                    // Resource is approved?
+                                    if ($fileSessionApproved
+                                        && isset($allowedMimes[$fileMime])
+                                        && isset($allowedModes[$fileMode])
+                                        && $fileRequestMethodApproved
+                                        && $fileRequestTypeApproved
+                                        && $fileMode != self::MODE_IGNORE
+                                    ) {
+
+                                        // First resource for module?
+                                        if (!isset(self::$_associatives[$cisName]))
+                                        {
+                                            self::$_associatives[$cisName] =
+                                                array(
+                                                    'cis_name' => $cisName,
+                                                    'cs_name' => $csName,
+                                                    'centralized_path' => \Aomebo\Dispatcher\System::getBaseUri()
+                                                        . $associativesDir . DIRECTORY_SEPARATOR
+                                                        . $csName,
+                                                    'modularized_path' => \Aomebo\Dispatcher\System::getBaseUri()
+                                                        . $csName . DIRECTORY_SEPARATOR
+                                                        . $associativesDir,
+                                                    'options' => $options,
+                                                    'has_scripts' => false,
+                                                    'has_styles' => false,
+                                                    'has_markups' => false,
+                                                    'has_external_scripts' => false,
+                                                    'external_scripts' => array(),
+                                                    'external_scripts_hash' => '',
+                                                    'has_inline_scripts' => false,
+                                                    'inline_scripts' => array(),
+                                                    'has_external_styles' => false,
+                                                    'external_styles' => array(),
+                                                    'external_styles_hash' => '',
+                                                    'has_inline_styles' => false,
+                                                    'inline_styles' => array(),
+                                                    'has_inline_markups' => false,
+                                                    'inline_markups' => array(),
+                                                );
+                                        }
+
+                                        $associative = & self::$_associatives[$cisName];
+
+                                        // Is resource-mime javascript? */
+                                        if ($fileMime == self::MIME_JAVASCRIPT)
+                                        {
+
+                                            // Is file external?
+                                            if ($fileMode == self::MODE_EXTERNAL)
+                                            {
+                                                $associative['has_scripts'] = true;
+                                                $associative['has_external_scripts'] = true;
+                                                $associative['external_scripts'][] =
+                                                    $fileFullPath;
+                                                if ($fileCacheHash !== '')
+                                                {
+                                                    $associative['external_scripts_hash'] .=
+                                                        $fileCacheHash;
+                                                }
+                                            } else if ($fileMode == self::MODE_INLINE) {
+                                                $associative['has_scripts'] = true;
+                                                $associative['has_inline_scripts'] = true;
+                                                $associative['inline_scripts'][] =
+                                                    \Aomebo\Filesystem::getFileContents(
+                                                        $fileFullPath);
+                                            }
+
+                                        } else if ($fileMime === self::MIME_STYLESHEET)
+                                        {
+
+                                            if ($fileMode == self::MODE_EXTERNAL)
+                                            {
+                                                $associative['has_styles'] = true;
+                                                $associative['has_external_styles'] = true;
+                                                $associative['external_styles'][] =
+                                                    $fileFullPath;
+                                                if ($fileCacheHash !== '') {
+                                                    $associative['external_styles_hash'] .=
+                                                        $fileCacheHash;
+                                                }
+                                            } else if ($fileMode == self::MODE_INLINE)
+                                            {
+                                                $associative['has_styles'] = true;
+                                                $associative['has_inline_styles'] = true;
+                                                $associative['inline_styles'][] =
+                                                    \Aomebo\Filesystem::getFileContents(
+                                                        $fileFullPath);
+                                            }
+                                        } else if ($fileMime === self::MIME_MARKUP) {
+
+                                            if ($fileMode == self::MODE_INLINE)
+                                            {
+                                                $associative['has_markups'] = true;
+                                                $associative['has_inline_markups'] = true;
+                                                $associative['inline_markups'][] =
+                                                    \Aomebo\Filesystem::getFileContents(
+                                                        $fileFullPath);
+                                            }
+
                                         }
                                     }
                                 }
                             }
-                        } else {
-                            if (\Aomebo\Configuration::getSetting(
-                                'paths,create runtime directories')
-                            ) {
-                                \Aomebo\Filesystem::makeDirectories($dir);
-                            }
+                        }
+                    } else {
+                        if (\Aomebo\Configuration::getSetting(
+                            'paths,create runtime directories')
+                        ) {
+                            \Aomebo\Filesystem::makeDirectories($dir);
                         }
                     }
                 }
@@ -799,12 +711,15 @@ namespace Aomebo\Associatives
          * default behaviour of individual files in the dependency.
          *
          * @internal
+         * @static
          * @throws \Exception
          */
-        private function _scanDependencies()
+        private static function _scanDependencies()
         {
+
             $session = \Aomebo\Session\Handler::getInstance();
             $sessionBlock = $session->getSessionBlock();
+
             $roots = array(
                 _SITE_ROOT_ . 'Dependencies',
                 _PUBLIC_ROOT_ . 'Dependencies',
@@ -827,6 +742,7 @@ namespace Aomebo\Associatives
                 if (is_dir($root)) {
 
                     $dirs = scandir($root);
+
                     foreach ($dirs as $dir)
                     {
                         if ($dir != '.'
@@ -870,13 +786,16 @@ namespace Aomebo\Associatives
                                     'count_style_subdependencies' => 0,
                                     'style_subdependencies' => array(),
                                 );
+
                                 if ($root == _SITE_ROOT_ . 'Dependencies') {
                                     $mirrorRoot = _PUBLIC_ROOT_;
                                 } else {
                                     $mirrorRoot = _SITE_ROOT_;
                                 }
+
                                 $mirrorDir = $mirrorRoot . 'Dependencies'
                                     . DIRECTORY_SEPARATOR . $dir;
+
                                 if (!is_dir($mirrorDir)
                                     && \Aomebo\Configuration::getSetting(
                                         'paths,create associatives directories')
@@ -884,8 +803,11 @@ namespace Aomebo\Associatives
                                     \Aomebo\Filesystem::makeDirectories($mirrorRoot
                                         . 'Dependencies');
                                 }
+
                             }
+
                             $dependency = & self::$_dependencies[$cisName];
+
                             if (file_exists($root . DIRECTORY_SEPARATOR
                                 . $csName . DIRECTORY_SEPARATOR
                                 . 'Dependency' . _PHP_EX_)
@@ -894,6 +816,7 @@ namespace Aomebo\Associatives
                                     . $csName . '\\Dependency';
                                 try
                                 {
+
                                     /** @var \Aomebo\Associatives\Dependency $dependencyClass*/
                                     $dependencyClass = new $className();
                                     if ($options =
@@ -904,14 +827,19 @@ namespace Aomebo\Associatives
                                             $dependency['options'][$fileCis] = $option;
                                         }
                                     }
+
                                 } catch (\Exception $e) {
                                     Throw new \Exception(
                                         'Could not parse dependency ("'
                                         . $e->getMessage() . '")');
                                 }
                             }
+
                             $subfiles = scandir($root . DIRECTORY_SEPARATOR . $csName);
-                            foreach ($subfiles as $subfile) {
+
+                            foreach ($subfiles as $subfile)
+                            {
+
                                 if ($subfile != '.'
                                     && $subfile != '..'
                                 ) {
@@ -1013,6 +941,7 @@ namespace Aomebo\Associatives
                                             if ($subfileMode ==
                                                 \Aomebo\Associatives\Dependency::MODE_EXTERNAL
                                             ) {
+
                                                 $dependency['has_scripts'] = true;
                                                 $dependency['has_external_scripts'] = true;
                                                 $dependency['external_scripts'][] =
@@ -1021,13 +950,17 @@ namespace Aomebo\Associatives
                                                     $dependency['external_scripts_hash'] .=
                                                         $fileCacheHash;
                                                 }
+
                                             } else if ($subfileMode ==
                                                 \Aomebo\Associatives\Dependency::MODE_INLINE
                                             ) {
+
                                                 $dependency['has_scripts'] = true;
                                                 $dependency['has_inline_scripts'] = true;
                                                 $dependency['inline_scripts'][] =
-                                                    file_get_contents($subfileFullPath);
+                                                    \Aomebo\Filesystem::getFileContents(
+                                                        $subfileFullPath);
+
                                             }
                                         } else if ($subfileMime ===
                                             \Aomebo\Associatives\Dependency::MIME_STYLESHEET
@@ -1035,6 +968,7 @@ namespace Aomebo\Associatives
                                             if ($subfileMode ==
                                                 \Aomebo\Associatives\Dependency::MODE_EXTERNAL
                                             ) {
+
                                                 $dependency['has_styles'] = true;
                                                 $dependency['has_external_styles'] = true;
                                                 $dependency['external_styles'][] =
@@ -1043,25 +977,33 @@ namespace Aomebo\Associatives
                                                     $dependency['external_styles_hash'] .=
                                                         $fileCacheHash;
                                                 }
+
                                             } else if ($subfileMode ==
                                                 \Aomebo\Associatives\Dependency::MODE_INLINE
                                             ) {
+
                                                 $dependency['has_styles'] = true;
                                                 $dependency['has_inline_styles'] = true;
                                                 $dependency['inline_styles'][] =
-                                                    file_get_contents($subfileFullPath);
+                                                    \Aomebo\Filesystem::getFileContents(
+                                                        $subfileFullPath);
+
                                             }
                                         } else if ($subfileMime ===
                                             \Aomebo\Associatives\Dependency::MIME_MARKUP
                                         ) {
+
                                             if ($subfileMode ==
                                                 \Aomebo\Associatives\Dependency::MODE_INLINE
                                             ) {
+
                                                 $dependency['has_markups'] = true;
                                                 $dependency['has_inline_markups'] = true;
                                                 $dependency['inline_markups'][] =
-                                                    file_get_contents($subfileFullPath);
+                                                    \Aomebo\Filesystem::getFileContents(
+                                                        $subfileFullPath);
                                             }
+
                                         }
                                     }
                                 }
@@ -1073,17 +1015,25 @@ namespace Aomebo\Associatives
 
             // Rescan for subdependencies
             reset($roots);
-            foreach ($roots as $root) {
+
+            foreach ($roots as $root)
+            {
+
                 if (is_dir($root)) {
+
                     $dirs = scandir($root);
-                    foreach ($dirs as $dir) {
+
+                    foreach ($dirs as $dir)
+                    {
                         if ($dir != '.'
                             && $dir != '..'
                             && is_dir($root . DIRECTORY_SEPARATOR . $dir)
                         ) {
+
                             $csName = $dir;
                             $cisName = strtolower($dir);
                             $dependency = & self::$_dependencies[$cisName];
+
                             if (file_exists($root . DIRECTORY_SEPARATOR
                                 . $csName . DIRECTORY_SEPARATOR
                                 . 'Dependency' . _PHP_EX_)
@@ -1197,9 +1147,10 @@ namespace Aomebo\Associatives
          * This method returns dependency data.
          *
          * @internal
+         * @param string|null [$media = null]
          * @return string
          */
-        private function _getDependencyData()
+        private function _getDependencyData($media = null)
         {
 
             $dispatcher = \Aomebo\Dispatcher\System::getInstance();
@@ -1242,7 +1193,9 @@ namespace Aomebo\Associatives
                             'at' => 'css',
                             'ds' => implode(',', $externalStyles)));
                         $return .= '" rel="stylesheet" type="'
-                              . self::MIME_STYLE . '" media="screen" />';
+                              . self::MIME_STYLE . '" media="'
+                              . (empty($media) ? 'screen' : $media)
+                              . '" />';
                     }
 
                     if (strlen($inlineMarkups) > 0) {
@@ -1351,7 +1304,9 @@ namespace Aomebo\Associatives
                     'at' => 'css',
                     'ds' => implode(',', $externalStyles)));
                 $return .= '" rel="stylesheet" type="'
-                      . self::MIME_STYLE . '" media="screen" />';
+                      . self::MIME_STYLE . '" media="'
+                      . (empty($media) ? 'screen' : $media)
+                      . '" />';
 
             }
 
@@ -1378,10 +1333,12 @@ namespace Aomebo\Associatives
          * This method returns associative data as string.
          *
          * @internal
+         * @param string|null [$media = null]
          * @return string
          */
-        private function _getAssociativeData()
+        private function _getAssociativeData($media = null)
         {
+
             $dispatcher = \Aomebo\Dispatcher\System::getInstance();
             $parser = \Aomebo\Associatives\Parser::getInstance();
             $return = '';
@@ -1460,7 +1417,9 @@ namespace Aomebo\Associatives
                     'at' => 'css',
                     'fs' => implode(',', $externalStyles)));
                 $return .= '" rel="stylesheet" type="'
-                      . self::MIME_STYLE . '" media="screen" />';
+                      . self::MIME_STYLE . '" media="'
+                      . (empty($media) ? 'screen' : $media)
+                      . '" />';
             }
 
             if (strlen($inlineMarkups) > 0) {

@@ -67,25 +67,32 @@ namespace Aomebo\Cache
             $key = null,
             $format = self::FORMAT_RAW)
         {
+
             if (self::cacheExists($parameters, $key)) {
                 if ($cachePath = self::getCachePath($parameters, $key)) {
 
-                    $formattedData = file_get_contents($cachePath);
+                    if ($formattedData = \Aomebo\Filesystem::getFileContents(
+                        $cachePath, false)
+                    ) {
 
-                    // Format data
-                    if ($format == self::FORMAT_JSON_ENCODE) {
-                        $data = json_decode($formattedData, true);
-                    } else if ($format == self::FORMAT_SERIALIZE) {
-                        $data = unserialize($formattedData);
-                    } else {
-                        $data = $formattedData;
+                        // Format data
+                        if ($format == self::FORMAT_JSON_ENCODE) {
+                            $data = json_decode($formattedData, true);
+                        } else if ($format == self::FORMAT_SERIALIZE) {
+                            $data = unserialize($formattedData);
+                        } else {
+                            $data = $formattedData;
+                        }
+
+                        return $data;
+
                     }
-
-                    return $data;
 
                 }
             }
+
             return false;
+
         }
 
         /**
@@ -101,29 +108,33 @@ namespace Aomebo\Cache
             $data, $format = self::FORMAT_RAW)
         {
             if (isset($data)) {
-                if ($cachePath = self::getCachePath($parameters, $key)) {
+                if ($cachePath = self::getCachePath(
+                    $parameters, $key)
+                ) {
 
                     // Make directories if needed
-                    \Aomebo\Filesystem::makeDirectories($cachePath);
+                    if (\Aomebo\Filesystem::makeDirectories($cachePath, false)) {
 
-                    // Format data
-                    if ($format == self::FORMAT_JSON_ENCODE) {
-                        $formattedData = json_encode($data);
-                    } else if ($format == self::FORMAT_SERIALIZE) {
-                        $formattedData = serialize($data);
-                    } else {
-                        $formattedData = $data;
-                    }
+                        // Format data
+                        if ($format == self::FORMAT_JSON_ENCODE) {
+                            $formattedData = json_encode($data);
+                        } else if ($format == self::FORMAT_SERIALIZE) {
+                            $formattedData = serialize($data);
+                        } else {
+                            $formattedData = $data;
+                        }
 
-                    if (!empty($key)) {
-                        self::clearCache($parameters, $key);
-                    }
+                        if (!empty($key)) {
+                            self::clearCache($parameters, $key);
+                        }
 
-                    if (\Aomebo\Filesystem::makeFile(
-                        $cachePath,
-                        $formattedData)
-                    ) {
-                        return true;
+                        if (\Aomebo\Filesystem::makeFile(
+                            $cachePath,
+                            $formattedData)
+                        ) {
+                            return true;
+                        }
+
                     }
 
                 }
@@ -198,7 +209,9 @@ namespace Aomebo\Cache
         {
             if (!empty($parameters)) {
 
-                $path = \Aomebo\Application::getCacheDir();
+                $path =
+                    \Aomebo\Application::getCacheDir();
+
                 if (!empty($parameters)) {
                     if ($explode = explode('/', $parameters)) {
                         foreach ($explode as $parameter)

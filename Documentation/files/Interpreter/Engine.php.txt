@@ -214,9 +214,9 @@ namespace Aomebo\Interpreter
             if (!self::_isConstructed()) {
 
                 parent::__construct();
-                $this->_checkMode();
-                $this->_loadRuntimes();
-                $this->_loadPages();
+                self::_checkMode();
+                self::_loadRuntimes();
+                self::_loadPages();
                 self::_flagThisConstructed();
 
             }
@@ -699,10 +699,11 @@ namespace Aomebo\Interpreter
          * This method interprets whole tree.
          *
          * @internal
+         * @static
          * @throws \Exception
          * @return bool
          */
-        public function interpret()
+        public static function interpret()
         {
 
             \Aomebo\Trigger\System::processTriggers(
@@ -726,9 +727,9 @@ namespace Aomebo\Interpreter
                     self::$_runtimeCallIndex = 0;
                     self::$_lastEvaluatedRuntime = null;
                     self::$_insertPoints = array();
-                    self::$_output = $this->_interpretNode($processed);
+                    self::$_output = self::_interpretNode($processed);
 
-                    if ($this->_hasOKStatus()) {
+                    if (self::_hasOKStatus()) {
 
                         \Aomebo\Trigger\System::processTriggers(
                             \Aomebo\Trigger\System::TRIGGER_KEY_AFTER_INTERPRETATION);
@@ -745,7 +746,7 @@ namespace Aomebo\Interpreter
                         if (self::$_interpretationStatus ==
                             self::INTERPRETATION_STATUS_RESTART
                         ) {
-                            return $this->interpret();
+                            return self::interpret();
                         } else if (self::$_interpretationStatus ==
                             self::INTERPRETATION_STATUS_ABORT
                         ) {
@@ -760,7 +761,9 @@ namespace Aomebo\Interpreter
                     Throw new \Exception('Couldn\'t process page.');
                 }
             }
+
             return false;
+
         }
 
         /**
@@ -918,17 +921,20 @@ namespace Aomebo\Interpreter
          * This method interprets a single node in tree.
          *
          * @internal
+         * @static
          * @param mixed $node
          * @param mixed [$parent = null]
          * @throws \Exception
          * @return string|bool
          */
-        private function _interpretNode(& $node, & $parent = null)
+        private static function _interpretNode(& $node, & $parent = null)
         {
-            if ($this->_hasOKStatus()) {
+            if (self::_hasOKStatus()) {
+
                 $output = '';
                 $parameters = array();
                 self::$_lastEvaluatedRuntime = null;
+
                 if (is_array($node)) {
                     foreach ($node as $child)
                     {
@@ -936,23 +942,23 @@ namespace Aomebo\Interpreter
                             if (isset($child['key'], $child['value'])) {
                                 $key = strtolower($child['key']);
                                 $value = $child['value'];
-                                if ($this->_isRuntimeName($key)) {
+                                if (self::_isRuntimeName($key)) {
                                     if (is_array($value)) {
-                                        $output .= $this->
+                                        $output .= self::
                                             _interpretNode($value, $key);
                                     } else {
                                         $lowValue = strtolower($value);
                                         if (!empty($value)) {
-                                            if ($this->_isRuntimeName($lowValue)) {
-                                                $output .= $this->
-                                                    _evaluateRuntime($key,
-                                                    $this->_evaluateRuntime($lowValue));
+                                            if (self::_isRuntimeName($lowValue)) {
+                                                $output .=
+                                                    self::_evaluateRuntime($key,
+                                                        self::_evaluateRuntime($lowValue));
                                             } else {
-                                                $output .= $this->
+                                                $output .= self::
                                                     _evaluateRuntime($key, $value);
                                             }
                                         } else {
-                                            $output .= $this->
+                                            $output .= self::
                                                 _evaluateRuntime($key);
                                         }
                                     }
@@ -961,7 +967,7 @@ namespace Aomebo\Interpreter
                                     $parent, $key)
                                 ) {
                                     $parameters[$key] =
-                                        $this->_interpretNode($value);
+                                        self::_interpretNode($value);
                                 } else {
                                     Throw new \Exception(
                                         '"' . $key . '" is neither a Runtime or a Runtime '
@@ -978,16 +984,16 @@ namespace Aomebo\Interpreter
                         }
                     }
                     if (isset($parent)
-                        && $this->_isRuntimeName($parent)
+                        && self::_isRuntimeName($parent)
                     ) {
-                        return $this->_evaluateRuntime(
+                        return self::_evaluateRuntime(
                             $parent, $parameters, $output);
                     } else {
                         return $output;
                     }
                 } else {
-                    if ($this->_isRuntimeName($node)) {
-                        return $this->_evaluateRuntime($node);
+                    if (self::_isRuntimeName($node)) {
+                        return self::_evaluateRuntime($node);
                     } else {
                         return $node;
                     }
@@ -1001,16 +1007,17 @@ namespace Aomebo\Interpreter
          * This method evaluates a Runtime with parameters.
          *
          * @internal
+         * @static
          * @param string $name
          * @param mixed [$parameters = null]
          * @param string [$output = null]
          * @throws \Exception
          * @return string|bool
          */
-        private function _evaluateRuntime($name,
+        private static function _evaluateRuntime($name,
             $parameters = null, $output = null)
         {
-            if ($this->_hasOKStatus()) {
+            if (self::_hasOKStatus()) {
                 if ($runtime =
                     self::getRuntimeByName($name)
                 ) {
@@ -1133,7 +1140,9 @@ namespace Aomebo\Interpreter
 
                         if (file_exists($path)) {
 
-                            $pageData = file_get_contents($path);
+                            $pageData = \Aomebo\Filesystem::getFileContents(
+                                $path);
+
                             if (method_exists($adapter, 'applyDefaultEncapsulation')) {
                                 $pageData =
                                     $adapter->applyDefaultEncapsulation($pageData);
@@ -1196,8 +1205,9 @@ namespace Aomebo\Interpreter
          * This method checks what mode we are in.
          *
          * @internal
+         * @static
          */
-        private function _checkMode()
+        private static function _checkMode()
         {
         }
 
@@ -1206,8 +1216,9 @@ namespace Aomebo\Interpreter
          * which pages each runtime exists.
          *
          * @internal
+         * @static
          */
-        private function _loadPages()
+        private static function _loadPages()
         {
         }
 
@@ -1216,163 +1227,34 @@ namespace Aomebo\Interpreter
          * for Runtimes.
          *
          * @internal
-         * @throws \Exception
-         */
-        private function _loadRuntimes()
-        {
-
-            $roots = array();
-
-            if ($siteDirectories = \Aomebo\Configuration::getSetting(
-                'paths,runtime site directories')
-            ) {
-                foreach ($siteDirectories as $siteDirectory)
-                {
-                    $roots[] = _SITE_ROOT_ . $siteDirectory;
-                }
-            }
-
-            if ($publicDirectories = \Aomebo\Configuration::getSetting(
-                'paths,runtime public directories')
-            ) {
-                foreach ($publicDirectories as $publicDirectory)
-                {
-                    $roots[] = _PUBLIC_ROOT_ . $publicDirectory;
-                }
-            }
-
-            // Iterate through all roots
-            foreach ($roots as $root)
-            {
-
-                if (!is_dir($root)
-                    && \Aomebo\Configuration::getSetting('paths,create runtime directories')
-                ) {
-                    \Aomebo\Filesystem::makeDirectory($root);
-                }
-
-                if (is_dir($root))
-                {
-
-                    $dirs = scandir($root);
-
-                    // Iterate through all directories
-                    foreach ($dirs as $dir)
-                    {
-
-                        // Is directory not current dir or parent dir pointer?
-                        if (!empty($dir)
-                            && $dir != '.'
-                            && $dir != '..'
-                        ) {
-
-                            $absPath =
-                                $root . DIRECTORY_SEPARATOR . $dir;
-
-                            // Is it a valid directory?
-                            if (is_dir($absPath)) {
-                                self::_loadRuntimesFromDirectory(
-                                    $absPath);
-                            }
-
-                        }
-                    }
-                }
-            }
-        }
-
-        /**
-         * This method scans directory for runtimes and
-         * loads them into memory.
-         *
-         * @internal
          * @static
-         * @param string $absPath
          * @throws \Exception
          */
-        private static function _loadRuntimesFromDirectory($absPath)
+        private static function _loadRuntimes()
         {
-            if (!empty($absPath)
-                && is_dir($absPath)
-            ) {
 
-                $namespaceName = basename(dirname($absPath));
-                $namespaceClassName = substr($namespaceName, 0, -1);
-                $dir = basename($absPath);
-                $foundFile = false;
+            if ($runtimes = \Aomebo\Application::getRuntimes()) {
+                foreach ($runtimes as & $runtime)
+                {
 
-                $file = $absPath . DIRECTORY_SEPARATOR
-                    . $namespaceClassName . _PHP_EX_;
-                $alternateFile = $absPath . DIRECTORY_SEPARATOR
-                    . $dir . _PHP_EX_;
+                    /** @var \Aomebo\Runtime $runtime */
 
-                if (file_exists($file)) {
-                    $foundFileName = $file;
-                    $foundFile = true;
-                } else if (file_exists($alternateFile)) {
-                    $foundFileName = $alternateFile;
-                    $foundFile = true;
-                }
+                    if ($runtime->isExecutable()) {
 
-                // Can we find a runtime file?
-                if ($foundFile) {
+                        $name = strtolower($runtime->getField('name'));
 
-                    /** @var string $foundFileName */
-
-                    require_once($foundFileName);
-
-                    // Build class names
-                    $className = '\\' . $namespaceName . '\\'
-                        . $dir . '\\' . $namespaceClassName;
-
-                    $foundClass = false;
-
-                    if (class_exists($className, false)) {
-                        $foundClassName = $className;
-                        $foundClass = true;
-                    }
-
-                    if ($foundClass) {
-
-                        /** @var string $foundClassName */
-
-                        try
-                        {
-
-                            /** @var \Aomebo\Runtime $runtime */
-                            $runtime = new $foundClassName();
-
-                            if (is_a($runtime, '\\Aomebo\\Runtime'))
-                            {
-
-                                // Is class object a module?
-                                if ($runtime->isExecutable()) {
-
-                                    $name = strtolower($dir);
-
-                                    // Is this runtime new?
-                                    if (!isset(self::$_runtimeNameToObject[$name]))
-                                    {
-
-                                        self::$_runtimeNameToData[$name]['parameters'] =
-                                            $runtime->getFieldsToIndex();
-                                        self::$_runtimeNameToObject[$name] =
-                                            $runtime;
-                                        self::$_runtimeNameToData[$name]['parameter_count'] =
-                                            sizeof(self::$_runtimeNameToData[$name]['parameters']);
-
-                                    }
-
-                                }
-
-                            }
-
-                        } catch (\Exception $e) {}
+                        self::$_runtimeNameToData[$name]['parameters'] =
+                            $runtime->getFieldsToIndex();
+                        self::$_runtimeNameToObject[$name] =
+                            & $runtime;
+                        self::$_runtimeNameToData[$name]['parameter_count'] =
+                            sizeof(self::$_runtimeNameToData[$name]['parameters']);
 
                     }
-                }
 
+                }
             }
+
         }
 
         /**

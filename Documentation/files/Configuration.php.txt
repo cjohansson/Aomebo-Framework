@@ -316,6 +316,8 @@ namespace Aomebo
 
                 \Aomebo\Cache\System::clearCache(
                     $cacheParameters);
+                \Aomebo\Associatives\Parser::cleanAssociativesCache();
+                \Aomebo\Associatives\Parser::cleanDependenciesCache();
 
                 if ($configurationAdapter == 'YAML') {
 

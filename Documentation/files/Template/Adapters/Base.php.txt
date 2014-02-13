@@ -103,13 +103,14 @@ namespace Aomebo\Template\Adapters
 
             unset($this->_module);
 
-            $callers = debug_backtrace();
+            $callers =
+                \Aomebo\Application::getDebugBacktrace(3);
 
-            if (isset($callers[1]['object'])) {
-                if (is_a($callers[1]['object'], '\Aomebo\Runtime')) {
+            if (isset($callers[2]['object'])) {
+                if (is_a($callers[2]['object'], '\Aomebo\Runtime')) {
 
                     /** @var \Aomebo\Runtime $object  */
-                    $object = $callers[1]['object'];
+                    $object = $callers[2]['object'];
 
                     $directory = dirname($object->getAbsoluteFilename());
 

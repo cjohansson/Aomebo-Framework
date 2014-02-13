@@ -120,6 +120,13 @@ namespace Aomebo
         private static $_autoloadFailureTriggersException = false;
 
         /**
+         * @internal
+         * @static
+         * @var array
+         */
+        private static $_runtimes = array();
+
+        /**
          * This starts up the framework.
          *
          * @param array|null [$parameters = null]       Contains all site-specific parameters.
@@ -136,18 +143,12 @@ namespace Aomebo
 
                 // Set public internal path
 
-                /**
-                 * @see http://www.php.net/function.debug-backtrace
-                 */
-                if (phpversion() >= '5.3.6') {
-                    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-                } else {
-                    $backtrace = debug_backtrace(true);
-                }
-                if (isset($backtrace[0]['file'])) {
+                $backtrace = self::getDebugBacktrace(2);
+
+                if (isset($backtrace[1]['file'])) {
                     self::setParameter(
                         self::PARAMETER_PUBLIC_INTERNAL_PATH,
-                        dirname($backtrace[0]['file']));
+                        dirname($backtrace[1]['file']));
                 }
 
                 // Set public external path
@@ -256,12 +257,15 @@ namespace Aomebo
                         // Does server has enough free memory for handling request?
                         if (\Aomebo\System\Memory::systemHasEnoughMemory()) {
 
-                            // Load site class (if any)
-                            $this->_loadSiteClass();
-
                             // Store setting if autoload should trigger exception
                             $this->setAutoloadFailureTriggersException(
-                                    \Aomebo\Configuration::getSetting('output,autoload failure triggers exception'));
+                                \Aomebo\Configuration::getSetting('output,autoload failure triggers exception'));
+
+                            // Load site class (if any)
+                            self::_loadSiteClass();
+
+                            // Load runtimes
+                            self::_loadRuntimes();
 
                             // Load feedback engine
                             new \Aomebo\Feedback\Debug();
@@ -333,7 +337,7 @@ namespace Aomebo
                                     \Aomebo\Database\Adapter::getInstance();
 
                                     // Load interpreter for parsing of pages
-                                    $interpreter = \Aomebo\Interpreter\Engine::getInstance();
+                                    \Aomebo\Interpreter\Engine::getInstance();
 
                                     // Load cache system
                                     \Aomebo\Cache\System::getInstance();
@@ -344,7 +348,7 @@ namespace Aomebo
                                     new \Aomebo();
 
                                     // Interpret page
-                                    $interpreter->interpret();
+                                    \Aomebo\Interpreter\Engine::interpret();
 
                                     // Present our output
                                     $presenter = \Aomebo\Presenter\Engine::getInstance();
@@ -367,8 +371,7 @@ namespace Aomebo
                                 \Aomebo\Associatives\Engine::getInstance();
 
                                 // Load interpreter for parsing of pages
-                                $interpreter =
-                                    \Aomebo\Interpreter\Engine::getInstance();
+                                \Aomebo\Interpreter\Engine::getInstance();
 
                                 // Load cache system
                                 \Aomebo\Cache\System::getInstance();
@@ -380,7 +383,7 @@ namespace Aomebo
                                 new \Aomebo();
 
                                 // Interpret page
-                                $interpreter->interpret();
+                                \Aomebo\Interpreter\Engine::interpret();
 
                                 // Index our output
                                 $indexing->index();
@@ -409,6 +412,16 @@ namespace Aomebo
                 }
             }
 
+        }
+
+        /**
+         * @static
+         * @return array|bool
+         */
+        public static function getRuntimes()
+        {
+            return (sizeof(self::$_runtimes) > 0 ?
+                self::$_runtimes : false);
         }
 
         /**
@@ -470,6 +483,46 @@ namespace Aomebo
                 Throw new \Exception(
                     'Invalid parameters for ' . __METHOD__);
             }
+        }
+
+        /**
+         * @static
+         * @param int [$limit = 0]
+         * @return array
+         */
+        public static function getDebugBacktrace($limit = 0)
+        {
+
+            if (!empty($limit)
+                && $limit > 0
+            ) {
+
+                /**
+                 * @see http://www.php.net/function.debug-backtrace
+                 */
+                if (phpversion() >= '5.3.6') {
+                    $debugBacktrance = debug_backtrace(
+                        DEBUG_BACKTRACE_PROVIDE_OBJECT, $limit);
+                } else {
+                    $debugBacktrance = debug_backtrace(true);
+                }
+
+            } else {
+
+                /**
+                 * @see http://www.php.net/function.debug-backtrace
+                 */
+                if (phpversion() >= '5.3.6') {
+                    $debugBacktrance = debug_backtrace(
+                        DEBUG_BACKTRACE_PROVIDE_OBJECT);
+                } else {
+                    $debugBacktrance = debug_backtrace(true);
+                }
+
+            }
+
+            return $debugBacktrance;
+
         }
 
         /**
@@ -638,8 +691,9 @@ namespace Aomebo
 
         /**
          * @internal
+         * @static
          */
-        private function _loadSiteClass()
+        private static function _loadSiteClass()
         {
             $classPath =
                 \Aomebo\Configuration::getSetting('site,class path');
@@ -652,6 +706,158 @@ namespace Aomebo
             }
             if (file_exists($classPath)) {
                 require_once($classPath);
+            }
+        }
+
+        /**
+         * This method starts the scanning of filesystem
+         * for Runtimes.
+         *
+         * @internal
+         * @static
+         * @throws \Exception
+         */
+        private static function _loadRuntimes()
+        {
+
+            $roots = array();
+
+            if ($siteDirectories = \Aomebo\Configuration::getSetting(
+                'paths,runtime site directories')
+            ) {
+                foreach ($siteDirectories as $siteDirectory)
+                {
+                    $roots[] = _SITE_ROOT_ . $siteDirectory;
+                }
+            }
+
+            if ($publicDirectories = \Aomebo\Configuration::getSetting(
+                'paths,runtime public directories')
+            ) {
+                foreach ($publicDirectories as $publicDirectory)
+                {
+                    $roots[] = _PUBLIC_ROOT_ . $publicDirectory;
+                }
+            }
+
+            // Iterate through all roots
+            foreach ($roots as $root)
+            {
+
+                if (!is_dir($root)
+                    && \Aomebo\Configuration::getSetting('paths,create runtime directories')
+                ) {
+                    \Aomebo\Filesystem::makeDirectory($root);
+                }
+
+                if (is_dir($root))
+                {
+
+                    $dirs = scandir($root);
+
+                    // Iterate through all directories
+                    foreach ($dirs as $dir)
+                    {
+
+                        // Is directory not current dir or parent dir pointer?
+                        if (!empty($dir)
+                            && $dir != '.'
+                            && $dir != '..'
+                        ) {
+
+                            $absPath =
+                                $root . DIRECTORY_SEPARATOR . $dir;
+
+                            // Is it a valid directory?
+                            if (is_dir($absPath)) {
+                                self::_loadRuntimesFromDirectory(
+                                    $absPath);
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+
+        /**
+         * This method scans directory for runtimes and
+         * loads them into memory.
+         *
+         * @internal
+         * @static
+         * @param string $absPath
+         * @throws \Exception
+         */
+        private static function _loadRuntimesFromDirectory($absPath)
+        {
+            if (!empty($absPath)
+                && is_dir($absPath)
+            ) {
+
+                $namespaceName = basename(dirname($absPath));
+                $namespaceClassName = substr($namespaceName, 0, -1);
+                $dir = basename($absPath);
+                $foundFile = false;
+
+                $file = $absPath . DIRECTORY_SEPARATOR
+                    . $namespaceClassName . _PHP_EX_;
+                $alternateFile = $absPath . DIRECTORY_SEPARATOR
+                    . $dir . _PHP_EX_;
+
+                if (file_exists($file)) {
+                    $foundFileName = $file;
+                    $foundFile = true;
+                } else if (file_exists($alternateFile)) {
+                    $foundFileName = $alternateFile;
+                    $foundFile = true;
+                }
+
+                // Can we find a runtime file?
+                if ($foundFile) {
+
+                    /** @var string $foundFileName */
+
+                    $foundClass = false;
+
+                    try
+                    {
+
+                        require_once($foundFileName);
+
+                        // Build class names
+                        $className = '\\' . $namespaceName . '\\'
+                            . $dir . '\\' . $namespaceClassName;
+
+                        if (class_exists($className, false)) {
+                            $foundClassName = $className;
+                            $foundClass = true;
+                        }
+
+                    } catch (\Exception $e) {}
+
+                    if ($foundClass) {
+
+                        /** @var string $foundClassName */
+
+                        try
+                        {
+
+                            /** @var \Aomebo\Runtime $runtime */
+                            $runtime = new $foundClassName();
+
+                            if (is_a($runtime, '\\Aomebo\\Runtime'))
+                            {
+
+                                self::$_runtimes[] = $runtime;
+
+                            }
+
+                        } catch (\Exception $e) {}
+
+                    }
+                }
+
             }
         }
 

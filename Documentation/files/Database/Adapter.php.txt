@@ -118,6 +118,13 @@ namespace Aomebo\Database
         private static $_lastError;
 
         /**
+         * @internal
+         * @static
+         * @var bool|null
+         */
+        private static $_useDatabase;
+
+        /**
          * @throws \Exception
          */
         public function __construct()
@@ -126,28 +133,69 @@ namespace Aomebo\Database
 
                 parent::__construct();
 
-                if ($this->_connect()) {
-                    if (!self::_isInstalled()) {
-                        if (!self::_install()) {
-                            Throw new \Exception(
-                                'Could not install database in '
-                                . __METHOD__ . ' in ' . __FILE__);
-                        }
-                    }
-                    if (self::selectDatabase(
-                        \Aomebo\Configuration::getSetting('database,database'))
+                $databaseConfiguration =
+                    \Aomebo\Configuration::getSetting('database');
+
+                if (!empty($databaseConfiguration['host'])
+                    && !empty($databaseConfiguration['username'])
+                    && !empty($databaseConfiguration['database'])
+                ) {
+
+                    self::$_useDatabase = true;
+
+                    if (self::_connect(
+                        $databaseConfiguration['host'],
+                        $databaseConfiguration['username'],
+                        $databaseConfiguration['password'],
+                        $databaseConfiguration['database'],
+                        (isset($databaseConfiguration['options']) ? $databaseConfiguration['options'] : null))
                     ) {
-                        self::_flagThisConstructed();
-                    } else {
-                        Throw new \Exception(
-                            'Could not select database in ' . __METHOD__
+
+                        \Aomebo\Trigger\System::processTriggers(
+                            \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_CONNECTION_SUCCESS);
+
+                        if (!self::_isInstalled()) {
+                            if (!self::_install()) {
+                                Throw new \Exception(
+                                    'Could not install database in '
+                                    . __METHOD__ . ' in ' . __FILE__);
+                            }
+                        }
+                        if (self::selectDatabase(
+                            \Aomebo\Configuration::getSetting('database,database'))
+                        ) {
+
+                            \Aomebo\Trigger\System::processTriggers(
+                                \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_SELECTED_SUCCESS);
+
+                            self::_flagThisConstructed();
+
+                        } else {
+
+                            \Aomebo\Trigger\System::processTriggers(
+                                \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_SELECTED_FAIL);
+
+                            Throw new \Exception(
+                                'Could not select database in ' . __METHOD__
                                 . ' in ' . __FILE__);
+                        }
+                    } else {
+
+                        \Aomebo\Trigger\System::processTriggers(
+                            \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_CONNECTION_FAIL);
+
+                        Throw new \Exception(
+                            'Could not connect to database server in '
+                            . __METHOD__ . ' in ' . __FILE__
+                            . '. Check your configuration.');
+
                     }
+
                 } else {
-                    Throw new \Exception(
-                        'Could not connect to database server in '
-                        . __METHOD__ . ' in ' . __FILE__
-                        . '. Check your configuration.');
+
+                    self::$_useDatabase = false;
+                    self::_flagThisConstructed();
+
                 }
 
             }
@@ -161,6 +209,15 @@ namespace Aomebo\Database
             if ($this->isConnected()) {
                 $this->disconnect();
             }
+        }
+
+        /**
+         * @static
+         * @return bool
+         */
+        public static function useDatabase()
+        {
+            return !empty(self::$_useDatabase);
         }
 
         /**
@@ -336,125 +393,143 @@ namespace Aomebo\Database
          * @param array|null [$values = null]
          * @param bool [$unbuffered = false]
          * @param bool [$throwExceptionOnFailure = true]
+         * @param bool [$allowMultipleQueries = false]
          * @throws \Exception
          * @return \Aomebo\Database\Adapters\Resultset|bool
          */
         public static function query($sql, $values = null,
-            $unbuffered = false, $throwExceptionOnFailure = true)
+            $unbuffered = false, $throwExceptionOnFailure = true,
+            $allowMultipleQueries = false)
         {
 
-            // Do we have any triggers?
-            if ($newSql = \Aomebo\Trigger\System::processTriggers(
-                \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_QUERY,
-                $sql)
-            ) {
-                $sql = $newSql;
-            }
+            if (self::isConnected()) {
 
-            $queries = explode(';', $sql);
-            if (is_array($queries)) {
-                $queryCount = sizeof($queries);
-            } else {
-                $queries = array($sql);
-                $queryCount = (int) 1;
-            }
+                // Do we have any triggers?
+                if ($newSql = \Aomebo\Trigger\System::processTriggers(
+                    \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_QUERY,
+                    $sql)
+                ) {
+                    $sql = $newSql;
+                }
 
-            if (isset($values)
-                && is_array($values)
-            ) {
-                $valuesCount = sizeof($values);
-            } else {
-                $valuesCount = 0;
-            }
+                if ($allowMultipleQueries) {
 
-            $results = array();
+                    $queries = explode(';', $sql);
+                    if (is_array($queries)) {
+                        $queryCount = sizeof($queries);
+                    } else {
+                        $queries = array($sql);
+                        $queryCount = (int) 1;
+                    }
 
-            foreach ($queries as $rawQuery)
-            {
-                $rawQuery = trim($rawQuery);
-                $query = str_replace(
-                    self::$_replaceKeys,
-                    self::$_replaceValues,
-                    $rawQuery);
+                } else {
+                    $queries = array($sql);
+                    $queryCount = (int) 1;
+                }
 
-                if ($valuesCount > 0) {
-                    reset($values);
-                    foreach ($values as $key => $valueArray)
-                    {
-                        if (isset($valueArray)) {
-                            if (is_array($valueArray)) {
-                                if (isset($valueArray['value'])) {
+                if (isset($values)
+                    && is_array($values)
+                ) {
+                    $valuesCount = sizeof($values);
+                } else {
+                    $valuesCount = 0;
+                }
 
-                                    if (!empty($valueArray['quoted'])) {
-                                        $replaceWith =
-                                            self::quote($valueArray['value'],
-                                                empty($valueArray['raw']));
+                $results = array();
+
+                foreach ($queries as $rawQuery)
+                {
+                    $rawQuery = trim($rawQuery);
+                    $query = str_replace(
+                        self::$_replaceKeys,
+                        self::$_replaceValues,
+                        $rawQuery);
+
+                    if ($valuesCount > 0) {
+                        reset($values);
+                        foreach ($values as $key => $valueArray)
+                        {
+                            if (isset($valueArray)) {
+                                if (is_array($valueArray)) {
+                                    if (isset($valueArray['value'])) {
+
+                                        if (!empty($valueArray['quoted'])) {
+                                            $replaceWith =
+                                                self::quote($valueArray['value'],
+                                                    empty($valueArray['raw']));
+                                        } else if (!empty($valueArray['backquoted'])) {
+                                            $replaceWith =
+                                                self::backquote(
+                                                    $valueArray['value'],
+                                                    empty($valueArray['raw']));
+                                        } else if (empty($valueArray['raw'])) {
+                                            $replaceWith =
+                                                self::escape($valueArray['value']);
+                                        } else {
+                                            $replaceWith =
+                                                $valueArray['value'];
+                                        }
+
+                                        $query = str_replace(
+                                            self::formatQueryReplaceKey($key),
+                                            $replaceWith,
+                                            $query);
+
+                                    } else if (!empty($valueArray['quoted'])) {
+
+                                        $query = str_replace(
+                                            self::formatQueryReplaceKey($key),
+                                            self::query('', false),
+                                            $query);
+
                                     } else if (!empty($valueArray['backquoted'])) {
-                                        $replaceWith =
-                                            self::backquote(
-                                                $valueArray['value'],
-                                                empty($valueArray['raw']));
-                                    } else if (empty($valueArray['raw'])) {
-                                        $replaceWith =
-                                            self::escape($valueArray['value']);
-                                    } else {
-                                        $replaceWith =
-                                            $valueArray['value'];
+
+                                        $query = str_replace(
+                                            self::formatQueryReplaceKey($key),
+                                            self::backquote('', false),
+                                            $query);
+
                                     }
+                                } else {
 
                                     $query = str_replace(
                                         self::formatQueryReplaceKey($key),
-                                        $replaceWith,
-                                        $query);
-
-                                } else if (!empty($valueArray['quoted'])) {
-
-                                    $query = str_replace(
-                                        self::formatQueryReplaceKey($key),
-                                        self::query('', false),
-                                        $query);
-
-                                } else if (!empty($valueArray['backquoted'])) {
-
-                                    $query = str_replace(
-                                        self::formatQueryReplaceKey($key),
-                                        self::backquote('', false),
+                                        self::escape($valueArray),
                                         $query);
 
                                 }
-                            } else {
-
-                                $query = str_replace(
-                                    self::formatQueryReplaceKey($key),
-                                    self::escape($valueArray),
-                                    $query);
-
                             }
+                        }
+                    }
+
+                    if (!empty($query)) {
+
+                        $sqlKey = strtoupper(trim(
+                            substr($query, 0, stripos($query, ' '))));
+                        self::$_lastSql = $query;
+
+                        if ($queryCount === 1) {
+                            return self::_query($query, $unbuffered, $sqlKey, $queryCount, $throwExceptionOnFailure);
+                        } else {
+                            self::_query($query, $unbuffered, $sqlKey, $queryCount, $throwExceptionOnFailure);
+                        }
+
+                    } else {
+                        if (!empty($rawQuery)) {
+                            Throw new \Exception(
+                                'SQL: "' . print_r($rawQuery, true)
+                                . '" evaluated into empty query in ' . __FUNCTION__);
                         }
                     }
                 }
 
-                if (!empty($query)) {
+                return true;
 
-                    $sqlKey = strtoupper(trim(
-                        substr($query, 0, stripos($query, ' '))));
-                    self::$_lastSql = $query;
-
-                    if ($queryCount === 1) {
-                        return self::_query($query, $unbuffered, $sqlKey, $queryCount, $throwExceptionOnFailure);
-                    } else {
-                        self::_query($query, $unbuffered, $sqlKey, $queryCount, $throwExceptionOnFailure);
-                    }
-
-                } else {
-                    if (!empty($rawQuery)) {
-                        Throw new \Exception(
-                            'SQL: "' . print_r($rawQuery, true)
-                            . '" evaluated into empty query in ' . __FUNCTION__);
-                    }
-                }
+            } else {
+                Throw new \Exception('Can\'t query "' . $sql . '" when database '
+                . 'connection hasn\'t been established.');
             }
-            return true;
+
         }
 
         /**
@@ -610,10 +685,17 @@ namespace Aomebo\Database
          * This method tries to establish a database connection.
          *
          * @internal
+         * @static
+         * @param string $host
+         * @param string $username
+         * @param string $password
+         * @param string $database
+         * @param array|null [$options = null]
          * @throws \Exception
          * @return bool
          */
-        private function _connect()
+        private static function _connect($host, $username,
+            $password, $database, $options = null)
         {
 
             self::$_connected = false;
@@ -642,13 +724,11 @@ namespace Aomebo\Database
                 self::$_quoteChar = $dbObject->getQuoteCharacter($userAnsiQuotes);
                 self::$_backQuoteChar = $dbObject->getBackQuoteCharacter($userAnsiQuotes);
 
-                $options = \Aomebo\Configuration::getSetting('database,options', false);
-
                 if ($dbObject->connect(
-                    \Aomebo\Configuration::getSetting('database,host'),
-                    \Aomebo\Configuration::getSetting('database,username'),
-                    \Aomebo\Configuration::getSetting('database,password'),
-                    \Aomebo\Configuration::getSetting('database,database'),
+                    $host,
+                    $username,
+                    $password,
+                    $database,
                     $options)
                 ) {
 
