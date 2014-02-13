@@ -571,6 +571,7 @@ namespace Aomebo
                         $this->setEnabled(false);
                     }
                 }
+
             }
 
             if ($this->isEnabled()) {

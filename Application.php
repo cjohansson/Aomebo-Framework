@@ -848,12 +848,20 @@ namespace Aomebo
 
                             if (is_a($runtime, '\\Aomebo\\Runtime'))
                             {
-
                                 self::$_runtimes[] = $runtime;
-
                             }
 
-                        } catch (\Exception $e) {}
+                        } catch (\Exception $e) {
+
+                            if (\Aomebo\Configuration::getSetting(
+                                'feedback,halt on runtime construct exceptions')
+                            ) {
+                                Throw new \Exception(
+                                    'Failed to construct runtime "'
+                                    . $foundClassName . '"');
+                            }
+
+                        }
 
                     }
                 }

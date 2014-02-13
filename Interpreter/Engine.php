@@ -1128,7 +1128,7 @@ namespace Aomebo\Interpreter
                         $filename = $page . $fileSuffix;
                         $path = _SITE_ROOT_ . 'Pages/' . $filename;
 
-                        /* Cache parameters, uniquer per:
+                        /* Cache parameters, unique per:
                          * - Normal request
                          * - Page
                          */

@@ -254,6 +254,10 @@ feedback:
         type: boolean
         required: true
         default: false
+    halt on runtime construct exceptions:
+        type: boolean
+        required: true
+        default: false
     log runtime exceptions:
         type: boolean
         required: true
