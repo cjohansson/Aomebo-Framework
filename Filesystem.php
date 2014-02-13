@@ -31,6 +31,18 @@ namespace Aomebo
     {
 
         /**
+         * @internal
+         * @var string|null
+         */
+        private static $_chmodOct = null;
+
+        /**
+         * @internal
+         * @var int|null
+         */
+        private static $_chmodDec = null;
+
+        /**
          * @static
          * @param string $absolutePath
          * @param bool [$throwException = true]
@@ -343,8 +355,9 @@ namespace Aomebo
 
             if (!chmod($path, self::_getChmod())) {
                 Throw new \Exception(
-                    'Could not set chmod to "' . self::_getChmod()
-                    . '" in ' . __FUNCTION__ . ' in ' . __FILE__);
+                    'Could not set chmod for file "' . $path . '" '
+                    . 'to oct: ' . self::$_chmodOct
+                    . ', dec: ' . self::$_chmodDec);
             }
 
             if (self::isSystemSuperUser()) {
@@ -368,7 +381,7 @@ namespace Aomebo
                 // Set group
                 if (!chgrp($path, $ownerGroupName)) {
                     Throw new \Exception(
-                        'Could not set owner groupnamegroup permissionsto "' . $ownerGroupName
+                        'Could not set owner groupnamegroup permissions to "' . $ownerGroupName
                             . '" for "' . $path . '" in ' . __FUNCTION__
                             . ' in ' . __FILE__);
                 }
@@ -448,15 +461,31 @@ namespace Aomebo
          */
         private static function _getChmod()
         {
-            $defaultChmod = \Aomebo\Configuration::getSetting(
-                'paths,default file mod');
-            if (strlen($defaultChmod) == 3) {
-                $defaultChmod = '0' . $defaultChmod;
-            } else if (strlen($defaultChmod) != 4) {
-                Throw new \Exception(
-                    'Invalid default file mode specified in configuration');
+
+            if (!isset(self::$_chmodDec)) {
+
+                if (!isset(self::$_chmodOct)) {
+
+                    $defaultChmod = \Aomebo\Configuration::getSetting(
+                        'paths,default file mod');
+
+                    if (strlen($defaultChmod) == 3) {
+                        $defaultChmod = '0' . $defaultChmod;
+                    } else if (strlen($defaultChmod) != 4) {
+                        Throw new \Exception(
+                            'Invalid default file mode specified in configuration');
+                    }
+
+                    self::$_chmodOct = $defaultChmod;
+
+                }
+
+                self::$_chmodDec = octdec(self::$_chmodOct);
+
             }
-            return octdec($defaultChmod);
+
+            return self::$_chmodDec;
+
         }
 
     }
