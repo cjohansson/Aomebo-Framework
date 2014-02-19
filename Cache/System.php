@@ -130,7 +130,8 @@ namespace Aomebo\Cache
 
                         if (\Aomebo\Filesystem::makeFile(
                             $cachePath,
-                            $formattedData)
+                            $formattedData,
+                            false)
                         ) {
                             return true;
                         }
@@ -154,8 +155,10 @@ namespace Aomebo\Cache
                 // Make directories if needed
                 $path = \Aomebo\Application::getCacheDir()
                     . DIRECTORY_SEPARATOR . $parameters;
+
                 if (!is_dir($path)) {
-                    \Aomebo\Filesystem::makeDirectories($path);
+                    \Aomebo\Filesystem::makeDirectories(
+                        $path, false);
                 }
 
                 if (!isset($key)) {

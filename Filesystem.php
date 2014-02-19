@@ -45,12 +45,12 @@ namespace Aomebo
         /**
          * @static
          * @param string $absolutePath
-         * @param bool [$throwException = true]
+         * @param bool [$throwExceptions = true]
          * @throws \Exception
          * @return bool
          */
         public static function makeDirectories($absolutePath,
-            $throwException = true)
+            $throwExceptions = true)
         {
 
             $accBool = true;
@@ -76,7 +76,8 @@ namespace Aomebo
 
                             if (!is_dir($path)) {
                                 if (!self::makeDirectory(
-                                    $path, $throwException)
+                                    $path,
+                                    $throwExceptions)
                                 ) {
                                     $accBool = false;
                                 }
@@ -98,11 +99,12 @@ namespace Aomebo
         /**
          * @static
          * @param string $absolutePath
-         * @param bool [$throwException = true]
+         * @param bool [$throwExceptions = true]
          * @throws \Exception
          * @return bool
          */
-        public static function makeDirectory($absolutePath, $throwException = true)
+        public static function makeDirectory($absolutePath,
+            $throwExceptions = true)
         {
 
             if (is_dir($absolutePath)) {
@@ -112,12 +114,16 @@ namespace Aomebo
 
                     if (mkdir($absolutePath)) {
 
-                        self::applyPermissions($absolutePath);
+                        self::applyPermissions(
+                            $absolutePath,
+                            $throwExceptions
+                        );
+
                         return true;
 
                     } else {
 
-                        if ($throwException) {
+                        if ($throwExceptions) {
                             Throw new \Exception(
                                 'Could not make directory: '
                                     . '"' . $absolutePath . '"');
@@ -127,12 +133,10 @@ namespace Aomebo
 
                 } catch (\Exception $e) {
 
-                    if ($throwException) {
-
+                    if ($throwExceptions) {
                         Throw new \Exception(
                             'Could not make directory: '
                                 . '"' . $absolutePath . '"');
-
                     }
 
                 }
@@ -212,17 +216,22 @@ namespace Aomebo
          * @static
          * @param string $absolutePath
          * @param string [$contents = '']
+         * @param bool [$throwExceptions = true]
          * @throws \Exception
          * @return bool
          */
         public static function makeFile($absolutePath, $contents = '',
-            $throwException = true)
+            $throwExceptions = true)
         {
 
             self::makeDirectories($absolutePath);
 
-            if (self::_writeFile($absolutePath, $contents, null,
-                true)
+            if (self::_writeFile(
+                $absolutePath,
+                $contents,
+                null,
+                true,
+                $throwExceptions)
             ) {
                 return true;
             }
@@ -348,16 +357,19 @@ namespace Aomebo
         /**
          * @static
          * @param string $path
+         * @param bool [$throwExceptions = true]
          * @throws \Exception
          */
-        public static function applyPermissions($path)
+        public static function applyPermissions($path, $throwExceptions = true)
         {
 
             if (!chmod($path, self::_getChmod())) {
-                Throw new \Exception(
-                    'Could not set chmod for file "' . $path . '" '
-                    . 'to oct: ' . self::$_chmodOct
-                    . ', dec: ' . self::$_chmodDec);
+                if ($throwExceptions) {
+                    Throw new \Exception(
+                        'Could not set chmod for file "' . $path . '" '
+                        . 'to oct: ' . self::$_chmodOct
+                        . ', dec: ' . self::$_chmodDec);
+                }
             }
 
             if (self::isSystemSuperUser()) {
@@ -372,18 +384,22 @@ namespace Aomebo
 
                 // Set owner
                 if (!chown($path, $ownerUserName)) {
-                    Throw new \Exception(
-                        'Could not set owner username to "' . $ownerUserName
-                            . '" for "' . $path . '" in ' . __FUNCTION__
-                            . ' in ' . __FILE__);
+                    if ($throwExceptions) {
+                        Throw new \Exception(
+                            'Could not set owner username to "' . $ownerUserName
+                                . '" for "' . $path . '" in ' . __FUNCTION__
+                                . ' in ' . __FILE__);
+                    }
                 }
 
                 // Set group
                 if (!chgrp($path, $ownerGroupName)) {
-                    Throw new \Exception(
-                        'Could not set owner groupnamegroup permissions to "' . $ownerGroupName
-                            . '" for "' . $path . '" in ' . __FUNCTION__
-                            . ' in ' . __FILE__);
+                    if ($throwExceptions) {
+                        Throw new \Exception(
+                            'Could not set owner groupnamegroup permissions to "' . $ownerGroupName
+                                . '" for "' . $path . '" in ' . __FUNCTION__
+                                . ' in ' . __FILE__);
+                    }
                 }
 
             }
@@ -428,11 +444,12 @@ namespace Aomebo
          * @param string [$contents = '']
          * @param null|string [$chmod = null]
          * @param bool [$truncate = true]
+         * @param bool [$throwExceptions = true]
          * @throws \Exception
          * @return bool
          */
         private static function _writeFile($absolutePath, $contents = '',
-            $chmod = null, $truncate = true)
+            $chmod = null, $truncate = true, $throwExceptions = true)
         {
             if ($file = fopen($absolutePath, 'ab+')) {
                 if (flock($file, LOCK_EX)) {
@@ -445,7 +462,7 @@ namespace Aomebo
                     fflush($file);
                     flock($file, LOCK_UN);
                     fclose($file);
-                    self::applyPermissions($absolutePath);
+                    self::applyPermissions($absolutePath, $throwExceptions);
                     return true;
                 }
                 fclose($file);

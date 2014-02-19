@@ -1112,7 +1112,7 @@ namespace Aomebo\Dispatcher
          */
         public static function setHttpHeaderField($field, $value)
         {
-            self::$_httpHeaderFields[$field] = $value;
+            self::$_httpHeaderFields[ucfirst($field)] = $value;
         }
 
         /**
