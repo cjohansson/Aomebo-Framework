@@ -158,7 +158,10 @@ namespace Aomebo\Cache
 
                 if (!is_dir($path)) {
                     \Aomebo\Filesystem::makeDirectories(
-                        $path, false);
+                        $path,
+                        false,
+                        true
+                    );
                 }
 
                 if (!isset($key)) {

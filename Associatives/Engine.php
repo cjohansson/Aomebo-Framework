@@ -695,7 +695,11 @@ namespace Aomebo\Associatives
                         if (\Aomebo\Configuration::getSetting(
                             'paths,create runtime directories')
                         ) {
-                            \Aomebo\Filesystem::makeDirectories($dir);
+                            \Aomebo\Filesystem::makeDirectories(
+                                $dir,
+                                true,
+                                true
+                            );
                         }
                     }
                 }
@@ -800,8 +804,11 @@ namespace Aomebo\Associatives
                                     && \Aomebo\Configuration::getSetting(
                                         'paths,create associatives directories')
                                 ) {
-                                    \Aomebo\Filesystem::makeDirectories($mirrorRoot
-                                        . 'Dependencies');
+                                    \Aomebo\Filesystem::makeDirectories(
+                                        $mirrorRoot . 'Dependencies',
+                                        true,
+                                        true
+                                    );
                                 }
 
                             }

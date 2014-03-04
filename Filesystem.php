@@ -46,11 +46,13 @@ namespace Aomebo
          * @static
          * @param string $absolutePath
          * @param bool [$throwExceptions = true]
+         * @param bool [$trailingIsDirectory = false]
          * @throws \Exception
          * @return bool
          */
         public static function makeDirectories($absolutePath,
-            $throwExceptions = true)
+            $throwExceptions = true,
+            $trailingIsDirectory = false)
         {
 
             $accBool = true;
@@ -66,7 +68,9 @@ namespace Aomebo
                 foreach ($components as $component)
                 {
                     if ($component !== '') {
-                        if ($pathIndex < $pathSize - 1) {
+                        if ($pathIndex < $pathSize - 1
+                            || $trailingIsDirectory
+                        ) {
 
                             if ($pathIndex > 0) {
                                 $path .= DIRECTORY_SEPARATOR;

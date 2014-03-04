@@ -866,7 +866,10 @@ namespace Aomebo\Indexing
                     ) {
                         \Aomebo\Filesystem::makeDirectories(_SYSTEM_SITE_ROOT_
                             . DIRECTORY_SEPARATOR . 'Indexing'. DIRECTORY_SEPARATOR
-                                . self::CONTENT_DIRECTORY);
+                            . self::CONTENT_DIRECTORY,
+                            true,
+                            true
+                        );
                     }
 
                 } else {

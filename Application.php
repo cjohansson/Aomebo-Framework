@@ -880,29 +880,26 @@ namespace Aomebo
                 && is_array($parameters)
             ) {
 
-                /** @define string _PHP_EX_    Php extension */
+                /** @define string _PHP_EX_                 Php extension */
                 define('_PHP_EX_', '.php');
 
-                /** @define string _PRIVATE_ROOT_      Absolute root to private */
+                /** @define string _PRIVATE_ROOT_           Absolute root to private */
                 define('_PRIVATE_ROOT_',
                     dirname($parameters[self::PARAMETER_SITE_PATH]) . DIRECTORY_SEPARATOR);
 
-                /** @define string _SITE_ROOT_      Absolute root to site */
+                /** @define string _SITE_ROOT_              Absolute root to site, always ends with directory separator */
                 define('_SITE_ROOT_', $parameters[self::PARAMETER_SITE_PATH]);
 
-                /** @define string _SYSTEM_ROOT_        Absolute root to system */
+                /** @define string _SYSTEM_ROOT_            Absolute root to system */
                 define('_SYSTEM_ROOT_',
                     __DIR__ . DIRECTORY_SEPARATOR);
 
-                /** @define string _PUBLIC_ROOT_        Absolute root to public */
+                /** @define string _PUBLIC_ROOT_            Absolute root to public */
                 define('_PUBLIC_ROOT_',
                     $parameters[self::PARAMETER_PUBLIC_INTERNAL_PATH] . DIRECTORY_SEPARATOR);
 
-                $systemSiteRoot =
-                    _SITE_ROOT_ . DIRECTORY_SEPARATOR . 'Aomebo';
-
                 /** @define string _SYSTEM_SITE_ROOT_       Absolute root to system inside site */
-                define('_SYSTEM_SITE_ROOT_', $systemSiteRoot);
+                define('_SYSTEM_SITE_ROOT_', _SITE_ROOT_ . 'Aomebo');
 
                 if (substr($parameters[self::PARAMETER_PUBLIC_EXTERNAL_PATH], -1, 1)
                     == DIRECTORY_SEPARATOR
