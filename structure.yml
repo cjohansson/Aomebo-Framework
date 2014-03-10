@@ -43,6 +43,10 @@ indexing:
         type: boolean
         required: true
         default: true
+    save content:
+        type: boolean
+        required: true
+        default: false
 
 application:
     memory required:

@@ -695,19 +695,28 @@ namespace Aomebo\Indexing
         private function _deleteContent($contentMd5)
         {
             if (isset($contentMd5)) {
-                $filename =
-                    _SYSTEM_SITE_ROOT_ . DIRECTORY_SEPARATOR . 'Indexing'
-                        . DIRECTORY_SEPARATOR . self::CONTENT_DIRECTORY
-                        . DIRECTORY_SEPARATOR . $contentMd5;
-                if (\Aomebo\Filesystem::deleteFile($filename)) {
+
+                if (\Aomebo\Configuration::getSetting('indexing,save content')) {
+
+                    $filename =
+                        _SYSTEM_SITE_ROOT_ . DIRECTORY_SEPARATOR . 'Indexing'
+                            . DIRECTORY_SEPARATOR . self::CONTENT_DIRECTORY
+                            . DIRECTORY_SEPARATOR . $contentMd5;
+
+                    if (\Aomebo\Filesystem::deleteFile($filename)) {
+                        return true;
+                    }
+
+                } else {
                     return true;
                 }
+
             } else {
-                Throw new \Exception(
-                    'Invalid parameters for _deleteContent'
-                );
+                Throw new \Exception('Invalid parameters');
             }
+
             return false;
+
         }
 
         /**
@@ -722,16 +731,22 @@ namespace Aomebo\Indexing
         private function _setContent($contentMd5, $content)
         {
             if (isset($contentMd5, $content)) {
-                $filename =
-                    _SYSTEM_SITE_ROOT_ . DIRECTORY_SEPARATOR . 'Indexing'
-                    . DIRECTORY_SEPARATOR . self::CONTENT_DIRECTORY
-                    . DIRECTORY_SEPARATOR . $contentMd5;
-                \Aomebo\Filesystem::makeFile($filename, $content);
-                return true;
+
+                if (\Aomebo\Configuration::getSetting('indexing,save content')) {
+
+                    $filename =
+                        _SYSTEM_SITE_ROOT_ . DIRECTORY_SEPARATOR . 'Indexing'
+                        . DIRECTORY_SEPARATOR . self::CONTENT_DIRECTORY
+                        . DIRECTORY_SEPARATOR . $contentMd5;
+                    \Aomebo\Filesystem::makeFile($filename, $content);
+
+                    return true;
+
+                } else {
+                    return true;
+                }
             } else {
-                Throw new \Exception(
-                    'Invalid parameters for _setContent'
-                );
+                Throw new \Exception('Invalid parameters');
             }
         }
 
@@ -809,12 +824,17 @@ namespace Aomebo\Indexing
          */
         private function _isInstalled()
         {
-            $dba =
-                \Aomebo\Database\Adapter::getInstance();
-            return ($dba->tableExists(
-                '{TABLE PREFIX}{SYSTEM TABLE PREFIX}' . self::TABLE)
-                && is_dir(_SYSTEM_SITE_ROOT_ . DIRECTORY_SEPARATOR . 'Indexing')
-                && is_dir(_SYSTEM_SITE_ROOT_ . DIRECTORY_SEPARATOR . 'Indexing'. DIRECTORY_SEPARATOR . self::CONTENT_DIRECTORY));
+
+            $saveContent =
+                \Aomebo\Configuration::getSetting('indexing,save content');
+
+            return (\Aomebo\Database\Adapter::tableExists(
+                    '{TABLE PREFIX}{SYSTEM TABLE PREFIX}' . self::TABLE)
+                && !$saveContent || (
+                is_dir(_SYSTEM_SITE_ROOT_ . DIRECTORY_SEPARATOR . 'Indexing')
+                && is_dir(_SYSTEM_SITE_ROOT_ . DIRECTORY_SEPARATOR . 'Indexing'
+                . DIRECTORY_SEPARATOR . self::CONTENT_DIRECTORY)));
+
         }
 
         /**
@@ -860,16 +880,20 @@ namespace Aomebo\Indexing
                         . 'ENGINE={storage_engine} DEFAULT CHARSET={DATA CHARSET};', array(
                             'storage_engine' => ($storageEngine == 'myisam' ? 'MyISAM' : 'InnoDB')));
 
-                    // Create Aomebo Index Indexing directory
-                    if (!is_dir((_SYSTEM_SITE_ROOT_ . DIRECTORY_SEPARATOR
-                        . 'Indexing'. DIRECTORY_SEPARATOR . self::CONTENT_DIRECTORY))
-                    ) {
-                        \Aomebo\Filesystem::makeDirectories(_SYSTEM_SITE_ROOT_
-                            . DIRECTORY_SEPARATOR . 'Indexing'. DIRECTORY_SEPARATOR
-                            . self::CONTENT_DIRECTORY,
-                            true,
-                            true
-                        );
+                    if (\Aomebo\Configuration::getSetting('indexing,save content')) {
+
+                        // Create Aomebo Index Indexing directory
+                        if (!is_dir((_SYSTEM_SITE_ROOT_ . DIRECTORY_SEPARATOR
+                            . 'Indexing' . DIRECTORY_SEPARATOR . self::CONTENT_DIRECTORY))
+                        ) {
+                            \Aomebo\Filesystem::makeDirectories(_SYSTEM_SITE_ROOT_
+                                . DIRECTORY_SEPARATOR . 'Indexing'. DIRECTORY_SEPARATOR
+                                . self::CONTENT_DIRECTORY,
+                                true,
+                                true
+                            );
+                        }
+
                     }
 
                 } else {
