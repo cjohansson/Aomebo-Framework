@@ -57,6 +57,9 @@
                 </p>
                 <input type="text" name="site_server_name" id="site_server_name" value="{$submit.siteServerName|escape}" />
             </div>
+            <div>
+                From database: "{$cache}"
+            </div>
         </fieldset>
         <div>
             <input type="submit" value="Save" />

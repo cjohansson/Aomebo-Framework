@@ -46,14 +46,109 @@ namespace Aomebo\Cache
         const FORMAT_SERIALIZE = 2;
 
         /**
+         * @var string
+         */
+        const TABLE = 'cache';
+
+        /**
+         * @var int
+         */
+        const CACHE_STORAGE_LOCATION_FILESYSTEM = 0;
+
+        /**
+         * @var int
+         */
+        const CACHE_STORAGE_LOCATION_DATABASE = 1;
+
+        /**
          *
          */
         public function __construct()
         {
             if (!$this->_isConstructed()) {
+
                 parent::__construct();
+
+                if (!self::isInstalled()) {
+                    self::install();
+                }
+
                 $this->_flagThisConstructed();
             }
+        }
+
+        /**
+         * @static
+         * @return string
+         */
+        public static function getTable()
+        {
+            return '{TABLE PREFIX}{SYSTEM TABLE PREFIX}' . self::TABLE;
+        }
+
+        /**
+         * @static
+         * @return string
+         */
+        public static function isInstalled()
+        {
+            return \Aomebo\Database\Adapter::tableExists(
+                self::getTable());
+        }
+
+        /**
+         *
+         */
+        public static function install()
+        {
+
+            \Aomebo\Database\Adapter::query(
+                'CREATE TABLE IF NOT EXISTS `' . self::getTable() . '`('
+                . '`cache_parameters` VARCHAR(100) NOT NULL DEFAULT "",'
+                . '`cache_key` VARCHAR(100) NOT NULL DEFAULT "",'
+                . '`cache_data` LONGBLOB NOT NULL DEFAULT "",'
+                . '`cache_added` DATETIME NOT NULL DEFAULT "0000-00-00 00:00:00",'
+                . '`cache_edited` TIMESTAMP NOT NULL DEFAULT "0000-00-00 00:00:00" ON UPDATE CURRENT_TIMESTAMP, '
+                . 'PRIMARY KEY(`cache_parameters`,`cache_key`))'
+            );
+
+        }
+
+        /**
+         * @static
+         * @param string $parameters
+         * @param string|null [$key = null]
+         * @param int [$format = self::FORMAT_RAW]
+         * @param int [$storage = self::CACHE_STORAGE_LOCATION_FILESYSTEM]
+         * @return mixed|bool
+         */
+        public static function loadCache(
+            $parameters,
+            $key = null,
+            $format = self::FORMAT_RAW,
+            $storage = self::CACHE_STORAGE_LOCATION_FILESYSTEM)
+        {
+
+            if ($storage == self::CACHE_STORAGE_LOCATION_FILESYSTEM) {
+
+                return self::loadCacheInFilesystem(
+                    $parameters,
+                    $key,
+                    $format
+                );
+
+            } else if ($storage == self::CACHE_STORAGE_LOCATION_DATABASE) {
+
+                return self::loadCacheInDatabase(
+                    $parameters,
+                    $key,
+                    $format
+                );
+
+            }
+
+            return false;
+
         }
 
         /**
@@ -63,12 +158,13 @@ namespace Aomebo\Cache
          * @param int [$format = self::FORMAT_RAW]
          * @return mixed|bool
          */
-        public static function loadCache($parameters,
-            $key = null,
-            $format = self::FORMAT_RAW)
+        public static function loadCacheInFilesystem(
+            $parameters,
+             $key = null,
+             $format = self::FORMAT_RAW)
         {
 
-            if (self::cacheExists($parameters, $key)) {
+            if (self::cacheExistsInFilesystem($parameters, $key)) {
                 if ($cachePath = self::getCachePath($parameters, $key)) {
 
                     if ($formattedData = \Aomebo\Filesystem::getFileContents(
@@ -99,13 +195,151 @@ namespace Aomebo\Cache
          * @static
          * @param string $parameters
          * @param string|null [$key = null]
+         * @param int [$format = self::FORMAT_RAW]
+         * @return mixed|bool
+         */
+        public static function loadCacheInDatabase(
+            $parameters,
+            $key = null,
+            $format = self::FORMAT_RAW)
+        {
+
+            if (self::cacheExistsInDatabase($parameters, $key)) {
+
+                if (!isset($key)) {
+
+                    if ($resultset = \Aomebo\Database\Adapter::query(
+                        'SELECT * FROM `' . self::getTable() . '` '
+                        . 'WHERE `cache_parameters` = {parameters}'
+                        . 'LIMIT 1',
+                        array(
+                            'parameters' => array(
+                                'value' => $parameters,
+                                'quoted' => true,
+                            ),
+                        ))
+                    ) {
+
+                        $row = $resultset->fetchAssocAndFree();
+
+                        if (isset($row['cache_data'])) {
+
+                            $formattedData = $row['cache_data'];
+
+                            // Format data
+                            if ($format == self::FORMAT_JSON_ENCODE) {
+                                $data = json_decode($formattedData, true);
+                            } else if ($format == self::FORMAT_SERIALIZE) {
+                                $data = unserialize($formattedData);
+                            } else {
+                                $data = $formattedData;
+                            }
+
+                            return $data;
+
+                        }
+
+                    }
+
+                } else {
+
+                    if ($resultset = \Aomebo\Database\Adapter::query(
+                        'SELECT * FROM `' . self::getTable() . '` '
+                        . 'WHERE `cache_parameters` = {parameters} '
+                        . 'AND `cache_key` = {key} '
+                        . 'LIMIT 1',
+                        array(
+                            'parameters' => array(
+                                'value' => $parameters,
+                                'quoted' => true,
+                            ),
+                            'key' => array(
+                                'value' => $key,
+                                'quoted' => true,
+                            )
+                        ))
+                    ) {
+
+                        $row = $resultset->fetchAssocAndFree();
+
+                        if (isset($row['cache_data'])) {
+
+                            $formattedData = $row['cache_data'];
+
+                            // Format data
+                            if ($format == self::FORMAT_JSON_ENCODE) {
+                                $data = json_decode($formattedData, true);
+                            } else if ($format == self::FORMAT_SERIALIZE) {
+                                $data = unserialize($formattedData);
+                            } else {
+                                $data = $formattedData;
+                            }
+
+                            return $data;
+
+                        }
+
+                    }
+                }
+            }
+
+            return false;
+
+        }
+
+        /**
+         * @static
+         * @param string $parameters
+         * @param string|null [$key = null]
+         * @param mixed|string $data
+         * @param int [$format = self::FORMAT_RAW]
+         * @param int $storage = self::CACHE_STORAGE_LOCATION_FILESYSTEM
+         * @return bool
+         */
+        public static function saveCache(
+            $parameters,
+            $key = null,
+            $data,
+            $format = self::FORMAT_RAW,
+            $storage = self::CACHE_STORAGE_LOCATION_FILESYSTEM)
+        {
+
+            if ($storage == self::CACHE_STORAGE_LOCATION_FILESYSTEM) {
+
+                return self::saveCacheInFilesystem(
+                    $parameters,
+                    $key,
+                    $data,
+                    $format);
+
+            } else if ($storage == self::CACHE_STORAGE_LOCATION_DATABASE) {
+
+                return self::saveCacheInDatabase(
+                    $parameters,
+                    $key,
+                    $data,
+                    $format
+                );
+
+            }
+
+            return false;
+
+        }
+
+        /**
+         * @static
+         * @param string $parameters
+         * @param string|null [$key = null]
          * @param mixed|string $data
          * @param int [$format = self::FORMAT_RAW]
          * @return bool
          */
-        public static function saveCache($parameters,
+        public static function saveCacheInFilesystem(
+            $parameters,
             $key = null,
-            $data, $format = self::FORMAT_RAW)
+            $data,
+            $format = self::FORMAT_RAW)
         {
             if (isset($data)) {
                 if ($cachePath = self::getCachePath(
@@ -125,7 +359,10 @@ namespace Aomebo\Cache
                         }
 
                         if (!empty($key)) {
-                            self::clearCache($parameters, $key);
+                            self::clearCacheInFilesystem(
+                                $parameters,
+                                $key
+                            );
                         }
 
                         if (\Aomebo\Filesystem::makeFile(
@@ -144,13 +381,107 @@ namespace Aomebo\Cache
         }
 
         /**
+         * @static
+         * @param string $parameters
+         * @param string|null [$key = null]
+         * @param mixed|string $data
+         * @param int [$format = self::FORMAT_RAW]
+         * @return bool
+         */
+        public static function saveCacheInDatabase(
+            $parameters,
+            $key = null,
+            $data,
+            $format = self::FORMAT_RAW)
+        {
+
+            if (isset($data)) {
+
+                // Format data
+                if ($format == self::FORMAT_JSON_ENCODE) {
+                    $formattedData = json_encode($data);
+                } else if ($format == self::FORMAT_SERIALIZE) {
+                    $formattedData = serialize($data);
+                } else {
+                    $formattedData = $data;
+                }
+
+                if (!empty($key)) {
+                    self::clearCacheInDatabase(
+                        $parameters,
+                        $key
+                    );
+                }
+
+                if (\Aomebo\Database\Adapter::query(
+                    'INSERT IGNORE INTO `' . self::getTable() . '`('
+                    . '`cache_parameters`,`cache_key`,`cache_data`,`cache_added`) '
+                    . 'VALUES({parameters},{key},{data},{added})',
+                    array(
+                        'parameters' => array(
+                            'value' => $parameters,
+                            'quoted' => true,
+                        ),
+                        'key' => array(
+                            'value' => (!empty($key) ? $key : ''),
+                            'quoted' => true,
+                        ),
+                        'data' => array(
+                            'value' => $formattedData,
+                            'quoted' => true,
+                        ),
+                        'added' => 'NOW()',
+                    ))
+                ) {
+                    return true;
+                }
+            }
+
+            return false;
+
+        }
+
+        /**
+         * @param string $parameters
+         * @param string|null [$key = null]
+         * @param int [$storage = self::CACHE_STORAGE_LOCATION_FILESYSTEM]
+         * @return bool
+         */
+        public static function clearCache(
+            $parameters,
+            $key = null,
+            $storage = self::CACHE_STORAGE_LOCATION_FILESYSTEM)
+        {
+
+            if ($storage == self::CACHE_STORAGE_LOCATION_FILESYSTEM) {
+
+                return self::clearCacheInFilesystem(
+                    $parameters,
+                    $key
+                );
+
+            } else if ($storage == self::CACHE_STORAGE_LOCATION_DATABASE) {
+
+                return self::clearCacheInDatabase(
+                    $parameters,
+                    $key
+                );
+
+            }
+
+            return false;
+
+        }
+
+        /**
          * @param string $parameters
          * @param string|null [$key = null]
          * @return bool
          */
-        public static function clearCache($parameters, $key = null)
+        public static function clearCacheInFilesystem(
+            $parameters, $key = null)
         {
-            if (self::cacheExists($parameters, $key)) {
+            if (self::cacheExistsInFilesystem($parameters, $key)) {
 
                 // Make directories if needed
                 $path = \Aomebo\Application::getCacheDir()
@@ -181,6 +512,56 @@ namespace Aomebo\Cache
 
         }
 
+        /**
+         * @param string $parameters
+         * @param string|null [$key = null]
+         * @return bool
+         */
+        public static function clearCacheInDatabase(
+            $parameters, $key = null)
+        {
+            if (self::cacheExistsInDatabase($parameters, $key)) {
+
+                if (!isset($key)) {
+
+                    \Aomebo\Database\Adapter::query(
+                        'DELETE FROM `' . self::getTable() . '` '
+                        . 'WHERE `cache_parameters` = {parameters}',
+                        array(
+                            'parameters' => array(
+                                'value' => $parameters,
+                                'quoted' => true,
+                            ),
+                        ));
+
+                    return true;
+
+                } else {
+
+                    \Aomebo\Database\Adapter::query(
+                        'DELETE FROM `' . self::getTable() . '` '
+                        . 'WHERE `cache_parameters` = {parameters} '
+                        . 'AND `cache_key` = {key}',
+                        array(
+                            'parameters' => array(
+                                'value' => $parameters,
+                                'quoted' => true,
+                            ),
+                            'key' => array(
+                                'value' => $key,
+                                'quoted' => true,
+                            )
+                        ));
+
+                    return true;
+
+                }
+
+            }
+
+            return false;
+
+        }
 
         /**
          * @static
@@ -209,9 +590,42 @@ namespace Aomebo\Cache
          * @static
          * @param string $parameters            Like 'Runtime/Header/Logged-in'
          * @param string|null [$key = null]
+         * @param int [$storage = self::CACHE_STORAGE_LOCATION_FILESYSTEM]
          * @return bool
          */
-        public static function cacheExists($parameters, $key = null)
+        public static function cacheExists($parameters,
+            $key = null,
+            $storage = self::CACHE_STORAGE_LOCATION_FILESYSTEM)
+        {
+
+            if ($storage == self::CACHE_STORAGE_LOCATION_FILESYSTEM) {
+
+                return self::cacheExistsInFilesystem(
+                    $parameters,
+                    $key
+                );
+
+            } else if ($storage == self::CACHE_STORAGE_LOCATION_DATABASE) {
+
+                return self::cacheExistsInDatabase(
+                    $parameters,
+                    $key
+                );
+
+            }
+
+            return false;
+
+        }
+
+        /**
+         * @static
+         * @param string $parameters            Like 'Runtime/Header/Logged-in'
+         * @param string|null [$key = null]
+         * @return bool
+         */
+        public static function cacheExistsInFilesystem(
+            $parameters, $key = null)
         {
             if (!empty($parameters)) {
 
@@ -240,6 +654,62 @@ namespace Aomebo\Cache
                 }
 
                 return true;
+
+            }
+
+            return false;
+
+        }
+
+        /**
+         * @static
+         * @param string $parameters            Like 'Runtime/Header/Logged-in'
+         * @param string|null [$key = null]
+         * @return bool
+         */
+        public static function cacheExistsInDatabase(
+            $parameters, $key = null)
+        {
+            if (!empty($parameters)) {
+
+                if (!isset($key)) {
+
+                    if (\Aomebo\Database\Adapter::query(
+                        'SELECT * FROM `' . self::getTable() . '` '
+                        . 'WHERE `cache_parameters` = {parameters} '
+                        . 'LIMIT 1',
+                        array(
+                            'parameters' => array(
+                                'value' => $parameters,
+                                'quoted' => true,
+                            ),
+                        ))
+                    ) {
+                        return true;
+                    }
+
+                } else {
+
+                    if (\Aomebo\Database\Adapter::query(
+                        'SELECT * FROM `' . self::getTable() . '` '
+                        . 'WHERE `cache_parameters` = {parameters} '
+                        . 'AND `cache_key` = {key} '
+                        . 'LIMIT 1',
+                        array(
+                            'parameters' => array(
+                                'value' => $parameters,
+                                'quoted' => true,
+                            ),
+                            'key' => array(
+                                'value' => $key,
+                                'quoted' => true,
+                            )
+                        ))
+                    ) {
+                        return true;
+                    }
+
+                }
 
             }
 

@@ -78,7 +78,37 @@ namespace Modules\Setup
                 $submit['pathsDefaultFileMod'] = $pathsSettings['default file mod'];
             }
 
+            if (self::$_aomebo->Cache()->System()->cacheExists(
+                'abcd',
+                '123',
+                \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_DATABASE)
+            ) {
+
+                $abc = self::$_aomebo->Cache()->System()->loadCache(
+                    'abcd',
+                    '123',
+                    \Aomebo\Cache\System::FORMAT_RAW,
+                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_DATABASE
+                );
+
+                $abc .= ' (from database)';
+
+            } else {
+
+                $abc = 'random';
+
+                self::$_aomebo->Cache()->System()->saveCache(
+                    'abcd',
+                    '123',
+                    $abc,
+                    \Aomebo\Cache\System::FORMAT_RAW,
+                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_DATABASE
+                );
+
+            }
+
             $view->attachVariable('submit', $submit);
+            $view->attachVariable('cache', $abc);
 
             return $view->parse();
 
