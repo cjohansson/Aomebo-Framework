@@ -709,8 +709,6 @@ namespace Aomebo\Interpreter
             \Aomebo\Trigger\System::processTriggers(
                 \Aomebo\Trigger\System::TRIGGER_KEY_BEFORE_INTERPRETATION);
 
-            self::$_metaData = array();
-
             if (self::$_interpretationStatus !=
                 self::INTERPRETATION_STATUS_ABORT
             ) {
