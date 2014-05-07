@@ -275,13 +275,49 @@ namespace Aomebo\Indexing
          * This method opens the index.
          *
          * @static
+         * @param string|null [$title = null]
+         * @param string|null [$description = null]
+         * @param string|null [$keywords = null]
          * @return bool
          */
-        public static function openIndex()
+        public static function openIndex($title = null,
+            $description = null, $keywords = null)
         {
+
+            $where = '';
+            if (!empty($title)) {
+                $where .= 'WHERE `title` LIKE '
+                    . \Aomebo\Database\Adapter::quote(
+                        '%' . $title . '%'
+                    );
+            }
+            if (!empty($description)) {
+                if (!empty($where)) {
+                    $where .= ' AND ';
+                } else {
+                    $where = 'WHERE ';
+                }
+                $where .= '`description` LIKE '
+                    . \Aomebo\Database\Adapter::quote(
+                        '%' . $description . '%'
+                    );
+            }
+            if (!empty($keywords)) {
+                if (!empty($where)) {
+                    $where .= ' AND ';
+                } else {
+                    $where = 'WHERE ';
+                }
+                $where .= '`keywords` LIKE '
+                    . \Aomebo\Database\Adapter::quote(
+                        '%' . $keywords . '%'
+                    );
+            }
+
             if ($result = \Aomebo\Database\Adapter::query(
                 'SELECT * FROM `' . self::getTable() . '` '
-                . ' ORDER BY `added` DESC',
+                . $where . ' '
+                . 'ORDER BY `added` DESC',
                 null, true)
             ) {
                 self::$_resultset = $result;
