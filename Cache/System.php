@@ -104,8 +104,8 @@ namespace Aomebo\Cache
 
             \Aomebo\Database\Adapter::query(
                 'CREATE TABLE IF NOT EXISTS `' . self::getTable() . '`('
-                . '`cache_parameters` VARCHAR(200) NOT NULL DEFAULT "",'
-                . '`cache_key` VARCHAR(200) NOT NULL DEFAULT "",'
+                . '`cache_parameters` VARCHAR(150) NOT NULL DEFAULT "",'
+                . '`cache_key` VARCHAR(150) NOT NULL DEFAULT "",'
                 . '`cache_data` LONGBLOB NOT NULL DEFAULT "",'
                 . '`cache_added` DATETIME NOT NULL DEFAULT "0000-00-00 00:00:00",'
                 . '`cache_edited` TIMESTAMP NOT NULL DEFAULT "0000-00-00 00:00:00" ON UPDATE CURRENT_TIMESTAMP, '
