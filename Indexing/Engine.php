@@ -123,18 +123,21 @@ namespace Aomebo\Indexing
         /**
          * Gets an uri.
          *
+         * @static
          * @param string $uri
          * @return array|bool
          */
-        public function getUri($uri)
+        public static function getUri($uri)
         {
-            return $this->_getUri($uri);
+            return self::_getUri($uri);
         }
 
         /**
          * This method does the indexing of a page.
+         *
+         * @static
          */
-        public function index()
+        public static function index()
         {
 
             $uri = \Aomebo\Dispatcher\System::getPageBaseUri()
@@ -177,8 +180,8 @@ namespace Aomebo\Indexing
                     || \Aomebo\Dispatcher\System::isHttpHeadRequest())
                     && \Aomebo\Dispatcher\System::isNormalRequest()
                 ) {
-                    $this->_garbageCollect();
-                    $this->_index();
+                    self::_garbageCollect();
+                    self::_index();
                 }
 
             } else {
@@ -200,28 +203,29 @@ namespace Aomebo\Indexing
         /**
          * This method removes an uri from index.
          *
+         * @static
          * @param string $uri
          * @throws \Exception
          * @return bool
          */
-        public function removeUri($uri)
+        public static function removeUri($uri)
         {
             if (!empty($uri)) {
-                $dba =
-                    \Aomebo\Database\Adapter::getInstance();
-                if ($contentMd5 = $this->_getContentMd5($uri)) {
-                    $this->_deleteContent($contentMd5);
+                if ($contentMd5 = self::_getContentMd5($uri)) {
+                    self::_deleteContent($contentMd5);
                 }
-                if ($dba->query('DELETE FROM `{TABLE PREFIX}'
-                        . '{SYSTEM TABLE PREFIX}' . self::TABLE . '` WHERE '
-                        . '`uri` = {uri} LIMIT 1', array(
-                    'uri' => array('value' => $uri, 'quoted' => true)))
+                if (\Aomebo\Database\Adapter::query(
+                    'DELETE FROM `' . self::getTable() . '` '
+                    . 'WHERE `uri` = {uri} LIMIT 1', array(
+                        'uri' => array(
+                            'value' => $uri,
+                            'quoted' => true,
+                        )))
                 ) {
                     return true;
                 }
             } else {
-                Throw new \Exception(
-                    'Invalid parameters for ' . __FUNCTION__);
+                Throw new \Exception('Invalid parameters');
             }
             return false;
         }
@@ -251,33 +255,33 @@ namespace Aomebo\Indexing
         /**
          * This method returns the full index.
          *
+         * @static
          * @return array|bool
          */
-        public function getIndex()
+        public static function getIndex()
         {
-            $dba =
-                \Aomebo\Database\Adapter::getInstance();
-            if ($result = $dba->query('SELECT * FROM '
-                . '`{TABLE PREFIX}{SYSTEM TABLE PREFIX}'
-                . self::TABLE . '` ORDER BY `added` DESC')
+
+            if ($result = \Aomebo\Database\Adapter::query(
+                'SELECT * FROM `' . self::getTable() . '` '
+                . 'ORDER BY `added` DESC')
             ) {
                 return $result->fetchAssocAllAndFree();
             }
             return false;
+
         }
 
         /**
          * This method opens the index.
          *
+         * @static
          * @return bool
          */
-        public function openIndex()
+        public static function openIndex()
         {
-            $dba =
-                \Aomebo\Database\Adapter::getInstance();
-            if ($result = $dba->query('SELECT * FROM '
-                . '`{TABLE PREFIX}{SYSTEM TABLE PREFIX}'
-                . self::TABLE . '` ORDER BY `added` DESC',
+            if ($result = \Aomebo\Database\Adapter::query(
+                'SELECT * FROM `' . self::getTable() . '` '
+                . ' ORDER BY `added` DESC',
                 null, true)
             ) {
                 self::$_resultset = $result;
@@ -289,31 +293,43 @@ namespace Aomebo\Indexing
         /**
          * Public alias method.
          *
+         * @static
          * @param string $uri
          * @param array $row
          * @return bool
          */
-        public function addUri($uri, $row)
+        public static function addUri($uri, $row)
         {
-            return $this->_addUri($uri, $row);
+            return self::_addUri($uri, $row);
         }
 
         /**
+         * @static
+         * @return string
+         */
+        public static function getTable()
+        {
+            return '{TABLE PREFIX}{SYSTEM TABLE PREFIX}' . self::TABLE;
+        }
+
+        /**
+         * @static
          * @param string $uri
          * @param array $row
          * @return bool
          */
-        public function updateUri($uri, $row)
+        public static function updateUri($uri, $row)
         {
-            return $this->_updateUri($uri, $row);
+            return self::_updateUri($uri, $row);
         }
 
         /**
          * This method gets next entry from index.
          *
+         * @static
          * @return array|bool
          */
-        public function getNextEntryFromIndex()
+        public static function getNextEntryFromIndex()
         {
             if (isset(self::$_resultset))
             {
@@ -330,18 +346,17 @@ namespace Aomebo\Indexing
          * This method returns content md5 for uri.
          *
          * @internal
+         * @static
          * @param $uri
          * @throws \Exception
          * @return string|bool
          */
-        private function _getContentMd5($uri)
+        private static function _getContentMd5($uri)
         {
             if (isset($uri)) {
-                $dba =
-                    \Aomebo\Database\Adapter::getInstance();
-                if ($result = $dba->query('SELECT * FROM '
-                    . '`{TABLE PREFIX}{SYSTEM TABLE PREFIX}'
-                    . self::TABLE . '` WHERE `uri` = {uri} LIMIT 1',
+                if ($result = \Aomebo\Database\Adapter::query(
+                    'SELECT * FROM `' . self::getTable() . '` '
+                    . ' WHERE `uri` = {uri} LIMIT 1',
                     array('uri' => array(
                         'value' => $uri,
                         'quoted' => true)))
@@ -350,16 +365,16 @@ namespace Aomebo\Indexing
                     return $row['content_md5'];
                 }
             } else {
-                Throw new \Exception(
-                    'Invalid parameters for ' . __FUNCTION__);
+                Throw new \Exception('Invalid parameters');
             }
             return false;
         }
 
         /**
          * @internal
+         * @static
          */
-        private function _index()
+        private static function _index()
         {
 
             $interpreter =
@@ -369,6 +384,14 @@ namespace Aomebo\Indexing
 
             $uri = \Aomebo\Dispatcher\System::getPageBaseUri()
                 . \Aomebo\Dispatcher\System::getFullRequest();
+
+            if ($triggerUri =
+                \Aomebo\Trigger\System::processTriggers(
+                    \Aomebo\Trigger\System::TRIGGER_KEY_GENERATE_INDEXING_URL)
+            ) {
+                $uri = $triggerUri;
+            }
+
             $uriMd5 = md5($uri);
             $content =
                 preg_replace(array('/(\s)+/', '/<[^>]*>/'), array(' ', ''), $output);
@@ -381,13 +404,13 @@ namespace Aomebo\Indexing
             $now = time();
 
             // Is uri already indexed?
-            if ($row = $this->_getUri($uri)) {
+            if ($row = self::_getUri($uri)) {
 
                 // Does new MD5 differ from old indexed version?
                 if ($contentMd5 != $row['content_md5']) {
 
                     // Delete old item from file-system
-                    $this->_deleteContent($row['content_md5']);
+                    self::_deleteContent($row['content_md5']);
 
                     $title = $interpreter->getMetaData('title');
                     $description = $interpreter->getMetaData('description');
@@ -417,7 +440,7 @@ namespace Aomebo\Indexing
                         $contentModificationDurationNorm = 0;
                     }
 
-                    $this->_updateUri($uri, array(
+                    self::_updateUri($uri, array(
                         'title' =>
                             $title,
                         'description' =>
@@ -461,7 +484,7 @@ namespace Aomebo\Indexing
                 $description = $interpreter->getMetaData('description');
                 $keywords = $interpreter->getMetaData('keywords');
                 $contentLastModified = date('Y-m-d H:i:s', $now);
-                $this->_addUri($uri, array(
+                self::_addUri($uri, array(
                     'title' => $title,
                     'description' => $description,
                     'keywords' => $keywords,
@@ -482,11 +505,12 @@ namespace Aomebo\Indexing
          * This method adds an uri to index.
          *
          * @internal
+         * @static
          * @param string $uri
          * @param array $row
          * @return bool
          */
-        private function _addUri($uri, $row)
+        private static function _addUri($uri, $row)
         {
             if (isset($uri, $row)
                 && !empty($uri)
@@ -524,8 +548,10 @@ namespace Aomebo\Indexing
                         'quoted' => true,
                     );
                     if (!empty($row['content'])) {
-                        $this->_setContent(
-                            $row['content_md5'], $row['content']);
+                        self::_setContent(
+                            $row['content_md5'],
+                            $row['content']
+                        );
                     }
                 }
                 if (!empty($row['content_last_modified'])) {
@@ -567,12 +593,13 @@ namespace Aomebo\Indexing
                         $valueString .= '{' . $key . '}';
                         $i++;
                     }
-                    $dba =
-                        \Aomebo\Database\Adapter::getInstance();
-                    $dba->query('INSERT INTO `{TABLE PREFIX}'
-                        . '{SYSTEM TABLE PREFIX}' . self::TABLE . '` ('
+
+                    \Aomebo\Database\Adapter::query(
+                        'INSERT INTO `' . self::getTable() . '`('
                         . $fieldString . ') VALUES(' . $valueString . ')',
-                        $values, false, false);
+                        $values, false, false
+                    );
+
                 }
             } else {
                 Throw new \Exception('Invalid parameters');
@@ -586,12 +613,13 @@ namespace Aomebo\Indexing
          * This method updates an uri.
          *
          * @internal
+         * @static
          * @param string $uri
          * @param array $row
          * @throws \Exception
          * @return array|bool
          */
-        private function _updateUri($uri, $row)
+        private static function _updateUri($uri, $row)
         {
             if (isset($uri, $row)
                 && is_array($row)
@@ -627,8 +655,10 @@ namespace Aomebo\Indexing
                         'quoted' => true,
                     );
                     if (!empty($row['content'])) {
-                        $this->_setContent(
-                            $row['content_md5'], $row['content']);
+                        self::_setContent(
+                            $row['content_md5'],
+                            $row['content']
+                        );
                     }
                 }
                 if (!empty($row['content_last_modified'])) {
@@ -668,14 +698,16 @@ namespace Aomebo\Indexing
                             $i++;
                         }
                     }
-                    $dba =
-                        \Aomebo\Database\Adapter::getInstance();
-                    if ($dba->query('UPDATE `{TABLE PREFIX}'
-                        . '{SYSTEM TABLE PREFIX}' . self::TABLE . '` SET '
-                        . $updateString . ' WHERE `uri` = {uri} LIMIT 1', $values)
+
+                    if (\Aomebo\Database\Adapter::query(
+                        'UPDATE `' . self::getTable() . '` '
+                        . 'SET ' . $updateString . ' '
+                        . 'WHERE `uri` = {uri} LIMIT 1',
+                        $values)
                     ) {
                         return true;
                     }
+
                 }
             } else {
                 Throw new \Exception(
@@ -688,11 +720,12 @@ namespace Aomebo\Indexing
          * This method deletes content from filesystem.
          *
          * @internal
+         * @static
          * @param string $contentMd5
          * @throws \Exception
          * @return bool
          */
-        private function _deleteContent($contentMd5)
+        private static function _deleteContent($contentMd5)
         {
             if (isset($contentMd5)) {
 
@@ -723,12 +756,13 @@ namespace Aomebo\Indexing
          * This method stores content into filesystem.
          *
          * @internal
+         * @static
          * @param string $contentMd5
          * @param string $content
          * @throws \Exception
          * @return bool
          */
-        private function _setContent($contentMd5, $content)
+        private static function _setContent($contentMd5, $content)
         {
             if (isset($contentMd5, $content)) {
 
@@ -754,27 +788,28 @@ namespace Aomebo\Indexing
          * This method cleans index from old entries.
          *
          * @internal
+         * @static
          * @return void
          */
-        private function _garbageCollect()
+        private static function _garbageCollect()
         {
-            if ($expireds = $this->_getExpiredItems()) {
+            if ($expireds = self::_getExpiredItems()) {
                 foreach ($expireds as $expired)
                 {
-                    $this->removeUri($expired['uri']);
+                    self::removeUri($expired['uri']);
                 }
             }
         }
 
         /**
          * @internal
+         * @static
          * @return array|bool
          */
-        private function _getExpiredItems()
+        private static function _getExpiredItems()
         {
             if ($resultset = \Aomebo\Database\Adapter::query(
-                'SELECT * FROM `{TABLE PREFIX}'
-                . '{SYSTEM TABLE PREFIX}' . self::TABLE . '` '
+                'SELECT * FROM `' . self::getTable() . '` '
                 . 'WHERE `edited` <= NOW() - INTERVAL {days} DAY '
                 . 'AND `edited` != {none}',
                 array(
@@ -795,19 +830,23 @@ namespace Aomebo\Indexing
          * This method returns a index row.
          *
          * @internal
+         * @static
          * @param string $uri
          * @throws \Exception
          * @return array|bool
          */
-        private function _getUri($uri)
+        private static function _getUri($uri)
         {
             if (isset($uri)) {
-                $dba =
-                    \Aomebo\Database\Adapter::getInstance();
                 if ($resultset =
-                    $dba->query('SELECT * FROM `{TABLE PREFIX}{SYSTEM TABLE PREFIX}'
-                        . self::TABLE . '` WHERE `uri` = {uri} LIMIT 1', array(
-                        'uri' => array('value' => $uri, 'quoted' => true)))
+                    \Aomebo\Database\Adapter::query(
+                        'SELECT * FROM `' . self::getTable() . '` '
+                        . 'WHERE `uri` = {uri} LIMIT 1', array(
+                            'uri' => array(
+                                'value' => $uri,
+                                'quoted' => true,
+                            ))
+                    )
                 ) {
                     return $resultset->fetchAssocAndFree();
                 }
@@ -828,8 +867,7 @@ namespace Aomebo\Indexing
             $saveContent =
                 \Aomebo\Configuration::getSetting('indexing,save content');
 
-            return (\Aomebo\Database\Adapter::tableExists(
-                    '{TABLE PREFIX}{SYSTEM TABLE PREFIX}' . self::TABLE)
+            return (\Aomebo\Database\Adapter::tableExists(self::getTable())
                 && !$saveContent || (
                 is_dir(_SYSTEM_SITE_ROOT_ . DIRECTORY_SEPARATOR . 'Indexing')
                 && is_dir(_SYSTEM_SITE_ROOT_ . DIRECTORY_SEPARATOR . 'Indexing'
@@ -843,6 +881,7 @@ namespace Aomebo\Indexing
          */
         private function _install()
         {
+
             $dba =
                 \Aomebo\Database\Adapter::getInstance();
             $databaseAdapter =
@@ -864,7 +903,7 @@ namespace Aomebo\Indexing
                 ) {
 
                     // Create table preferably with InnoDB otherwise MyISAM
-                    $dba->query('CREATE TABLE IF NOT EXISTS `{TABLE PREFIX}{SYSTEM TABLE PREFIX}' . self::TABLE . '`('
+                    $dba->query('CREATE TABLE IF NOT EXISTS `' . self::getTable(). '`('
                         . '`uri` BLOB NOT NULL DEFAULT "",'
                         . '`title` LONGBLOB NOT NULL DEFAULT "",'
                         . '`description` LONGBLOB NOT NULL DEFAULT "",'

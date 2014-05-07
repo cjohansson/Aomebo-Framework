@@ -27,7 +27,9 @@ namespace Aomebo\Trigger
     /**
      * @method static \Aomebo\Trigger\System getInstance()
      */
-    class System extends \Aomebo\Singleton
+    class
+
+    System extends \Aomebo\Singleton
     {
 
         /**
@@ -69,6 +71,11 @@ namespace Aomebo\Trigger
          * @var string
          */
         const TRIGGER_KEY_ASSOCIATIVES_PARSER = 'af_associatives_parser';
+
+        /**
+         * @var string
+         */
+        const TRIGGER_KEY_GENERATE_INDEXING_URL = 'af_indexing_url';
 
         /**
          * @var string
