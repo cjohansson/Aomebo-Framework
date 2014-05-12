@@ -214,15 +214,17 @@ namespace Aomebo\Indexing
                 if ($contentMd5 = self::_getContentMd5($uri)) {
                     self::_deleteContent($contentMd5);
                 }
-                if (\Aomebo\Database\Adapter::query(
-                    'DELETE FROM `' . self::getTable() . '` '
-                    . 'WHERE `uri` = {uri} LIMIT 1', array(
-                        'uri' => array(
-                            'value' => $uri,
-                            'quoted' => true,
-                        )))
-                ) {
-                    return true;
+                if (\Aomebo\Database\Adapter::isConnected()) {
+                    if (\Aomebo\Database\Adapter::query(
+                        'DELETE FROM `' . self::getTable() . '` '
+                        . 'WHERE `uri` = {uri} LIMIT 1', array(
+                            'uri' => array(
+                                'value' => $uri,
+                                'quoted' => true,
+                            )))
+                    ) {
+                        return true;
+                    }
                 }
             } else {
                 Throw new \Exception('Invalid parameters');
