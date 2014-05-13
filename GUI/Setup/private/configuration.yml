@@ -52,3 +52,7 @@ site:
 
 session:
     always use session: true
+
+internationalization:
+    enabled: true
+    locale: sv_SE

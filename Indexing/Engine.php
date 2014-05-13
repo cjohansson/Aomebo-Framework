@@ -211,10 +211,16 @@ namespace Aomebo\Indexing
         public static function removeUri($uri)
         {
             if (!empty($uri)) {
-                if ($contentMd5 = self::_getContentMd5($uri)) {
-                    self::_deleteContent($contentMd5);
-                }
-                if (\Aomebo\Database\Adapter::isConnected()) {
+
+                // Load database if it hasn't been loaded
+                \Aomebo\Database\Adapter::getInstance();
+
+                if (\Aomebo\Database\Adapter::useDatabaseAndIsConnected()) {
+
+                    if ($contentMd5 = self::_getContentMd5($uri)) {
+                        self::_deleteContent($contentMd5);
+                    }
+
                     if (\Aomebo\Database\Adapter::query(
                         'DELETE FROM `' . self::getTable() . '` '
                         . 'WHERE `uri` = {uri} LIMIT 1', array(
@@ -225,7 +231,9 @@ namespace Aomebo\Indexing
                     ) {
                         return true;
                     }
+
                 }
+
             } else {
                 Throw new \Exception('Invalid parameters');
             }

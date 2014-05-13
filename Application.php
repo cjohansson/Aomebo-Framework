@@ -253,7 +253,6 @@ namespace Aomebo
                         self::getParameter(self::PARAMETER_CONFIGURATION_ADAPTER))
                     ) {
 
-
                         // Does server has enough free memory for handling request?
                         if (\Aomebo\System\Memory::systemHasEnoughMemory()) {
 

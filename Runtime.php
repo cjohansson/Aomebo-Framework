@@ -102,6 +102,120 @@ namespace Aomebo
         protected static $_aomebo = null;
 
         /**
+         * Lookup a message in the current domain.
+         *
+         * @static
+         * @param string $message
+         * @return string
+         * @see gettext()
+         */
+        public static function gettext($message)
+        {
+            return self::$_aomebo->Internationalization()->System()->gettext($message);
+        }
+
+        /**
+         * Override the current domain.
+         *
+         * The dgettext() function allows you to override the current
+         * domain for a single message lookup.
+         *
+         * @param string $domain
+         * @param string $message
+         * @return string
+         * @see dgettext()
+         */
+        public static function dgettext($domain, $message)
+        {
+            return self::$_aomebo->Internationalization()->System()->dgettext(
+                $domain, $message
+            );
+        }
+
+        /**
+         * Plural version of gettext.
+         *
+         * The plural version of gettext(). Some languages have more than
+         * one form for plural messages dependent on the count.
+         *
+         * @static
+         * @param string $msgid1
+         * @param string $msgid2
+         * @param int $n
+         * @return string
+         * @see ngettext()
+         */
+        public static function ngettext($msgid1, $msgid2, $n)
+        {
+            return self::$_aomebo->Internationalization()->System()->ngettext(
+                $msgid1, $msgid2, $n
+            );
+        }
+
+        /**
+         * Overrides the domain for a single lookup.
+         *
+         * This function allows you to override the current
+         * domain for a single message lookup.
+         *
+         * @static
+         * @param string $domain
+         * @param string $message
+         * @param int $category
+         * @return string
+         * @see dcgettext()
+         */
+        public static function dcgettext($domain, $message, $category)
+        {
+            return self::$_aomebo->Internationalization()->System()->ngettext(
+                $domain, $message, $category
+            );
+        }
+
+        /**
+         * Plural version of dgettext.
+         *
+         * The dngettext() function allows you to override
+         * the current domain for a single plural message lookup.
+         *
+         * @static
+         * @param string $domain
+         * @param string $msgid1
+         * @param string $msgid2
+         * @param int $n
+         * @return string
+         * @see dngettext()
+         */
+        public static function dngettext($domain, $msgid1, $msgid2, $n)
+        {
+            return self::$_aomebo->Internationalization()->System()->ngettext(
+                $domain, $msgid1, $msgid2, $n
+            );
+        }
+
+        /**
+         * Plural version of dcgettext.
+         *
+         * This function allows you to override the current
+         * domain for a single plural message lookup.
+         *
+         * @static
+         * @param string $domain
+         * @param string $msgid1
+         * @param string $msgid2
+         * @param int $n
+         * @param int $category
+         * @return string
+         * @see dcngettext()
+         */
+        public static function dcngettext($domain, $msgid1, $msgid2, $n, $category)
+        {
+            return self::$_aomebo->Internationalization()->System()->ngettext(
+                $domain, $msgid1, $msgid2, $n, $category
+            );
+        }
+
+        /**
          * @return bool
          */
         public function isExecutable()

@@ -37,7 +37,7 @@ namespace Aomebo\Database
          * @static
          * @var bool|null
          */
-        private static $_connected;
+        private static $_connected = false;
 
         /**
          * This is a pointer to our default database adapter.
@@ -46,7 +46,7 @@ namespace Aomebo\Database
          * @static
          * @var \Aomebo\Database\Adapters\Base|null
          */
-        private static $_object;
+        private static $_object = null;
 
         /**
          * This is a pointer to our resultset class.
@@ -55,16 +55,16 @@ namespace Aomebo\Database
          * @static
          * @var \Aomebo\Database\Adapters\Resultset|null
          */
-        private static $_resultsetClass;
+        private static $_resultsetClass = null;
 
         /**
          * This variable holds last SQL.
          *
          * @internal
          * @static
-         * @var static string|null
+         * @var static string
          */
-        private static $_lastSql;
+        private static $_lastSql = '';
 
         /**
          * This array hold default keys to replace in query.
@@ -73,7 +73,7 @@ namespace Aomebo\Database
          * @static
          * @var array|null
          */
-        private static $_replaceKeys;
+        private static $_replaceKeys = null;
 
         /**
          * This array hold default values to replace in query.
@@ -82,7 +82,7 @@ namespace Aomebo\Database
          * @static
          * @var array|null
          */
-        private static $_replaceValues;
+        private static $_replaceValues = null;
 
         /**
          * Associative array to keep track on what replace
@@ -92,37 +92,37 @@ namespace Aomebo\Database
          * @static
          * @var array|null
          */
-        private static $_replaceKeysList;
+        private static $_replaceKeysList = null;
 
         /**
          * This variable holds our default quote character.
          *
          * @internal
          * @static
-         * @var string|null
+         * @var string
          */
-        private static $_quoteChar;
+        private static $_quoteChar = '';
 
         /**
          * @internal
          * @static
-         * @var string|null
+         * @var string
          */
-        private static $_backQuoteChar;
+        private static $_backQuoteChar = '';
 
         /**
          * @internal
          * @static
-         * @var string|null
+         * @var string
          */
-        private static $_lastError;
+        private static $_lastError = null;
 
         /**
          * @internal
          * @static
          * @var bool|null
          */
-        private static $_useDatabase;
+        private static $_useDatabase = null;
 
         /**
          * @throws \Exception
@@ -156,9 +156,15 @@ namespace Aomebo\Database
 
                         if (!self::_isInstalled()) {
                             if (!self::_install()) {
+
                                 Throw new \Exception(
-                                    'Could not install database in '
-                                    . __METHOD__ . ' in ' . __FILE__);
+                                    sprintf(
+                                        gettext('Could not install database in %s in %s'),
+                                        __METHOD__,
+                                        __FILE__
+                                    )
+                                );
+
                             }
                         }
                         if (self::selectDatabase(
@@ -176,8 +182,11 @@ namespace Aomebo\Database
                                 \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_SELECTED_FAIL);
 
                             Throw new \Exception(
-                                'Could not select database in ' . __METHOD__
-                                . ' in ' . __FILE__);
+                                sprintf(
+                                    gettext('Could not select database in %s in %s'),
+                                    __METHOD__,
+                                    __FILE__)
+                            );
                         }
                     } else {
 
@@ -185,9 +194,15 @@ namespace Aomebo\Database
                             \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_CONNECTION_FAIL);
 
                         Throw new \Exception(
-                            'Could not connect to database server in '
-                            . __METHOD__ . ' in ' . __FILE__
-                            . '. Check your configuration.');
+                            sprintf(
+                                gettext(
+                                    'Could not connect to database server in '
+                                    . '%s in %s. Check your configuration.'
+                                ),
+                                __METHOD__,
+                                __FILE__
+                            )
+                        );
 
                     }
 
@@ -221,6 +236,17 @@ namespace Aomebo\Database
         }
 
         /**
+         * @static
+         * @return bool
+         */
+        public static function useDatabaseAndIsConnected()
+        {
+            return (self::useDatabase()
+                && self::isConnected()
+            );
+        }
+
+        /**
          * @internal
          * @static
          * @param string $databaseName
@@ -238,15 +264,34 @@ namespace Aomebo\Database
                     if ($selectedDatabase == $databaseName) {
                         return true;
                     } else {
+
                         Throw new \Exception(
-                            'Selected database "' . $selectedDatabase . '" '
-                            . 'does not match requested database "' . $databaseName
-                            . '" in ' . __METHOD__ . ' in ' . __FILE__);
+                            sprintf(
+                                gettext(
+                                    'Selected database "%s" '
+                                    . 'does not match requested database '
+                                    . '"%s" in %s in %s'
+                                ),
+                                $selectedDatabase,
+                                $databaseName,
+                                __METHOD__,
+                                __FILE__
+                            )
+                        );
+
                     }
                 } else {
+
                     Throw new \Exception(
-                        'Failed to get selected database in '
-                        . __METHOD__ . ' in ' . __FILE__);
+                        sprintf(
+                            gettext(
+                                'Failed to get selected database in %s in %s'
+                            ),
+                            __METHOD__,
+                            __FILE__
+                        )
+                    );
+
                 }
             }
             return false;
@@ -290,7 +335,9 @@ namespace Aomebo\Database
             ) {
                 return self::$_object->escape($value);
             } else {
-                Throw new \Exception('Invalid parameters');
+                Throw new \Exception(
+                    gettext('Invalid parameters')
+                );
             }
         }
 
@@ -516,9 +563,17 @@ namespace Aomebo\Database
 
                     } else {
                         if (!empty($rawQuery)) {
+
                             Throw new \Exception(
-                                'SQL: "' . print_r($rawQuery, true)
-                                . '" evaluated into empty query in ' . __FUNCTION__);
+                                sprintf(
+                                    gettext(
+                                        'SQL: "%s" evaluated into empty query in %s'
+                                    ),
+                                    print_r($rawQuery, true),
+                                    __FUNCTION__
+                                )
+                            );
+
                         }
                     }
                 }
@@ -526,8 +581,14 @@ namespace Aomebo\Database
                 return true;
 
             } else {
-                Throw new \Exception('Can\'t query "' . $sql . '" when database '
-                . 'connection hasn\'t been established.');
+
+                Throw new \Exception(
+                    sprintf(
+                        gettext('Can\'t query "%s" when database '
+                        . 'connection hasn\'t been established.'),
+                        $sql)
+                );
+
             }
 
         }
@@ -565,7 +626,9 @@ namespace Aomebo\Database
                     : (string) $key))
                     . '}';
             } else {
-                Throw new \Exception('Invalid parameters');
+                Throw new \Exception(
+                    gettext('Invalid parameters')
+                );
             }
         }
 
@@ -586,7 +649,9 @@ namespace Aomebo\Database
                         : (string) $key))
                 . '}';
             } else {
-                Throw new \Exception('Invalid parameters');
+                Throw new \Exception(
+                    gettext('Invalid parameters')
+                );
             }
         }
 
@@ -640,9 +705,16 @@ namespace Aomebo\Database
                             self::$_object->getError();
 
                         if ($throwExceptionOnFailure) {
+
                             Throw new \Exception(
-                                'Query:' . "<p>\n" . $sql . "</p>\n returned error:<p>\n"
-                                    . "<p>\n" . self::$_object->getError() . "</p>");
+                                sprintf(
+                                    gettext('Query:' . "<p>\n%s</p>\n returned error:<p>\n"
+                                    . "<p>\n%s</p>"),
+                                    $sql,
+                                    self::$_object->getError()
+                                )
+                            );
+
                         }
                     }
 
@@ -670,9 +742,16 @@ namespace Aomebo\Database
                             self::$_object->getError();
 
                         if ($throwExceptionOnFailure) {
+
                             Throw new \Exception(
-                                'Query:' . "<p>\n" . $sql . "</p>\n returned error:<p>\n"
-                                    . "<p>\n" . self::$_object->getError() . "</p>");
+                                sprintf(
+                                    gettext('Query:' . "<p>\n%s</p>\n returned error:<p>\n"
+                                        . "<p>\n%s</p>"),
+                                    $sql,
+                                    self::$_object->getError()
+                                )
+                            );
+
                         }
                     }
 
@@ -780,13 +859,22 @@ namespace Aomebo\Database
 
                 } else {
                     Throw new \Exception(
-                        'Could not connect using "'
-                        . print_r(\Aomebo\Configuration::getSetting('database'), true) . '"');
+                        sprintf(
+                            gettext('Could not connect using: "%s"'),
+                            print_r(\Aomebo\Configuration::getSetting('database'), true)
+                        )
+                    );
                 }
             } else {
                 Throw new \Exception(
-                    'Could not find Database adapter class or database resultset class: '
-                    . $dbClass . ', ' . $resultsetClass);
+                    sprintf(
+                        gettext(
+                            'Could not find Database adapter class or database resultset class: '
+                            . '%s, %s'),
+                        $dbClass,
+                        $resultsetClass
+                    )
+                );
             }
 
         }

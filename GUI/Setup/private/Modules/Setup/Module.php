@@ -107,6 +107,8 @@ namespace Modules\Setup
 
             }
 
+            echo '<p>Localized (Invalid parameters): ' . self::dgettext('framework', 'Invalid parameters') . '</p>';
+
             $view->attachVariable('submit', $submit);
             $view->attachVariable('cache', $abc);
 

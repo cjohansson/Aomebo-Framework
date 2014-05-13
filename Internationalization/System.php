@@ -67,29 +67,213 @@ namespace Aomebo\Internationalization
         private static $_adapterClass;
 
         /**
-         *
+         * @throws \Exception
          */
         public function __construct()
         {
+
             parent::__construct();
+
             if (!$this->_isConstructed()) {
 
                 self::setEnabled(
                     \Aomebo\Configuration::getSetting('internationalization,enabled'));
                 self::setLocale(
                     \Aomebo\Configuration::getSetting('internationalization,locale'));
-                self::setTextDomains(
-                    \Aomebo\Configuration::getSetting('internationalization,text domains'));
+
+                $textDomains = array();
+
+                if ($systemTextDomains =
+                    \Aomebo\Configuration::getSetting(
+                        'internationalization,system text domains')
+                ) {
+                    foreach ($systemTextDomains as $key => $array)
+                    {
+                        if (isset($array)
+                            && is_array($array)
+                            && isset($array[0], $array[1])
+                            && is_dir(_SYSTEM_ROOT_ . $array[0])
+                        ) {
+                            $textDomains[$key] = array(
+                                _SYSTEM_ROOT_ . $array[0],
+                                $array[1],
+                            );
+                        } else {
+                            Throw new \Exception(
+                                'Invalid internationalization "'
+                                . print_r($array, true) . '"'
+                            );
+                        }
+                    }
+                }
+
+                if ($siteTextDomains =
+                    \Aomebo\Configuration::getSetting(
+                        'internationalization,site text domains')
+                ) {
+                    foreach ($siteTextDomains as $key => $array)
+                    {
+                        if (isset($array)
+                            && is_array($array)
+                            && isset($array[0], $array[1])
+                            && is_dir(_PRIVATE_ROOT_ . $array[0])
+                        ) {
+                            $textDomains[$key] = array(
+                                _PRIVATE_ROOT_ . $array[0],
+                                $array[1]
+                            );
+                        } else {
+                            Throw new \Exception(
+                                'Invalid internationalization "'
+                                . print_r($array, true) . '"'
+                            );
+                        }
+                    }
+                }
+
+                if (sizeof($textDomains) > 0) {
+                    self::setTextDomains($textDomains);
+                }
+
                 self::setAdapter(
                     \Aomebo\Configuration::getSetting('internationalization,adapter'));
 
                 $this->_flagThisConstructed();
 
                 if (self::isEnabled()) {
-                    $this->_init();
+                    self::_init();
                 }
 
             }
+        }
+
+        /**
+         * Lookup a message in the current domain.
+         *
+         * @static
+         * @param string $message
+         * @return string
+         * @see gettext()
+         */
+        public static function gettext($message)
+        {
+            if (self::$_adapterClass) {
+                return self::$_adapterClass->gettext($message);
+            }
+            return '';
+        }
+
+        /**
+         * Override the current domain.
+         *
+         * The dgettext() function allows you to override the current
+         * domain for a single message lookup.
+         *
+         * @param string $domain
+         * @param string $message
+         * @return string
+         * @see dgettext()
+         */
+        public static function dgettext($domain, $message)
+        {
+            if (self::$_adapterClass) {
+                return self::$_adapterClass->dgettext(
+                    $domain, $message);
+            }
+            return '';
+        }
+
+        /**
+         * Plural version of gettext.
+         *
+         * The plural version of gettext(). Some languages have more than
+         * one form for plural messages dependent on the count.
+         *
+         * @static
+         * @param string $msgid1
+         * @param string $msgid2
+         * @param int $n
+         * @return string
+         * @see ngettext()
+         */
+        public static function ngettext($msgid1, $msgid2, $n)
+        {
+            if (self::$_adapterClass) {
+                return self::$_adapterClass->ngettext(
+                    $msgid1, $msgid2, $n);
+            }
+            return '';
+        }
+
+        /**
+         * Overrides the domain for a single lookup.
+         *
+         * This function allows you to override the current
+         * domain for a single message lookup.
+         *
+         * @static
+         * @param string $domain
+         * @param string $message
+         * @param int $category
+         * @return string
+         * @see dcgettext()
+         */
+        public static function dcgettext($domain, $message, $category)
+        {
+            if (self::$_adapterClass) {
+                return self::$_adapterClass->dcgettext(
+                    $domain, $message, $category);
+            }
+            return '';
+        }
+
+        /**
+         * Plural version of dgettext.
+         *
+         * The dngettext() function allows you to override
+         * the current domain for a single plural message lookup.
+         *
+         * @static
+         * @param string $domain
+         * @param string $msgid1
+         * @param string $msgid2
+         * @param int $n
+         * @return string
+         * @see dngettext()
+         */
+        public static function dngettext($domain, $msgid1,
+            $msgid2, $n)
+        {
+            if (self::$_adapterClass) {
+                return self::$_adapterClass->dngettext(
+                    $domain, $msgid1, $msgid2, $n);
+            }
+            return '';
+        }
+
+        /**
+         * Plural version of dcgettext.
+         *
+         * This function allows you to override the current
+         * domain for a single plural message lookup.
+         *
+         * @static
+         * @param string $domain
+         * @param string $msgid1
+         * @param string $msgid2
+         * @param int $n
+         * @param int $category
+         * @return string
+         * @see dcngettext()
+         */
+        public static function dcngettext($domain, $msgid1,
+            $msgid2, $n, $category)
+        {
+            if (self::$_adapterClass) {
+                return self::$_adapterClass->dcngettext(
+                    $domain, $msgid1, $msgid2, $n, $category);
+            }
+            return '';
         }
 
         /**
@@ -216,12 +400,15 @@ namespace Aomebo\Internationalization
         }
 
         /**
+         * @static
          * @throws \Exception
          * @return bool
          */
-        private function _init()
+        private static function _init()
         {
-            $this->_loadAdapters();
+
+            self::_loadAdapters();
+
             if (self::adapterExists(self::$_adapter)) {
 
                 $className = '\\Aomebo\\Internationalization\\Adapters\\'
@@ -243,11 +430,11 @@ namespace Aomebo\Internationalization
         }
 
         /**
-         *
+         * @static
          */
-        private function _loadAdapters()
+        private static function _loadAdapters()
         {
-            $dir = $this->_getAdaptersDirectory();
+            $dir = self::_getAdaptersDirectory();
             if ($scandir = scandir($dir)) {
                 foreach ($scandir as $item)
                 {
@@ -258,7 +445,8 @@ namespace Aomebo\Internationalization
                         && is_dir($relPath)
                     ) {
 
-                        $adapterPath = $relPath . DIRECTORY_SEPARATOR . 'Adapter.php';
+                        $adapterPath =
+                            $relPath . DIRECTORY_SEPARATOR . 'Adapter.php';
 
                         if (file_exists($adapterPath)
                             && is_file($adapterPath)
@@ -274,9 +462,10 @@ namespace Aomebo\Internationalization
         }
 
         /**
+         * @static
          * @return string
          */
-        private function _getAdaptersDirectory()
+        private static function _getAdaptersDirectory()
         {
             return __DIR__ . DIRECTORY_SEPARATOR . 'Adapters';
         }

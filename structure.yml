@@ -115,15 +115,28 @@ internationalization:
     locale:
         type: string
         required: true
-        default: en
-    text domains:
+        default: en_US
+    system text domains:
         type: array
-        required: true
+        required: false
+        default:
+          framework: ['Locale', 'UTF-8']
+    site text domains:
+        type: array
+        required: false
         default: []
     adapter:
         type: string
         required: true
         default: PhpGettext
+    default system text domain:
+        type: string
+        required: true
+        default: framework
+    default site text domain:
+        type: string
+        required: false
+        default: site
 
 output:
     format:
