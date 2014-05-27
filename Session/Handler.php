@@ -1208,25 +1208,39 @@ namespace Aomebo\Session
         private static function _sessionGarbageCollect()
         {
 
-            $expires =
-                \Aomebo\Configuration::getSetting('session,expires');
+            $lastCheck =
+                \Aomebo\Application::getApplicationData('last_session_garbage_collect');
 
-            if (\Aomebo\Database\Adapter::query(
-                'DELETE FROM `' . self::getTableSessionsBlocksData() . '` '
-                . 'WHERE `session_id` IN '
-                . '(SELECT `session_id` FROM `' . self::getTableSessions() . '` '
-                . 'WHERE `session_time_last` < NOW() - INTERVAL {expires} SECOND)',
-                array(
-                    'expires' => (int) $expires,
-                ), true, false)
+            if (!isset($lastCheck)
+                || $lastCheck < time() - 3600
             ) {
 
-                \Aomebo\Database\Adapter::query(
-                    'DELETE FROM `' . self::getTableSessions() . '` '
-                    . 'WHERE `session_time_last` < NOW() - INTERVAL {expires} SECOND',
+                $expires =
+                    \Aomebo\Configuration::getSetting('session,expires');
+
+                if (\Aomebo\Database\Adapter::query(
+                    'DELETE FROM `' . self::getTableSessionsBlocksData() . '` '
+                    . 'WHERE `session_id` IN '
+                    . '(SELECT `session_id` FROM `' . self::getTableSessions() . '` '
+                    . 'WHERE `session_time_last` < NOW() - INTERVAL {expires} SECOND)',
                     array(
                         'expires' => (int) $expires,
-                    ), true, false);
+                    ), true, false)
+                ) {
+
+                    \Aomebo\Database\Adapter::query(
+                        'DELETE FROM `' . self::getTableSessions() . '` '
+                        . 'WHERE `session_time_last` < NOW() - INTERVAL {expires} SECOND',
+                        array(
+                            'expires' => (int) $expires,
+                        ), true, false);
+
+                }
+
+                \Aomebo\Application::setApplicationData(
+                    'last_session_garbage_collect',
+                    time()
+                );
 
             }
 

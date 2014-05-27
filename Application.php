@@ -127,6 +127,13 @@ namespace Aomebo
         private static $_runtimes = array();
 
         /**
+         * @internal
+         * @static
+         * @var array
+         */
+        private static $_applicationData = array();
+
+        /**
          * This starts up the framework.
          *
          * @param array|null [$parameters = null]       Contains all site-specific parameters.
@@ -260,6 +267,9 @@ namespace Aomebo
                             $this->setAutoloadFailureTriggersException(
                                 \Aomebo\Configuration::getSetting('output,autoload failure triggers exception'));
 
+                            // Load application-data
+                            self::_loadApplicationData();
+
                             // Load site class (if any)
                             self::_loadSiteClass();
 
@@ -353,6 +363,9 @@ namespace Aomebo
                                     $presenter = \Aomebo\Presenter\Engine::getInstance();
                                     $presenter->output();
 
+                                    // Save application-data
+                                    self::_saveApplicanData();
+
                                 } else {
                                     $dispatcher::setHttpResponseStatus403Forbidden();
                                 }
@@ -390,6 +403,9 @@ namespace Aomebo
                                 // Present our output
                                 $presenter = \Aomebo\Presenter\Engine::getInstance();
                                 $presenter->output();
+
+                                // Save application-data
+                                self::_saveApplicanData();
 
                             } else {
                                 \Aomebo\Dispatcher\System::
@@ -565,6 +581,33 @@ namespace Aomebo
         {
             self::$_autoloadFailureTriggersException =
                 (!empty($value));
+        }
+
+        /**
+         * @static
+         * @param string $key
+         * @return mixed
+         */
+        public static function getApplicationData($key)
+        {
+            if (!empty($key)
+                && isset(self::$_applicationData[$key])
+            ) {
+                return self::$_applicationData[$key];
+            }
+            return null;
+        }
+
+        /**
+         * @static
+         * @param string $key
+         * @param mixed $value
+         */
+        public static function setApplicationData($key, $value)
+        {
+            if (!empty($key)) {
+                self::$_applicationData[$key] = $value;
+            }
         }
 
         /**
@@ -954,6 +997,44 @@ namespace Aomebo
         {
             return __DIR__ . DIRECTORY_SEPARATOR . 'Configuration' . DIRECTORY_SEPARATOR
             . 'Setup' . DIRECTORY_SEPARATOR . 'private';
+        }
+
+        /**
+         * @internal
+         * @static
+         */
+        private static function _loadApplicationData()
+        {
+            if (file_exists(self::_getApplicationDataPath())) {
+                if ($fileData = file_get_contents(
+                    self::_getApplicationDataPath())
+                ) {
+                    if ($jsonData = json_decode($fileData, true)) {
+                        self::$_applicationData = $jsonData;
+                    }
+                }
+            }
+        }
+
+        /**
+         * @internal
+         * @static
+         */
+        private static function _saveApplicanData()
+        {
+            if ($jsonData = json_encode(self::$_applicationData)) {
+                file_put_contents(self::_getApplicationDataPath(), $jsonData);
+            }
+        }
+
+        /**
+         * @internal
+         * @static
+         * @return string
+         */
+        private static function _getApplicationDataPath()
+        {
+            return _SITE_ROOT_ . '.application-data';
         }
 
     }
