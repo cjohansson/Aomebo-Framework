@@ -65,7 +65,7 @@ namespace Aomebo\Cache
          */
         public function __construct()
         {
-            if (!$this->_isConstructed()) {
+            if (!self::_isConstructed()) {
 
                 parent::__construct();
 
@@ -73,8 +73,37 @@ namespace Aomebo\Cache
                     self::install();
                 }
 
-                $this->_flagThisConstructed();
+                if (\Aomebo\Dispatcher\System::isPageRequest()) {
+                    self::garbageCollect();
+                }
+
+                self::_flagThisConstructed();
+
             }
+        }
+
+        /**
+         * @static
+         */
+        public static function garbageCollect()
+        {
+
+             if ($cacheExpiration =
+                \Aomebo\Configuration::getSetting('cache,expiration time')
+             ) {
+
+                 if (\Aomebo\Database\Adapter::query(
+                     'DELETE FROM `' . self::getTable() . '` '
+                     . 'WHERE `cache_added` < NOW() - INTERVAL {time} SECOND',
+                     array(
+                         'time' => $cacheExpiration,
+                     ))
+                 ) {
+                     return true;
+                 }
+
+             }
+
         }
 
         /**

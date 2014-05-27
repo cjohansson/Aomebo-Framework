@@ -518,3 +518,9 @@ database:
         type: string
         required: true
         default: 'utf8'
+
+cache:
+    expiration time:
+        type: unsigned integer
+        required: true
+        default: 2592000
