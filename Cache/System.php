@@ -88,33 +88,44 @@ namespace Aomebo\Cache
         public static function garbageCollect()
         {
 
-             if ($cacheExpiration =
-                \Aomebo\Configuration::getSetting('cache,expiration time')
-             ) {
+            $garbageCollectOnPageRequests =
+                \Aomebo\Configuration::getSetting(
+                    'cache,garbage collect on page requests');
+            $garbageCollectOnShellRequests =
+                \Aomebo\Configuration::getSetting(
+                    'cache,garbage collect on shell requests');
 
+            if ($garbageCollectOnPageRequests
+                && \Aomebo\Dispatcher\System::isPageRequest()
+                || $garbageCollectOnShellRequests
+                && \Aomebo\Dispatcher\System::isShellRequest()
+            ) {
+
+                $cacheExpiration =
+                    \Aomebo\Configuration::getSetting('cache,expiration time');
                 $lastCheck =
                     \Aomebo\Application::getApplicationData('last_cache_garbage_collect');
 
                 if (!isset($lastCheck)
-                    || $lastCheck < time() - 86400
+                    || $lastCheck < time() - $cacheExpiration
                 ) {
-
-                    \Aomebo\Database\Adapter::query(
-                         'DELETE FROM `' . self::getTable() . '` '
-                         . 'WHERE `cache_added` < NOW() - INTERVAL {time} SECOND',
-                         array(
-                             'time' => $cacheExpiration,
-                         )
-                    );
 
                     \Aomebo\Application::setApplicationData(
                         'last_cache_garbage_collect',
                         time()
                     );
 
+                    \Aomebo\Database\Adapter::query(
+                         'DELETE FROM `' . self::getTable() . '` '
+                         . 'WHERE `cache_added` < NOW() - INTERVAL {time} SECOND',
+                         array(
+                             'time' => (int) $cacheExpiration,
+                         )
+                    );
+
                 }
 
-             }
+            }
 
         }
 

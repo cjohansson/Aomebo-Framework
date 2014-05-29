@@ -338,6 +338,14 @@ session:
             type: boolean
             required: true
             default: false
+    garbage collect on page requests:
+        type: boolean
+        required: true
+        default: false
+    garbage collect on shell requests:
+        type: boolean
+        required: true
+        default: true
 
 dispatch:
     pages uri:
@@ -524,3 +532,11 @@ cache:
         type: unsigned integer
         required: true
         default: 2592000
+    garbage collect on page requests:
+        type: boolean
+        required: true
+        default: false
+    garbage collect on shell requests:
+        type: boolean
+        required: true
+        default: true

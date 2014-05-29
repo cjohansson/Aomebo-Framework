@@ -1208,39 +1208,53 @@ namespace Aomebo\Session
         private static function _sessionGarbageCollect()
         {
 
-            $lastCheck =
-                \Aomebo\Application::getApplicationData('last_session_garbage_collect');
+            $garbageCollectOnPageRequests =
+                \Aomebo\Configuration::getSetting(
+                    'session,garbage collect on page requests');
+            $garbageCollectOnShellRequests =
+                \Aomebo\Configuration::getSetting(
+                    'session,garbage collect on shell requests');
 
-            if (!isset($lastCheck)
-                || $lastCheck < time() - 3600
+            if ($garbageCollectOnPageRequests
+                && \Aomebo\Dispatcher\System::isPageRequest()
+                || $garbageCollectOnShellRequests
+                && \Aomebo\Dispatcher\System::isShellRequest()
             ) {
 
                 $expires =
                     \Aomebo\Configuration::getSetting('session,expires');
+                $lastCheck =
+                    \Aomebo\Application::getApplicationData('last_session_garbage_collect');
 
-                if (\Aomebo\Database\Adapter::query(
-                    'DELETE FROM `' . self::getTableSessionsBlocksData() . '` '
-                    . 'WHERE `session_id` IN '
-                    . '(SELECT `session_id` FROM `' . self::getTableSessions() . '` '
-                    . 'WHERE `session_time_last` < NOW() - INTERVAL {expires} SECOND)',
-                    array(
-                        'expires' => (int) $expires,
-                    ), true, false)
+                if (!isset($lastCheck)
+                    || $lastCheck < time() - $expires
                 ) {
 
-                    \Aomebo\Database\Adapter::query(
-                        'DELETE FROM `' . self::getTableSessions() . '` '
-                        . 'WHERE `session_time_last` < NOW() - INTERVAL {expires} SECOND',
+                    \Aomebo\Application::setApplicationData(
+                        'last_session_garbage_collect',
+                        time()
+                    );
+
+                    if (\Aomebo\Database\Adapter::query(
+                        'DELETE FROM `' . self::getTableSessionsBlocksData() . '` '
+                        . 'WHERE `session_id` IN '
+                        . '(SELECT `session_id` FROM `' . self::getTableSessions() . '` '
+                        . 'WHERE `session_time_last` < NOW() - INTERVAL {expires} SECOND)',
                         array(
                             'expires' => (int) $expires,
-                        ), true, false);
+                        ), true, false)
+                    ) {
+
+                        \Aomebo\Database\Adapter::query(
+                            'DELETE FROM `' . self::getTableSessions() . '` '
+                            . 'WHERE `session_time_last` < NOW() - INTERVAL {expires} SECOND',
+                            array(
+                                'expires' => (int) $expires,
+                            ), true, false);
+
+                    }
 
                 }
-
-                \Aomebo\Application::setApplicationData(
-                    'last_session_garbage_collect',
-                    time()
-                );
 
             }
 

@@ -134,6 +134,13 @@ namespace Aomebo
         private static $_applicationData = array();
 
         /**
+         * @internal
+         * @static
+         * @var bool
+         */
+        private static $_flushedApplicationData = true;
+
+        /**
          * This starts up the framework.
          *
          * @param array|null [$parameters = null]       Contains all site-specific parameters.
@@ -364,7 +371,7 @@ namespace Aomebo
                                     $presenter->output();
 
                                     // Save application-data
-                                    self::_saveApplicanData();
+                                    self::_flushApplicationData();
 
                                 } else {
                                     $dispatcher::setHttpResponseStatus403Forbidden();
@@ -405,7 +412,7 @@ namespace Aomebo
                                 $presenter->output();
 
                                 // Save application-data
-                                self::_saveApplicanData();
+                                self::_flushApplicationData();
 
                             } else {
                                 \Aomebo\Dispatcher\System::
@@ -602,11 +609,19 @@ namespace Aomebo
          * @static
          * @param string $key
          * @param mixed $value
+         * @param bool [$flush = true]
          */
-        public static function setApplicationData($key, $value)
+        public static function setApplicationData($key, $value, $flush = true)
         {
             if (!empty($key)) {
+
                 self::$_applicationData[$key] = $value;
+                self::$_flushedApplicationData = false;
+
+                if (!empty($flush)) {
+                    self::_flushApplicationData();
+                }
+
             }
         }
 
@@ -1020,10 +1035,13 @@ namespace Aomebo
          * @internal
          * @static
          */
-        private static function _saveApplicanData()
+        private static function _flushApplicationData()
         {
-            if ($jsonData = json_encode(self::$_applicationData)) {
-                file_put_contents(self::_getApplicationDataPath(), $jsonData);
+            if (!self::$_flushedApplicationData) {
+                if ($jsonData = json_encode(self::$_applicationData)) {
+                    file_put_contents(self::_getApplicationDataPath(), $jsonData);
+                }
+                self::$_flushedApplicationData = true;
             }
         }
 
