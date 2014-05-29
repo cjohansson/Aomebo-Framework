@@ -73,7 +73,8 @@ namespace Aomebo\Feedback
                 $logLocation = str_replace(
                     array_keys($dateComponentReplacements),
                     array_values($dateComponentReplacements),
-                    $logLocation);
+                    $logLocation
+                );
 
                 if (file_exists($logLocation)) {
 
@@ -198,8 +199,11 @@ namespace Aomebo\Feedback
 
                     }
 
-                    $message .= 'Error-backtrace (limit: ' . $backtraceLimit . '): '
-                        . print_r($debugBacktrance, true);
+                    $message .= 'Error-backtrace (limit: ' . $backtraceLimit . '): ' . "\n"
+                        . print_r($debugBacktrance, true) . "\n";
+
+                    $message .= 'Free memory at init: "' . \Aomebo\Application::getFreeMemoryAtInit() . '", '
+                        . 'free memory at error: "' . \Aomebo\System\Memory::getSystemFreeMemory() . '"' . "\n";
 
                 }
 
@@ -260,6 +264,9 @@ namespace Aomebo\Feedback
                         . '$_SERVER: "' . (isset($_SERVER) ?
                             print_r($_SERVER, true) : 'null') . '"';
                 }
+
+                $message .= 'Free memory at init: "' . \Aomebo\Application::getFreeMemoryAtInit() . '", '
+                    . 'free memory at error: "' . \Aomebo\System\Memory::getSystemFreeMemory() . '"' . "\n";
 
                 if (!isset($log)) {
                     $log = \Aomebo\Configuration::getSetting(
@@ -346,6 +353,9 @@ namespace Aomebo\Feedback
                     print_r($_SERVER, true) : 'null') . '"';
 
             }
+
+            $message .= 'Free memory at init: "' . \Aomebo\Application::getFreeMemoryAtInit() . '", '
+                . 'free memory at error: "' . \Aomebo\System\Memory::getSystemFreeMemory() . '"' . "\n";
 
             // Exception message
             if (isset($exception)) {

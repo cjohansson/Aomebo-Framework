@@ -141,6 +141,13 @@ namespace Aomebo
         private static $_flushedApplicationData = true;
 
         /**
+         * @internal
+         * @static
+         * @var float
+         */
+        private static $_freeMemoryAtInit = 0.0;
+
+        /**
          * This starts up the framework.
          *
          * @param array|null [$parameters = null]       Contains all site-specific parameters.
@@ -266,6 +273,9 @@ namespace Aomebo
                         self::getParameter(self::PARAMETER_STRUCTURE_EXTERNAL_FILENAME),
                         self::getParameter(self::PARAMETER_CONFIGURATION_ADAPTER))
                     ) {
+
+                        self::$_freeMemoryAtInit =
+                            \Aomebo\System\Memory::getSystemFreeMemory();
 
                         // Does server has enough free memory for handling request?
                         if (\Aomebo\System\Memory::systemHasEnoughMemory()) {
@@ -444,6 +454,11 @@ namespace Aomebo
         {
             return (sizeof(self::$_runtimes) > 0 ?
                 self::$_runtimes : false);
+        }
+
+        public static function getFreeMemoryAtInit()
+        {
+            return self::$_freeMemoryAtInit;
         }
 
         /**
