@@ -187,7 +187,11 @@ output:
         type: boolean
         required: true
         default: true
-    minify associatives:
+    minify javascripts:
+        type: boolean
+        required: true
+        default: false
+    minify stylesheets:
         type: boolean
         required: true
         default: false

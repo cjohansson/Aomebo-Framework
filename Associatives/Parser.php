@@ -254,9 +254,6 @@ namespace Aomebo\Associatives
         public static function parseRequest()
         {
 
-            self::$_minify =
-                \Aomebo\Configuration::getSetting('output,minify associatives');
-
             $engine =
                 \Aomebo\Associatives\Engine::getInstance();
             $associatives = $engine->getAssociatives();
@@ -351,10 +348,22 @@ namespace Aomebo\Associatives
             if ($associativeType === self::TYPE_STYLE
                 || $associativeType === self::TYPE_SCRIPT
             ) {
+
                 \Aomebo\Dispatcher\System::setHttpHeaderField(
                     'Content-type',
                     $mimeType . '; charset='
                     . \Aomebo\Configuration::getSetting('output,character set'));
+
+                if ($associativeType == self::TYPE_STYLE) {
+                    if (\Aomebo\Configuration::getSetting('output,minify stylesheets')) {
+                        self::$_minify = true;
+                    }
+                } else if ($associativeType == self::TYPE_SCRIPT) {
+                    if (\Aomebo\Configuration::getSetting('output,minify javascripts')) {
+                        self::$_minify = true;
+                    }
+                }
+
             }
 
             if (!empty($associativeType)
