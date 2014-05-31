@@ -56,3 +56,6 @@ session:
 internationalization:
     enabled: true
     locale: sv_SE
+
+output:
+    minify associatives: true

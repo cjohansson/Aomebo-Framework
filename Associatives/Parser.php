@@ -106,6 +106,13 @@ namespace Aomebo\Associatives
         private static $_cacheContents = '';
 
         /**
+         * @internal
+         * @static
+         * @var bool
+         */
+        private static $_minify = false;
+
+        /**
          *
          */
         public function __construct()
@@ -114,6 +121,50 @@ namespace Aomebo\Associatives
                 parent::__construct();
                 self::_flagThisConstructed();
             }
+        }
+
+        /**
+         * @static
+         * @param string $stylesheet
+         * @return string
+         */
+        public static function minifyStylesheet($stylesheet)
+        {
+            return preg_replace(
+                array(
+                    '/(\s)+/',
+                    '/\/\*(.(?!\*\/))+.{1}\*\//s',
+                    '/\/\/[^\n]+/',
+                ),
+                array(
+                    ' ',
+                    '',
+                    '',
+                ),
+                $stylesheet
+            );
+        }
+
+        /**
+         * @static
+         * @param string $javascript
+         * @return string
+         */
+        public static function minifyJavascript($javascript)
+        {
+            return preg_replace(
+                array(
+                    '/\/\*(.(?!\*\/))+.{1}\*\//s',
+                    '/\/\/[^\n]*/',
+                    '/(\s)+/',
+                ),
+                array(
+                    '',
+                    '',
+                    ' ',
+                ),
+                $javascript
+            );
         }
 
         /**
@@ -202,6 +253,9 @@ namespace Aomebo\Associatives
          */
         public static function parseRequest()
         {
+
+            self::$_minify =
+                \Aomebo\Configuration::getSetting('output,minify associatives');
 
             $engine =
                 \Aomebo\Associatives\Engine::getInstance();
@@ -444,8 +498,9 @@ namespace Aomebo\Associatives
                     // Do we have a already cached resource for this request?
                     if (self::$_useCache
                         && \Aomebo\Cache\System::cacheExists(
-                        $cacheParameters,
-                        $cacheKey)
+                            $cacheParameters,
+                            $cacheKey
+                        )
                     ) {
 
                         \Aomebo\Dispatcher\System::setHttpHeaderField(
@@ -455,16 +510,22 @@ namespace Aomebo\Associatives
                         if (isset($_SERVER['HTTP_IF_NONE_MATCH'])
                             && $_SERVER['HTTP_IF_NONE_MATCH'] == $cacheEtag
                         ) {
+
                             \Aomebo\Dispatcher\System::setHttpResponseStatus304NotModified();
                             \Aomebo\Dispatcher\System::outputHttpHeaders();
+
                         } else {
+
                             \Aomebo\Dispatcher\System::outputHttpHeaders();
+
                             if (!\Aomebo\Dispatcher\System::isHttpHeadRequest()) {
                                 echo \Aomebo\Cache\System::loadCache(
                                     $cacheParameters,
                                     $cacheKey,
-                                    \Aomebo\Cache\System::FORMAT_RAW);
+                                    \Aomebo\Cache\System::FORMAT_RAW
+                                );
                             }
+
                         }
 
                     // Otherwise - generate a resource
@@ -519,7 +580,8 @@ namespace Aomebo\Associatives
                                         $chunkAdd,
                                         $parseFile['name'],
                                         $parseFile['centralized_path'],
-                                        $parseFile['modularized_path']);
+                                        $parseFile['modularized_path']
+                                    );
 
                                 } else if ($resourceMode ===
                                     self::DATA_DEPENDENCIES
@@ -529,8 +591,19 @@ namespace Aomebo\Associatives
                                         $chunkAdd,
                                         $parseFile['name'],
                                         $parseFile['centralized_path'],
-                                        $parseFile['modularized_path']);
+                                        $parseFile['modularized_path']
+                                    );
 
+                                }
+
+                                if (self::$_minify) {
+                                    if ($associativeType == self::TYPE_SCRIPT) {
+                                        $chunkAdd =
+                                            self::minifyJavascript($chunkAdd);
+                                    } else if ($associativeType == self::TYPE_STYLE) {
+                                        $chunkAdd =
+                                            self::minifyStylesheet($chunkAdd);
+                                    }
                                 }
 
                                 self::_addChunk($chunkAdd);
@@ -556,7 +629,8 @@ namespace Aomebo\Associatives
                                     $cacheParameters,
                                     $cacheKey,
                                     self::$_cacheContents,
-                                    \Aomebo\Cache\System::FORMAT_RAW);
+                                    \Aomebo\Cache\System::FORMAT_RAW
+                                );
                             }
 
                         }
