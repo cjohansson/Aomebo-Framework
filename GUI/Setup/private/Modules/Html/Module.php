@@ -14,7 +14,8 @@ namespace Modules\Html
      */
     class Module extends \Aomebo\Runtime\Module implements
         \Aomebo\Runtime\Executable,
-        \Aomebo\Runtime\ExecutionParameters
+        \Aomebo\Runtime\ExecutionParameters,
+        \Aomebo\Runtime\Dependent
     {
 
         /**
@@ -32,6 +33,16 @@ namespace Modules\Html
          * @var array
          */
         private static $_pageData = array();
+
+        /**
+         * @return array|bool
+         */
+        public function getDependencies()
+        {
+            return array(
+                new \Aomebo\Associatives\Dependent('jQuery')
+            );
+        }
 
         /**
          * @return array|bool

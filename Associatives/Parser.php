@@ -154,8 +154,8 @@ namespace Aomebo\Associatives
         {
             return preg_replace(
                 array(
-                    '/\/\*(.(?!\*\/))+.{1}\*\//s',
-                    '/\/\/[^\n]*/',
+                    '/(?:^|[^\\\"\'])(\/\*((.(?!\*\/))+).{1}\*\/)/s',
+                    '/(?:^|[^\\\"\'])\/\/[^\n]*/',
                     '/(\s)+/',
                 ),
                 array(
@@ -176,7 +176,8 @@ namespace Aomebo\Associatives
             return \Aomebo\Cache\System::clearCache(
                 'Associatives'
                 . '/'
-                . 'Runtimes');
+                . 'Runtimes'
+            );
         }
 
         /**
