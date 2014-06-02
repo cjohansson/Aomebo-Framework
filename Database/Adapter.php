@@ -636,8 +636,11 @@ namespace Aomebo\Database
                 Throw new \Exception(
                     sprintf(
                         gettext('Can\'t query "%s" when database '
-                        . 'connection hasn\'t been established.'),
-                        $sql)
+                        . 'connection hasn\'t been established. '
+                        . 'Database adapter constructed: ' .
+                        (self::_isConstructed() ? 'YES' : 'NO')),
+                        $sql
+                    )
                 );
 
             }
