@@ -266,7 +266,9 @@ namespace Aomebo\Feedback
                 }
 
                 $message .= 'Free memory at init: "' . \Aomebo\Application::getFreeMemoryAtInit() . '", '
-                    . 'free memory at error: "' . \Aomebo\System\Memory::getSystemFreeMemory() . '"' . "\n";
+                    . 'free memory at error: "' . \Aomebo\System\Memory::getSystemFreeMemory() . '",'
+                    . 'free peak memory: "' . \Aomebo\System\Memory::getSystemFreeMemoryPeak() . '"'
+                    . "\n";
 
                 if (!isset($log)) {
                     $log = \Aomebo\Configuration::getSetting(
@@ -355,7 +357,9 @@ namespace Aomebo\Feedback
             }
 
             $message .= 'Free memory at init: "' . \Aomebo\Application::getFreeMemoryAtInit() . '", '
-                . 'free memory at error: "' . \Aomebo\System\Memory::getSystemFreeMemory() . '"' . "\n";
+                . 'free memory at error: "' . \Aomebo\System\Memory::getSystemFreeMemory() . '",'
+                . 'free peak memory: "' . \Aomebo\System\Memory::getSystemFreeMemoryPeak() . '"'
+                . "\n";
 
             // Exception message
             if (isset($exception)) {

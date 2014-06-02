@@ -118,5 +118,16 @@ namespace Aomebo\System
                 - self::getSystemMemoryUsage();
         }
 
+        /**
+         * @static
+         * @return int      Free memory in mega-bytes.
+         */
+        public static function getSystemFreeMemoryPeak()
+        {
+            return self::getSystemMemoryLimit()
+                - self::getSystemMemoryPeakUsage();
+        }
+
+
     }
 }
