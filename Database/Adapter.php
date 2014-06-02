@@ -232,7 +232,13 @@ namespace Aomebo\Database
          */
         public static function useDatabase()
         {
+
+            if (!self::_isConstructed()) {
+                self::getInstance();
+            }
+
             return !empty(self::$_useDatabase);
+
         }
 
         /**
@@ -241,9 +247,11 @@ namespace Aomebo\Database
          */
         public static function useDatabaseAndIsConnected()
         {
-            return (self::useDatabase()
-                && self::isConnected()
+
+            return (
+                self::useDatabase() && self::isConnected()
             );
+
         }
 
         /**
@@ -255,6 +263,11 @@ namespace Aomebo\Database
          */
         public static function selectDatabase($databaseName)
         {
+
+            if (!self::_isConstructed()) {
+                self::getInstance();
+            }
+
             if (self::$_object->selectDatabase(
                 \Aomebo\Configuration::getSetting('database,database'))
             ) {
@@ -294,7 +307,9 @@ namespace Aomebo\Database
 
                 }
             }
+
             return false;
+
         }
 
         /**
@@ -303,9 +318,8 @@ namespace Aomebo\Database
          */
         public static function getSelectedDatabase()
         {
-            return (self::isConnected() ?
-                self::$_object->getSelectedDatabase()
-                : false);
+            return
+                (self::isConnected() ? self::$_object->getSelectedDatabase() : false);
         }
 
         /**
@@ -318,7 +332,13 @@ namespace Aomebo\Database
          */
         public static function isConnected()
         {
+
+            if (!self::_isConstructed()) {
+                self::getInstance();
+            }
+
             return (!empty(self::$_connected) ? true : false);
+
         }
 
         /**
@@ -329,6 +349,11 @@ namespace Aomebo\Database
          */
         public static function escape($value)
         {
+
+            if (!self::_isConstructed()) {
+                self::getInstance();
+            }
+
             if (isset($value)
                 && !is_array($value)
                 && self::isConnected()
@@ -339,6 +364,7 @@ namespace Aomebo\Database
                     gettext('Invalid parameters')
                 );
             }
+
         }
 
         /**
@@ -349,10 +375,17 @@ namespace Aomebo\Database
          */
         public static function getLastSql()
         {
+
+            if (!self::_isConstructed()) {
+                self::getInstance();
+            }
+
             if (!empty(self::$_lastSql)) {
                 return self::$_lastSql;
             }
+
             return false;
+
         }
 
         /**
@@ -363,10 +396,17 @@ namespace Aomebo\Database
          */
         public static function getLastInsertId()
         {
+
+            if (!self::_isConstructed()) {
+                self::getInstance();
+            }
+
             if (isset(self::$_object)) {
                 return self::$_object->getLastInsertId();
             }
+
             return false;
+
         }
 
         /**
@@ -375,8 +415,8 @@ namespace Aomebo\Database
          */
         public static function getLastError()
         {
-            return (!empty(self::$_lastError) ?
-                self::$_lastError : false);
+            return
+                (!empty(self::$_lastError) ? self::$_lastError : false);
         }
 
         /**
@@ -415,6 +455,11 @@ namespace Aomebo\Database
          */
         public static function tableExists($rawTableName)
         {
+
+            if (!self::_isConstructed()) {
+                self::getInstance();
+            }
+
             if (self::isConnected()) {
 
                 $tableName = str_replace(
@@ -429,7 +474,9 @@ namespace Aomebo\Database
                 }
 
             }
+
             return false;
+
         }
 
         /**
@@ -448,6 +495,10 @@ namespace Aomebo\Database
             $unbuffered = false, $throwExceptionOnFailure = true,
             $allowMultipleQueries = false)
         {
+
+            if (!self::_isConstructed()) {
+                self::getInstance();
+            }
 
             if (self::isConnected()) {
 
@@ -892,7 +943,9 @@ namespace Aomebo\Database
             ) {
 
                 $replaceKey = self::formatQueryReplaceKey(
-                    $key, false);
+                    $key,
+                    false
+                );
 
                 if (!isset(self::$_replaceKeysList[$replaceKey])) {
 
@@ -925,7 +978,9 @@ namespace Aomebo\Database
             ) {
 
                 $replaceKey = self::formatQuerySystemReplaceKey(
-                    $key, false);
+                    $key,
+                    false
+                );
 
                 // This key is new?
                 if (!isset(self::$_replaceKeysList[$replaceKey])) {
