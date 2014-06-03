@@ -31,7 +31,7 @@ namespace Aomebo
      *
      * @method static \Aomebo\Runtime getInstance()
      */
-    class Runtime extends \Aomebo\Singleton
+    class Runtime extends \Aomebo\Singleton implements \Serializable
     {
 
         /**
@@ -97,6 +97,7 @@ namespace Aomebo
         protected $_dependencies = array();
 
         /**
+         * @static
          * @var \Aomebo|null
          */
         protected static $_aomebo = null;
@@ -558,24 +559,73 @@ namespace Aomebo
          * This method is used in caching
          * purposes only (save).
          *
-         * @return array|string
+         * @return string
          */
         public function serialize()
         {
-            return (isset($this->_fields) ?
-                serialize($this->_fields) : null);
+
+            $routes = array();
+
+            /** @var \Aomebo\Runtime $this */
+
+            if ($this->isRoutable()) {
+                /** @var \Aomebo\Runtime\Routable $this */
+                $routes = $this->getRoutes();
+            }
+
+            /** @var \Aomebo\Runtime $this */
+
+            return serialize(array(
+                '_enabled' => $this->_enabled,
+                '_fields' => $this->_fields,
+                '_parameterToIndex' => $this->_parameterToIndex,
+                '_indexToParameter' => $this->_indexToParameter,
+                '_routes' => $routes,
+            ));
+
         }
 
         /**
          * This method is used in cachinging
          * purposes only (restore).
          *
-         * @param array $data
+         * @param string $data
          */
         public function unserialize($data)
         {
-            if (isset($this->_fields)) {
-                $this->_fields = unserialize($data);
+            if (!empty($data)) {
+                if ($unserialized = unserialize($data)) {
+                    if (isset($unserialized['_enabled'])) {
+                        $this->_enabled = $unserialized['_enabled'];
+                    }
+                    if (isset($unserialized['_fields'])) {
+                        $this->_fields = $unserialized['_fields'];
+                    }
+                    if (isset($unserialized['_parameterToIndex'])) {
+                        $this->_parameterToIndex = $unserialized['_parameterToIndex'];
+                    }
+                    if (isset($unserialized['_indexToParameter'])) {
+                        $this->_indexToParameter = $unserialized['_indexToParameter'];
+                    }
+                    if (isset($unserialized['_routes'])
+                        && is_array($unserialized['_routes'])
+                        && sizeof($unserialized['_routes']) > 0
+                    ) {
+                        foreach ($unserialized['_routes'] as $route)
+                        {
+
+                            /** @var \Aomebo\Dispatcher\Route $route */
+
+                            if ($route->isValid()) {
+                                \Aomebo\Dispatcher\System::addRoute($route);
+                            }
+
+                        }
+                    }
+
+                    self::$_aomebo = \Aomebo::getInstance();
+
+                }
             }
         }
 

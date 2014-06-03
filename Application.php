@@ -793,6 +793,7 @@ namespace Aomebo
         {
 
             $roots = array();
+            $runtimesLastModificationTime = 0;
 
             if ($siteDirectories = \Aomebo\Configuration::getSetting(
                 'paths,runtime site directories')
@@ -812,45 +813,91 @@ namespace Aomebo
                 }
             }
 
-            // Iterate through all roots
             foreach ($roots as $root)
             {
-
-                if (!is_dir($root)
-                    && \Aomebo\Configuration::getSetting('paths,create runtime directories')
+                if ($diremtime = \Aomebo\Filesystem::getDirectoryLastModificationTime(
+                    $root)
                 ) {
-                    \Aomebo\Filesystem::makeDirectory($root);
-                }
-
-                if (is_dir($root))
-                {
-
-                    $dirs = scandir($root);
-
-                    // Iterate through all directories
-                    foreach ($dirs as $dir)
-                    {
-
-                        // Is directory not current dir or parent dir pointer?
-                        if (!empty($dir)
-                            && $dir != '.'
-                            && $dir != '..'
-                        ) {
-
-                            $absPath =
-                                $root . DIRECTORY_SEPARATOR . $dir;
-
-                            // Is it a valid directory?
-                            if (is_dir($absPath)) {
-                                self::_loadRuntimesFromDirectory(
-                                    $absPath);
-                            }
-
-                        }
-
+                    if ($diremtime > $runtimesLastModificationTime) {
+                        $runtimesLastModificationTime = $diremtime;
                     }
                 }
             }
+
+            $cacheParameters = 'Application/Runtimes';
+            $cacheKey = md5('last_mod=' . $runtimesLastModificationTime);
+
+            if (\Aomebo\Cache\System::cacheExists(
+                $cacheParameters,
+                $cacheKey,
+                \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM)
+            ) {
+
+                self::$_runtimes = \Aomebo\Cache\System::loadCache(
+                    $cacheParameters,
+                    $cacheKey,
+                    \Aomebo\Cache\System::FORMAT_SERIALIZE,
+                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                );
+
+            } else {
+
+                \Aomebo\Cache\System::clearCache(
+                    $cacheParameters,
+                    $cacheKey,
+                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                );
+
+                // Iterate through all roots
+                foreach ($roots as $root)
+                {
+
+                    if (!is_dir($root)
+                        && \Aomebo\Configuration::getSetting('paths,create runtime directories')
+                    ) {
+                        \Aomebo\Filesystem::makeDirectory($root);
+                    }
+
+                    if (is_dir($root))
+                    {
+
+                        $dirs = scandir($root);
+
+                        // Iterate through all directories
+                        foreach ($dirs as $dir)
+                        {
+
+                            // Is directory not current dir or parent dir pointer?
+                            if (!empty($dir)
+                                && $dir != '.'
+                                && $dir != '..'
+                            ) {
+
+                                $absPath =
+                                    $root . DIRECTORY_SEPARATOR . $dir;
+
+                                // Is it a valid directory?
+                                if (is_dir($absPath)) {
+                                    self::_loadRuntimesFromDirectory(
+                                        $absPath);
+                                }
+
+                            }
+
+                        }
+                    }
+                }
+
+                \Aomebo\Cache\System::saveCache(
+                    $cacheParameters,
+                    $cacheKey,
+                    self::$_runtimes,
+                    \Aomebo\Cache\System::FORMAT_SERIALIZE,
+                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                );
+
+            }
+
         }
 
         /**
