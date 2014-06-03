@@ -27,7 +27,7 @@ namespace Aomebo\Dispatcher
     /**
      *
      */
-    class Route extends \Aomebo\Base
+    class Route extends \Aomebo\Base implements \Serializable
     {
 
         /**
@@ -171,6 +171,66 @@ namespace Aomebo\Dispatcher
                     $this->keys);
             }
 
+        }
+
+        /**
+         * @return string
+         */
+        public function serialize()
+        {
+            return serialize(array(
+                'name' => $this->name,
+                'keys' => $this->keys,
+                'keyToValues' => $this->keyToValues,
+                'page' => $this->page,
+                'reference' => $this->reference,
+                'regexp' => $this->regexp,
+                'sprintf' => $this->sprintf,
+                'values' => $this->values,
+                'method' => $this->method,
+                '_hashKey' => $this->_hashKey,
+            ));
+        }
+
+        /**
+         * @param string $data
+         */
+        public function unserialize($data)
+        {
+            if (!empty($data)) {
+                if ($unserializedData = unserialize($data)) {
+                    if (isset($unserializedData['name'])) {
+                        $this->name = $unserializedData['name'];
+                    }
+                    if (isset($unserializedData['keys'])) {
+                        $this->keys = $unserializedData['keys'];
+                    }
+                    if (isset($unserializedData['keyToValues'])) {
+                        $this->keyToValues = $unserializedData['keyToValues'];
+                    }
+                    if (isset($unserializedData['page'])) {
+                        $this->page = $unserializedData['page'];
+                    }
+                    if (isset($unserializedData['reference'])) {
+                        $this->reference = $unserializedData['reference'];
+                    }
+                    if (isset($unserializedData['regexp'])) {
+                        $this->regexp = $unserializedData['regexp'];
+                    }
+                    if (isset($unserializedData['sprintf'])) {
+                        $this->sprintf = $unserializedData['sprintf'];
+                    }
+                    if (isset($unserializedData['values'])) {
+                        $this->values = $unserializedData['values'];
+                    }
+                    if (isset($unserializedData['method'])) {
+                        $this->method = $unserializedData['method'];
+                    }
+                    if (isset($unserializedData['_hashKey'])) {
+                        $this->_hashKey = $unserializedData['_hashKey'];
+                    }
+                }
+            }
         }
 
         /**
