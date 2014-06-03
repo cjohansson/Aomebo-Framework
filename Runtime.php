@@ -573,6 +573,32 @@ namespace Aomebo
                 /** @var \Aomebo\Runtime\Routable $this */
                 $routes = $this->getRoutes();
 
+            } else if (isset($this->_routes)
+                && is_array($this->_routes)
+                && sizeof($this->_routes) > 0
+            ) {
+                foreach ($this->_routes as $route)
+                {
+                    if (isset($route)
+                        && is_array($route)
+                        && isset($route['regexp'],
+                            $route['sprintf'],
+                            $route['keys'])
+                    ) {
+
+                        $routeObject = new \Aomebo\Dispatcher\Route(
+                            (!empty($route['name']) ? $route['name'] : null),
+                            $route['regexp'],
+                            $route['sprintf'],
+                            $route['keys'],
+                            (!empty($route['method']) ? $route['method'] : null));
+
+                        if ($routeObject->isValid()) {
+                            $routes[] = $routeObject;
+                        }
+
+                    }
+                }
             }
 
             /** @var \Aomebo\Runtime $this */
