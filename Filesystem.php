@@ -120,8 +120,12 @@ namespace Aomebo
          */
         public static function getDirectoryLastModificationTime($directory)
         {
-            if (substr($directory, -1) != '.') {
-                $directory .= '.';
+            if (substr($directory, -2) != '/.') {
+                if (substr($directory, -1) == '/') {
+                    $directory .= '.';
+                } else {
+                    $directory .= '/.';
+                }
             }
             if ($diremtime = filemtime($directory)) {
                 return $diremtime;
