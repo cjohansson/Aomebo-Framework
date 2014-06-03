@@ -611,24 +611,52 @@ namespace Aomebo
                         && is_array($unserialized['_routes'])
                         && sizeof($unserialized['_routes']) > 0
                     ) {
-                        foreach ($unserialized['_routes'] as $route)
-                        {
-                            if (is_a($route, '\Aomebo\Dispatcher\Route')) {
-
-                                /** @var \Aomebo\Dispatcher\Route $route */
-
-                                if ($route->isValid()) {
-                                    \Aomebo\Dispatcher\System::addRoute($route);
-                                }
-
-                            }
-                        }
+                        $this->loadRoutes($unserialized['_routes']);
                     }
 
                     self::$_aomebo = \Aomebo::getInstance();
 
                 }
             }
+        }
+
+        /**
+         * @param array $routes
+         */
+        public function loadRoutes($routes)
+        {
+
+            if (isset($routes)) {
+                if (is_array($routes)
+                    && sizeof($routes) > 0
+                ) {
+                    foreach ($routes as $route)
+                    {
+                        if (isset($route)
+                            && is_a($route, '\Aomebo\Dispatcher\Route')
+                        ) {
+
+                            /** @var \Aomebo\Dispatcher\Route $route */
+
+                            if ($route->isValid()) {
+                                \Aomebo\Dispatcher\System::addRoute($route);
+                            } else {
+                                $false = false;
+                            }
+
+                        }
+                    }
+                } else if (is_a($routes, '\Aomebo\Dispatcher\Route')) {
+
+                    /** @var \Aomebo\Dispatcher\Route $routes */
+
+                    if ($routes->isValid()) {
+                        \Aomebo\Dispatcher\System::addRoute($routes);
+                    }
+
+                }
+            }
+
         }
 
         /**
@@ -753,16 +781,7 @@ namespace Aomebo
                     $ref = & $this;
 
                     if ($routes = $ref->getRoutes()) {
-                        foreach ($routes as $route)
-                        {
-
-                            /** @var \Aomebo\Dispatcher\Route $route */
-
-                            if ($route->isValid()) {
-                                \Aomebo\Dispatcher\System::addRoute($route);
-                            }
-
-                        }
+                        $this->loadRoutes($routes);
                     }
 
                 // TODO: This below is deprecated and will be removed in next major version.
