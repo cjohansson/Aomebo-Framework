@@ -577,7 +577,7 @@ namespace Aomebo
                         if (isset($route)
                             && is_a($route, '\Aomebo\Dispatcher\Route')
                         ) {
-                            $routes[] = $route;
+                            $routes[] = serialize($route);
                         } else {
                             $false = false;
                         }
