@@ -613,13 +613,15 @@ namespace Aomebo
                     ) {
                         foreach ($unserialized['_routes'] as $route)
                         {
+                            if (is_a($route, '\Aomebo\Dispatcher\Route')) {
 
-                            /** @var \Aomebo\Dispatcher\Route $route */
+                                /** @var \Aomebo\Dispatcher\Route $route */
 
-                            if ($route->isValid()) {
-                                \Aomebo\Dispatcher\System::addRoute($route);
+                                if ($route->isValid()) {
+                                    \Aomebo\Dispatcher\System::addRoute($route);
+                                }
+
                             }
-
                         }
                     }
 
