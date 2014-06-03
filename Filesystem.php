@@ -102,6 +102,35 @@ namespace Aomebo
 
         /**
          * @static
+         * @param string $file
+         * @return int|bool
+         */
+        public static function getFileLastModificationTime($filename)
+        {
+            if ($filemtime = filemtime($filename)) {
+                return $filemtime;
+            }
+            return false;
+        }
+
+        /**
+         * @static
+         * @param string $directory
+         * @return int|bool
+         */
+        public static function getDirectoryLastModificationTime($directory)
+        {
+            if (substr($directory, -1) != '.') {
+                $directory .= '.';
+            }
+            if ($diremtime = filemtime($directory)) {
+                return $diremtime;
+            }
+            return false;
+        }
+
+        /**
+         * @static
          * @param string $absolutePath
          * @param bool [$throwExceptions = true]
          * @throws \Exception
