@@ -79,20 +79,25 @@ namespace Aomebo
         /**
          * @internal
          * @static
+         * @param string|null [$className = null]
          * @return Singleton
          */
-        public static function getInstance()
+        public static function getInstance($className = null)
         {
-            $calledClass = get_called_class();
 
-            if (!self::_isInstanciated($calledClass)) {
-                $newObject = new $calledClass();
-                if (!self::_isInstanciated($calledClass)) {
-                    self::$_instances[$calledClass] = $newObject;
+            if (empty($className)) {
+                $className = get_called_class();
+            }
+
+            if (!self::_isInstanciated($className)) {
+                $newObject = new $className();
+                if (!self::_isInstanciated($className)) {
+                    self::$_instances[$className] = $newObject;
                 }
             }
 
-            return self::$_instances[$calledClass];
+            return self::$_instances[$className];
+
         }
 
         /**

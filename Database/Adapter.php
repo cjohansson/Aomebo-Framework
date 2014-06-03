@@ -233,10 +233,7 @@ namespace Aomebo\Database
         public static function useDatabase()
         {
 
-            if (!self::_isConstructed()) {
-                self::getInstance();
-            }
-
+            self::_instanciate();
             return !empty(self::$_useDatabase);
 
         }
@@ -264,9 +261,7 @@ namespace Aomebo\Database
         public static function selectDatabase($databaseName)
         {
 
-            if (!self::_isConstructed()) {
-                self::getInstance();
-            }
+            self::_instanciate();
 
             if (self::$_object->selectDatabase(
                 \Aomebo\Configuration::getSetting('database,database'))
@@ -333,10 +328,7 @@ namespace Aomebo\Database
         public static function isConnected()
         {
 
-            if (!self::_isConstructed()) {
-                self::getInstance();
-            }
-
+            self::_instanciate();
             return (!empty(self::$_connected) ? true : false);
 
         }
@@ -350,9 +342,7 @@ namespace Aomebo\Database
         public static function escape($value)
         {
 
-            if (!self::_isConstructed()) {
-                self::getInstance();
-            }
+            self::_instanciate();
 
             if (isset($value)
                 && !is_array($value)
@@ -376,9 +366,7 @@ namespace Aomebo\Database
         public static function getLastSql()
         {
 
-            if (!self::_isConstructed()) {
-                self::getInstance();
-            }
+            self::_instanciate();
 
             if (!empty(self::$_lastSql)) {
                 return self::$_lastSql;
@@ -456,9 +444,7 @@ namespace Aomebo\Database
         public static function tableExists($rawTableName)
         {
 
-            if (!self::_isConstructed()) {
-                self::getInstance();
-            }
+            self::_instanciate();
 
             if (self::isConnected()) {
 
@@ -495,11 +481,6 @@ namespace Aomebo\Database
             $unbuffered = false, $throwExceptionOnFailure = true,
             $allowMultipleQueries = false)
         {
-
-            if (!self::_isConstructed()) {
-                self::getInstance();
-            }
-
             if (self::isConnected()) {
 
                 // Do we have any triggers?
@@ -1068,6 +1049,19 @@ namespace Aomebo\Database
 
             }
             return false;
+        }
+
+        /**
+         * @internal
+         * @static
+         */
+        private static function _instanciate()
+        {
+
+            if (!self::_isConstructed()) {
+                self::getInstance(__CLASS__);
+            }
+
         }
 
     }
