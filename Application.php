@@ -794,6 +794,8 @@ namespace Aomebo
 
             $roots = array();
             $runtimesLastModificationTime = 0;
+            $useRuntimeCache = \Aomebo\Configuration::getSetting(
+                'framework,use runtime cache');
 
             if ($siteDirectories = \Aomebo\Configuration::getSetting(
                 'paths,runtime site directories')
@@ -813,21 +815,29 @@ namespace Aomebo
                 }
             }
 
-            foreach ($roots as $root)
-            {
-                if ($diremtime = \Aomebo\Filesystem::getDirectoryLastModificationTime(
-                    $root)
-                ) {
-                    if ($diremtime > $runtimesLastModificationTime) {
-                        $runtimesLastModificationTime = $diremtime;
+            $cacheParameters = '';
+            $cacheKey = '';
+
+            if ($useRuntimeCache) {
+
+                foreach ($roots as $root)
+                {
+                    if ($diremtime = \Aomebo\Filesystem::getDirectoryLastModificationTime(
+                        $root)
+                    ) {
+                        if ($diremtime > $runtimesLastModificationTime) {
+                            $runtimesLastModificationTime = $diremtime;
+                        }
                     }
                 }
+
+                $cacheParameters = 'Application/Runtimes';
+                $cacheKey = md5('last_mod=' . $runtimesLastModificationTime);
+
             }
 
-            $cacheParameters = 'Application/Runtimes';
-            $cacheKey = md5('last_mod=' . $runtimesLastModificationTime);
-
-            if (\Aomebo\Cache\System::cacheExists(
+            if ($useRuntimeCache
+                && \Aomebo\Cache\System::cacheExists(
                 $cacheParameters,
                 $cacheKey,
                 \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM)
@@ -842,11 +852,15 @@ namespace Aomebo
 
             } else {
 
-                \Aomebo\Cache\System::clearCache(
-                    $cacheParameters,
-                    $cacheKey,
-                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
-                );
+                if ($useRuntimeCache) {
+
+                    \Aomebo\Cache\System::clearCache(
+                        $cacheParameters,
+                        $cacheKey,
+                        \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                    );
+
+                }
 
                 // Iterate through all roots
                 foreach ($roots as $root)
@@ -888,13 +902,17 @@ namespace Aomebo
                     }
                 }
 
-                \Aomebo\Cache\System::saveCache(
-                    $cacheParameters,
-                    $cacheKey,
-                    self::$_runtimes,
-                    \Aomebo\Cache\System::FORMAT_SERIALIZE,
-                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
-                );
+                if ($useRuntimeCache) {
+
+                    \Aomebo\Cache\System::saveCache(
+                        $cacheParameters,
+                        $cacheKey,
+                        self::$_runtimes,
+                        \Aomebo\Cache\System::FORMAT_SERIALIZE,
+                        \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                    );
+
+                }
 
             }
 

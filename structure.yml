@@ -25,6 +25,10 @@ framework:
         type: boolean
         required: true
         default: false
+    use runtime cache:
+        type: boolean
+        required: true
+        default: false
 
 indexing:
     expiration days:
