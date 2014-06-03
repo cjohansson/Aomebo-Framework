@@ -644,7 +644,10 @@ namespace Aomebo
                                 $false = false;
                             }
 
+                        } else {
+                            $false = false;
                         }
+
                     }
                 } else if (is_a($routes, '\Aomebo\Dispatcher\Route')) {
 
