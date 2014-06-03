@@ -569,8 +569,21 @@ namespace Aomebo
             /** @var \Aomebo\Runtime $this */
 
             if ($this->isRoutable()) {
+
                 /** @var \Aomebo\Runtime\Routable $this */
-                $routes = $this->getRoutes();
+                if ($modRoutes = $this->getRoutes()) {
+                    foreach ($modRoutes as $route)
+                    {
+                        if (isset($route)
+                            && is_a($route, '\Aomebo\Dispatcher\Route')
+                        ) {
+                            $routes[] = $route;
+                        } else {
+                            $false = false;
+                        }
+                    }
+                }
+
             }
 
             /** @var \Aomebo\Runtime $this */
