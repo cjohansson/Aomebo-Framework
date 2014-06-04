@@ -287,11 +287,11 @@ namespace Aomebo
                             // Load application-data
                             self::_loadApplicationData();
 
-                            // Load site class (if any)
-                            self::_loadSiteClass();
-
                             // Load runtimes
                             self::_loadRuntimes();
+
+                            // Load site class (if any)
+                            self::_loadSiteClass();
 
                             // Load feedback engine
                             new \Aomebo\Feedback\Debug();

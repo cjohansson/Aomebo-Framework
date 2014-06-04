@@ -223,16 +223,20 @@ namespace Aomebo\Cache
                         $cachePath, false)
                     ) {
 
-                        // Format data
-                        if ($format == self::FORMAT_JSON_ENCODE) {
-                            $data = json_decode($formattedData, true);
-                        } else if ($format == self::FORMAT_SERIALIZE) {
-                            $data = unserialize($formattedData);
-                        } else {
-                            $data = $formattedData;
-                        }
+                        try {
 
-                        return $data;
+                            // Format data
+                            if ($format == self::FORMAT_JSON_ENCODE) {
+                                $data = json_decode($formattedData, true);
+                            } else if ($format == self::FORMAT_SERIALIZE) {
+                                $data = unserialize($formattedData);
+                            } else {
+                                $data = $formattedData;
+                            }
+
+                            return $data;
+
+                        } catch (\Exception $e) {}
 
                     }
 
