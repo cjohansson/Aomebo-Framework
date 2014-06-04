@@ -570,7 +570,17 @@ namespace Aomebo
 
             if ($this->isRoutable()) {
 
-                $routes = $this->getRoutes();
+                /** @var \Aomebo\Runtime\Routable $this */
+
+                if ($modRoutes = $this->getRoutes()) {
+                    foreach ($modRoutes as $modRoute)
+                    {
+                        if ($serializedRoute = serialize($modRoute))
+                        {
+                            $routes[] = $serializedRoute;
+                        }
+                    }
+                }
 
             } else if (isset($this->_routes)
                 && is_array($this->_routes)
@@ -594,7 +604,10 @@ namespace Aomebo
                         );
 
                         if ($routeObject->isValid()) {
-                            $routes[] = $routeObject;
+                            if ($serializedRoute = serialize($routeObject))
+                            {
+                                $routes[] = $serializedRoute;
+                            }
                         }
 
                     }
@@ -639,7 +652,18 @@ namespace Aomebo
                         && is_array($unserialized['_routes'])
                         && sizeof($unserialized['_routes']) > 0
                     ) {
-                        $this->loadRoutes($unserialized['_routes']);
+                        $routes = array();
+                        foreach ($unserialized['_routes'] as $serializedRoute)
+                        {
+                            try {
+                                if ($unserializedRoute = @unserialize($serializedRoute)) {
+                                    $routes[] = $unserializedRoute;
+                                }
+                            } catch (\Exception $e) {}
+                        }
+                        if (sizeof($routes) > 0) {
+                            $this->loadRoutes($routes);
+                        }
                     }
 
                     if (!self::_isConstructed()) {
