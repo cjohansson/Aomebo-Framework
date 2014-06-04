@@ -649,20 +649,7 @@ namespace Aomebo
                         && is_array($unserialized['_routes'])
                         && sizeof($unserialized['_routes']) > 0
                     ) {
-                        $unserializedRoutes = array();
-                        foreach ($unserialized['_routes'] as $serializedRoute)
-                        {
-                            if ($unserializedRoute = @unserialize($serializedRoute)) {
-
-                                /** @var \Aomebo\Dispatcher\Route  $unserializedRoute */
-                                $unserializedRoute->reference = & $this;
-                                $unserializedRoutes[] = $unserializedRoute;
-
-                            }
-                        }
-                        if (sizeof($unserializedRoutes) > 0) {
-                            $this->loadRoutes($unserializedRoutes);
-                        }
+                        $this->loadRoutes($unserialized['_routes']);
                     }
 
                     if (!self::_isConstructed()) {
