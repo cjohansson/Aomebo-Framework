@@ -575,8 +575,8 @@ namespace Aomebo
                 if ($modRoutes = $this->getRoutes()) {
                     foreach ($modRoutes as $modRoute)
                     {
-                        if ($serializedRoute = serialize($modRoute))
-                        {
+                        /** @var \Aomebo\Dispatcher\Route $modRoute */
+                        if ($serializedRoute = $modRoute->serialize()) {
                             if (strpos($serializedRoute, 'Aomebo\Dispatcher\Route') !== false) {
                                 $routes[] = $serializedRoute;
                             } else {
@@ -608,8 +608,7 @@ namespace Aomebo
                         );
 
                         if ($routeObject->isValid()) {
-                            if ($serializedRoute = serialize($routeObject))
-                            {
+                            if ($serializedRoute = $routeObject->serialize()) {
                                 if (strpos($serializedRoute, 'Aomebo\Dispatcher\Route') !== false) {
                                     $routes[] = $serializedRoute;
                                 } else {
