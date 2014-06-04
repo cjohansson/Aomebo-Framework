@@ -108,7 +108,7 @@ namespace Aomebo
         public static function getFileLastModificationTime($filename)
         {
             try {
-                if ($filemtime = filemtime($filename)) {
+                if ($filemtime = @filemtime($filename)) {
                     return $filemtime;
                 }
             } catch (\Exception $e) {}
@@ -130,7 +130,7 @@ namespace Aomebo
                 }
             }
             try {
-                if ($diremtime = filemtime($directory)) {
+                if ($diremtime = @filemtime($directory)) {
                     return $diremtime;
                 }
             } catch (\Exception $e) {}
