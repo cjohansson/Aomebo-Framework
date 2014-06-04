@@ -564,7 +564,7 @@ namespace Aomebo
         public function serialize()
         {
 
-            $routes = array();
+            $routes = null;
 
             /** @var \Aomebo\Runtime $this */
 
@@ -573,27 +573,26 @@ namespace Aomebo
                 /** @var \Aomebo\Runtime\Routable $this */
 
                 if ($modRoutes = $this->getRoutes()) {
-                    foreach ($modRoutes as $modRoute)
-                    {
 
-                        /** @var \Aomebo\Dispatcher\Route $modRoute */
-                        if ($serializedRoute = serialize($modRoute)) {
+                    if ($serializedRoutes = serialize($modRoutes)) {
 
-                            // Check if serialization was successful
-                            if (strpos($serializedRoute, 'Aomebo\Dispatcher\Route') !== false) {
-                                $routes[] = $serializedRoute;
-                            } else {
-                                $false = false;
-                            }
-
+                        if (strpos($serializedRoutes, 'Aomebo\Dispatcher\Route') !== false) {
+                            $routes = $serializedRoutes;
+                        } else {
+                            $false = false;
                         }
+
                     }
+
                 }
 
             } else if (isset($this->_routes)
                 && is_array($this->_routes)
                 && sizeof($this->_routes) > 0
             ) {
+
+                $modRoutes = array();
+
                 foreach ($this->_routes as $route)
                 {
                     if (isset($route)
@@ -612,20 +611,24 @@ namespace Aomebo
                         );
 
                         if ($routeObject->isValid()) {
-
-                            // Check if serialization was successful
-                            if ($serializedRoute = serialize($routeObject)) {
-                                if (strpos($serializedRoute, 'Aomebo\Dispatcher\Route') !== false) {
-                                    $routes[] = $serializedRoute;
-                                } else {
-                                    $false = false;
-                                }
-                            }
-
+                            $modRoutes[] = $routeObject;
                         }
 
                     }
                 }
+
+                if (sizeof($modRoutes) > 0) {
+                    if ($serializedRoutes = serialize($modRoutes)) {
+
+                        if (strpos($serializedRoutes, 'Aomebo\Dispatcher\Route') !== false) {
+                            $routes = $serializedRoutes;
+                        } else {
+                            $false = false;
+                        }
+
+                    }
+                }
+
             }
 
             /** @var \Aomebo\Runtime $this */

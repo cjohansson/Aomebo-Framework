@@ -27,7 +27,7 @@ namespace Aomebo\Dispatcher
     /**
      *
      */
-    class Route extends \Aomebo\Base
+    class Route extends \Aomebo\Base implements \Serializable
     {
 
         /**
@@ -183,7 +183,7 @@ namespace Aomebo\Dispatcher
                 'keys' => $this->keys,
                 'keyToValues' => $this->keyToValues,
                 'page' => $this->page,
-                'reference' => get_class($this->reference),
+                'reference' => (isset($this->reference) ? get_class($this->reference) : ''),
                 'regexp' => $this->regexp,
                 'sprintf' => $this->sprintf,
                 'values' => $this->values,
