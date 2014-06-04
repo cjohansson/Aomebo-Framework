@@ -657,7 +657,17 @@ namespace Aomebo
                         {
                             try {
                                 if ($unserializedRoute = @unserialize($serializedRoute)) {
-                                    $routes[] = $unserializedRoute;
+
+                                    if (is_a($unserializedRoute, '\Aomebo\Dispatcher\Route')) {
+
+                                        /** @var \Aomebo\Dispatcher\Route $unserializedRoute */
+
+                                        if ($unserializedRoute->isValid()) {
+                                            $unserializedRoute->reference = & $this;
+                                            $routes[] = $unserializedRoute;
+                                        }
+
+                                    }
                                 }
                             } catch (\Exception $e) {}
                         }
