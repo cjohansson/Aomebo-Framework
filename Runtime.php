@@ -577,7 +577,11 @@ namespace Aomebo
                     {
                         if ($serializedRoute = serialize($modRoute))
                         {
-                            $routes[] = $serializedRoute;
+                            if (strpos($serializedRoute, 'Aomebo\Dispatcher\Route') !== false) {
+                                $routes[] = $serializedRoute;
+                            } else {
+                                $false = false;
+                            }
                         }
                     }
                 }
@@ -606,7 +610,11 @@ namespace Aomebo
                         if ($routeObject->isValid()) {
                             if ($serializedRoute = serialize($routeObject))
                             {
-                                $routes[] = $serializedRoute;
+                                if (strpos($serializedRoute, 'Aomebo\Dispatcher\Route') !== false) {
+                                    $routes[] = $serializedRoute;
+                                } else {
+                                    $false = false;
+                                }
                             }
                         }
 
