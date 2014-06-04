@@ -613,7 +613,17 @@ namespace Aomebo
                         );
 
                         if ($routeObject->isValid()) {
-                            $routes[] = $routeObject;
+                            if ($serializedRoute = serialize($routeObject)) {
+
+                                if (strpos($serializedRoute, 'Aomebo\Dispatcher\Route') !== false) {
+                                    $routes[] = $serializedRoute;
+                                } else {
+                                    $false = false;
+                                }
+
+                            } else {
+                                $false = false;
+                            }
                         }
 
                     }
@@ -674,7 +684,10 @@ namespace Aomebo
                                             $routes[] = $unserializedRoute;
                                         }
 
+                                    } else {
+                                        $false = false;
                                     }
+
                                 }
                             } catch (\Exception $e) {}
                         }
