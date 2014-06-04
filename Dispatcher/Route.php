@@ -27,7 +27,7 @@ namespace Aomebo\Dispatcher
     /**
      *
      */
-    class Route extends \Aomebo\Base implements \Serializable
+    class Route extends \Aomebo\Base
     {
 
         /**
@@ -76,7 +76,7 @@ namespace Aomebo\Dispatcher
         public $keyToValues = array();
 
         /**
-         * @var \Aomebo\Runtime|null
+         * @var \Aomebo\Runtime|string|null
          */
         public $reference = null;
 
@@ -183,12 +183,48 @@ namespace Aomebo\Dispatcher
                 'keys' => $this->keys,
                 'keyToValues' => $this->keyToValues,
                 'page' => $this->page,
+                'reference' => get_class($this->reference),
                 'regexp' => $this->regexp,
                 'sprintf' => $this->sprintf,
                 'values' => $this->values,
                 'method' => $this->method,
                 '_hashKey' => $this->_hashKey,
             ));
+        }
+
+        /**
+         * @return array
+         */
+        public function __sleep()
+        {
+            $this->reference =
+                (isset($this->reference) ? get_class($this->reference) : '');
+            return array(
+                'name',
+                'keys',
+                'keyToValues',
+                'page',
+                'reference',
+                'regexp',
+                'sprintf',
+                'values',
+                'method',
+                '_hashKey',
+            );
+        }
+
+        /**
+         *
+         */
+        public function __wakeup()
+        {
+            if (!empty($this->reference)) {
+                if (is_a('\Aomebo\Runtime', $this->reference)) {
+                    $this->reference = new $this->reference();
+                }
+            } else {
+                $this->reference = null;
+            }
         }
 
         /**
