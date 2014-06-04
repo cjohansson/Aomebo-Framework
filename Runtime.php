@@ -649,7 +649,16 @@ namespace Aomebo
                         && is_array($unserialized['_routes'])
                         && sizeof($unserialized['_routes']) > 0
                     ) {
-                        $this->loadRoutes($unserialized['_routes']);
+                        $unserializedRoutes = array();
+                        foreach ($unserialized['_routes'] as $serializedRoute)
+                        {
+                            if ($unserializedRoute = unserialize($serializedRoute)) {
+                                $unserializedRoutes[] = $unserializedRoute;
+                            }
+                        }
+                        if (sizeof($unserializedRoutes) > 0) {
+                            $this->loadRoutes($unserializedRoutes);
+                        }
                     }
 
                     self::$_aomebo = \Aomebo::getInstance();
