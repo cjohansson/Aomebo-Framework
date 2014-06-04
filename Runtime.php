@@ -570,15 +570,7 @@ namespace Aomebo
 
             if ($this->isRoutable()) {
 
-                /** @var \Aomebo\Runtime\Routable $this */
-                if ($modRoutes = $this->getRoutes()) {
-                    foreach ($modRoutes as $modRoute)
-                    {
-                        if ($serializedRoute = serialize($modRoute)) {
-                            $routes[] = $serializedRoute;
-                        }
-                    }
-                }
+                $routes = $this->getRoutes();
 
             } else if (isset($this->_routes)
                 && is_array($this->_routes)
@@ -598,13 +590,11 @@ namespace Aomebo
                             $route['regexp'],
                             $route['sprintf'],
                             $route['keys'],
-                            (!empty($route['method']) ? $route['method'] : null));
+                            (!empty($route['method']) ? $route['method'] : null)
+                        );
 
                         if ($routeObject->isValid()) {
-
-                            if ($serializedRoute = serialize($routeObject)) {
-                                $routes[] = $serializedRoute;
-                            }
+                            $routes[] = $routeObject;
                         }
 
                     }
