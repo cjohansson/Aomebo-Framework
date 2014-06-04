@@ -107,11 +107,9 @@ namespace Aomebo
          */
         public static function getFileLastModificationTime($filename)
         {
-            try {
-                if ($filemtime = @filemtime($filename)) {
-                    return $filemtime;
-                }
-            } catch (\Exception $e) {}
+            if ($filemtime = @filemtime($filename)) {
+                return $filemtime;
+            }
             return false;
         }
 
@@ -129,11 +127,9 @@ namespace Aomebo
                     $directory .= '/.';
                 }
             }
-            try {
-                if ($diremtime = @filemtime($directory)) {
-                    return $diremtime;
-                }
-            } catch (\Exception $e) {}
+            if ($diremtime = @filemtime($directory)) {
+                return $diremtime;
+            }
             return false;
         }
 

@@ -229,7 +229,7 @@ namespace Aomebo\Cache
                             if ($format == self::FORMAT_JSON_ENCODE) {
                                 $data = json_decode($formattedData, true);
                             } else if ($format == self::FORMAT_SERIALIZE) {
-                                $data = unserialize($formattedData);
+                                $data = @unserialize($formattedData);
                             } else {
                                 $data = $formattedData;
                             }
@@ -286,7 +286,7 @@ namespace Aomebo\Cache
                             if ($format == self::FORMAT_JSON_ENCODE) {
                                 $data = json_decode($formattedData, true);
                             } else if ($format == self::FORMAT_SERIALIZE) {
-                                $data = unserialize($formattedData);
+                                $data = @unserialize($formattedData);
                             } else {
                                 $data = $formattedData;
                             }
@@ -326,7 +326,7 @@ namespace Aomebo\Cache
                             if ($format == self::FORMAT_JSON_ENCODE) {
                                 $data = json_decode($formattedData, true);
                             } else if ($format == self::FORMAT_SERIALIZE) {
-                                $data = unserialize($formattedData);
+                                $data = @unserialize($formattedData);
                             } else {
                                 $data = $formattedData;
                             }

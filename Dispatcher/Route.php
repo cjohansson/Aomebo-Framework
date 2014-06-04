@@ -198,7 +198,7 @@ namespace Aomebo\Dispatcher
         public function unserialize($data)
         {
             if (!empty($data)) {
-                if ($unserializedData = unserialize($data)) {
+                if ($unserializedData = @unserialize($data)) {
                     if (isset($unserializedData['name'])) {
                         $this->name = $unserializedData['name'];
                     }

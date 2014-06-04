@@ -632,7 +632,7 @@ namespace Aomebo
         public function unserialize($data)
         {
             if (!empty($data)) {
-                if ($unserialized = unserialize($data)) {
+                if ($unserialized = @unserialize($data)) {
                     if (isset($unserialized['_enabled'])) {
                         $this->_enabled = $unserialized['_enabled'];
                     }
@@ -652,7 +652,7 @@ namespace Aomebo
                         $unserializedRoutes = array();
                         foreach ($unserialized['_routes'] as $serializedRoute)
                         {
-                            if ($unserializedRoute = unserialize($serializedRoute)) {
+                            if ($unserializedRoute = @unserialize($serializedRoute)) {
                                 $unserializedRoutes[] = $unserializedRoute;
                             }
                         }
