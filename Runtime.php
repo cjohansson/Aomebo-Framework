@@ -665,7 +665,13 @@ namespace Aomebo
                         }
                     }
 
-                    self::$_aomebo = \Aomebo::getInstance();
+                    if (!self::_isConstructed()) {
+
+                        parent::__construct();
+                        self::$_aomebo = \Aomebo::getInstance();
+                        self::_flagThisConstructed();
+
+                    }
 
                 }
             }
