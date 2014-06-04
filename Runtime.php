@@ -653,7 +653,11 @@ namespace Aomebo
                         foreach ($unserialized['_routes'] as $serializedRoute)
                         {
                             if ($unserializedRoute = @unserialize($serializedRoute)) {
+
+                                /** @var \Aomebo\Dispatcher\Route  $unserializedRoute */
+                                $unserializedRoute->reference = & $this;
                                 $unserializedRoutes[] = $unserializedRoute;
+
                             }
                         }
                         if (sizeof($unserializedRoutes) > 0) {

@@ -183,7 +183,6 @@ namespace Aomebo\Dispatcher
                 'keys' => $this->keys,
                 'keyToValues' => $this->keyToValues,
                 'page' => $this->page,
-                'reference' => $this->reference,
                 'regexp' => $this->regexp,
                 'sprintf' => $this->sprintf,
                 'values' => $this->values,
@@ -210,9 +209,6 @@ namespace Aomebo\Dispatcher
                     }
                     if (isset($unserializedData['page'])) {
                         $this->page = $unserializedData['page'];
-                    }
-                    if (isset($unserializedData['reference'])) {
-                        $this->reference = $unserializedData['reference'];
                     }
                     if (isset($unserializedData['regexp'])) {
                         $this->regexp = $unserializedData['regexp'];
