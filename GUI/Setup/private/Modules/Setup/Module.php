@@ -50,10 +50,22 @@ namespace Modules\Setup
             return array(
                 new \Aomebo\Dispatcher\Route(
                     null,
-                    '/.*/',
+                    '/^([\w]+)$/',
                     '%s',
-                    array('random'),
-                    'test'),
+                    array('page')
+                ),
+                new \Aomebo\Dispatcher\Route(
+                    null,
+                    '/^([\w]+)\/([\w]+)$/',
+                    '%s/%s',
+                    array('parameter1', 'parameter2')
+                ),
+                new \Aomebo\Dispatcher\Route(
+                    null,
+                    '/^([\w]+)\/([\w]+)\/([\w]+)$/',
+                    '%s/%s/%s',
+                    array('parameter1', 'parameter2', 'parameter3')
+                ),
             );
         }
 

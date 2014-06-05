@@ -42,7 +42,8 @@ namespace Modules\Html
             return array(
                 new \Aomebo\Associatives\Dependent('jQuery'),
                 new \Aomebo\Associatives\Dependent('ImagesLoaded'),
-                new \Aomebo\Associatives\Dependent('requireOnce')
+                new \Aomebo\Associatives\Dependent('requireOnce'),
+                new \Aomebo\Associatives\Dependent('WindowHandler')
             );
         }
 

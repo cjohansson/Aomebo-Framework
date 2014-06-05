@@ -193,41 +193,6 @@ namespace Aomebo\Dispatcher
         }
 
         /**
-         * @return array
-         */
-        public function __sleep()
-        {
-            $this->reference =
-                (isset($this->reference) ? get_class($this->reference) : '');
-            return array(
-                'name',
-                'keys',
-                'keyToValues',
-                'page',
-                'reference',
-                'regexp',
-                'sprintf',
-                'values',
-                'method',
-                '_hashKey',
-            );
-        }
-
-        /**
-         *
-         */
-        public function __wakeup()
-        {
-            if (!empty($this->reference)) {
-                if (is_a('\Aomebo\Runtime', $this->reference)) {
-                    $this->reference = new $this->reference();
-                }
-            } else {
-                $this->reference = null;
-            }
-        }
-
-        /**
          * @param string $data
          */
         public function unserialize($data)
@@ -260,6 +225,16 @@ namespace Aomebo\Dispatcher
                     }
                     if (isset($unserializedData['_hashKey'])) {
                         $this->_hashKey = $unserializedData['_hashKey'];
+                    }
+                    if (!empty($unserializedData['reference'])) {
+                        if (class_exists($unserializedData['reference'], false))
+                        {
+                            $this->reference = \Aomebo\Singleton::getInstance(
+                                $unserializedData['reference']
+                            );
+                        } else {
+                            $false = false;
+                        }
                     }
                 }
             }

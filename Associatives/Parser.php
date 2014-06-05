@@ -126,45 +126,65 @@ namespace Aomebo\Associatives
         /**
          * @static
          * @param string $stylesheet
+         * @throws \Exception
          * @return string
          */
         public static function minifyStylesheet($stylesheet)
         {
-            return preg_replace(
-                array(
-                    '/(\s)+/',
-                    '/\/\*(.(?!\*\/))+.{1}\*\//s',
-                    '/\/\/[^\n]+/',
-                ),
-                array(
-                    ' ',
-                    '',
-                    '',
-                ),
-                $stylesheet
-            );
+            if (!empty($stylesheet)) {
+                $response = preg_replace(
+                    array(
+                        '/(\s)+/',
+                        '/\/\*(.(?!\*\/))+.{1}\*\//s',
+                        '/\/\/[^\n]+/',
+                    ),
+                    array(
+                        ' ',
+                        '',
+                        '',
+                    ),
+                    $stylesheet
+                );
+                if (!isset($response)) {
+                    Throw new \Exception('RegExp was invalid.');
+                } else {
+                    return $response;
+                }
+            } else {
+                Throw new \Exception('Invalid parameters');
+            }
         }
 
         /**
          * @static
          * @param string $javascript
+         * @throws \Exception
          * @return string
          */
         public static function minifyJavascript($javascript)
         {
-            return preg_replace(
-                array(
-                    '/(?:(^|^[^\\\"\']+))(\/\*(.(?!\*\/))+.{1}\*\/)/smg',
-                    '/(?:(^|^[^\\\"\']+))(\/\/[^\n]*)/mg',
-                    '/(\s)+/g',
-                ),
-                array(
-                    '',
-                    '',
-                    ' ',
-                ),
-                $javascript
-            );
+            if (!empty($javascript)) {
+                $response = preg_replace(
+                    array(
+                        '/(?:(^|[^\\\"\'\n]))(\/\*(.(?!\*\/))+.{1}\*\/)/sm',
+                        '/(?:(^|[^\\\"\'\n]))(\/\/[^\n]*\n)/sm',
+                        '/(\s)+/',
+                    ),
+                    array(
+                        '',
+                        '',
+                        ' ',
+                    ),
+                    $javascript
+                );
+                if (!isset($response)) {
+                    Throw new \Exception('RegExp was invalid.');
+                } else {
+                    return $response;
+                }
+            } else {
+                Throw new \Exception('Invalid parameters');
+            }
         }
 
         /**
@@ -189,7 +209,8 @@ namespace Aomebo\Associatives
             return \Aomebo\Cache\System::clearCache(
                 'Associatives'
                 . '/'
-                . 'Dependencies');
+                . 'Dependencies'
+            );
         }
 
         /**

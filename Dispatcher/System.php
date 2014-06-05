@@ -1918,6 +1918,25 @@ namespace Aomebo\Dispatcher
 
         /**
          * @static
+         * @return array
+         */
+        public static function getRoutes()
+        {
+            return self::$_routes;
+        }
+
+        /**
+         * @static
+         * @param array $routes
+         */
+        public static function setRoutes($routes)
+        {
+            self::$_routes = $routes;
+            $true = true;
+        }
+
+        /**
+         * @static
          * @param array $routes
          * @return bool
          */

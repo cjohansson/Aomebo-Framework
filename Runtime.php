@@ -563,84 +563,12 @@ namespace Aomebo
          */
         public function serialize()
         {
-
-            $routes = null;
-
-            /** @var \Aomebo\Runtime $this */
-
-            if ($this->isRoutable()) {
-
-                /** @var \Aomebo\Runtime\Routable $this */
-
-                if ($modRoutes = $this->getRoutes()) {
-                    foreach ($modRoutes as & $modRoute)
-                    {
-                        if ($serializedRoute = serialize($modRoute)) {
-
-                            if (strpos($serializedRoute, 'Aomebo\Dispatcher\Route') !== false) {
-                                $routes[] = $serializedRoute;
-                            } else {
-                                $false = false;
-                            }
-
-                        } else {
-                            $false = false;
-                        }
-                    }
-
-                }
-
-            } else if (isset($this->_routes)
-                && is_array($this->_routes)
-                && sizeof($this->_routes) > 0
-            ) {
-
-                foreach ($this->_routes as $route)
-                {
-                    if (isset($route)
-                        && is_array($route)
-                        && isset($route['regexp'],
-                            $route['sprintf'],
-                            $route['keys'])
-                    ) {
-
-                        $routeObject = new \Aomebo\Dispatcher\Route(
-                            (!empty($route['name']) ? $route['name'] : null),
-                            $route['regexp'],
-                            $route['sprintf'],
-                            $route['keys'],
-                            (!empty($route['method']) ? $route['method'] : null)
-                        );
-
-                        if ($routeObject->isValid()) {
-                            if ($serializedRoute = serialize($routeObject)) {
-
-                                if (strpos($serializedRoute, 'Aomebo\Dispatcher\Route') !== false) {
-                                    $routes[] = $serializedRoute;
-                                } else {
-                                    $false = false;
-                                }
-
-                            } else {
-                                $false = false;
-                            }
-                        }
-
-                    }
-                }
-
-            }
-
-            /** @var \Aomebo\Runtime $this */
-
             return serialize(array(
                 '_enabled' => $this->_enabled,
                 '_fields' => $this->_fields,
                 '_parameterToIndex' => $this->_parameterToIndex,
                 '_indexToParameter' => $this->_indexToParameter,
-                '_routes' => $routes,
             ));
-
         }
 
         /**
@@ -665,37 +593,6 @@ namespace Aomebo
                     if (isset($unserialized['_indexToParameter'])) {
                         $this->_indexToParameter = $unserialized['_indexToParameter'];
                     }
-                    if (isset($unserialized['_routes'])
-                        && is_array($unserialized['_routes'])
-                        && sizeof($unserialized['_routes']) > 0
-                    ) {
-                        $routes = array();
-                        foreach ($unserialized['_routes'] as $serializedRoute)
-                        {
-                            try {
-                                if ($unserializedRoute = @unserialize($serializedRoute)) {
-
-                                    if (is_a($unserializedRoute, '\Aomebo\Dispatcher\Route')) {
-
-                                        /** @var \Aomebo\Dispatcher\Route $unserializedRoute */
-
-                                        if ($unserializedRoute->isValid()) {
-                                            $unserializedRoute->reference = & $this;
-                                            $routes[] = $unserializedRoute;
-                                        }
-
-                                    } else {
-                                        $false = false;
-                                    }
-
-                                }
-                            } catch (\Exception $e) {}
-                        }
-                        if (sizeof($routes) > 0) {
-                            $this->loadRoutes($routes);
-                        }
-                    }
-
                     if (!self::_isConstructed()) {
 
                         parent::__construct();
@@ -703,7 +600,6 @@ namespace Aomebo
                         self::_flagThisConstructed();
 
                     }
-
                 }
             }
         }

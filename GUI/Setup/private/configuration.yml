@@ -1,4 +1,7 @@
 ---
+framework:
+    use runtime cache: true
+
 dispatch:
     uri pages:
         index: index
@@ -10,6 +13,7 @@ dispatch:
         file_not_found: "404_file_not_found"
     default page: index
     file not found page: file_not_found
+    allow only associatives request with matching referer: false
 
 database:
     host: localhost

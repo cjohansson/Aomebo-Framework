@@ -832,9 +832,14 @@ namespace Aomebo
                 }
 
                 $cacheParameters = 'Application/Runtimes';
-                $cacheKey = md5('last_mod=' . $runtimesLastModificationTime);
+                $cacheKey = md5('last_mod=' . $runtimesLastModificationTime
+                    . '&framework=' . \Aomebo\Filesystem::getDirectoryLastModificationTime(
+                        __DIR__)
+                );
 
             }
+
+            $loadedCache = false;
 
             if ($useRuntimeCache
                 && \Aomebo\Cache\System::cacheExists(
@@ -843,14 +848,44 @@ namespace Aomebo
                 \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM)
             ) {
 
-                self::$_runtimes = \Aomebo\Cache\System::loadCache(
-                    $cacheParameters,
-                    $cacheKey,
-                    \Aomebo\Cache\System::FORMAT_SERIALIZE,
-                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
-                );
+                if ($data = \Aomebo\Cache\System::loadCache(
+                        $cacheParameters,
+                        $cacheKey,
+                        \Aomebo\Cache\System::FORMAT_SERIALIZE,
+                        \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                    )
+                ) {
 
-            } else {
+                    $loadedCache = true;
+
+                    try
+                    {
+
+                        if (!empty($data['runtimes'])) {
+                            if ($runtimes = @unserialize($data['runtimes'])) {
+                                self::$_runtimes = $runtimes;
+                            } else {
+                                $loadedCache = false;
+                            }
+                        }
+
+                        if (!empty($data['routes'])) {
+                            if ($routes = @unserialize($data['routes'])) {
+                                \Aomebo\Dispatcher\System::setRoutes(
+                                    $routes
+                                );
+                            } else {
+                                $loadedCache = false;
+                            }
+                        }
+
+                    } catch (\Exception $e) {}
+
+                }
+
+            }
+
+            if (!$loadedCache) {
 
                 if ($useRuntimeCache) {
 
@@ -904,10 +939,15 @@ namespace Aomebo
 
                 if ($useRuntimeCache) {
 
+                    $data = array(
+                        'runtimes' => serialize(self::$_runtimes),
+                        'routes' => serialize(\Aomebo\Dispatcher\System::getRoutes()),
+                    );
+
                     \Aomebo\Cache\System::saveCache(
                         $cacheParameters,
                         $cacheKey,
-                        self::$_runtimes,
+                        $data,
                         \Aomebo\Cache\System::FORMAT_SERIALIZE,
                         \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
                     );
