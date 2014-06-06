@@ -259,6 +259,14 @@ namespace Aomebo
         /**
          * @return bool
          */
+        public function isInitializable()
+        {
+            return (is_a($this, '\Aomebo\Runtime\Initializable'));
+        }
+
+        /**
+         * @return bool
+         */
         public function isDependent()
         {
             return (is_a($this, '\Aomebo\Runtime\Dependent'));
@@ -600,6 +608,11 @@ namespace Aomebo
                         self::_flagThisConstructed();
 
                     }
+                    if ($this->isInitializable()) {
+                        /** @var \Aomebo\Runtime\Initializable $ref */
+                        $ref = & $this;
+                        $ref->initialize();
+                    }
                 }
             }
         }
@@ -833,6 +846,12 @@ namespace Aomebo
                     }
                 }
 
+            }
+
+            if ($this->isInitializable()) {
+                /** @var \Aomebo\Runtime\Initializable $ref */
+                $ref = & $this;
+                $ref->initialize();
             }
 
         }
