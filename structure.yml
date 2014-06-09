@@ -29,6 +29,14 @@ framework:
         type: boolean
         required: true
         default: false
+    use dependencies cache:
+        type: boolean
+        required: true
+        default: false
+    use associatives cache:
+        type: boolean
+        required: true
+        default: false
 
 indexing:
     expiration days:

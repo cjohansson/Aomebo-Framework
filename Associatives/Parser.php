@@ -113,17 +113,6 @@ namespace Aomebo\Associatives
         private static $_minify = false;
 
         /**
-         *
-         */
-        public function __construct()
-        {
-            if (!self::_isConstructed()) {
-                parent::__construct();
-                self::_flagThisConstructed();
-            }
-        }
-
-        /**
          * @static
          * @param string $stylesheet
          * @throws \Exception

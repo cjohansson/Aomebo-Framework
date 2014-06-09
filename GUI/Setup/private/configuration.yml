@@ -1,6 +1,8 @@
 ---
 framework:
     use runtime cache: true
+    use dependencies cache: true
+    use associatives cache: true
 
 dispatch:
     uri pages:
@@ -63,5 +65,5 @@ internationalization:
 
 output:
     minify stylesheets: true
-    minify javascripts: true
+    minify javascripts: false
 

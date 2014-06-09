@@ -148,6 +148,13 @@ namespace Aomebo
         private static $_freeMemoryAtInit = 0.0;
 
         /**
+         * @internal
+         * @static
+         * @var int
+         */
+        private static $_runtimesLastModificationTime = 0;
+
+        /**
          * This starts up the framework.
          *
          * @param array|null [$parameters = null]       Contains all site-specific parameters.
@@ -444,6 +451,15 @@ namespace Aomebo
                 }
             }
 
+        }
+
+        /**
+         * @static
+         * @return int
+         */
+        public static function getRuntimesLastModificationTime()
+        {
+            return self::$_runtimesLastModificationTime;
         }
 
         /**
@@ -840,6 +856,8 @@ namespace Aomebo
             }
 
             $loadedCache = false;
+            self::$_runtimesLastModificationTime =
+                $runtimesLastModificationTime;
 
             if ($useRuntimeCache
                 && \Aomebo\Cache\System::cacheExists(
