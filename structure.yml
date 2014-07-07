@@ -67,7 +67,7 @@ application:
         default: 2
     maximum concurrent requests:
         type: unsigned integer
-        required: true
+        required: false
         default: 0
 
 paths:
