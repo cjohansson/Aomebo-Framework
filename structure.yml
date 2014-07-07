@@ -68,7 +68,7 @@ application:
     maximum concurrent requests:
         type: unsigned integer
         required: true
-        default: 50
+        default: 0
 
 paths:
     resources dir:

@@ -306,7 +306,8 @@ namespace Aomebo
 
                         // Does server has enough free memory for handling request?
                         if (\Aomebo\System\Memory::systemHasEnoughMemory()
-                            && (!self::getApplicationData('requests')
+                            && (!$maximumConcurrentRequests
+                            || !self::getApplicationData('requests')
                             || self::getApplicationData('requests') < $maximumConcurrentRequests)
                         ) {
 
