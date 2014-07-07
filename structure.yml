@@ -556,3 +556,7 @@ cache:
         type: boolean
         required: false
         default: true
+    garbage collect limit:
+        type: integer
+        required: true
+        default: 500

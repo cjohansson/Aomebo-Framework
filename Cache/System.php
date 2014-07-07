@@ -73,9 +73,7 @@ namespace Aomebo\Cache
                     self::install();
                 }
 
-                if (\Aomebo\Dispatcher\System::isPageRequest()) {
-                    self::garbageCollect();
-                }
+                self::garbageCollect();
 
                 self::_flagThisConstructed();
 
@@ -105,6 +103,8 @@ namespace Aomebo\Cache
                     \Aomebo\Configuration::getSetting('cache,expiration time');
                 $lastCheck =
                     \Aomebo\Application::getApplicationData('last_cache_garbage_collect');
+                $limit =
+                    \Aomebo\Configuration::getSetting('cache,garbage collect limit');
 
                 if (!isset($lastCheck)
                     || $lastCheck < time() - $cacheExpiration
@@ -117,9 +117,11 @@ namespace Aomebo\Cache
 
                     \Aomebo\Database\Adapter::query(
                          'DELETE FROM `' . self::getTable() . '` '
-                         . 'WHERE `cache_added` < NOW() - INTERVAL {time} SECOND',
+                         . 'WHERE `cache_added` < NOW() - INTERVAL {time} SECOND '
+                         . ($limit > 0 ? 'LIMIT {limit} ' : ''),
                          array(
                              'time' => (int) $cacheExpiration,
+                             'limit' => (int) $limit,
                          )
                     );
 
