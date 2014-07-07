@@ -482,7 +482,7 @@ namespace Aomebo
         {
 
             // Decrement number of concurrent requests by one
-            if (self::getApplicationData('requests')) {
+            if (self::getApplicationData('requests', true)) {
                 self::setApplicationData(
                     'requests',
                     self::getApplicationData('requests') - 1,
@@ -669,14 +669,19 @@ namespace Aomebo
         /**
          * @static
          * @param string $key
+         * @param bool [$reloadFromFilesystem = false]
          * @return mixed
          */
-        public static function getApplicationData($key)
+        public static function getApplicationData($key,
+            $reloadFromFilesystem = false)
         {
-            if (!empty($key)
-                && isset(self::$_applicationData[$key])
-            ) {
-                return self::$_applicationData[$key];
+            if (!empty($key)) {
+                if (!empty($reloadFromFilesystem)) {
+                    self::_loadApplicationData();
+                }
+                if (isset(self::$_applicationData[$key])) {
+                    return self::$_applicationData[$key];
+                }
             }
             return null;
         }
