@@ -105,9 +105,11 @@ namespace Aomebo\Cache
                     \Aomebo\Application::getApplicationData('last_cache_garbage_collect');
                 $limit =
                     \Aomebo\Configuration::getSetting('cache,garbage collect limit');
+                $minimumInterval =
+                    \Aomebo\Configuration::getSetting('cache,garbage collect minimum interval');
 
                 if (!isset($lastCheck)
-                    || $lastCheck < time() - $cacheExpiration
+                    || $lastCheck < time() - $minimumInterval
                 ) {
 
                     \Aomebo\Application::setApplicationData(

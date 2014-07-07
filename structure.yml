@@ -557,6 +557,10 @@ cache:
         required: false
         default: true
     garbage collect limit:
-        type: integer
+        type: unsigned integer
         required: true
         default: 500
+    garbage collect minimum interval:
+        type: integer
+        required: true
+        default: 9600
