@@ -62,9 +62,13 @@ indexing:
 
 application:
     memory required:
-        type: integer
+        type: unsigned integer
         required: true
         default: 2
+    maximum concurrent requests:
+        type: unsigned integer
+        required: true
+        default: 50
 
 paths:
     resources dir:

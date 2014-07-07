@@ -284,15 +284,36 @@ namespace Aomebo
                         self::$_freeMemoryAtInit =
                             \Aomebo\System\Memory::getSystemFreeMemory();
 
+                        // Load application-data
+                        self::_loadApplicationData();
+
+                        // Increment number of concurrent requests by one
+                        if (self::getApplicationData('requests')) {
+                            self::setApplicationData(
+                                'requests',
+                                self::getApplicationData('requests') + 1,
+                                true
+                            );
+                        } else {
+                            self::setApplicationData(
+                                'requests',
+                                1,
+                                true
+                            );
+                        }
+
+                        $maximumConcurrentRequests =
+                            \Aomebo\Configuration::getSetting('application,maximum concurrent requests');
+
                         // Does server has enough free memory for handling request?
-                        if (\Aomebo\System\Memory::systemHasEnoughMemory()) {
+                        if (\Aomebo\System\Memory::systemHasEnoughMemory()
+                            && (!self::getApplicationData('requests')
+                            || self::getApplicationData('requests') < $maximumConcurrentRequests)
+                        ) {
 
                             // Store setting if autoload should trigger exception
                             $this->setAutoloadFailureTriggersException(
                                 \Aomebo\Configuration::getSetting('output,autoload failure triggers exception'));
-
-                            // Load application-data
-                            self::_loadApplicationData();
 
                             // Load runtimes
                             self::_loadRuntimes();
@@ -440,6 +461,22 @@ namespace Aomebo
                             \Aomebo\Dispatcher\System::
                                 setHttpResponseStatus503ServiceUnavailable();
                         }
+
+                        // Decrement number of concurrent requests by one
+                        if (self::getApplicationData('requests')) {
+                            self::setApplicationData(
+                                'requests',
+                                self::getApplicationData('requests') - 1,
+                                true
+                            );
+                        } else {
+                            self::setApplicationData(
+                                'requests',
+                                0,
+                                true
+                            );
+                        }
+
                     } else {
                         Throw new \Exception('Failed to load configuration');
                     }
@@ -1163,9 +1200,11 @@ namespace Aomebo
                 if ($fileData = file_get_contents(
                     self::_getApplicationDataPath())
                 ) {
-                    if ($jsonData = json_decode($fileData, true)) {
-                        self::$_applicationData = $jsonData;
-                    }
+                    try {
+                        if ($jsonData = json_decode($fileData, true)) {
+                            self::$_applicationData = $jsonData;
+                        }
+                    } catch (\Exception $e) {}
                 }
             }
         }
@@ -1177,10 +1216,12 @@ namespace Aomebo
         private static function _flushApplicationData()
         {
             if (!self::$_flushedApplicationData) {
-                if ($jsonData = json_encode(self::$_applicationData)) {
-                    file_put_contents(self::_getApplicationDataPath(), $jsonData);
-                }
-                self::$_flushedApplicationData = true;
+                try {
+                    if ($jsonData = json_encode(self::$_applicationData)) {
+                        file_put_contents(self::_getApplicationDataPath(), $jsonData);
+                    }
+                    self::$_flushedApplicationData = true;
+                } catch (\Exception $e) {}
             }
         }
 
