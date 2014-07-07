@@ -169,8 +169,25 @@ namespace Aomebo
                 /** @define _SYSTEM_START_TIME_     Startup time for system */
                 define('_SYSTEM_START_TIME_', microtime(true));
 
-                // Set public internal path
+                // Load application-data
+                self::_loadApplicationData();
 
+                // Increment number of concurrent requests by one
+                if (self::getApplicationData('requests')) {
+                    self::setApplicationData(
+                        'requests',
+                        self::getApplicationData('requests') + 1,
+                        true
+                    );
+                } else {
+                    self::setApplicationData(
+                        'requests',
+                        1,
+                        true
+                    );
+                }
+
+                // Set public internal path
                 $backtrace = self::getDebugBacktrace(2);
 
                 if (isset($backtrace[1]['file'])) {
@@ -283,24 +300,6 @@ namespace Aomebo
 
                         self::$_freeMemoryAtInit =
                             \Aomebo\System\Memory::getSystemFreeMemory();
-
-                        // Load application-data
-                        self::_loadApplicationData();
-
-                        // Increment number of concurrent requests by one
-                        if (self::getApplicationData('requests')) {
-                            self::setApplicationData(
-                                'requests',
-                                self::getApplicationData('requests') + 1,
-                                true
-                            );
-                        } else {
-                            self::setApplicationData(
-                                'requests',
-                                1,
-                                true
-                            );
-                        }
 
                         $maximumConcurrentRequests =
                             \Aomebo\Configuration::getSetting('application,maximum concurrent requests');
@@ -462,21 +461,6 @@ namespace Aomebo
                                 setHttpResponseStatus503ServiceUnavailable();
                         }
 
-                        // Decrement number of concurrent requests by one
-                        if (self::getApplicationData('requests')) {
-                            self::setApplicationData(
-                                'requests',
-                                self::getApplicationData('requests') - 1,
-                                true
-                            );
-                        } else {
-                            self::setApplicationData(
-                                'requests',
-                                0,
-                                true
-                            );
-                        }
-
                     } else {
                         Throw new \Exception('Failed to load configuration');
                     }
@@ -486,6 +470,29 @@ namespace Aomebo
                         . __FILE__ . ', parameters: "' . print_r(self::$_parameters, true)
                         . '"');
                 }
+            }
+
+        }
+
+        /**
+         *
+         */
+        public function __destruct()
+        {
+
+            // Decrement number of concurrent requests by one
+            if (self::getApplicationData('requests')) {
+                self::setApplicationData(
+                    'requests',
+                    self::getApplicationData('requests') - 1,
+                    true
+                );
+            } else {
+                self::setApplicationData(
+                    'requests',
+                    0,
+                    true
+                );
             }
 
         }
