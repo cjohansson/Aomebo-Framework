@@ -62,11 +62,11 @@ indexing:
 
 application:
     memory required:
-        type: unsigned integer
+        type: integer
         required: true
         default: 2
     maximum concurrent requests:
-        type: unsigned integer
+        type: integer
         required: false
         default: 0
 
