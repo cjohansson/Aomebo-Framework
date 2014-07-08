@@ -59,13 +59,16 @@ namespace Aomebo
         public static function isPathInBasedir($path)
         {
             if (!empty($path)) {
-                foreach (self::getBasedirs() as $baseDir)
+                if ($baseDirs = self::getBasedirs())
                 {
-                    if (strlen($path) >= strlen($baseDir)) {
-                        if (substr($path, 0, strlen($baseDir)) ==
-                            $baseDir
-                        ) {
-                            return true;
+                    foreach (self::getBasedirs() as $baseDir)
+                    {
+                        if (strlen($path) >= strlen($baseDir)) {
+                            if (substr($path, 0, strlen($baseDir)) ==
+                                $baseDir
+                            ) {
+                                return true;
+                            }
                         }
                     }
                 }
@@ -75,6 +78,7 @@ namespace Aomebo
 
         /**
          * @static
+         * @return bool|array
          */
         public static function getBasedirs()
         {
@@ -82,7 +86,7 @@ namespace Aomebo
                 if (\Aomebo\Configuration::isLoaded()) {
                     self::$_baseDirs = \Aomebo\Configuration::getSetting('paths,basedirs');
                 } else {
-                    return array('/');
+                    return false;
                 }
             }
             return self::$_baseDirs;
@@ -124,7 +128,9 @@ namespace Aomebo
 
                             $path .= $component;
 
-                            if (self::isPathInBasedir($path)) {
+                            if (\Aomebo\Configuration::isLoaded()
+                                && self::isPathInBasedir($path)
+                            ) {
 
                                 if (!is_dir($path)) {
                                     if (!self::makeDirectory(
@@ -157,7 +163,9 @@ namespace Aomebo
          */
         public static function getFileLastModificationTime($filename)
         {
-            if (self::isPathInBasedir($filename)) {
+            if (!\Aomebo\Configuration::isLoaded()
+                || self::isPathInBasedir($filename)
+            ) {
                 if ($filemtime = @filemtime($filename)) {
                     return $filemtime;
                 }
@@ -172,7 +180,9 @@ namespace Aomebo
          */
         public static function getDirectoryLastModificationTime($directory)
         {
-            if (self::isPathInBasedir($directory)) {
+            if (!\Aomebo\Configuration::isLoaded()
+                || self::isPathInBasedir($directory)
+            ) {
                 if (substr($directory, -2) != '/.') {
                     if (substr($directory, -1) == '/') {
                         $directory .= '.';
@@ -197,7 +207,9 @@ namespace Aomebo
         public static function makeDirectory($absolutePath,
             $throwExceptions = true)
         {
-            if (self::isPathInBasedir($absolutePath)) {
+            if (\Aomebo\Configuration::isLoaded()
+                && self::isPathInBasedir($absolutePath)
+            ) {
                 if (is_dir($absolutePath)) {
                     return true;
                 } else {
@@ -248,7 +260,9 @@ namespace Aomebo
             $throwException = true)
         {
 
-            if (self::isPathInBasedir($absolutePath)) {
+            if (!\Aomebo\Configuration::isLoaded()
+                || self::isPathInBasedir($absolutePath)
+            ) {
                 if (!empty($absolutePath)
                     && file_exists($absolutePath)
                 ) {
@@ -282,7 +296,9 @@ namespace Aomebo
          */
         public static function truncateFile($absolutePath, $size = 0)
         {
-            if (self::isPathInBasedir($absolutePath)) {
+            if (\Aomebo\Configuration::isLoaded()
+                && self::isPathInBasedir($absolutePath)
+            ) {
                 if (!empty($absolutePath)
                     && isset($size)
                 ) {
@@ -319,7 +335,9 @@ namespace Aomebo
         public static function makeFile($absolutePath, $contents = '',
             $throwExceptions = true)
         {
-            if (self::isPathInBasedir($absolutePath)) {
+            if (\Aomebo\Configuration::isLoaded()
+                && self::isPathInBasedir($absolutePath)
+            ) {
                 self::makeDirectories($absolutePath);
 
                 if (self::_writeFile(
@@ -343,7 +361,9 @@ namespace Aomebo
          */
         public static function deleteFile($absolutePath)
         {
-            if (self::isPathInBasedir($absolutePath)) {
+            if (\Aomebo\Configuration::isLoaded()
+                && self::isPathInBasedir($absolutePath)
+            ) {
                 if (unlink($absolutePath)) {
                     self::_clearCache();
                     return true;
@@ -359,7 +379,9 @@ namespace Aomebo
          */
         public static function deleteFilesInDirectory($absolutePath)
         {
-            if (self::isPathInBasedir($absolutePath)) {
+            if (\Aomebo\Configuration::isLoaded()
+                && self::isPathInBasedir($absolutePath)
+            ) {
                 if (!empty($absolutePath)) {
                     if (self::hasItemsInDirectory($absolutePath))
                     {
@@ -396,7 +418,9 @@ namespace Aomebo
          */
         public static function hasItemsInDirectory($absolutePath)
         {
-            if (self::isPathInBasedir($absolutePath)) {
+            if (!\Aomebo\Configuration::isLoaded()
+                || self::isPathInBasedir($absolutePath)
+            ) {
                 if (!empty($absolutePath)) {
                     if (is_dir($absolutePath)) {
                         $items = scandir($absolutePath);
@@ -421,7 +445,9 @@ namespace Aomebo
         public static function deleteDirectory($absolutePath,
             $deleteFilesInDirectory = false)
         {
-            if (self::isPathInBasedir($absolutePath)) {
+            if (\Aomebo\Configuration::isLoaded()
+                && self::isPathInBasedir($absolutePath)
+            ) {
                 if (!empty($absolutePath)) {
                     if (is_dir($absolutePath)) {
 
@@ -451,7 +477,9 @@ namespace Aomebo
          */
         public static function appendFile($absolutePath, $contents = '')
         {
-            if (self::isPathInBasedir($absolutePath)) {
+            if (\Aomebo\Configuration::isLoaded()
+                && self::isPathInBasedir($absolutePath)
+            ) {
                 if (self::_writeFile($absolutePath, $contents, null, false)) {
                     self::_clearCache();
                     return true;
@@ -468,7 +496,9 @@ namespace Aomebo
          */
         public static function applyPermissions($path, $throwExceptions = true)
         {
-            if (self::isPathInBasedir($path)) {
+            if (\Aomebo\Configuration::isLoaded()
+                && self::isPathInBasedir($path)
+            ) {
                 if (!chmod($path, self::_getChmod())) {
                     if ($throwExceptions) {
                         Throw new \Exception(
@@ -558,7 +588,9 @@ namespace Aomebo
         private static function _writeFile($absolutePath, $contents = '',
             $chmod = null, $truncate = true, $throwExceptions = true)
         {
-            if (self::isPathInBasedir($absolutePath)) {
+            if (\Aomebo\Configuration::isLoaded()
+                && self::isPathInBasedir($absolutePath)
+            ) {
                 if ($file = fopen($absolutePath, 'ab+')) {
                     if (flock($file, LOCK_EX)) {
                         if ($truncate) {

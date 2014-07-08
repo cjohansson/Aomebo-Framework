@@ -169,24 +169,6 @@ namespace Aomebo
                 /** @define _SYSTEM_START_TIME_     Startup time for system */
                 define('_SYSTEM_START_TIME_', microtime(true));
 
-                // Load application-data
-                self::_loadApplicationData();
-
-                // Increment number of concurrent requests by one
-                if (self::getApplicationData('requests')) {
-                    self::setApplicationData(
-                        'requests',
-                        self::getApplicationData('requests') + 1,
-                        true
-                    );
-                } else {
-                    self::setApplicationData(
-                        'requests',
-                        1,
-                        true
-                    );
-                }
-
                 // Set public internal path
                 $backtrace = self::getDebugBacktrace(2);
 
@@ -287,6 +269,24 @@ namespace Aomebo
                         self::setParameter(
                             self::PARAMETER_CONFIGURATION_ADAPTER,
                             $configuration::DEFAULT_ADAPTER);
+                    }
+
+                    // Load application-data
+                    self::_loadApplicationData();
+
+                    // Increment number of concurrent requests by one
+                    if (self::getApplicationData('requests')) {
+                        self::setApplicationData(
+                            'requests',
+                            (int) self::getApplicationData('requests') + 1,
+                            true
+                        );
+                    } else {
+                        self::setApplicationData(
+                            'requests',
+                            1,
+                            true
+                        );
                     }
 
                     // Try to load configuration
@@ -485,7 +485,7 @@ namespace Aomebo
             if (self::getApplicationData('requests', true)) {
                 self::setApplicationData(
                     'requests',
-                    self::getApplicationData('requests') - 1,
+                    (int) self::getApplicationData('requests') - 1,
                     true
                 );
             } else {
