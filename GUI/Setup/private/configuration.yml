@@ -67,3 +67,6 @@ output:
     minify stylesheets: true
     minify javascripts: false
 
+
+paths:
+    basedirs: ['/var/www/aomebo.cvj.se/GUI/Setup/']

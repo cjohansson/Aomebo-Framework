@@ -122,6 +122,10 @@ paths:
         type: boolean
         required: true
         default: false
+    basedirs:
+        type: array
+        required: true
+        default: ['/']
 
 internationalization:
     enabled:

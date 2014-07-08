@@ -32,15 +32,61 @@ namespace Aomebo
 
         /**
          * @internal
+         * @static
          * @var string|null
          */
         private static $_chmodOct = null;
 
         /**
          * @internal
+         * @static
          * @var int|null
          */
         private static $_chmodDec = null;
+
+        /**
+         * @internal
+         * @static
+         * @var array|null
+         */
+        private static $_baseDirs = null;
+
+        /**
+         * @static
+         * @param string $path
+         * @return bool
+         */
+        public static function isPathInBasedir($path)
+        {
+            if (!empty($path)) {
+                foreach (self::getBasedirs() as $baseDir)
+                {
+                    if (strlen($path) >= strlen($baseDir)) {
+                        if (substr($path, 0, strlen($baseDir)) ==
+                            $baseDir
+                        ) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        /**
+         * @static
+         */
+        public static function getBasedirs()
+        {
+            if (!isset(self::$_baseDirs)) {
+                if (\Aomebo\Configuration::isLoaded()) {
+                    self::$_baseDirs = \Aomebo\Configuration::getSetting('paths,basedirs');
+                } else {
+                    return array('/');
+                }
+            }
+            return self::$_baseDirs;
+        }
 
         /**
          * @static
@@ -78,13 +124,17 @@ namespace Aomebo
 
                             $path .= $component;
 
-                            if (!is_dir($path)) {
-                                if (!self::makeDirectory(
-                                    $path,
-                                    $throwExceptions)
-                                ) {
-                                    $accBool = false;
+                            if (self::isPathInBasedir($path)) {
+
+                                if (!is_dir($path)) {
+                                    if (!self::makeDirectory(
+                                        $path,
+                                        $throwExceptions)
+                                    ) {
+                                        $accBool = false;
+                                    }
                                 }
+
                             }
 
                         }
@@ -102,13 +152,15 @@ namespace Aomebo
 
         /**
          * @static
-         * @param string $file
+         * @param string $filename
          * @return int|bool
          */
         public static function getFileLastModificationTime($filename)
         {
-            if ($filemtime = @filemtime($filename)) {
-                return $filemtime;
+            if (self::isPathInBasedir($filename)) {
+                if ($filemtime = @filemtime($filename)) {
+                    return $filemtime;
+                }
             }
             return false;
         }
@@ -120,15 +172,17 @@ namespace Aomebo
          */
         public static function getDirectoryLastModificationTime($directory)
         {
-            if (substr($directory, -2) != '/.') {
-                if (substr($directory, -1) == '/') {
-                    $directory .= '.';
-                } else {
-                    $directory .= '/.';
+            if (self::isPathInBasedir($directory)) {
+                if (substr($directory, -2) != '/.') {
+                    if (substr($directory, -1) == '/') {
+                        $directory .= '.';
+                    } else {
+                        $directory .= '/.';
+                    }
                 }
-            }
-            if ($diremtime = @filemtime($directory)) {
-                return $diremtime;
+                if ($diremtime = @filemtime($directory)) {
+                    return $diremtime;
+                }
             }
             return false;
         }
@@ -143,22 +197,32 @@ namespace Aomebo
         public static function makeDirectory($absolutePath,
             $throwExceptions = true)
         {
+            if (self::isPathInBasedir($absolutePath)) {
+                if (is_dir($absolutePath)) {
+                    return true;
+                } else {
+                    try {
 
-            if (is_dir($absolutePath)) {
-                return true;
-            } else {
-                try {
+                        if (mkdir($absolutePath)) {
 
-                    if (mkdir($absolutePath)) {
+                            self::applyPermissions(
+                                $absolutePath,
+                                $throwExceptions
+                            );
 
-                        self::applyPermissions(
-                            $absolutePath,
-                            $throwExceptions
-                        );
+                            return true;
 
-                        return true;
+                        } else {
 
-                    } else {
+                            if ($throwExceptions) {
+                                Throw new \Exception(
+                                    'Could not make directory: '
+                                        . '"' . $absolutePath . '"');
+                            }
+
+                        }
+
+                    } catch (\Exception $e) {
 
                         if ($throwExceptions) {
                             Throw new \Exception(
@@ -167,15 +231,6 @@ namespace Aomebo
                         }
 
                     }
-
-                } catch (\Exception $e) {
-
-                    if ($throwExceptions) {
-                        Throw new \Exception(
-                            'Could not make directory: '
-                                . '"' . $absolutePath . '"');
-                    }
-
                 }
             }
 
@@ -193,23 +248,25 @@ namespace Aomebo
             $throwException = true)
         {
 
-            if (!empty($absolutePath)
-                && file_exists($absolutePath)
-            ) {
+            if (self::isPathInBasedir($absolutePath)) {
+                if (!empty($absolutePath)
+                    && file_exists($absolutePath)
+                ) {
 
-                if ($file = fopen($absolutePath, 'ab+')) {
-                    if (flock($file, LOCK_SH)) {
-                        $fileContents =
-                            file_get_contents($absolutePath);
-                        flock($file, LOCK_UN);
-                        fclose($file);
-                        return $fileContents;
+                    if ($file = fopen($absolutePath, 'ab+')) {
+                        if (flock($file, LOCK_SH)) {
+                            $fileContents =
+                                file_get_contents($absolutePath);
+                            flock($file, LOCK_UN);
+                            fclose($file);
+                            return $fileContents;
+                        }
                     }
-                }
 
-            } else {
-                if ($throwException) {
-                    Throw new \Exception('Invalid parameters');
+                } else {
+                    if ($throwException) {
+                        Throw new \Exception('Invalid parameters');
+                    }
                 }
             }
 
@@ -225,24 +282,26 @@ namespace Aomebo
          */
         public static function truncateFile($absolutePath, $size = 0)
         {
-            if (!empty($absolutePath)
-                && isset($size)
-            ) {
-                if (file_exists($absolutePath)) {
-                    if (filesize($absolutePath) > $size) {
-                        if ($file = fopen($absolutePath, 'br+')) {
-                            if (flock($file, LOCK_EX)) {
-                                if (ftruncate($file, (int) $size)) {
-                                    if (flock($file, LOCK_UN)) {
-                                        return true;
+            if (self::isPathInBasedir($absolutePath)) {
+                if (!empty($absolutePath)
+                    && isset($size)
+                ) {
+                    if (file_exists($absolutePath)) {
+                        if (filesize($absolutePath) > $size) {
+                            if ($file = fopen($absolutePath, 'br+')) {
+                                if (flock($file, LOCK_EX)) {
+                                    if (ftruncate($file, (int) $size)) {
+                                        if (flock($file, LOCK_UN)) {
+                                            return true;
+                                        }
                                     }
+                                    flock($file, LOCK_UN);
                                 }
-                                flock($file, LOCK_UN);
+                                fclose($file);
                             }
-                            fclose($file);
+                        } else {
+                            return true;
                         }
-                    } else {
-                        return true;
                     }
                 }
             }
@@ -260,19 +319,19 @@ namespace Aomebo
         public static function makeFile($absolutePath, $contents = '',
             $throwExceptions = true)
         {
+            if (self::isPathInBasedir($absolutePath)) {
+                self::makeDirectories($absolutePath);
 
-            self::makeDirectories($absolutePath);
-
-            if (self::_writeFile(
-                $absolutePath,
-                $contents,
-                null,
-                true,
-                $throwExceptions)
-            ) {
-                return true;
+                if (self::_writeFile(
+                    $absolutePath,
+                    $contents,
+                    null,
+                    true,
+                    $throwExceptions)
+                ) {
+                    return true;
+                }
             }
-
             return false;
 
         }
@@ -284,9 +343,11 @@ namespace Aomebo
          */
         public static function deleteFile($absolutePath)
         {
-            if (unlink($absolutePath)) {
-                self::_clearCache();
-                return true;
+            if (self::isPathInBasedir($absolutePath)) {
+                if (unlink($absolutePath)) {
+                    self::_clearCache();
+                    return true;
+                }
             }
             return false;
         }
@@ -298,29 +359,31 @@ namespace Aomebo
          */
         public static function deleteFilesInDirectory($absolutePath)
         {
-            if (!empty($absolutePath)) {
-                if (self::hasItemsInDirectory($absolutePath))
-                {
-
-                    $items = scandir($absolutePath);
-
-                    foreach ($items as $item)
+            if (self::isPathInBasedir($absolutePath)) {
+                if (!empty($absolutePath)) {
+                    if (self::hasItemsInDirectory($absolutePath))
                     {
-                        if ($item != '.'
-                            && $item != '..'
-                        ) {
-                            $absoluteItem =
-                                $absolutePath . DIRECTORY_SEPARATOR . $item;
-                            if (is_file($absoluteItem)) {
-                                self::deleteFile($absoluteItem);
-                            } else if (is_dir($absoluteItem)) {
-                                self::deleteDirectory($absoluteItem, true);
+
+                        $items = scandir($absolutePath);
+
+                        foreach ($items as $item)
+                        {
+                            if ($item != '.'
+                                && $item != '..'
+                            ) {
+                                $absoluteItem =
+                                    $absolutePath . DIRECTORY_SEPARATOR . $item;
+                                if (is_file($absoluteItem)) {
+                                    self::deleteFile($absoluteItem);
+                                } else if (is_dir($absoluteItem)) {
+                                    self::deleteDirectory($absoluteItem, true);
+                                }
                             }
                         }
+
+                        return true;
+
                     }
-
-                    return true;
-
                 }
             }
             return false;
@@ -333,14 +396,16 @@ namespace Aomebo
          */
         public static function hasItemsInDirectory($absolutePath)
         {
-            if (!empty($absolutePath)) {
-                if (is_dir($absolutePath)) {
-                    $items = scandir($absolutePath);
-                    if (isset($items)
-                        && is_array($items)
-                        && sizeof($items) > 2
-                    ) {
-                        return true;
+            if (self::isPathInBasedir($absolutePath)) {
+                if (!empty($absolutePath)) {
+                    if (is_dir($absolutePath)) {
+                        $items = scandir($absolutePath);
+                        if (isset($items)
+                            && is_array($items)
+                            && sizeof($items) > 2
+                        ) {
+                            return true;
+                        }
                     }
                 }
             }
@@ -356,19 +421,21 @@ namespace Aomebo
         public static function deleteDirectory($absolutePath,
             $deleteFilesInDirectory = false)
         {
-            if (!empty($absolutePath)) {
-                if (is_dir($absolutePath)) {
+            if (self::isPathInBasedir($absolutePath)) {
+                if (!empty($absolutePath)) {
+                    if (is_dir($absolutePath)) {
 
-                    if (self::hasItemsInDirectory($absolutePath)) {
-                        if ($deleteFilesInDirectory) {
-                            self::deleteFilesInDirectory($absolutePath);
+                        if (self::hasItemsInDirectory($absolutePath)) {
+                            if ($deleteFilesInDirectory) {
+                                self::deleteFilesInDirectory($absolutePath);
+                                if (rmdir($absolutePath)) {
+                                    return true;
+                                }
+                            }
+                        } else {
                             if (rmdir($absolutePath)) {
                                 return true;
                             }
-                        }
-                    } else {
-                        if (rmdir($absolutePath)) {
-                            return true;
                         }
                     }
                 }
@@ -384,9 +451,11 @@ namespace Aomebo
          */
         public static function appendFile($absolutePath, $contents = '')
         {
-            if (self::_writeFile($absolutePath, $contents, null, false)) {
-                self::_clearCache();
-                return true;
+            if (self::isPathInBasedir($absolutePath)) {
+                if (self::_writeFile($absolutePath, $contents, null, false)) {
+                    self::_clearCache();
+                    return true;
+                }
             }
             return false;
         }
@@ -399,49 +468,50 @@ namespace Aomebo
          */
         public static function applyPermissions($path, $throwExceptions = true)
         {
-
-            if (!chmod($path, self::_getChmod())) {
-                if ($throwExceptions) {
-                    Throw new \Exception(
-                        'Could not set chmod for file "' . $path . '" '
-                        . 'to oct: ' . self::$_chmodOct
-                        . ', dec: ' . self::$_chmodDec);
-                }
-            }
-
-            if (self::isSystemSuperUser()) {
-
-                // Get configuration
-                $ownerUserName =
-                    \Aomebo\Configuration::getSetting(
-                        'paths,file owner username');
-                $ownerGroupName =
-                    \Aomebo\Configuration::getSetting(
-                        'paths,file owner groupname');
-
-                // Set owner
-                if (!chown($path, $ownerUserName)) {
+            if (self::isPathInBasedir($path)) {
+                if (!chmod($path, self::_getChmod())) {
                     if ($throwExceptions) {
                         Throw new \Exception(
-                            'Could not set owner username to "' . $ownerUserName
-                                . '" for "' . $path . '" in ' . __FUNCTION__
-                                . ' in ' . __FILE__);
+                            'Could not set chmod for file "' . $path . '" '
+                            . 'to oct: ' . self::$_chmodOct
+                            . ', dec: ' . self::$_chmodDec);
                     }
                 }
 
-                // Set group
-                if (!chgrp($path, $ownerGroupName)) {
-                    if ($throwExceptions) {
-                        Throw new \Exception(
-                            'Could not set owner groupnamegroup permissions to "' . $ownerGroupName
-                                . '" for "' . $path . '" in ' . __FUNCTION__
-                                . ' in ' . __FILE__);
+                if (self::isSystemSuperUser()) {
+
+                    // Get configuration
+                    $ownerUserName =
+                        \Aomebo\Configuration::getSetting(
+                            'paths,file owner username');
+                    $ownerGroupName =
+                        \Aomebo\Configuration::getSetting(
+                            'paths,file owner groupname');
+
+                    // Set owner
+                    if (!chown($path, $ownerUserName)) {
+                        if ($throwExceptions) {
+                            Throw new \Exception(
+                                'Could not set owner username to "' . $ownerUserName
+                                    . '" for "' . $path . '" in ' . __FUNCTION__
+                                    . ' in ' . __FILE__);
+                        }
                     }
+
+                    // Set group
+                    if (!chgrp($path, $ownerGroupName)) {
+                        if ($throwExceptions) {
+                            Throw new \Exception(
+                                'Could not set owner groupnamegroup permissions to "' . $ownerGroupName
+                                    . '" for "' . $path . '" in ' . __FUNCTION__
+                                    . ' in ' . __FILE__);
+                        }
+                    }
+
                 }
 
+                self::_clearCache();
             }
-
-            self::_clearCache();
 
         }
 
@@ -488,21 +558,23 @@ namespace Aomebo
         private static function _writeFile($absolutePath, $contents = '',
             $chmod = null, $truncate = true, $throwExceptions = true)
         {
-            if ($file = fopen($absolutePath, 'ab+')) {
-                if (flock($file, LOCK_EX)) {
-                    if ($truncate) {
-                        ftruncate($file, 0);
+            if (self::isPathInBasedir($absolutePath)) {
+                if ($file = fopen($absolutePath, 'ab+')) {
+                    if (flock($file, LOCK_EX)) {
+                        if ($truncate) {
+                            ftruncate($file, 0);
+                        }
+                        if (isset($contents)) {
+                            fwrite($file, $contents);
+                        }
+                        fflush($file);
+                        flock($file, LOCK_UN);
+                        fclose($file);
+                        self::applyPermissions($absolutePath, $throwExceptions);
+                        return true;
                     }
-                    if (isset($contents)) {
-                        fwrite($file, $contents);
-                    }
-                    fflush($file);
-                    flock($file, LOCK_UN);
                     fclose($file);
-                    self::applyPermissions($absolutePath, $throwExceptions);
-                    return true;
                 }
-                fclose($file);
             }
             return false;
         }

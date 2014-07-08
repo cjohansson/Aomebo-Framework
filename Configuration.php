@@ -152,6 +152,13 @@ namespace Aomebo
         private static $_externalStructureFilename;
 
         /**
+         * @static
+         * @internal
+         * @var bool
+         */
+        private static $_isLoaded = false;
+
+        /**
          *
          */
         public function __construct()
@@ -160,6 +167,15 @@ namespace Aomebo
             if (!$this->_isConstructed()) {
                 $this->_flagThisConstructed();
             }
+        }
+
+        /**
+         * @static
+         * @return bool
+         */
+        public static function isLoaded()
+        {
+            return self::$_isLoaded;
         }
 
         /**
@@ -380,6 +396,8 @@ namespace Aomebo
                                 $cacheData,
                                 \Aomebo\Cache\System::FORMAT_JSON_ENCODE);
 
+                            self::$_isLoaded = true;
+
                             return true;
 
                         }
@@ -412,6 +430,9 @@ namespace Aomebo
                         self::$_configuration = $cacheData['configuration'];
                         self::$_structure = $cacheData['structure'];
                         self::$_settings = $cacheData['settings'];
+
+                        self::$_isLoaded = true;
+
                         return true;
 
                     } else {
