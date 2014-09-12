@@ -1,8 +1,8 @@
 <?php
 /**
- * Aomebo - a module-based MVC framework for PHP 5.3+
+ * Aomebo - a module-based MVC framework for PHP 5.3 and higher
  *
- * Copyright (C) 2010+ Christian Johansson <christian@cvj.se>
+ * Copyright 2010 - 2014 by Christian Johansson <christian@cvj.se>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -15,26 +15,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  * @license LGPL version 3
- * @see http://www.aomebo.org
+ * @see http://www.aomebo.org/ or https://github.com/cjohansson/Aomebo-Framework
  */
 
 /**
  *
  */
-namespace Aomebo\Internationalization\Adapters\PhpGettext
+namespace Aomebo\Internationalization\Adapters\Gettext
 {
 
     /**
-     * @method static \Aomebo\Internationalization\Adapters\PhpGettext\Adapter getInstance()
-     * @see https://launchpad.net/php-gettext/
+     * @method static \Aomebo\Internationalization\Adapters\Gettext\Adapter getInstance()
      */
     class Adapter extends \Aomebo\Internationalization\Adapters\Base
     {
 
         /**
-         * @var string
+         * @internal
+         * @static
+         * @var null|\Aomebo\Internationalization\Adapters\Gettext\Translations
          */
-        const LIBRARY_DIR = 'php-gettext-1.0.11';
+        private static $_translations = null;
 
         /**
          * @return bool
@@ -42,39 +43,80 @@ namespace Aomebo\Internationalization\Adapters\PhpGettext
         public function init()
         {
 
-            require_once(__DIR__ . DIRECTORY_SEPARATOR
-                . self::LIBRARY_DIR . DIRECTORY_SEPARATOR . 'gettext.inc');
-
-            $internationalizationSystem =
-                \Aomebo\Internationalization\System::getInstance();
+            $textDomains =
+                \Aomebo\Internationalization\System::getTextDomains();
 
             $locale =
-                $internationalizationSystem::getLocale();
+                \Aomebo\Internationalization\System::getLocale();
+            $defaultLocale =
+                \Aomebo\Internationalization\System::getDefaultLocale();
 
-            // Set language to locale
-            T_setlocale(LC_ALL, $locale);
-
-            $textDomains =
-                $internationalizationSystem::getTextDomains();
+            self::$_translations =
+                new \Aomebo\Internationalization\Adapters\Gettext\Translations();
 
             foreach ($textDomains as $textDomainName => $array)
             {
-                T_bindtextdomain($textDomainName, $array[0]);
-                T_bind_textdomain_codeset($textDomainName, $array[1]);
-            }
+                if (is_dir($array[0] . '/' . $locale)) {
+                    if ($scandir = scandir($array[0] . '/' . $locale)) {
+                        foreach ($scandir as $file)
+                        {
 
-        }
+                            $path = $array[0] . '/' . $locale . '/' . $file;
 
-        /**
-         * @param string $domain
-         * @return bool
-         */
-        public function setDomain($domain)
-        {
-            if (!empty($domain)) {
-                T_textdomain($domain);
+                            if (is_file($path)
+                                && strtolower(substr($path, -3)) == '.mo'
+                            ) {
+
+                                $context = substr($file, 0, strrpos($file, '.'));
+
+                                $mo = new \Aomebo\Internationalization\Adapters\Gettext\MO();
+                                if ($mo->import_from_file($path)) {
+
+                                    foreach ($mo->entries as $entry)
+                                    {
+
+                                        /** \Aomebo\Internationalization\Adapters\Gettext\Translation_Entry $entry */
+
+                                        $entry->context = $context;
+                                        self::$_translations->add_entry($entry);
+
+                                    }
+
+                                }
+
+                            } else {
+
+                                $path = $array[0] . '/' . $defaultLocale . '/' . $file;
+
+                                if (is_file($path)
+                                    && strtolower(substr($path, -3)) == '.mo'
+                                ) {
+
+                                    $context = substr($file, 0, strrpos($file, '.'));
+                                    $mo = new \Aomebo\Internationalization\Adapters\Gettext\MO();
+
+                                    if ($mo->import_from_file($path)) {
+
+                                        foreach ($mo->entries as $entry)
+                                        {
+
+                                            /** \Aomebo\Internationalization\Adapters\Gettext\Translation_Entry $entry */
+
+                                            $entry->context = $context;
+                                            self::$_translations->add_entry($entry);
+
+                                        }
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+                    }
+                }
             }
-            return false;
         }
 
         /**
@@ -87,7 +129,7 @@ namespace Aomebo\Internationalization\Adapters\PhpGettext
          */
         public function gettext($message)
         {
-            return T_gettext($message);
+            return self::$_translations->translate($message);
         }
 
         /**
@@ -103,7 +145,7 @@ namespace Aomebo\Internationalization\Adapters\PhpGettext
          */
         public function dgettext($domain, $message)
         {
-            return T_dgettext($domain, $message);
+            return self::$_translations->translate($message, $domain);
         }
 
         /**
@@ -121,7 +163,7 @@ namespace Aomebo\Internationalization\Adapters\PhpGettext
          */
         public function ngettext($msgid1, $msgid2, $n)
         {
-            return T_ngettext($msgid1, $msgid2, $n);
+            return self::$_translations->translate_plural($msgid1, $msgid2, $n);
         }
 
         /**
@@ -139,7 +181,7 @@ namespace Aomebo\Internationalization\Adapters\PhpGettext
          */
         public function dcgettext($domain, $message, $category)
         {
-            return T_dcgettext($domain, $message, $category);
+            return self::$_translations->translate($message, $domain);
         }
 
         /**
@@ -158,7 +200,7 @@ namespace Aomebo\Internationalization\Adapters\PhpGettext
          */
         public function dngettext($domain, $msgid1, $msgid2, $n)
         {
-            return T_dngettext($domain, $msgid1, $msgid2, $n);
+            return self::$_translations->translate_plural($msgid1, $msgid2, $n, $domain);
         }
 
         /**
@@ -178,7 +220,7 @@ namespace Aomebo\Internationalization\Adapters\PhpGettext
          */
         public function dcngettext($domain, $msgid1, $msgid2, $n, $category)
         {
-            return T_dcngettext($domain, $msgid1, $msgid2, $n, $category);
+            return self::$_translations->translate_plural($msgid1, $msgid2, $n, $domain);
         }
 
     }

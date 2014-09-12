@@ -13,7 +13,7 @@
  * Name:     escape
  * Purpose:  format uri component
  *
- * @see http://www.aomebo.org
+ * @see http://www.aomebo.org/ or https://github.com/cjohansson/Aomebo-Framework
  * @param string $string
  * @param bool [$toLowerCase = true]
  * @param string [$replaceWith = '_']

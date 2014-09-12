@@ -1,14 +1,22 @@
 <?php
 
 /**
- * @param array|null [$getArray = null]
- * @param string [$page = '']
- * @param bool [$clear = false]
+ * @param string $message
+ * @param string|null [$domain = null]
  * @return string
  */
-function uri($getArray = null, $page = '', $clear = false)
+function translate($message, $domain = null)
 {
-    $dispatcher =
-        \Aomebo\Dispatcher\System::getInstance();
-    return $dispatcher->buildUri($getArray, $page, $clear);
+
+    $defaultDomain =
+        \Aomebo\Internationalization\System::getSiteDefaultTextDomain();
+
+    if (!empty($domain)
+        && $domain != $defaultDomain
+    ) {
+        return \Aomebo\Internationalization\System::dgettext($domain, $message);
+    } else {
+        return \Aomebo\Internationalization\System::dgettext($defaultDomain, $message);
+    }
+
 }

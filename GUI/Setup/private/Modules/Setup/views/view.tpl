@@ -1,8 +1,10 @@
 {**
  * @var array|null $submit
+ * @var string $locale
+ * @var string $translated
  **}
 <div id="{$F}">
-    <h2>Setup</h2>
+    <h2>Setup template via Smarty</h2>
     <div>
         Fill in form below to setup a Aomebo Framework system.
     </div>
@@ -58,7 +60,13 @@
                 <input type="text" name="site_server_name" id="site_server_name" value="{$submit.siteServerName|escape}" />
             </div>
             <div>
-                From database: "{$cache}"
+                From database cache: "{$cache}"
+            </div>
+            <div>
+                Localized "Invalid parameters" to locale "{$locale|escape}": "{t message='Invalid parameters'}"
+            </div>
+            <div>
+                Localized2: "{$translated|escape}"
             </div>
         </fieldset>
         <div>

@@ -1,8 +1,8 @@
 <?php
 /**
- * Aomebo - a module-based MVC framework for PHP 5.3+
+ * Aomebo - a module-based MVC framework for PHP 5.3 and higher
  *
- * Copyright (C) 2010+ Christian Johansson <christian@cvj.se>
+ * Copyright 2010 - 2014 by Christian Johansson <christian@cvj.se>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  * @license LGPL version 3
- * @see http://www.aomebo.org
+ * @see http://www.aomebo.org/ or https://github.com/cjohansson/Aomebo-Framework
  */
 
 /**
@@ -31,40 +31,75 @@ namespace Aomebo\Internationalization
     {
 
         /**
+         * @internal
          * @static
          * @var bool
          */
         private static $_enabled = false;
 
         /**
+         * @internal
          * @static
          * @var string
          */
         private static $_locale = '';
 
         /**
+         * @internal
+         * @static
+         * @var string
+         */
+        private static $_defaultLocale = '';
+
+        /**
+         * @internal
          * @static
          * @var array
          */
         private static $_textDomains = array();
 
         /**
+         * @internal
+         * @static
+         * @var string
+         */
+        private static $_defaultSystemTextDomain = '';
+
+        /**
+         * @internal
+         * @static
+         * @var string
+         */
+        private static $_defaultSiteTextDomain = '';
+
+
+        /**
+         * @internal
          * @static
          * @var string
          */
         private static $_adapter = '';
 
         /**
+         * @internal
          * @static
          * @var array
          */
         private static $_adapters = array();
 
         /**
+         * @internal
          * @static
          * @var \Aomebo\Internationalization\Adapters\Base|null
          */
-        private static $_adapterClass;
+        private static $_adapterClass = null;
+
+        /**
+         * @internal
+         * @static
+         * @var string
+         */
+        private static $_textDomain = '';
 
         /**
          * @throws \Exception
@@ -80,6 +115,12 @@ namespace Aomebo\Internationalization
                     \Aomebo\Configuration::getSetting('internationalization,enabled'));
                 self::setLocale(
                     \Aomebo\Configuration::getSetting('internationalization,locale'));
+                self::setDefaultLocale(
+                    \Aomebo\Configuration::getSetting('internationalization,default locale'));
+                self::setSystemDefaultTextDomain(
+                    \Aomebo\Configuration::getSetting('internationalization,default system text domain'));
+                self::setSiteDefaultTextDomain(
+                    \Aomebo\Configuration::getSetting('internationalization,default site text domain'));
 
                 $textDomains = array();
 
@@ -92,17 +133,24 @@ namespace Aomebo\Internationalization
                         if (isset($array)
                             && is_array($array)
                             && isset($array[0], $array[1])
-                            && is_dir(_SYSTEM_ROOT_ . $array[0])
                         ) {
-                            $textDomains[$key] = array(
-                                _SYSTEM_ROOT_ . $array[0],
-                                $array[1],
-                            );
-                        } else {
-                            Throw new \Exception(
-                                'Invalid internationalization "'
-                                . print_r($array, true) . '"'
-                            );
+
+                            $domainPath = _SYSTEM_ROOT_ . $array[0];
+
+                            if (is_dir($domainPath)) {
+                                $textDomains[$key] = array(
+                                    $domainPath,
+                                    $array[1],
+                                );
+                            } else {
+                                Throw new \Exception(
+                                    'Invalid internationalization "'
+                                    . print_r($array, true) . '", '
+                                    . 'no directory found at "'
+                                    . $domainPath . '".'
+                                );
+                            }
+
                         }
                     }
                 }
@@ -116,17 +164,24 @@ namespace Aomebo\Internationalization
                         if (isset($array)
                             && is_array($array)
                             && isset($array[0], $array[1])
-                            && is_dir(_PRIVATE_ROOT_ . $array[0])
                         ) {
-                            $textDomains[$key] = array(
-                                _PRIVATE_ROOT_ . $array[0],
-                                $array[1]
-                            );
-                        } else {
-                            Throw new \Exception(
-                                'Invalid internationalization "'
-                                . print_r($array, true) . '"'
-                            );
+
+                            $domainPath = _SITE_ROOT_ . $array[0];
+
+                            if (is_dir($domainPath)) {
+                                $textDomains[$key] = array(
+                                    $domainPath,
+                                    $array[1],
+                                );
+                            } else {
+                                Throw new \Exception(
+                                    'Invalid internationalization "'
+                                    . print_r($array, true) . '", '
+                                    . 'no directory found at "'
+                                    . $domainPath . '".'
+                                );
+                            }
+
                         }
                     }
                 }
@@ -160,7 +215,43 @@ namespace Aomebo\Internationalization
             if (self::$_adapterClass) {
                 return self::$_adapterClass->gettext($message);
             }
-            return '';
+            return $message;
+        }
+
+        /**
+         * @static
+         * @param string $message
+         * @param string|null [$domain = null]
+         * @return string
+         * @see gettext()
+         */
+        public static function siteTranslate($message, $domain = null)
+        {
+            if (!isset($domain)) {
+                $domain = self::$_defaultSiteTextDomain;
+            }
+            if (self::$_adapterClass) {
+                return self::$_adapterClass->dgettext($domain, $message);
+            }
+            return $message;
+        }
+
+        /**
+         * @static
+         * @param string $message
+         * @param string|null [$domain = null]
+         * @return string
+         * @see gettext()
+         */
+        public static function systemTranslate($message, $domain = null)
+        {
+            if (!isset($domain)) {
+                $domain = self::$_defaultSystemTextDomain;
+            }
+            if (self::$_adapterClass) {
+                return self::$_adapterClass->dgettext($domain, $message);
+            }
+            return $message;
         }
 
         /**
@@ -180,7 +271,7 @@ namespace Aomebo\Internationalization
                 return self::$_adapterClass->dgettext(
                     $domain, $message);
             }
-            return '';
+            return $message;
         }
 
         /**
@@ -202,7 +293,7 @@ namespace Aomebo\Internationalization
                 return self::$_adapterClass->ngettext(
                     $msgid1, $msgid2, $n);
             }
-            return '';
+            return ($n > 1 ? $msgid2 : $msgid1);
         }
 
         /**
@@ -224,7 +315,7 @@ namespace Aomebo\Internationalization
                 return self::$_adapterClass->dcgettext(
                     $domain, $message, $category);
             }
-            return '';
+            return $message;
         }
 
         /**
@@ -248,7 +339,7 @@ namespace Aomebo\Internationalization
                 return self::$_adapterClass->dngettext(
                     $domain, $msgid1, $msgid2, $n);
             }
-            return '';
+            return ($n > 1 ? $msgid2 : $msgid1);
         }
 
         /**
@@ -273,7 +364,7 @@ namespace Aomebo\Internationalization
                 return self::$_adapterClass->dcngettext(
                     $domain, $msgid1, $msgid2, $n, $category);
             }
-            return '';
+            return ($n > 1 ? $msgid2 : $msgid1);
         }
 
         /**
@@ -305,11 +396,65 @@ namespace Aomebo\Internationalization
 
         /**
          * @static
+         * @param string $textDomain
+         */
+        public static function setSystemDefaultTextDomain($textDomain)
+        {
+            self::$_defaultSystemTextDomain = $textDomain;
+        }
+
+        /**
+         * @static
+         * @return string
+         */
+        public static function getSystemDefaultTextDomain()
+        {
+            return self::$_defaultSystemTextDomain;
+        }
+
+        /**
+         * @static
+         * @param string $textDomain
+         */
+        public static function setSiteDefaultTextDomain($textDomain)
+        {
+            self::$_defaultSiteTextDomain = $textDomain;
+        }
+
+        /**
+         * @static
+         * @return string
+         */
+        public static function getSiteDefaultTextDomain()
+        {
+            return self::$_defaultSiteTextDomain;
+        }
+
+        /**
+         * @static
+         * @param string $defaultLocale
+         */
+        public static function setDefaultLocale($defaultLocale)
+        {
+            self::$_defaultLocale = $defaultLocale;
+        }
+
+        /**
+         * @static
          * @return string
          */
         public static function getLocale()
         {
             return self::$_locale;
+        }
+
+        /**
+         * @static
+         * @return string
+         */
+        public static function getDefaultLocale()
+        {
+            return self::$_defaultLocale;
         }
 
         /**
@@ -350,6 +495,15 @@ namespace Aomebo\Internationalization
 
         /**
          * @static
+         * @return string
+         */
+        public static function getTextDomain()
+        {
+            return self::$_textDomain;
+        }
+
+        /**
+         * @static
          * @param string $adapter
          */
         public static function setAdapter($adapter)
@@ -378,15 +532,10 @@ namespace Aomebo\Internationalization
         /**
          * @static
          * @param string $domain
-         * @return bool
          */
         public static function setTextDomain($domain)
         {
-            if (isset(self::$_adapterClass)) {
-                self::$_adapterClass->setDomain($domain);
-                return true;
-            }
-            return false;
+            self::$_textDomain = $domain;
         }
 
         /**
@@ -402,7 +551,6 @@ namespace Aomebo\Internationalization
         /**
          * @static
          * @throws \Exception
-         * @return bool
          */
         private static function _init()
         {
@@ -420,12 +568,6 @@ namespace Aomebo\Internationalization
 
                 self::$_adapterClass = $classObj;
 
-                return true;
-
-            } else {
-                Throw new \Exception(
-                    'Adapter "' . self::$_adapter . '" does not exists in system,'
-                    . ' in ' . __FILE__);
             }
         }
 

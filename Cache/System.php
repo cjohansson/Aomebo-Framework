@@ -1,8 +1,8 @@
 <?php
 /**
- * Aomebo - a module-based MVC framework for PHP 5.3+
+ * Aomebo - a module-based MVC framework for PHP 5.3 and higher
  *
- * Copyright (C) 2010+ Christian Johansson <christian@cvj.se>
+ * Copyright 2010 - 2014 by Christian Johansson <christian@cvj.se>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  * @license LGPL version 3
- * @see http://www.aomebo.org
+ * @see http://www.aomebo.org/ or https://github.com/cjohansson/Aomebo-Framework
 */
 
 /**

@@ -62,6 +62,9 @@ session:
 internationalization:
     enabled: true
     locale: sv_SE
+    site text domains:
+      site: ['Language', 'UTF-8']
+    default site text domain: site
 
 output:
     minify stylesheets: true

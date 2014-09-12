@@ -13,7 +13,7 @@
  * Name:     escape
  * Purpose:  escape string for output
  *
- * @see http://www.aomebo.org
+ * @see http://www.aomebo.org/ or https://github.com/cjohansson/Aomebo-Framework
  * @param string  $string
  * @param bool [$toLowerCase = true]
  * @param string [$replaceWith = '_']
