@@ -549,8 +549,8 @@ namespace Aomebo\Internationalization
         }
 
         /**
+         * @internal
          * @static
-         * @throws \Exception
          */
         private static function _init()
         {
@@ -562,16 +562,22 @@ namespace Aomebo\Internationalization
                 $className = '\\Aomebo\\Internationalization\\Adapters\\'
                     . self::$_adapters[self::$_adapter] . '\\Adapter';
 
-                /** @var \Aomebo\Internationalization\Adapters\Base $classObj */
-                $classObj = new $className();
-                $classObj->init();
+                try
+                {
 
-                self::$_adapterClass = $classObj;
+                    /** @var \Aomebo\Internationalization\Adapters\Base $classObj */
+                    $classObj = new $className();
+                    $classObj->init();
+
+                    self::$_adapterClass = $classObj;
+
+                } catch (\Exception $e) {}
 
             }
         }
 
         /**
+         * @internal
          * @static
          */
         private static function _loadAdapters()
@@ -604,6 +610,7 @@ namespace Aomebo\Internationalization
         }
 
         /**
+         * @internal
          * @static
          * @return string
          */

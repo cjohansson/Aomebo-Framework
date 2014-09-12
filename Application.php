@@ -374,8 +374,6 @@ namespace Aomebo
                                     // Parse the requests associatives
                                     \Aomebo\Associatives\Parser::parseRequest();
 
-                                    $true = true;
-
                                 } else {
                                     $dispatcher::setHttpResponseStatus403Forbidden();
                                 }
