@@ -1,8 +1,8 @@
 <?php
 /**
- * Aomebo - a module-based MVC framework for PHP 5.3+
+ * Aomebo - a module-based MVC framework for PHP 5.3 and higher
  *
- * Copyright (C) 2010+ Christian Johansson <christian@cvj.se>
+ * Copyright 2010 - 2014 by Christian Johansson <christian@cvj.se>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  * @license LGPL version 3
- * @see http://www.aomebo.org
+ * @see http://www.aomebo.org/ or https://github.com/cjohansson/Aomebo-Framework
  */
 
 /**
@@ -159,7 +159,7 @@ namespace Aomebo\Database
 
                                 Throw new \Exception(
                                     sprintf(
-                                        gettext('Could not install database in %s in %s'),
+                                        self::systemTranslate('Could not install database in %s in %s'),
                                         __METHOD__,
                                         __FILE__
                                     )
@@ -183,7 +183,7 @@ namespace Aomebo\Database
 
                             Throw new \Exception(
                                 sprintf(
-                                    gettext('Could not select database in %s in %s'),
+                                    self::systemTranslate('Could not select database in %s in %s'),
                                     __METHOD__,
                                     __FILE__)
                             );
@@ -195,7 +195,7 @@ namespace Aomebo\Database
 
                         Throw new \Exception(
                             sprintf(
-                                gettext(
+                                self::systemTranslate(
                                     'Could not connect to database server in '
                                     . '%s in %s. Check your configuration.'
                                 ),
@@ -275,7 +275,7 @@ namespace Aomebo\Database
 
                         Throw new \Exception(
                             sprintf(
-                                gettext(
+                                self::systemTranslate(
                                     'Selected database "%s" '
                                     . 'does not match requested database '
                                     . '"%s" in %s in %s'
@@ -292,7 +292,7 @@ namespace Aomebo\Database
 
                     Throw new \Exception(
                         sprintf(
-                            gettext(
+                            self::systemTranslate(
                                 'Failed to get selected database in %s in %s'
                             ),
                             __METHOD__,
@@ -351,7 +351,7 @@ namespace Aomebo\Database
                 return self::$_object->escape($value);
             } else {
                 Throw new \Exception(
-                    gettext('Invalid parameters')
+                    self::systemTranslate('Invalid parameters')
                 );
             }
 
@@ -514,8 +514,6 @@ namespace Aomebo\Database
                     $valuesCount = 0;
                 }
 
-                $results = array();
-
                 foreach ($queries as $rawQuery)
                 {
                     $rawQuery = trim($rawQuery);
@@ -598,7 +596,7 @@ namespace Aomebo\Database
 
                             Throw new \Exception(
                                 sprintf(
-                                    gettext(
+                                    self::systemTranslate(
                                         'SQL: "%s" evaluated into empty query in %s'
                                     ),
                                     print_r($rawQuery, true),
@@ -616,7 +614,7 @@ namespace Aomebo\Database
 
                 Throw new \Exception(
                     sprintf(
-                        gettext('Can\'t query "%s" when database '
+                        self::systemTranslate('Can\'t query "%s" when database '
                         . 'connection hasn\'t been established. '
                         . 'Database adapter constructed: ' .
                         (self::_isConstructed() ? 'YES' : 'NO')),
@@ -662,7 +660,7 @@ namespace Aomebo\Database
                     . '}';
             } else {
                 Throw new \Exception(
-                    gettext('Invalid parameters')
+                    self::systemTranslate('Invalid parameters')
                 );
             }
         }
@@ -685,7 +683,7 @@ namespace Aomebo\Database
                 . '}';
             } else {
                 Throw new \Exception(
-                    gettext('Invalid parameters')
+                    self::systemTranslate('Invalid parameters')
                 );
             }
         }
@@ -743,7 +741,7 @@ namespace Aomebo\Database
 
                             Throw new \Exception(
                                 sprintf(
-                                    gettext('Query:' . "<p>\n%s</p>\n returned error:<p>\n"
+                                    self::systemTranslate('Query:' . "<p>\n%s</p>\n returned error:<p>\n"
                                     . "<p>\n%s</p>"),
                                     $sql,
                                     self::$_object->getError()
@@ -780,7 +778,7 @@ namespace Aomebo\Database
 
                             Throw new \Exception(
                                 sprintf(
-                                    gettext('Query:' . "<p>\n%s</p>\n returned error:<p>\n"
+                                    self::systemTranslate('Query:' . "<p>\n%s</p>\n returned error:<p>\n"
                                         . "<p>\n%s</p>"),
                                     $sql,
                                     self::$_object->getError()
@@ -895,7 +893,7 @@ namespace Aomebo\Database
                 } else {
                     Throw new \Exception(
                         sprintf(
-                            gettext('Could not connect using: "%s"'),
+                            self::systemTranslate('Could not connect using: "%s"'),
                             print_r(\Aomebo\Configuration::getSetting('database'), true)
                         )
                     );
@@ -903,7 +901,7 @@ namespace Aomebo\Database
             } else {
                 Throw new \Exception(
                     sprintf(
-                        gettext(
+                        self::systemTranslate(
                             'Could not find Database adapter class or database resultset class: '
                             . '%s, %s'),
                         $dbClass,

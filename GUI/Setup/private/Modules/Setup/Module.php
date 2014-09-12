@@ -75,10 +75,8 @@ namespace Modules\Setup
         public function execute()
         {
 
-            $view = \Aomebo\Template\Adapters\Smarty\Adapter::getInstance();
-            $view->setFile('views/view.tpl');
-
             $submit = array();
+
             if ($siteSettings = self::$_aomebo->Configuration()->getSetting('site')) {
                 $submit['siteTitle'] = $siteSettings['title'];
                 $submit['siteTitleDelimiter'] = $siteSettings['title delimiter'];
@@ -119,12 +117,24 @@ namespace Modules\Setup
 
             }
 
-            echo '<p>Localized (Invalid parameters): ' . self::dgettext('framework', 'Invalid parameters') . '</p>';
-
+            $view = \Aomebo\Template\Adapters\Smarty\Adapter::getInstance();
+            $view->setFile('views/view.tpl');
+            $view->attachVariable('locale', \Aomebo\Internationalization\System::getLocale());
             $view->attachVariable('submit', $submit);
             $view->attachVariable('cache', $abc);
+            $view->attachVariable('translated', self::__('Invalid parameters'));
+            $return = $view->parse();
 
-            return $view->parse();
+            $view2 = new \Aomebo\Template\Adapters\Php\Adapter();
+            $view2->setFile('views/view.php');
+            $view2->attachVariable('locale', \Aomebo\Internationalization\System::getLocale());
+            $view2->attachVariable('submit', $submit);
+            $view2->attachVariable('cache', $abc);
+            $view2->attachVariable('translated', self::__('Invalid parameters'));
+            $return2 = $view2->parse();
+
+            return $return . $return2;
+
 
         }
 
