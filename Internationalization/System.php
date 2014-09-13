@@ -622,3 +622,53 @@ namespace Aomebo\Internationalization
     }
 
 }
+
+/**
+ *
+ */
+namespace
+{
+
+    /**
+     * @param string $message
+     * @param string|null [$domain = null]
+     * @param string|null [$category = null]
+     * @return string
+     */
+    function __($message, $domain = null, $category = null)
+    {
+        return \Aomebo\Internationalization\System::siteTranslate(
+            $message,
+            $domain
+        );
+    }
+
+    /**
+     * @param string $message
+     * @param string|null [$domain = null]
+     * @param string|null [$category = null]
+     * @return string
+     */
+    function translate($message, $domain = null, $category = null)
+    {
+        return \Aomebo\Internationalization\System::siteTranslate(
+            $message,
+            $domain
+        );
+    }
+
+    /**
+     * @param string $message
+     * @param string|null [$domain = null]
+     * @param string|null [$category = null]
+     * @return string
+     */
+    function _e($message, $domain = null, $category = null)
+    {
+        echo \Aomebo\Internationalization\System::siteTranslate(
+            $message,
+            $domain
+        );
+    }
+
+}

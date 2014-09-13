@@ -183,15 +183,26 @@ namespace Aomebo
             if (!\Aomebo\Configuration::isLoaded()
                 || self::isPathInBasedir($directory)
             ) {
-                if (substr($directory, -2) != '/.') {
-                    if (substr($directory, -1) == '/') {
-                        $directory .= '.';
-                    } else {
-                        $directory .= '/.';
+                if (is_dir($directory)) {
+
+                    $iterator = new \DirectoryIterator($directory);
+                    $diremtime = 0;
+
+                    foreach ($iterator as $fileinfo)
+                    {
+
+                        /** @var \DirectoryIterator $fileinfo */
+
+                        if ($fileinfo->isFile()) {
+                            if ($fileinfo->getMTime() > $diremtime)
+                            {
+                                $diremtime = $fileinfo->getMTime();
+                            }
+                        }
                     }
-                }
-                if ($diremtime = @filemtime($directory)) {
+
                     return $diremtime;
+
                 }
             }
             return false;

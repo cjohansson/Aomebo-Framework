@@ -63,7 +63,7 @@
                 From database cache: "{$cache}"
             </div>
             <div>
-                Localized "Invalid parameters" to locale "{$locale|escape}": "{t message='Invalid parameters'}"
+                Localized "Invalid parameters" to locale "{$locale|escape}": "{__('Invalid parameters')}"
             </div>
             <div>
                 Localized2: "{$translated|escape}"
