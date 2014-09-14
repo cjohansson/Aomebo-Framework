@@ -571,7 +571,17 @@ namespace Aomebo\Internationalization
 
                     self::$_adapterClass = $classObj;
 
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+
+                    \Aomebo\FeedBack\Debug::output(
+                        'Failed to init internationalization adapter "'
+                        . self::$_adapter . '" , error: "'
+                        . $e->getMessage() . '"',
+                        false,
+                        true
+                    );
+
+                }
 
             }
         }
