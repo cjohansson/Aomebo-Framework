@@ -324,9 +324,6 @@ namespace Aomebo
                             // Load feedback engine
                             new \Aomebo\Feedback\Debug();
 
-                            // Load the internationalization system
-                            new \Aomebo\Internationalization\System();
-
                             // Load the response handler
                             $responseHandler = \Aomebo\Response\Handler::getInstance();
 
@@ -335,6 +332,9 @@ namespace Aomebo
 
                             // Is a testing request?
                             if (!empty(self::$_parameters[self::PARAMETER_TESTING_MODE])) {
+
+                                // Load the internationalization system
+                                \Aomebo\Internationalization\System::getInstance();
 
                                 // Load our database
                                 \Aomebo\Database\Adapter::getInstance();
@@ -385,6 +385,9 @@ namespace Aomebo
                                     'dispatch,allow shell requests')
                                 ) {
 
+                                    // Load the internationalization system
+                                    \Aomebo\Internationalization\System::getInstance();
+
                                     // Load our database
                                     \Aomebo\Database\Adapter::getInstance();
 
@@ -418,6 +421,9 @@ namespace Aomebo
                                 // Do nothing
 
                             } else if ($dispatcher::isPageRequest()) {
+
+                                // Load the internationalization system
+                                \Aomebo\Internationalization\System::getInstance();
 
                                 // Load our database
                                 \Aomebo\Database\Adapter::getInstance();

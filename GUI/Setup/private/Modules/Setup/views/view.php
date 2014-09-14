@@ -66,7 +66,7 @@
                 From database cache: "<?php echo $this->cache; ?>"
             </div>
             <div>
-                Localized "Invalid parameters" to locale "<?php echo $this->locale; ?>": "<?php echo $this->t('Invalid parameters'); ?>"
+                Localized "Invalid parameters" to locale "<?php echo $this->locale; ?>": "<?php echo __('Invalid parameters'); ?>"
             </div>
             <div>
                 Localized2: "<?php echo $this->translated; ?>"
