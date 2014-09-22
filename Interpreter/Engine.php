@@ -1074,16 +1074,13 @@ namespace Aomebo\Interpreter
                      * - Ajax request
                      * - Page data
                      */
-                    $cacheParameters = 'InterpreterEngine'
-                        . '/'
-                        . 'AjaxRequest';
+                    $cacheParameters = 'InterpreterEngine/AjaxRequest';
 
                     /**
                      * Cache key, unique per:
                      * - Page data
                      */
-                    $cacheKey =
-                        md5($pageData);
+                    $cacheKey = md5($pageData);
 
                     if (\Aomebo\Cache\System::cacheExists(
                         $cacheParameters,
@@ -1098,7 +1095,9 @@ namespace Aomebo\Interpreter
 
                         \Aomebo\Cache\System::clearCache(
                             $cacheParameters,
-                            $cacheKey);
+                            $cacheKey,
+                            \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                        );
 
                         if ($processed =
                             $adapter->process($pageData)
@@ -1130,11 +1129,7 @@ namespace Aomebo\Interpreter
                          * - Normal request
                          * - Page
                          */
-                        $cacheParameters = 'InterpreterEngine'
-                            . '/'
-                            . 'NormalRequest'
-                            . '/'
-                            . md5($page);
+                        $cacheParameters = 'InterpreterEngine/NormalRequest/' . md5($page);
 
                         if (file_exists($path)) {
 
@@ -1164,7 +1159,10 @@ namespace Aomebo\Interpreter
                             } else {
 
                                 \Aomebo\Cache\System::clearCache(
-                                    $cacheParameters);
+                                    $cacheParameters,
+                                    null,
+                                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                                );
 
                                 if ($processed = $adapter->process($pageData)) {
 

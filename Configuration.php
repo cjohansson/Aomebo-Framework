@@ -331,7 +331,10 @@ namespace Aomebo
             ) {
 
                 \Aomebo\Cache\System::clearCache(
-                    $cacheParameters);
+                    $cacheParameters,
+                    null,
+                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                );
                 \Aomebo\Associatives\Parser::cleanAssociativesCache();
                 \Aomebo\Associatives\Parser::cleanDependenciesCache();
 
@@ -437,13 +440,19 @@ namespace Aomebo
 
                     } else {
                         \Aomebo\Cache\System::clearCache(
-                            $cacheParameters);
+                            $cacheParameters,
+                            null,
+                            \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                        );
                         Throw new \Exception(
                             'Invalid configuration cache, cleared caches.');
                     }
                 } else {
                     \Aomebo\Cache\System::clearCache(
-                        $cacheParameters);
+                        $cacheParameters,
+                        null,
+                        \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                    );
                     Throw new \Exception(
                         'Invalid configuration cache, cleared caches.');
                 }

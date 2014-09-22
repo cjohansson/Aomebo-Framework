@@ -446,7 +446,7 @@ namespace Aomebo\Associatives
                 if ($useCache) {
                     \Aomebo\Cache\System::clearCache(
                         $cacheParameters,
-                        $cacheKey,
+                        null,
                         \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
                     );
                 }
@@ -834,7 +834,7 @@ namespace Aomebo\Associatives
 
                     \Aomebo\Cache\System::clearCache(
                         $cacheParameters,
-                        $cacheKey,
+                        null,
                         \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
                     );
 

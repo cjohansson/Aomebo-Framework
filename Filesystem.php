@@ -185,20 +185,35 @@ namespace Aomebo
             ) {
                 if (is_dir($directory)) {
 
-                    $iterator = new \DirectoryIterator($directory);
                     $diremtime = 0;
+                    if ($subitems = scandir($directory)) {
 
-                    foreach ($iterator as $fileinfo)
-                    {
+                        foreach ($subitems as $subitem)
+                        {
+                            if ($subitem != '..') {
 
-                        /** @var \DirectoryIterator $fileinfo */
+                                $path = $directory . '/' . $subitem;
+                                $subitemtime = 0;
 
-                        if ($fileinfo->isFile()) {
-                            if ($fileinfo->getMTime() > $diremtime)
-                            {
-                                $diremtime = $fileinfo->getMTime();
+                                if ($subitem != '.'
+                                    && is_dir($path)
+                                ) {
+                                    $subitemtime =
+                                        self::getDirectoryLastModificationTime($path);
+                                } else if ($subitem == '.'
+                                    || is_file($path)
+                                ) {
+                                    $subitemtime =
+                                        self::getFileLastModificationTime($path);
+                                }
+
+                                if ($subitemtime > $diremtime) {
+                                    $diremtime = $subitemtime;
+                                }
+
                             }
                         }
+
                     }
 
                     return $diremtime;

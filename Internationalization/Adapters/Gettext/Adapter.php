@@ -45,56 +45,65 @@ namespace Aomebo\Internationalization\Adapters\Gettext
 
             $textDomains =
                 \Aomebo\Internationalization\System::getTextDomains();
-
             $locale =
                 \Aomebo\Internationalization\System::getLocale();
             $defaultLocale =
                 \Aomebo\Internationalization\System::getDefaultLocale();
 
-            self::$_translations =
-                new \Aomebo\Internationalization\Adapters\Gettext\Translations();
+            $lastModificationTime = 0;
 
-            foreach ($textDomains as $textDomainName => $array)
+            foreach ($textDomains as $textDomain)
             {
-                if (is_dir($array[0] . '/' . $locale)) {
-                    if ($scandir = scandir($array[0] . '/' . $locale)) {
-                        foreach ($scandir as $file)
-                        {
+                $dirtime =
+                    \Aomebo\Filesystem::getDirectoryLastModificationTime($textDomain);
+                if ($dirtime > $lastModificationTime)
+                {
+                    $lastModificationTime = $dirtime;
+                }
+            }
 
-                            $path = $array[0] . '/' . $locale . '/' . $file;
+            $cacheParameters = 'Internationalization/Gettext/' . $locale . '/' . $defaultLocale;
+            $cacheKey = $lastModificationTime;
 
-                            if (is_file($path)
-                                && strtolower(substr($path, -3)) == '.mo'
-                            ) {
+            if (\Aomebo\Cache\System::cacheExists(
+                $cacheParameters,
+                $cacheKey,
+                \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM)
+            ) {
+                self::$_translations =
+                    \Aomebo\Cache\System::loadCache(
+                        $cacheParameters,
+                        $cacheKey,
+                        \Aomebo\Cache\System::FORMAT_SERIALIZE,
+                        \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                );
+            } else {
 
-                                $context = substr($file, 0, strrpos($file, '.'));
+                \Aomebo\Cache\System::clearCache(
+                    $cacheParameters,
+                    null,
+                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                );
 
-                                $mo = new \Aomebo\Internationalization\Adapters\Gettext\MO();
-                                if ($mo->import_from_file($path)) {
+                self::$_translations =
+                    new \Aomebo\Internationalization\Adapters\Gettext\Translations();
 
-                                    foreach ($mo->entries as $entry)
-                                    {
+                foreach ($textDomains as $textDomain)
+                {
+                    if (is_dir($textDomain . '/' . $locale)) {
+                        if ($scandir = scandir($textDomain . '/' . $locale)) {
+                            foreach ($scandir as $file)
+                            {
 
-                                        /** \Aomebo\Internationalization\Adapters\Gettext\Translation_Entry $entry */
-
-                                        $entry->context = $context;
-                                        self::$_translations->add_entry($entry);
-
-                                    }
-
-                                }
-
-                            } else {
-
-                                $path = $array[0] . '/' . $defaultLocale . '/' . $file;
+                                $path = $textDomain . '/' . $locale . '/' . $file;
 
                                 if (is_file($path)
                                     && strtolower(substr($path, -3)) == '.mo'
                                 ) {
 
                                     $context = substr($file, 0, strrpos($file, '.'));
-                                    $mo = new \Aomebo\Internationalization\Adapters\Gettext\MO();
 
+                                    $mo = new \Aomebo\Internationalization\Adapters\Gettext\MO();
                                     if ($mo->import_from_file($path)) {
 
                                         foreach ($mo->entries as $entry)
@@ -109,13 +118,48 @@ namespace Aomebo\Internationalization\Adapters\Gettext
 
                                     }
 
+                                } else {
+
+                                    $path = $textDomain . '/' . $defaultLocale . '/' . $file;
+
+                                    if (is_file($path)
+                                        && strtolower(substr($path, -3)) == '.mo'
+                                    ) {
+
+                                        $context = substr($file, 0, strrpos($file, '.'));
+                                        $mo = new \Aomebo\Internationalization\Adapters\Gettext\MO();
+
+                                        if ($mo->import_from_file($path)) {
+
+                                            foreach ($mo->entries as $entry)
+                                            {
+
+                                                /** \Aomebo\Internationalization\Adapters\Gettext\Translation_Entry $entry */
+
+                                                $entry->context = $context;
+                                                self::$_translations->add_entry($entry);
+
+                                            }
+
+                                        }
+
+                                    }
+
                                 }
 
                             }
-
                         }
                     }
                 }
+
+                \Aomebo\Cache\System::saveCache(
+                    $cacheParameters,
+                    $cacheKey,
+                    self::$_translations,
+                    \Aomebo\Cache\System::FORMAT_SERIALIZE,
+                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                );
+
             }
         }
 

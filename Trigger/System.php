@@ -103,6 +103,21 @@ namespace Aomebo\Trigger
         const TRIGGER_KEY_DATABASE_SELECTED_FAIL = 'af_database_selected_database_fail';
 
         /**
+         * @var string
+         */
+        const TRIGGER_KEY_BEFORE_INTERNATIONALIZATION_LOAD = 'af_before_internationalization_load';
+
+        /**
+         * @var string
+         */
+        const TRIGGER_KEY_AFTER_INTERNATIONALIZATION_LOAD = 'af_after_internationalization_load';
+
+        /**
+         * @var string
+         */
+        const TRIGGER_KEY_INTERNATIONALIZATION_TRANSLATE = 'af_internationalization_translate';
+
+        /**
          * @static
          * @var array
          */

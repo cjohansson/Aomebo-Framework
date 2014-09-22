@@ -183,9 +183,9 @@ namespace Aomebo\Associatives
         public static function cleanAssociativesCache()
         {
             return \Aomebo\Cache\System::clearCache(
-                'Associatives'
-                . '/'
-                . 'Runtimes'
+                'Associatives/Runtimes',
+                null,
+                \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
             );
         }
 
@@ -196,9 +196,9 @@ namespace Aomebo\Associatives
         public static function cleanDependenciesCache()
         {
             return \Aomebo\Cache\System::clearCache(
-                'Associatives'
-                . '/'
-                . 'Dependencies'
+                'Associatives/Dependencies',
+                null,
+                \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
             );
         }
 
@@ -554,7 +554,10 @@ namespace Aomebo\Associatives
                         if (self::$_useCache) {
 
                             \Aomebo\Cache\System::clearCache(
-                                $cacheParameters);
+                                $cacheParameters,
+                                null,
+                                \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                            );
 
                             self::$_cacheContents = $cacheStamp;
 

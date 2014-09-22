@@ -143,8 +143,7 @@ internationalization:
     system text domains:
         type: array
         required: false
-        default:
-          framework: ['Locale', 'UTF-8']
+        default: ['Locale']
     site text domains:
         type: array
         required: false

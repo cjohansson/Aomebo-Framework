@@ -963,7 +963,7 @@ namespace Aomebo
 
                     \Aomebo\Cache\System::clearCache(
                         $cacheParameters,
-                        $cacheKey,
+                        null,
                         \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
                     );
 
