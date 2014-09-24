@@ -125,6 +125,26 @@ namespace Aomebo\Database
         private static $_useDatabase = null;
 
         /**
+         * @var string
+         */
+        const QUERY_VALUE_QUOTATION_QUOTED = 'quoted';
+
+        /**
+         * @var string
+         */
+        const QUERY_VALUE_QUOTATION_BACKQUOTED = 'backquoted';
+
+        /**
+         * @var string
+         */
+        const QUERY_VALUE_UNESCAPED = 'raw';
+
+        /**
+         * @var string
+         */
+        const QUERY_VALUE = 'value';
+
+        /**
          * @throws \Exception
          */
         public function __construct()
@@ -466,6 +486,34 @@ namespace Aomebo\Database
         }
 
         /**
+         * @static
+         * @param mixed $value
+         * @param string|bool [$quotation = false]
+         * @param bool [$escaped = true]
+         * @return array
+         */
+        public static function getQueryValue(
+            $value,
+            $quotation = false,
+            $escaped = true)
+        {
+            $queryValue = array(
+                'value' => $value,
+            );
+            if (!empty($quotation)) {
+                if ($quotation == self::QUERY_VALUE_QUOTATION_QUOTED) {
+                    $queryValue[self::QUERY_VALUE_QUOTATION_QUOTED] = true;
+                } else if ($quotation == self::QUERY_VALUE_QUOTATION_BACKQUOTED) {
+                    $queryValue[self::QUERY_VALUE_QUOTATION_BACKQUOTED] = true;
+                }
+            }
+            if (empty($escaped)) {
+                $queryValue[self::QUERY_VALUE_UNESCAPED] = true;
+            }
+            return $queryValue;
+        }
+
+        /**
          * Performs all SQL (multiple or single) queries.
          *
          * @static
@@ -528,23 +576,29 @@ namespace Aomebo\Database
                         {
                             if (isset($valueArray)) {
                                 if (is_array($valueArray)) {
-                                    if (isset($valueArray['value'])) {
+                                    if (isset($valueArray[self::QUERY_VALUE])) {
 
-                                        if (!empty($valueArray['quoted'])) {
-                                            $replaceWith =
-                                                self::quote($valueArray['value'],
-                                                    empty($valueArray['raw']));
-                                        } else if (!empty($valueArray['backquoted'])) {
-                                            $replaceWith =
-                                                self::backquote(
-                                                    $valueArray['value'],
-                                                    empty($valueArray['raw']));
-                                        } else if (empty($valueArray['raw'])) {
-                                            $replaceWith =
-                                                self::escape($valueArray['value']);
+                                        if (!empty($valueArray[self::QUERY_VALUE_QUOTATION_QUOTED])) {
+
+                                            $replaceWith = self::quote($valueArray[self::QUERY_VALUE],
+                                                empty($valueArray[self::QUERY_VALUE_UNESCAPED])
+                                            );
+
+                                        } else if (!empty($valueArray[self::QUERY_VALUE_QUOTATION_BACKQUOTED])) {
+
+                                            $replaceWith = self::backquote(
+                                                $valueArray[self::QUERY_VALUE],
+                                                empty($valueArray[self::QUERY_VALUE_UNESCAPED])
+                                            );
+
+                                        } else if (empty($valueArray[self::QUERY_VALUE_UNESCAPED])) {
+
+                                            $replaceWith = self::escape($valueArray[self::QUERY_VALUE]);
+
                                         } else {
-                                            $replaceWith =
-                                                $valueArray['value'];
+
+                                            $replaceWith = $valueArray[self::QUERY_VALUE];
+
                                         }
 
                                         $query = str_replace(
@@ -552,14 +606,14 @@ namespace Aomebo\Database
                                             $replaceWith,
                                             $query);
 
-                                    } else if (!empty($valueArray['quoted'])) {
+                                    } else if (!empty($valueArray[self::QUERY_VALUE_QUOTATION_QUOTED])) {
 
                                         $query = str_replace(
                                             self::formatQueryReplaceKey($key),
                                             self::query('', false),
                                             $query);
 
-                                    } else if (!empty($valueArray['backquoted'])) {
+                                    } else if (!empty($valueArray[self::QUERY_VALUE_QUOTATION_BACKQUOTED])) {
 
                                         $query = str_replace(
                                             self::formatQueryReplaceKey($key),
@@ -719,7 +773,10 @@ namespace Aomebo\Database
 
                         /** @var \Aomebo\Database\Adapters\Resultset $resultset  */
                         $resultset = new self::$_resultsetClass(
-                            $result, $unbuffered);
+                            $result,
+                            $unbuffered,
+                            $sql
+                        );
 
                         if (!$unbuffered
                             && $sqlKey === 'SELECT'
@@ -734,8 +791,7 @@ namespace Aomebo\Database
 
                     if (self::$_object->hasError()) {
 
-                        self::$_lastError =
-                            self::$_object->getError();
+                        self::$_lastError = self::$_object->getError();
 
                         if ($throwExceptionOnFailure) {
 
@@ -763,7 +819,10 @@ namespace Aomebo\Database
 
                         /** @var \Aomebo\Database\Adapters\Resultset $resultset  */
                         $resultset = new self::$_resultsetClass(
-                                $result, $unbuffered);
+                            $result,
+                            $unbuffered,
+                            $sql
+                        );
                         $resultset->free();
 
                     }
@@ -790,7 +849,9 @@ namespace Aomebo\Database
 
                 }
             }
+
             return false;
+
         }
 
         /**

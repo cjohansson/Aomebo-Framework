@@ -45,17 +45,24 @@ namespace Aomebo\Database\Adapters
         protected $_unbuffered;
 
         /**
+         * @var string
+         */
+        protected $_sql = '';
+
+        /**
          * @internal
          * @param \Aomebo\Database\Adapters\Resultset $resultset
          * @param bool [$unbuffered = false]
+         * @param string [$sql = '']
          * @throws \Exception
          * @param bool $unbuffered
          */
-        public function __construct($resultset, $unbuffered = false)
+        public function __construct($resultset, $unbuffered = false, $sql = '')
         {
             if ($this->_isValid($resultset)) {
                 $this->_resultset = $resultset;
                 $this->_unbuffered = $unbuffered;
+                $this->_sql = $sql;
                 parent::__construct();
             } else {
                 Throw new \Exception('Invalid resultset "'
@@ -123,6 +130,14 @@ namespace Aomebo\Database\Adapters
         abstract protected function _isValid($resultset);
 
         /**
+         * @return string
+         */
+        public function getSql()
+        {
+            return $this->_sql;
+        }
+
+        /**
          * @internal
          * @return bool
          */
@@ -137,7 +152,7 @@ namespace Aomebo\Database\Adapters
          */
         public function __destruct()
         {
-            unset($this->_resultset, $this->_unbuffered, $this);
+            unset($this->_resultset, $this->_unbuffered, $this->_sql, $this);
         }
 
     }

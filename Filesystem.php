@@ -176,9 +176,10 @@ namespace Aomebo
         /**
          * @static
          * @param string $directory
+         * @param bool [$recursive = true]
          * @return int|bool
          */
-        public static function getDirectoryLastModificationTime($directory)
+        public static function getDirectoryLastModificationTime($directory, $recursive = true)
         {
             if (!\Aomebo\Configuration::isLoaded()
                 || self::isPathInBasedir($directory)
@@ -190,23 +191,43 @@ namespace Aomebo
 
                         foreach ($subitems as $subitem)
                         {
+
+                            // Is not parent directory?
                             if ($subitem != '..') {
 
                                 $path = $directory . '/' . $subitem;
                                 $subitemtime = 0;
 
-                                if ($subitem != '.'
-                                    && is_dir($path)
-                                ) {
-                                    $subitemtime =
-                                        self::getDirectoryLastModificationTime($path);
-                                } else if ($subitem == '.'
-                                    || is_file($path)
-                                ) {
+                                // Is it a directory?
+                                if (is_dir($path)) {
+
+                                    // Is it current directory?
+                                    if ($subitem == '.') {
+
+                                        if ($filemtime = @filemtime($path)) {
+                                            $subitemtime = $filemtime;
+                                        }
+
+                                    // Are we doing recursive?
+                                    } else if ($recursive) {
+
+                                        $subitemtime =
+                                            self::getDirectoryLastModificationTime(
+                                                $path,
+                                                $recursive
+                                        );
+
+                                    }
+
+                                // Is it a file?
+                                } else if (is_file($path)) {
+
                                     $subitemtime =
                                         self::getFileLastModificationTime($path);
+
                                 }
 
+                                // Is modification time above last maximum?
                                 if ($subitemtime > $diremtime) {
                                     $diremtime = $subitemtime;
                                 }
