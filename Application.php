@@ -155,6 +155,13 @@ namespace Aomebo
         private static $_runtimesLastModificationTime = 0;
 
         /**
+         * @internal
+         * @static
+         * @var null|int
+         */
+        private static $_pid = null;
+
+        /**
          * This starts up the framework.
          *
          * @param array|null [$parameters = null]       Contains all site-specific parameters.
@@ -168,6 +175,8 @@ namespace Aomebo
 
                 /** @define _SYSTEM_START_TIME_     Startup time for system */
                 define('_SYSTEM_START_TIME_', microtime(true));
+
+                self::$_pid = posix_getpid();
 
                 // Set public internal path
                 $backtrace = self::getDebugBacktrace(2);
@@ -275,18 +284,32 @@ namespace Aomebo
                     self::_loadApplicationData();
 
                     // Increment number of concurrent requests by one
-                    if (self::getApplicationData('requests')) {
+                    if ($requests = self::getApplicationData('requests')) {
+
+                        $requests[self::$_pid] = _SYSTEM_START_TIME_;
+                        $requestTimeout = _SYSTEM_START_TIME_ - 10;
+
+                        foreach ($requests as $pid => $time)
+                        {
+                            if ($time < $requestTimeout) {
+                                unset($requests[$pid]);
+                            }
+                        }
+
                         self::setApplicationData(
                             'requests',
-                            (int) self::getApplicationData('requests') + 1,
+                            $requests,
                             true
                         );
+
                     } else {
+
                         self::setApplicationData(
                             'requests',
-                            1,
+                            array(self::$_pid => _SYSTEM_START_TIME_),
                             true
                         );
+
                     }
 
                     // Try to load configuration
@@ -307,8 +330,7 @@ namespace Aomebo
                         // Does server has enough free memory for handling request?
                         if (\Aomebo\System\Memory::systemHasEnoughMemory()
                             && (!$maximumConcurrentRequests
-                            || !self::getApplicationData('requests')
-                            || self::getApplicationData('requests') < $maximumConcurrentRequests)
+                            || sizeof($requests) < $maximumConcurrentRequests)
                         ) {
 
                             // Store setting if autoload should trigger exception
@@ -486,18 +508,28 @@ namespace Aomebo
         {
 
             // Decrement number of concurrent requests by one
-            if (self::getApplicationData('requests', true)) {
-                self::setApplicationData(
-                    'requests',
-                    (int) self::getApplicationData('requests') - 1,
-                    true
-                );
+            if ($requests = self::getApplicationData('requests', true)) {
+
+                if (isset($requests[self::$_pid])) {
+
+                    unset($requests[self::$_pid]);
+
+                    self::setApplicationData(
+                        'requests',
+                        $requests,
+                        true
+                    );
+
+                }
+
             } else {
+
                 self::setApplicationData(
                     'requests',
-                    0,
+                    array(),
                     true
                 );
+
             }
 
         }
