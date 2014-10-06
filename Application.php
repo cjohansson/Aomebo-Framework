@@ -283,39 +283,6 @@ namespace Aomebo
                     // Load application-data
                     self::_loadApplicationData();
 
-                    // Increment number of concurrent requests by one
-                    if ($requests = self::getApplicationData('requests')) {
-
-                        if (!is_array($requests)) {
-                            $requests = array();
-                        }
-
-                        $requests[self::$_pid] = _SYSTEM_START_TIME_;
-                        $requestTimeout = _SYSTEM_START_TIME_ - 10;
-
-                        foreach ($requests as $pid => $time)
-                        {
-                            if ($time < $requestTimeout) {
-                                unset($requests[$pid]);
-                            }
-                        }
-
-                        self::setApplicationData(
-                            'requests',
-                            $requests,
-                            true
-                        );
-
-                    } else {
-
-                        self::setApplicationData(
-                            'requests',
-                            array(self::$_pid => _SYSTEM_START_TIME_),
-                            true
-                        );
-
-                    }
-
                     // Try to load configuration
                     if ($configuration::load(
                         self::getParameter(self::PARAMETER_CONFIGURATION_INTERNAL_FILENAME),
@@ -328,14 +295,71 @@ namespace Aomebo
                         self::$_freeMemoryAtInit =
                             \Aomebo\System\Memory::getSystemFreeMemory();
 
-                        $maximumConcurrentRequests =
-                            \Aomebo\Configuration::getSetting('application,maximum concurrent requests');
+                        // Update processes
+                        if ($requests = self::getApplicationData('requests')) {
+
+                            $maximumConcurrentRequests =
+                                \Aomebo\Configuration::getSetting('application,maximum concurrent requests');
+                            $maximumConcurrentRequestsPeriod =
+                                \Aomebo\Configuration::getSetting('application,maximum concurrent requests period');
+
+                            if (!is_array($requests)) {
+                                $requests = array();
+                            }
+
+                            // Add current request to list
+                            $requests[self::$_pid] = _SYSTEM_START_TIME_;
+                            $requestTimeout = _SYSTEM_START_TIME_ - $maximumConcurrentRequestsPeriod;
+
+                            do
+                            {
+
+                                // Remove processes which have timed out
+                                foreach ($requests as $pid => $time)
+                                {
+                                    if ($time < $requestTimeout) {
+                                        unset($requests[$pid]);
+                                    }
+                                }
+
+                                if ($maximumConcurrentRequests > 0
+                                    && sizeof($requests) > $maximumConcurrentRequests
+                                ) {
+
+                                    self::setApplicationData(
+                                        'requests',
+                                        $requests,
+                                        true
+                                    );
+
+                                    sleep(1);
+
+                                    $requests = self::getApplicationData('requests', true);
+
+                                }
+
+                            } while($maximumConcurrentRequests > 0
+                                && sizeof($requests) > $maximumConcurrentRequests
+                            );
+
+                            self::setApplicationData(
+                                'requests',
+                                $requests,
+                                true
+                            );
+
+                        } else {
+
+                            self::setApplicationData(
+                                'requests',
+                                array(self::$_pid => _SYSTEM_START_TIME_),
+                                true
+                            );
+
+                        }
 
                         // Does server has enough free memory for handling request?
-                        if (\Aomebo\System\Memory::systemHasEnoughMemory()
-                            && (!$maximumConcurrentRequests
-                            || sizeof($requests) < $maximumConcurrentRequests)
-                        ) {
+                        if (\Aomebo\System\Memory::systemHasEnoughMemory()) {
 
                             // Store setting if autoload should trigger exception
                             $this->setAutoloadFailureTriggersException(

@@ -69,6 +69,10 @@ application:
         type: integer
         required: false
         default: 0
+    maximum concurrent requests period:
+        type: integer
+        required: false
+        default: 10
 
 paths:
     resources dir:
