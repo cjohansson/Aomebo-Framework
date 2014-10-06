@@ -286,6 +286,10 @@ namespace Aomebo
                     // Increment number of concurrent requests by one
                     if ($requests = self::getApplicationData('requests')) {
 
+                        if (!is_array($requests)) {
+                            $requests = array();
+                        }
+
                         $requests[self::$_pid] = _SYSTEM_START_TIME_;
                         $requestTimeout = _SYSTEM_START_TIME_ - 10;
 
