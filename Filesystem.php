@@ -59,6 +59,13 @@ namespace Aomebo
         private static $_diremTimes = array();
 
         /**
+         * @internal
+         * @static
+         * @var array
+         */
+        private static $_recDiremTimes = array();
+
+        /**
          * @static
          * @param string $path
          * @return bool
@@ -191,7 +198,12 @@ namespace Aomebo
             if (!\Aomebo\Configuration::isLoaded()
                 || self::isPathInBasedir($directory)
             ) {
-                if (!isset(self::$_diremTimes[$directory])) {
+                if (($recursive
+                    && !isset(self::$_recDiremTimes[$directory]))
+                    || (!$recursive
+                        && !isset(self::$_diremTimes[$directory]))
+                ) {
+
                     if (is_dir($directory)) {
 
                         $diremtime = 0;
@@ -245,14 +257,26 @@ namespace Aomebo
 
                         }
 
-                        self::$_diremTimes[$directory] = $diremtime;
+                        if ($recursive) {
+                            self::$_recDiremTimes[$directory] = $diremtime;
+                        } else {
+                            self::$_diremTimes[$directory] = $diremtime;
+                        }
 
                     } else {
-                        self::$_diremTimes[$directory] = false;
+                        if ($recursive) {
+                            self::$_recDiremTimes[$directory] = false;
+                        } else {
+                            self::$_diremTimes[$directory] = false;
+                        }
                     }
                 }
 
-                return self::$_diremTimes[$directory];
+                if ($recursive) {
+                    return self::$_recDiremTimes[$directory];
+                } else {
+                    return self::$_diremTimes[$directory];
+                }
 
             }
 
