@@ -52,6 +52,13 @@ namespace Aomebo
         private static $_baseDirs = null;
 
         /**
+         * @internal
+         * @static
+         * @var array
+         */
+        private static $_diremTimes = array();
+
+        /**
          * @static
          * @param string $path
          * @return bool
@@ -184,64 +191,73 @@ namespace Aomebo
             if (!\Aomebo\Configuration::isLoaded()
                 || self::isPathInBasedir($directory)
             ) {
-                if (is_dir($directory)) {
+                if (!isset(self::$_diremTimes[$directory])) {
+                    if (is_dir($directory)) {
 
-                    $diremtime = 0;
-                    if ($subitems = scandir($directory)) {
+                        $diremtime = 0;
+                        if ($subitems = scandir($directory)) {
 
-                        foreach ($subitems as $subitem)
-                        {
+                            foreach ($subitems as $subitem)
+                            {
 
-                            // Is not parent directory?
-                            if ($subitem != '..') {
+                                // Is not parent directory?
+                                if ($subitem != '..') {
 
-                                $path = $directory . '/' . $subitem;
-                                $subitemtime = 0;
+                                    $path = $directory . '/' . $subitem;
+                                    $subitemtime = 0;
 
-                                // Is it a directory?
-                                if (is_dir($path)) {
+                                    // Is it a directory?
+                                    if (is_dir($path)) {
 
-                                    // Is it current directory?
-                                    if ($subitem == '.') {
+                                        // Is it current directory?
+                                        if ($subitem == '.') {
 
-                                        if ($filemtime = @filemtime($path)) {
-                                            $subitemtime = $filemtime;
+                                            if ($filemtime = @filemtime($path)) {
+                                                $subitemtime = $filemtime;
+                                            }
+
+                                        // Are we doing recursive?
+                                        } else if ($recursive) {
+
+                                            $subitemtime =
+                                                self::getDirectoryLastModificationTime(
+                                                    $path,
+                                                    $recursive
+                                            );
+
                                         }
 
-                                    // Are we doing recursive?
-                                    } else if ($recursive) {
+                                    // Is it a file?
+                                    } else if (is_file($path)) {
 
                                         $subitemtime =
-                                            self::getDirectoryLastModificationTime(
-                                                $path,
-                                                $recursive
-                                        );
+                                            self::getFileLastModificationTime($path);
 
                                     }
 
-                                // Is it a file?
-                                } else if (is_file($path)) {
-
-                                    $subitemtime =
-                                        self::getFileLastModificationTime($path);
+                                    // Is modification time above last maximum?
+                                    if ($subitemtime > $diremtime) {
+                                        $diremtime = $subitemtime;
+                                    }
 
                                 }
-
-                                // Is modification time above last maximum?
-                                if ($subitemtime > $diremtime) {
-                                    $diremtime = $subitemtime;
-                                }
-
                             }
+
                         }
 
+                        self::$_diremTimes[$directory] = $diremtime;
+
+                    } else {
+                        self::$_diremTimes[$directory] = false;
                     }
-
-                    return $diremtime;
-
                 }
+
+                return self::$_diremTimes[$directory];
+
             }
+
             return false;
+
         }
 
         /**
