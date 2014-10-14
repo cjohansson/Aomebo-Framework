@@ -27,20 +27,20 @@ namespace Aomebo\Response\Responses
     /**
      *
      */
-    class Associatives extends \Aomebo\Response\Type
+    class Shell extends \Aomebo\Response\Type
     {
 
         /**
          * @var int
          */
-        protected $_priority = 90;
+        protected $_priority = 80;
 
         /**
          * @return bool
          */
         public function isValidRequest()
         {
-            return \Aomebo\Dispatcher\System::isAssociativesRequest();
+            return \Aomebo\Dispatcher\System::isShellRequest();
         }
 
         /**
@@ -48,22 +48,34 @@ namespace Aomebo\Response\Responses
          */
         public function respond()
         {
-            if ((!\Aomebo\Configuration::getSetting('dispatch,allow only associatives request with matching referer')
-                    || \Aomebo\Dispatcher\System::requestRefererMatchesSiteUrl())
-                && (\Aomebo\Dispatcher\System::isHttpGetRequest()
-                    || \Aomebo\Dispatcher\System::isHttpHeadRequest())
+            // Is shell requests allowed?
+            if (\Aomebo\Configuration::getSetting(
+                'dispatch,allow shell requests')
             ) {
+
+                // Load the internationalization system
+                \Aomebo\Internationalization\System::getInstance();
 
                 // Load our database
                 \Aomebo\Database\Adapter::getInstance();
 
-                // Load the associatives engine
-                \Aomebo\Associatives\Engine::getInstance();
+                // Load interpreter for parsing of pages
+                \Aomebo\Interpreter\Engine::getInstance();
+
+                // Load cache system
+                \Aomebo\Cache\System::getInstance();
+
+                // Load our session handler
+                \Aomebo\Session\Handler::getInstance();
 
                 new \Aomebo();
 
-                // Parse the requests associatives
-                \Aomebo\Associatives\Parser::parseRequest();
+                // Interpret page
+                \Aomebo\Interpreter\Engine::interpret();
+
+                // Present our output
+                $presenter = \Aomebo\Presenter\Engine::getInstance();
+                $presenter->output();
 
             } else {
                 \Aomebo\Dispatcher\System::setHttpResponseStatus403Forbidden();

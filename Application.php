@@ -358,175 +358,65 @@ namespace Aomebo
 
                         }
 
-                        // Does server has enough free memory for handling request?
-                        if (\Aomebo\System\Memory::systemHasEnoughMemory()) {
-
-                            // Store setting if autoload should trigger exception
-                            $this->setAutoloadFailureTriggersException(
-                                \Aomebo\Configuration::getSetting('output,autoload failure triggers exception'));
-
-                            // Load runtimes
-                            self::_loadRuntimes();
-
-                            // Load site class (if any)
-                            self::_loadSiteClass();
-
-                            // Load feedback engine
-                            new \Aomebo\Feedback\Debug();
-
-                            // Load the response handler
-                            $responseHandler = \Aomebo\Response\Handler::getInstance();
-
-                            // Load dispatcher for analyzing of request
-                            $dispatcher = \Aomebo\Dispatcher\System::getInstance();
-
-                            // Is a testing request?
-                            if (!empty(self::$_parameters[self::PARAMETER_TESTING_MODE])) {
-
-                                // Load the internationalization system
-                                \Aomebo\Internationalization\System::getInstance();
-
-                                // Load our database
-                                \Aomebo\Database\Adapter::getInstance();
-
-                                // Load interpreter for parsing of pages
-                                \Aomebo\Interpreter\Engine::getInstance();
-
-                                // Load cache system
-                                \Aomebo\Cache\System::getInstance();
-
-                                // Load our session handler
-                                \Aomebo\Session\Handler::getInstance();
-
-                                new \Aomebo();
-
-                                // Present our output
-                                $presenter =
-                                    \Aomebo\Presenter\Engine::getInstance();
-                                $presenter->output();
-
-                            } else if ($dispatcher::isAssociativesRequest()) {
-
-                                if ((!\Aomebo\Configuration::getSetting('dispatch,allow only associatives request with matching referer')
-                                    || $dispatcher::requestRefererMatchesSiteUrl())
-                                    && ($dispatcher::isHttpGetRequest()
-                                        || $dispatcher::isHttpHeadRequest())
-                                ) {
-
-                                    // Load our database
-                                    \Aomebo\Database\Adapter::getInstance();
-
-                                    // Load the associatives engine
-                                    \Aomebo\Associatives\Engine::getInstance();
-
-                                    new \Aomebo();
-
-                                    // Parse the requests associatives
-                                    \Aomebo\Associatives\Parser::parseRequest();
-
-                                } else {
-                                    $dispatcher::setHttpResponseStatus403Forbidden();
-                                }
-
-                            } else if ($dispatcher::isShellRequest()) {
-
-                                // Is shell requests allowed?
-                                if (\Aomebo\Configuration::getSetting(
-                                    'dispatch,allow shell requests')
-                                ) {
-
-                                    // Load the internationalization system
-                                    \Aomebo\Internationalization\System::getInstance();
-
-                                    // Load our database
-                                    \Aomebo\Database\Adapter::getInstance();
-
-                                    // Load interpreter for parsing of pages
-                                    \Aomebo\Interpreter\Engine::getInstance();
-
-                                    // Load cache system
-                                    \Aomebo\Cache\System::getInstance();
-
-                                    // Load our session handler
-                                    \Aomebo\Session\Handler::getInstance();
-
-                                    new \Aomebo();
-
-                                    // Interpret page
-                                    \Aomebo\Interpreter\Engine::interpret();
-
-                                    // Present our output
-                                    $presenter = \Aomebo\Presenter\Engine::getInstance();
-                                    $presenter->output();
-
-                                    // Save application-data
-                                    self::_flushApplicationData();
-
-                                } else {
-                                    $dispatcher::setHttpResponseStatus403Forbidden();
-                                }
-
-                            } else if ($dispatcher::isFaviconRequest()) {
-
-                                // Do nothing
-
-                            } else if ($dispatcher::isPageRequest()) {
-
-                                // Load the internationalization system
-                                \Aomebo\Internationalization\System::getInstance();
-
-                                // Load our database
-                                \Aomebo\Database\Adapter::getInstance();
-
-                                // Load the associatives engine
-                                \Aomebo\Associatives\Engine::getInstance();
-
-                                // Load interpreter for parsing of pages
-                                \Aomebo\Interpreter\Engine::getInstance();
-
-                                // Load cache system
-                                \Aomebo\Cache\System::getInstance();
-
-                                // Load indexing engine
-                                $indexing =
-                                    \Aomebo\Indexing\Engine::getInstance();
-
-                                new \Aomebo();
-
-                                // Interpret page
-                                \Aomebo\Interpreter\Engine::interpret();
-
-                                // Index our output
-                                $indexing->index();
-
-                                // Present our output
-                                $presenter = \Aomebo\Presenter\Engine::getInstance();
-                                $presenter->output();
-
-                                // Save application-data
-                                self::_flushApplicationData();
-
-                            } else {
-                                \Aomebo\Dispatcher\System::
-                                    setHttpResponseStatus403Forbidden();
+                        // Wait until server has enough memory
+                        if (!\Aomebo\System\Memory::systemHasEnoughMemory()) {
+                            while (!\Aomebo\System\Memory::systemHasEnoughMemory())
+                            {
+                                sleep(1);
                             }
+                        }
+
+                        // Store setting if autoload should trigger exception
+                        $this->setAutoloadFailureTriggersException(
+                            \Aomebo\Configuration::getSetting('output,autoload failure triggers exception'));
+
+                        // Load runtimes
+                        self::_loadRuntimes();
+
+                        // Load site class (if any)
+                        self::_loadSiteClass();
+
+                        // Load feedback engine
+                        new \Aomebo\Feedback\Debug();
+
+                        // Load dispatcher for analyzing of request
+                        new \Aomebo\Dispatcher\System();
+
+                        // Load the response handler
+                        new \Aomebo\Response\Handler();
+
+                        if (\Aomebo\Response\Handler::hasResponse()) {
+
+                            try {
+                                \Aomebo\Response\Handler::respond();
+                            } catch (\Exception $e) {}
 
                         } else {
-                            \Aomebo\Dispatcher\System::
-                                setHttpResponseStatus503ServiceUnavailable();
+                            \Aomebo\Dispatcher\System::setHttpResponseStatus400BadRequest();
                         }
 
                     } else {
+
+                        // Save application-data
+                        self::_flushApplicationData();
+
                         Throw new \Exception('Failed to load configuration');
                     }
                 } else {
-                    Throw new \Exception(
-                        'Invalid parameters for Aomebo Application in '
-                        . __FILE__ . ', parameters: "' . print_r(self::$_parameters, true)
-                        . '"');
-                }
-            }
 
+                    // Save application-data
+                    self::_flushApplicationData();
+
+                    Throw new \Exception(
+                        'Invalid parameters for Aomebo Application. '
+                        . 'parameters: "' . print_r(self::$_parameters, true) . '"');
+
+                }
+
+                // Save application-data
+                self::_flushApplicationData();
+
+            }
         }
 
         /**

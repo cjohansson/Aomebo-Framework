@@ -27,14 +27,24 @@ namespace Aomebo\Response\Responses
     /**
      *
      */
-    class File extends \Aomebo\Response\Type
+    class Test extends \Aomebo\Response\Type
     {
+
+        /**
+         * @var int
+         */
+        protected $_priority = 100;
 
         /**
          * @return bool
          */
         public function isValidRequest()
         {
+            if (\Aomebo\Application::getParameter(
+                \Aomebo\Application::PARAMETER_TESTING_MODE)
+            ) {
+                return true;
+            }
             return false;
         }
 
@@ -43,6 +53,28 @@ namespace Aomebo\Response\Responses
          */
         public function respond()
         {
+
+            // Load the internationalization system
+            \Aomebo\Internationalization\System::getInstance();
+
+            // Load our database
+            \Aomebo\Database\Adapter::getInstance();
+
+            // Load interpreter for parsing of pages
+            \Aomebo\Interpreter\Engine::getInstance();
+
+            // Load cache system
+            \Aomebo\Cache\System::getInstance();
+
+            // Load our session handler
+            \Aomebo\Session\Handler::getInstance();
+
+            new \Aomebo();
+
+            // Present our output
+            $presenter =
+                \Aomebo\Presenter\Engine::getInstance();
+            $presenter->output();
 
         }
 

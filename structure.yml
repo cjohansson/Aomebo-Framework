@@ -64,7 +64,7 @@ application:
     memory required:
         type: integer
         required: true
-        default: 2
+        default: 4
     maximum concurrent requests:
         type: integer
         required: false
@@ -579,3 +579,25 @@ cache:
         type: integer
         required: true
         default: 9600
+
+responses:
+    associatives:
+        type: boolean
+        required: false
+        default: true
+    favicon:
+        type: boolean
+        required: false
+        default: true
+    page:
+        type: boolean
+        required: false
+        default: true
+    shell:
+        type: boolean
+        required: false
+        default: true
+    test:
+        type: boolean
+        required: false
+        default: true

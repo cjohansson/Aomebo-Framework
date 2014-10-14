@@ -21,41 +21,23 @@
 /**
  *
  */
-namespace Aomebo\Response
+namespace Aomebo\Pointers
 {
 
     /**
-     *
+     * @method static \Aomebo\Pointers\Response getInstance()
      */
-    abstract class Type extends \Aomebo\Base
+    final class Response extends \Aomebo\Singleton
     {
 
         /**
-         * @internal
-         * @var int
+         * @static
+         * @return \Aomebo\Response\Handler
          */
-        protected $_priority = 0;
-
-        /**
-         * This method determins if request suites this response.
-         *
-         * @return bool
-         */
-        abstract public function isValidRequest();
-
-        /**
-         * This method handles the whole response.
-         *
-         * @return void
-         */
-        abstract public function respond();
-
-        /**
-         * @return int
-         */
-        public function getPriority()
+        public static function Handler()
         {
-            return $this->_priority;
+            return
+                \Aomebo\Response\Handler::getInstance();
         }
 
     }

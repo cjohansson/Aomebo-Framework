@@ -27,15 +27,20 @@ namespace Aomebo\Response\Responses
     /**
      *
      */
-    class Cron extends \Aomebo\Response\Type
+    class Favicon extends \Aomebo\Response\Type
     {
+
+        /**
+         * @var int
+         */
+        protected $_priority = 70;
 
         /**
          * @return bool
          */
         public function isValidRequest()
         {
-            return false;
+            return \Aomebo\Dispatcher\System::isFaviconRequest();
         }
 
         /**
