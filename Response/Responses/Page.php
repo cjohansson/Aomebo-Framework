@@ -31,11 +31,16 @@ namespace Aomebo\Response\Responses
     {
 
         /**
+         * @var int
+         */
+        protected $_priority = 60;
+
+        /**
          * @return bool
          */
         public function isValidRequest()
         {
-            return false;
+            return \Aomebo\Dispatcher\System::isPageRequest();
         }
 
         /**
@@ -43,6 +48,37 @@ namespace Aomebo\Response\Responses
          */
         public function respond()
         {
+
+            // Load the internationalization system
+            \Aomebo\Internationalization\System::getInstance();
+
+            // Load our database
+            \Aomebo\Database\Adapter::getInstance();
+
+            // Load the associatives engine
+            \Aomebo\Associatives\Engine::getInstance();
+
+            // Load interpreter for parsing of pages
+            \Aomebo\Interpreter\Engine::getInstance();
+
+            // Load cache system
+            \Aomebo\Cache\System::getInstance();
+
+            // Load indexing engine
+            $indexing =
+                \Aomebo\Indexing\Engine::getInstance();
+
+            new \Aomebo();
+
+            // Interpret page
+            \Aomebo\Interpreter\Engine::interpret();
+
+            // Index our output
+            $indexing->index();
+
+            // Present our output
+            $presenter = \Aomebo\Presenter\Engine::getInstance();
+            $presenter->output();
 
         }
 

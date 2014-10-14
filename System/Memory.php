@@ -42,9 +42,14 @@ namespace Aomebo\System
 
             $required =
                 \Aomebo\Configuration::getSetting('application,memory required');
-            $free =
-                self::getSystemFreeMemory();
-            return $free >= $required;
+
+            if ($required > 0) {
+                $free =
+                    self::getSystemFreeMemory();
+                return $free >= $required;
+            }
+
+            return true;
 
         }
 

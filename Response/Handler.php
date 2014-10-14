@@ -90,6 +90,23 @@ namespace Aomebo\Response
         }
 
         /**
+         * @static
+         * @param \Aomebo\Response\type $a
+         * @param \Aomebo\Response\type $b
+         * @return int
+         */
+        public static function compareResponses($a, $b)
+        {
+            if ($a->getPriority() > $b->getPriority()) {
+                return -1;
+            } else if ($a->getPriority() == $b->getPriority()) {
+                return 0;
+            } else {
+                return 1;
+            }
+        }
+
+        /**
          * Parses the current request and tries to determine
          * if their is any response that matches request.
          *
@@ -116,48 +133,101 @@ namespace Aomebo\Response
 
         /**
          * @internal
+         * @static
          */
         private static function _load()
         {
 
-            $dir = self::_getResponsesDir();
-            $dirItems = scandir($dir);
             self::$_types = array();
 
-            foreach ($dirItems as $dirItem)
-            {
+            self::_loadResponsesInDirectory(self::_getResponsesDir());
+            self::_loadResponsesInDirectory(self::_getResponsesSiteDir());
 
-                if (!empty($dirItem)
+            // Sort responses based on priority here.
+            usort(self::$_types, '\Aomebo\Response\Handler::compareResponses');
+
+        }
+
+        /**
+         * @internal
+         * @static
+         * @param string $directory
+         */
+        private static function _loadResponsesInDirectory($directory)
+        {
+            if (!empty($directory)
+                && is_dir($directory)
+            ) {
+
+                $dirItems = scandir($directory);
+
+                foreach ($dirItems as $dirItem)
+                {
+
+                    if (!empty($dirItem)
                         && $dirItem != '..'
                         && $dirItem != '.'
                         && stripos($dirItem, '.php') !== false
-                ) {
+                    ) {
 
 
-                    $itemName = substr($dirItem, 0, strpos($dirItem, '.'));
-                    $itemClassName =
+                        $itemName = substr($dirItem, 0, strpos($dirItem, '.'));
+                        $itemClassName =
                             '\\Aomebo\\Response\\Responses\\' . $itemName;
-                    $path = $dir . DIRECTORY_SEPARATOR . $dirItem;
+                        $path = $directory . DIRECTORY_SEPARATOR . $dirItem;
 
-                    require_once($path);
+                        $configName = strtolower($itemName);
 
-                    if (class_exists($itemClassName, false)) {
-                        self::$_types[] = new $itemClassName();
+                        // Is response enabled in config?
+                        if (\Aomebo\Configuration::getSetting(
+                            'responses,' . $configName)
+                        ) {
+
+                            try {
+
+                                require_once($path);
+
+                                if (class_exists($itemClassName, false)) {
+
+                                    self::$_types[] = new $itemClassName();
+
+                                }
+
+                            } catch (\Exception $e) {}
+
+                        }
+
                     }
-
                 }
             }
         }
 
         /**
+         * @internal
          * @static
          * @return string
          */
         private static function _getResponsesDir()
         {
 
-            $path =
-                    __DIR__ . DIRECTORY_SEPARATOR . self::RESPONSES_DIR;
+            $path = __DIR__ . DIRECTORY_SEPARATOR . self::RESPONSES_DIR;
+
+            if (!is_dir($path)) {
+                \Aomebo\Filesystem::makeDirectory($path);
+            }
+
+            return $path;
+        }
+
+        /**
+         * @internal
+         * @static
+         * @return string
+         */
+        private static function _getResponsesSiteDir()
+        {
+
+            $path = _SYSTEM_SITE_ROOT_ . DIRECTORY_SEPARATOR . self::RESPONSES_DIR;
 
             if (!is_dir($path)) {
                 \Aomebo\Filesystem::makeDirectory($path);

@@ -21,29 +21,23 @@
 /**
  *
  */
-namespace Aomebo\Response\Responses
+namespace Aomebo\Pointers
 {
 
     /**
-     *
+     * @method static \Aomebo\Pointers\Template getInstance()
      */
-    class Ajax extends \Aomebo\Response\Type
+    final class Template extends \Aomebo\Singleton
     {
 
         /**
-         * @return bool
+         * @static
+         * @return \Aomebo\Template\Adapter
          */
-        public function isValidRequest()
+        public static function Adapter()
         {
-            return false;
-        }
-
-        /**
-         *
-         */
-        public function respond()
-        {
-
+            return
+                \Aomebo\Template\Adapter::getInstance();
         }
 
     }

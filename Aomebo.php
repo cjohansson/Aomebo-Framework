@@ -147,6 +147,17 @@ final class Aomebo extends \Aomebo\Singleton
 
     /**
      * @static
+     * @return \Aomebo\Pointers\Response
+     */
+    public static function Response()
+    {
+        return
+            \Aomebo\Pointers\Response::getInstance();
+    }
+
+
+    /**
+     * @static
      * @return \Aomebo\Pointers\Session
      */
     public static function Session()
@@ -173,6 +184,16 @@ final class Aomebo extends \Aomebo\Singleton
     {
         return
             \Aomebo\Pointers\Trigger::getInstance();
+    }
+
+    /**
+     * @static
+     * @return \Aomebo\Pointers\Template
+     */
+    public static function Template()
+    {
+        return
+            \Aomebo\Pointers\Template::getInstance();
     }
 
 
