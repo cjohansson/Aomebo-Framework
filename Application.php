@@ -386,11 +386,7 @@ namespace Aomebo
                         new \Aomebo\Response\Handler();
 
                         if (\Aomebo\Response\Handler::hasResponse()) {
-
-                            try {
-                                \Aomebo\Response\Handler::respond();
-                            } catch (\Exception $e) {}
-
+                            \Aomebo\Response\Handler::respond();
                         } else {
                             \Aomebo\Dispatcher\System::setHttpResponseStatus400BadRequest();
                         }

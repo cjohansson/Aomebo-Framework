@@ -2345,24 +2345,7 @@ namespace Aomebo\Dispatcher
 
             } else if (self::isFaviconRequest()) {
 
-                $favIconPath =
-                    self::getResourcesDirInternalPath()
-                    . DIRECTORY_SEPARATOR
-                    . \Aomebo\Configuration::getSetting('site,shortcut icon');
 
-                if (file_exists($favIconPath)) {
-
-                    self::setHttpHeaderField(
-                        'Content-Type',
-                        'image/vnd.microsoft.icon; charset=binary');
-                    self::setHttpHeaderField('Content-Disposition',
-                    'inline; filename="favicon.ico"');
-                    readfile($favIconPath);
-
-                } else {
-                    Throw new \Exception(
-                        'Could not find favicon at "' . $favIconPath . '"');
-                }
 
             } else if (self::isPageRequest()) {
 

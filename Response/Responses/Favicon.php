@@ -49,6 +49,27 @@ namespace Aomebo\Response\Responses
         public function respond()
         {
 
+            $favIconPath =
+                \Aomebo\Dispatcher\System::getResourcesDirInternalPath()
+                . DIRECTORY_SEPARATOR
+                . \Aomebo\Configuration::getSetting('site,shortcut icon');
+
+            if (file_exists($favIconPath)) {
+
+                \Aomebo\Dispatcher\System::setHttpHeaderField(
+                    'Content-Type',
+                    'image/vnd.microsoft.icon; charset=binary'
+                );
+                \Aomebo\Dispatcher\System::setHttpHeaderField(
+                    'Content-Disposition',
+                    'inline; filename="favicon.ico"'
+                );
+                readfile($favIconPath);
+
+            } else {
+                Throw new \Exception('Could not find favicon at "' . $favIconPath . '"');
+            }
+
         }
 
     }

@@ -74,7 +74,9 @@ namespace Aomebo\Response
         public static function respond()
         {
             if (self::hasResponse()) {
-                self::$_response->respond();
+                try {
+                    self::$_response->respond();
+                } catch (\Exception $e) {}
             } else {
                 Throw new \Exception('No response exists');
             }
