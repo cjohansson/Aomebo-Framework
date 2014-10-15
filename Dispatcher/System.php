@@ -323,6 +323,14 @@ namespace Aomebo\Dispatcher
         }
 
         /**
+         *
+         */
+        public function __destruct()
+        {
+            self::outputHttpHeaders();
+        }
+
+        /**
          * @static
          * @return string
          */

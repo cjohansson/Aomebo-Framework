@@ -380,7 +380,7 @@ namespace Aomebo
                         new \Aomebo\Feedback\Debug();
 
                         // Load dispatcher for analyzing of request
-                        new \Aomebo\Dispatcher\System();
+                        $dispatcher = new \Aomebo\Dispatcher\System();
 
                         // Load the response handler
                         new \Aomebo\Response\Handler();
@@ -392,25 +392,13 @@ namespace Aomebo
                         }
 
                     } else {
-
-                        // Save application-data
-                        self::_flushApplicationData();
-
                         Throw new \Exception('Failed to load configuration');
                     }
                 } else {
-
-                    // Save application-data
-                    self::_flushApplicationData();
-
                     Throw new \Exception(
                         'Invalid parameters for Aomebo Application. '
                         . 'parameters: "' . print_r(self::$_parameters, true) . '"');
-
                 }
-
-                // Save application-data
-                self::_flushApplicationData();
 
             }
         }

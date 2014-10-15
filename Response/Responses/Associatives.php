@@ -65,8 +65,6 @@ namespace Aomebo\Response\Responses
                 // Parse the requests associatives
                 \Aomebo\Associatives\Parser::parseRequest();
 
-                \Aomebo\Dispatcher\System::outputHttpHeaders();
-
             } else {
                 \Aomebo\Dispatcher\System::setHttpResponseStatus403Forbidden();
             }
