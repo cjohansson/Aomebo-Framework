@@ -142,8 +142,58 @@ namespace Aomebo\Response
 
             self::$_types = array();
 
-            self::_loadResponsesInDirectory(self::_getResponsesDir());
-            self::_loadResponsesInDirectory(self::_getResponsesSiteDir());
+            $lastEmTime = 0;
+            $diremTime = \Aomebo\Filesystem::getDirectoryLastModificationTime(
+                self::_getResponsesDir());
+            if ($diremTime > $lastEmTime) {
+                $lastEmTime = $diremTime;
+            }
+            $diremTime = \Aomebo\Filesystem::getDirectoryLastModificationTime(
+                self::_getResponsesSiteDir());
+            if ($diremTime > $lastEmTime) {
+                $lastEmTime = $diremTime;
+            }
+
+            $cacheParameters = 'Response/Responses';
+            $cacheKey = md5('lastmod=' . $lastEmTime);
+
+            if (\Aomebo\Cache\System::cacheExists(
+                $cacheParameters,
+                $cacheKey,
+                \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM)
+            ) {
+
+                if (!self::$_types = \Aomebo\Cache\System::loadCache(
+                    $cacheParameters,
+                    $cacheKey,
+                    \Aomebo\Cache\System::FORMAT_SERIALIZE,
+                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                    )
+                ) {
+                    self::_loadResponsesInDirectory(self::_getResponsesDir());
+                    self::_loadResponsesInDirectory(self::_getResponsesSiteDir());
+                }
+
+            } else {
+
+                \Aomebo\Cache\System::clearCache(
+                    $cacheParameters,
+                    null,
+                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                );
+
+                self::_loadResponsesInDirectory(self::_getResponsesDir());
+                self::_loadResponsesInDirectory(self::_getResponsesSiteDir());
+
+                \Aomebo\Cache\System::saveCache(
+                    $cacheParameters,
+                    $cacheKey,
+                    self::$_types,
+                    \Aomebo\Cache\System::FORMAT_SERIALIZE,
+                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                );
+
+            }
 
             // Sort responses based on priority here.
             usort(self::$_types, '\Aomebo\Response\Handler::compareResponses');

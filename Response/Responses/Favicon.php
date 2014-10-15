@@ -64,6 +64,7 @@ namespace Aomebo\Response\Responses
                     'Content-Disposition',
                     'inline; filename="favicon.ico"'
                 );
+                \Aomebo\Dispatcher\System::outputHttpHeaders();
                 readfile($favIconPath);
 
             } else {
