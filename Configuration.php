@@ -38,12 +38,12 @@ namespace Aomebo
         /**
          * @var string
          */
-        const CONFIG_FILENAME = 'configuration.yml';
+        const CONFIG_FILENAME = 'configuration';
 
         /**
          * @var string
          */
-        const STRUCTURE_FILENAME = 'structure.yml';
+        const STRUCTURE_FILENAME = 'structure';
 
         /**
          * @var string
@@ -152,11 +152,18 @@ namespace Aomebo
         private static $_externalStructureFilename;
 
         /**
-         * @static
          * @internal
+         * @static
          * @var bool
          */
         private static $_isLoaded = false;
+
+        /**
+         * @internal
+         * @static
+         * @var bool
+         */
+        private static $_spycLoaded = false;
 
         /**
          *
@@ -231,11 +238,15 @@ namespace Aomebo
             $internalConfigurationFilename = '',
             $externalConfigurationFilename = '',
             $internalStructureFilename = '',
-            $externalStructureFilename = '',
-            $configurationAdapter = null)
+            $externalStructureFilename = '')
         {
 
-            // Set default time-zone
+            /**
+             * Set default time-zone
+             *
+             * This is to prevent PHP for generating any warnings.
+             * This timezone is soon overridden.
+             */
             date_default_timezone_set(self::DEFAULT_TIMEZONE);
 
             $cacheString = '';
@@ -251,10 +262,18 @@ namespace Aomebo
             $internalConfigurationFilename =
                 _SYSTEM_ROOT_ . self::$_internalConfigurationFilename;
 
-            if (file_exists($internalConfigurationFilename)) {
+            if (file_exists($internalConfigurationFilename . '.php')) {
+
                 $cacheString .=
-                    '&ICTime=' . filemtime($internalConfigurationFilename)
-                    . '&ICSize=' . filesize($internalConfigurationFilename);
+                    '&ICTime=' . filemtime($internalConfigurationFilename . '.php')
+                    . '&ICSize=' . filesize($internalConfigurationFilename . '.php');
+
+            } else if (file_exists($internalConfigurationFilename . '.yml')) {
+
+                $cacheString .=
+                    '&ICTime=' . filemtime($internalConfigurationFilename . '.yml')
+                    . '&ICSize=' . filesize($internalConfigurationFilename . '.yml');
+
             }
 
             // Use alternate external config-file if requested
@@ -268,11 +287,20 @@ namespace Aomebo
             $externalConfigurationFilename =
                 _SITE_ROOT_ . self::$_externalConfigurationFilename;
 
-            if (file_exists($externalConfigurationFilename)) {
+            if (file_exists($externalConfigurationFilename . '.php')) {
+
                 $cacheString .=
-                    '&ECTime=' . filemtime($externalConfigurationFilename)
-                    . '&ECSize=' . filesize($externalConfigurationFilename);
+                    '&ECTime=' . filemtime($externalConfigurationFilename . '.php')
+                    . '&ECSize=' . filesize($externalConfigurationFilename . '.php');
+
+            } else if (file_exists($externalConfigurationFilename . '.yml')) {
+
+                $cacheString .=
+                    '&ECTime=' . filemtime($externalConfigurationFilename . '.yml')
+                    . '&ECSize=' . filesize($externalConfigurationFilename . '.yml');
+
             }
+
 
             // Use alternate internal structure-file if requested
             if (!empty($internalStructureFilename)) {
@@ -285,11 +313,20 @@ namespace Aomebo
             $internalStructureFilename =
                 _SYSTEM_ROOT_ . self::$_internalStructureFilename;
 
-            if (file_exists($internalStructureFilename)) {
+            if (file_exists($internalStructureFilename . '.php')) {
+
                 $cacheString .=
-                    '&ISTime=' . filemtime($internalStructureFilename)
-                    . '&ISSize=' . filesize($internalStructureFilename);
+                    '&ISTime=' . filemtime($internalStructureFilename . '.php')
+                    . '&ISSize=' . filesize($internalStructureFilename . '.php');
+
+            } else if (file_exists($internalStructureFilename . '.yml')) {
+
+                $cacheString .=
+                    '&ISTime=' . filemtime($internalStructureFilename . '.yml')
+                    . '&ISSize=' . filesize($internalStructureFilename . '.yml');
+
             }
+
 
             // Use alternate external structure-file if requested
             if (!empty($externalStructureFilename)) {
@@ -302,10 +339,18 @@ namespace Aomebo
             $externalStructureFilename =
                 _SITE_ROOT_ . self::$_externalStructureFilename;
 
-            if (file_exists($externalStructureFilename)) {
+            if (file_exists($externalStructureFilename . '.php')) {
+
                 $cacheString .=
-                    '&ESTime=' . filemtime($externalStructureFilename)
-                    . '&ESSize=' . filesize($externalStructureFilename);
+                    '&ESTime=' . filemtime($externalStructureFilename . '.php')
+                    . '&ESSize=' . filesize($externalStructureFilename . '.php');
+
+            } else if (file_exists($externalStructureFilename . '.yml')) {
+
+                $cacheString .=
+                    '&ESTime=' . filemtime($externalStructureFilename . '.yml')
+                    . '&ESSize=' . filesize($externalStructureFilename . '.yml');
+
             }
 
             if (empty($configurationAdapter)) {
@@ -317,7 +362,7 @@ namespace Aomebo
             /**
              * Cache parameters, static.
              */
-            $cacheParameters = 'Configuration';
+            $cacheParameters = 'Configuration/' . $configurationAdapter;
 
             /**
              * Cache key, unique per:
@@ -325,94 +370,11 @@ namespace Aomebo
              */
             $cacheKey = md5($cacheString);
 
-            if (!\Aomebo\Cache\System::cacheExists(
+            if (\Aomebo\Cache\System::cacheExists(
                 $cacheParameters,
-                $cacheKey)
+                $cacheKey,
+                \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM)
             ) {
-
-                \Aomebo\Cache\System::clearCache(
-                    $cacheParameters,
-                    null,
-                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
-                );
-                \Aomebo\Associatives\Parser::cleanAssociativesCache();
-                \Aomebo\Associatives\Parser::cleanDependenciesCache();
-
-                if ($configurationAdapter == 'YAML') {
-
-                    $spyc = new \Aomebo\Library\Books\spyc\Book();
-
-                    // Tryo to load the Spyc YAML parser
-                    if ($spyc->load()) {
-
-                        self::$_structure = array();
-                        self::$_configuration = array();
-
-                        // Does internal structure-file exists?
-                        if (file_exists($internalStructureFilename)) {
-
-                            $internalStructure = \Spyc::YAMLLoad($internalStructureFilename);
-                            self::multiDimensionalArrayMerge(
-                                self::$_structure, $internalStructure);
-
-                        }
-
-                        // Does internal config-file exists?
-                        if (file_exists($internalConfigurationFilename)) {
-
-                            $internalConfiguration = \Spyc::YAMLLoad($internalConfigurationFilename);
-                            self::multiDimensionalArrayMerge(
-                                self::$_configuration, $internalConfiguration);
-
-                        }
-
-                        // Does external structure-file exists?
-                        if (file_exists($externalStructureFilename)) {
-
-                            $externalStructure = \Spyc::YAMLLoad($externalStructureFilename);
-                            self::multiDimensionalArrayMerge(
-                                self::$_structure, $externalStructure);
-
-                        }
-
-                        // Does external config-file exists?
-                        if (file_exists($externalConfigurationFilename)) {
-
-                            $externalConfiguration = \Spyc::YAMLLoad($externalConfigurationFilename);
-                            self::multiDimensionalArrayMerge(
-                                self::$_configuration, $externalConfiguration);
-
-                        }
-
-                        // Does configuration validate?
-                        if (self::_validate()) {
-
-                            $cacheData = array(
-                                'configuration' => & self::$_configuration,
-                                'structure' => & self::$_structure,
-                                'settings' => & self::$_settings,
-                            );
-
-                            \Aomebo\Cache\System::saveCache(
-                                $cacheParameters,
-                                $cacheKey,
-                                $cacheData,
-                                \Aomebo\Cache\System::FORMAT_JSON_ENCODE);
-
-                            self::$_isLoaded = true;
-
-                            return true;
-
-                        }
-
-                    } else {
-                        Throw new \Exception('Could not load the spyc xml library');
-                    }
-                } else {
-                    Throw new \Exception('Invalid configuration adapter specified');
-                }
-            } else {
-
                 if ($cacheData = \Aomebo\Cache\System::loadCache(
                     $cacheParameters,
                     $cacheKey,
@@ -420,8 +382,8 @@ namespace Aomebo
                 ) {
 
                     if (isset($cacheData['configuration'],
-                        $cacheData['structure'],
-                        $cacheData['settings'])
+                            $cacheData['structure'],
+                            $cacheData['settings'])
                         && is_array($cacheData['configuration'])
                         && is_array($cacheData['structure'])
                         && is_array($cacheData['settings'])
@@ -433,9 +395,7 @@ namespace Aomebo
                         self::$_configuration = $cacheData['configuration'];
                         self::$_structure = $cacheData['structure'];
                         self::$_settings = $cacheData['settings'];
-
                         self::$_isLoaded = true;
-
                         return true;
 
                     } else {
@@ -455,6 +415,170 @@ namespace Aomebo
                     );
                     Throw new \Exception(
                         'Invalid configuration cache, cleared caches.');
+                }
+            } else {
+
+                \Aomebo\Cache\System::clearCache(
+                    $cacheParameters,
+                    null,
+                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                );
+                \Aomebo\Associatives\Parser::cleanAssociativesCache();
+                \Aomebo\Associatives\Parser::cleanDependenciesCache();
+
+                self::$_structure = array();
+                self::$_configuration = array();
+
+                $internalStructure = array();
+
+                $convertQueue = array();
+
+                // Does internal structure-file exists?
+                if (file_exists($internalStructureFilename . '.php')) {
+                    $internalStructure = self::_loadPhpConfiguration(
+                        $internalStructureFilename . '.php'
+                    );
+                } else if (file_exists($internalStructureFilename . '.yml')) {
+
+                    $internalStructure = self::_loadYmlConfiguration(
+                        $internalStructureFilename . '.yml'
+                    );
+
+                    // Convert YML to PHP
+                    $convertQueue[] = array(
+                        $internalStructureFilename . '.php',
+                        $internalStructure
+                    );
+
+                }
+
+                if (sizeof($internalStructure) > 0) {
+                    self::multiDimensionalArrayMerge(
+                        self::$_structure,
+                        $internalStructure
+                    );
+                }
+
+                $internalConfiguration = array();
+
+                // Does internal configuration-file exists?
+                if (file_exists($internalConfigurationFilename . '.php')) {
+                    $internalConfiguration = self::_loadPhpConfiguration(
+                        $internalConfigurationFilename . '.php'
+                    );
+                } else if (file_exists($internalConfigurationFilename . '.yml')) {
+
+                    $internalConfiguration = self::_loadYmlConfiguration(
+                        $internalConfigurationFilename . '.yml'
+                    );
+
+                    // Convert YML to PHP
+                    $convertQueue[] = array(
+                        $internalConfigurationFilename . '.php',
+                        $internalConfiguration
+                    );
+
+                }
+
+                if (sizeof($internalConfiguration) > 0) {
+                    self::multiDimensionalArrayMerge(
+                        self::$_configuration,
+                        $internalConfiguration
+                    );
+                }
+
+                $externalStructure = array();
+
+                // Does external structure-file exists?
+                if (file_exists($externalStructureFilename . '.php')) {
+                    $externalStructure = self::_loadPhpConfiguration(
+                        $externalStructureFilename . '.php'
+                    );
+                } else if (file_exists($externalStructureFilename . '.yml')) {
+
+                    $externalStructure = self::_loadYmlConfiguration(
+                        $externalStructureFilename . '.yml'
+                    );
+
+                    // Convert YML to PHP
+                    $convertQueue[] = array(
+                        $externalStructureFilename . '.php',
+                        $externalStructure
+                    );
+
+                }
+
+                if (sizeof($externalStructure) > 0) {
+                    self::multiDimensionalArrayMerge(
+                        self::$_structure,
+                        $externalStructure
+                    );
+                }
+
+                $externalConfiguration = array();
+
+                // Does external config-file exists?
+                if (file_exists($externalConfigurationFilename . '.php')) {
+                    $externalConfiguration = self::_loadPhpConfiguration(
+                        $externalConfigurationFilename . '.php'
+                    );
+                } else if (file_exists($externalConfigurationFilename . '.yml')) {
+
+                    $externalConfiguration = self::_loadYmlConfiguration(
+                        $externalConfigurationFilename . '.yml'
+                    );
+
+                    // Convert YML to PHP
+                    $convertQueue[] = array(
+                        $externalConfigurationFilename . '.php',
+                        $externalConfiguration
+                    );
+
+                }
+
+                if (sizeof($externalConfiguration) > 0) {
+                    self::multiDimensionalArrayMerge(
+                        self::$_configuration,
+                        $externalConfiguration
+                    );
+                }
+
+                // Does configuration validate?
+                if (self::_validate()) {
+
+                    $cacheData = array(
+                        'configuration' => & self::$_configuration,
+                        'structure' => & self::$_structure,
+                        'settings' => & self::$_settings,
+                    );
+
+                    self::$_isLoaded = true;
+
+                    \Aomebo\Cache\System::saveCache(
+                        $cacheParameters,
+                        $cacheKey,
+                        $cacheData,
+                        \Aomebo\Cache\System::FORMAT_JSON_ENCODE,
+                        \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                    );
+
+                    // Are any data in convert-queue?
+                    if (sizeof($convertQueue) > 0) {
+                        foreach ($convertQueue as $convertQueueItem)
+                        {
+                            if (isset($convertQueueItem[0],
+                                $convertQueueItem[1])
+                            ) {
+                                self::_savePhpConfigurationFile(
+                                    $convertQueueItem[0],
+                                    $convertQueueItem[1]
+                                );
+                            }
+                        }
+                    }
+
+                    return true;
+
                 }
             }
 
@@ -670,29 +794,7 @@ namespace Aomebo
          */
         private static function _flushSettings()
         {
-
-            $book = new \Aomebo\Library\Books\spyc\Book();
-
-            // Do we succeed in load the Spyc YAML parser?
-            if ($book->load()) {
-
-                $externalConfigurationFilename =
-                    _SITE_ROOT_ . self::$_externalConfigurationFilename;
-                $yamlData = \spyc::YAMLDump(self::$_settings, 4, 0);
-
-                if (\Aomebo\Filesystem::makeFile(
-                    $externalConfigurationFilename, $yamlData)
-                ) {
-                    return true;
-                }
-
-            } else {
-                Throw new \Exception(
-                    'Could not load YAML library');
-            }
-
-            return false;
-
+            return self::_savePhpConfiguration();
         }
 
         /**
@@ -888,7 +990,6 @@ namespace Aomebo
                                     $settingsNode[$structureKey] =
                                         $structureValue[self::STRUCTURE_KEY_DEFAULT];
                                 } else if (!empty($structureValue[self::STRUCTURE_KEY_REQUIRED])) {
-                                    $status = false;
                                     Throw new \Exception(
                                         'No value defined in external or internal configuration for '
                                         . 'required value "' . $structureKey . '" in structure node: "'
@@ -1017,6 +1118,160 @@ namespace Aomebo
         private static function _isString($value)
         {
             return is_string($value);
+        }
+
+        /**
+         * @internal
+         * @static
+         * @param string $path
+         * @return array
+         */
+        private static function _loadPhpConfiguration($path)
+        {
+            if (file_exists($path)) {
+                try {
+                    $configuration = array();
+                    require_once($path);
+                    global $configuration;
+                    if (isset($configuration)
+                        && is_array($configuration)
+                    ) {
+                        return $configuration;
+                    }
+
+                } catch (\Exception $e) {}
+
+            }
+            return array();
+        }
+
+        /**
+         * @static
+         * @param string $path
+         * @return array
+         * @throws \Exception
+         */
+        private static function _loadYmlConfiguration($path)
+        {
+            if (!self::$_spycLoaded) {
+                $spyc = new \Aomebo\Library\Books\spyc\Book();
+                if ($spyc->load()) {
+                    self::$_spycLoaded = false;
+                } else {
+                    Throw new \Exception('Failed to load Spyc Library');
+                }
+            }
+            if (file_exists($path)) {
+                $configuration = \Spyc::YAMLLoad($path);
+                if (isset($configuration)
+                    && is_array($configuration)
+                ) {
+                    return $configuration;
+                }
+            }
+            return array();
+        }
+
+        /**
+         * @internal
+         * @static
+         * @return bool
+         */
+        private static function _savePhpConfiguration()
+        {
+            return self::_savePhpConfigurationFile(
+                _SITE_ROOT_ . self::$_externalConfigurationFilename . '.php',
+                self::$_settings
+            );
+        }
+
+        /**
+         * @internal
+         * @static
+         * @param string $file
+         * @param array $data
+         * @return bool
+         */
+        private static function _savePhpConfigurationFile($file, $data)
+        {
+
+            if (isset($data)
+                && is_array($data)
+                && sizeof($data) > 0
+            ) {
+
+                $phpData = "<?php \n"
+                    . "\n"
+                    . 'global $configuration; ' . "\n"
+                    . "\n"
+                    . '$configuration = ' . var_export($data, true)
+                    . ';' . "\n"
+                    . "\n";
+
+                if (\Aomebo\Filesystem::makeFile(
+                    $file,
+                    $phpData)
+                ) {
+                    return true;
+                }
+
+            }
+
+            return false;
+
+        }
+
+        /**
+         * @internal
+         * @static
+         * @throws \Exception
+         * @return bool
+         */
+        private static function _saveYmlConfiguration()
+        {
+            return self::_saveYmlConfigurationFile(
+                _SITE_ROOT_ . self::$_externalConfigurationFilename . '.yml',
+                self::$_settings
+            );
+        }
+
+        /**
+         * @internal
+         * @static
+         * @param string $file
+         * @param array $data
+         * @throws \Exception
+         * @return bool
+         */
+        private static function _saveYmlConfigurationFile($file, $data)
+        {
+
+            if (!self::$_spycLoaded) {
+                $spyc = new \Aomebo\Library\Books\spyc\Book();
+                if ($spyc->load()) {
+                    self::$_spycLoaded = false;
+                } else {
+                    Throw new \Exception('Failed to load Spyc Library');
+                }
+            }
+
+            if (isset($file, $data)
+                && is_array($data)
+            ) {
+
+                $yamlData = \spyc::YAMLDump($data, 4, 0);
+
+                if (\Aomebo\Filesystem::makeFile(
+                    $file,
+                    $yamlData)
+                ) {
+                    return true;
+                }
+
+            }
+
+            return false;
+
         }
 
     }

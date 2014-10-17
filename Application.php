@@ -264,7 +264,7 @@ namespace Aomebo
                     }
 
                     // Define system constants
-                    $this->_defineConstants($parameters);
+                    self::_defineConstants($parameters);
 
                     // Apply framework default auto-loader
                     spl_autoload_register(__NAMESPACE__
@@ -288,8 +288,7 @@ namespace Aomebo
                         self::getParameter(self::PARAMETER_CONFIGURATION_INTERNAL_FILENAME),
                         self::getParameter(self::PARAMETER_CONFIGURATION_EXTERNAL_FILENAME),
                         self::getParameter(self::PARAMETER_STRUCTURE_INTERNAL_FILENAME),
-                        self::getParameter(self::PARAMETER_STRUCTURE_EXTERNAL_FILENAME),
-                        self::getParameter(self::PARAMETER_CONFIGURATION_ADAPTER))
+                        self::getParameter(self::PARAMETER_STRUCTURE_EXTERNAL_FILENAME))
                     ) {
 
                         self::$_freeMemoryAtInit =
@@ -1055,10 +1054,11 @@ namespace Aomebo
 
         /**
          * @internal
+         * @static
          * @param array $parameters
          * @throws \Exception
          */
-        private function _defineConstants($parameters)
+        private static function _defineConstants($parameters)
         {
             if (isset($parameters)
                 && is_array($parameters)
@@ -1112,10 +1112,7 @@ namespace Aomebo
                     }
                 }
             } else {
-
-                Throw new \Exception(
-                    'Invalid parameters for ' . __FILE__);
-
+                Throw new \Exception('Invalid parameters for ' . __FILE__);
             }
         }
 
