@@ -792,7 +792,7 @@ namespace Aomebo\Associatives
             foreach ($roots as $root)
             {
                 if ($dirModTime = \Aomebo\Filesystem::getDirectoryLastModificationTime(
-                    $root)
+                    $root, true, 2)
                 ) {
                     if ($dirModTime > $lastModificationTime) {
                         $lastModificationTime = $dirModTime;

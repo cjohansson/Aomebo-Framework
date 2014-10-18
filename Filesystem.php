@@ -191,17 +191,19 @@ namespace Aomebo
          * @static
          * @param string $directory
          * @param bool [$recursive = true]
+         * @param int|bool [$maxDepth = 2]
          * @return int|bool
          */
-        public static function getDirectoryLastModificationTime($directory, $recursive = true)
+        public static function getDirectoryLastModificationTime($directory,
+            $recursive = true, $maxDepth = 2)
         {
             if (!\Aomebo\Configuration::isLoaded()
                 || self::isPathInBasedir($directory)
             ) {
                 if (($recursive
-                    && !isset(self::$_recDiremTimes[$directory]))
+                    && !isset(self::$_recDiremTimes[$directory][$maxDepth]))
                     || (!$recursive
-                        && !isset(self::$_diremTimes[$directory]))
+                        && !isset(self::$_diremTimes[$directory][$maxDepth]))
                 ) {
 
                     if (is_dir($directory)) {
@@ -229,22 +231,20 @@ namespace Aomebo
                                             }
 
                                         // Are we doing recursive?
-                                        } else if ($recursive) {
-
-                                            $subitemtime =
-                                                self::getDirectoryLastModificationTime(
-                                                    $path,
-                                                    $recursive
+                                        } else if ($recursive
+                                            && ($maxDepth === false
+                                            || $maxDepth > 0)
+                                        ) {
+                                            $subitemtime = self::getDirectoryLastModificationTime(
+                                                $path,
+                                                $recursive,
+                                                ($maxDepth === false ? false : $maxDepth - 1)
                                             );
-
                                         }
 
                                     // Is it a file?
                                     } else if (is_file($path)) {
-
-                                        $subitemtime =
-                                            self::getFileLastModificationTime($path);
-
+                                        $subitemtime = self::getFileLastModificationTime($path);
                                     }
 
                                     // Is modification time above last maximum?
@@ -258,24 +258,24 @@ namespace Aomebo
                         }
 
                         if ($recursive) {
-                            self::$_recDiremTimes[$directory] = $diremtime;
+                            self::$_recDiremTimes[$directory][$maxDepth] = $diremtime;
                         } else {
-                            self::$_diremTimes[$directory] = $diremtime;
+                            self::$_diremTimes[$directory][$maxDepth] = $diremtime;
                         }
 
                     } else {
                         if ($recursive) {
-                            self::$_recDiremTimes[$directory] = false;
+                            self::$_recDiremTimes[$directory][$maxDepth] = false;
                         } else {
-                            self::$_diremTimes[$directory] = false;
+                            self::$_diremTimes[$directory][$maxDepth] = false;
                         }
                     }
                 }
 
                 if ($recursive) {
-                    return self::$_recDiremTimes[$directory];
+                    return self::$_recDiremTimes[$directory][$maxDepth];
                 } else {
-                    return self::$_diremTimes[$directory];
+                    return self::$_diremTimes[$directory][$maxDepth];
                 }
 
             }

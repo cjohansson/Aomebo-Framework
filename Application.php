@@ -826,7 +826,7 @@ namespace Aomebo
                 foreach ($roots as $root)
                 {
                     if ($diremtime = \Aomebo\Filesystem::getDirectoryLastModificationTime(
-                        $root)
+                        $root, true, 2)
                     ) {
                         if ($diremtime > $runtimesLastModificationTime) {
                             $runtimesLastModificationTime = $diremtime;
@@ -837,7 +837,7 @@ namespace Aomebo
                 $cacheParameters = 'Application/Runtimes';
                 $cacheKey = md5('last_mod=' . $runtimesLastModificationTime
                     . '&framework=' . \Aomebo\Filesystem::getDirectoryLastModificationTime(
-                        __DIR__)
+                        __DIR__, false)
                 );
 
             }
@@ -927,13 +927,11 @@ namespace Aomebo
                                 && $dir != '..'
                             ) {
 
-                                $absPath =
-                                    $root . DIRECTORY_SEPARATOR . $dir;
+                                $absPath = $root . DIRECTORY_SEPARATOR . $dir;
 
                                 // Is it a valid directory?
                                 if (is_dir($absPath)) {
-                                    self::_loadRuntimesFromDirectory(
-                                        $absPath);
+                                    self::_loadRuntimesFromDirectory($absPath);
                                 }
 
                             }

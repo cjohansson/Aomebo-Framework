@@ -144,12 +144,18 @@ namespace Aomebo\Response
 
             $lastEmTime = 0;
             $diremTime = \Aomebo\Filesystem::getDirectoryLastModificationTime(
-                self::_getResponsesDir());
+                self::_getResponsesDir(),
+                true,
+                2
+            );
             if ($diremTime > $lastEmTime) {
                 $lastEmTime = $diremTime;
             }
             $diremTime = \Aomebo\Filesystem::getDirectoryLastModificationTime(
-                self::_getResponsesSiteDir());
+                self::_getResponsesSiteDir(),
+                true,
+                2
+            );
             if ($diremTime > $lastEmTime) {
                 $lastEmTime = $diremTime;
             }
