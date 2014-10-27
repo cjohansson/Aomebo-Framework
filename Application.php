@@ -273,13 +273,6 @@ namespace Aomebo
                     // Get the configuration
                     $configuration = \Aomebo\Configuration::getInstance();
 
-                    // Is no configuration adapter set?
-                    if (!self::hasParameter(self::PARAMETER_CONFIGURATION_ADAPTER)) {
-                        self::setParameter(
-                            self::PARAMETER_CONFIGURATION_ADAPTER,
-                            $configuration::DEFAULT_ADAPTER);
-                    }
-
                     // Load application-data
                     self::_loadApplicationData();
 
@@ -378,7 +371,11 @@ namespace Aomebo
                         // Load feedback engine
                         new \Aomebo\Feedback\Debug();
 
-                        // Load dispatcher for analyzing of request
+                        /**
+                         * Load dispatcher for analyzing of request
+                         *
+                         * Instanciated to variable to prevent garbage collection.
+                         */
                         $dispatcher = new \Aomebo\Dispatcher\System();
 
                         // Load the response handler
@@ -454,6 +451,10 @@ namespace Aomebo
                 self::$_runtimes : false);
         }
 
+        /**
+         * @static
+         * @return float|int
+         */
         public static function getFreeMemoryAtInit()
         {
             return self::$_freeMemoryAtInit;
@@ -826,7 +827,7 @@ namespace Aomebo
                 foreach ($roots as $root)
                 {
                     if ($diremtime = \Aomebo\Filesystem::getDirectoryLastModificationTime(
-                        $root, true, 2)
+                        $root, true, 2, false)
                     ) {
                         if ($diremtime > $runtimesLastModificationTime) {
                             $runtimesLastModificationTime = $diremtime;
@@ -837,7 +838,7 @@ namespace Aomebo
                 $cacheParameters = 'Application/Runtimes';
                 $cacheKey = md5('last_mod=' . $runtimesLastModificationTime
                     . '&framework=' . \Aomebo\Filesystem::getDirectoryLastModificationTime(
-                        __DIR__, false)
+                        __DIR__, false, 0, false)
                 );
 
             }

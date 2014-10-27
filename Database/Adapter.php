@@ -232,7 +232,6 @@ namespace Aomebo\Database
                     self::_flagThisConstructed();
 
                 }
-
             }
         }
 
@@ -486,6 +485,37 @@ namespace Aomebo\Database
         }
 
         /**
+         * This method returns whether or not table exists.
+         *
+         * @static
+         * @param string $rawTableName
+         * @return bool|int
+         */
+        public static function getNextInsertId($rawTableName)
+        {
+
+            self::_instanciate();
+
+            if (self::isConnected()) {
+
+                $tableName = str_replace(
+                    self::$_replaceKeys,
+                    self::$_replaceValues,
+                    $rawTableName);
+
+                if ($insertId = self::$_object->getNextInsertId(
+                    $tableName)
+                ) {
+                    return $insertId;
+                }
+
+            }
+
+            return false;
+
+        }
+
+        /**
          * @static
          * @param mixed $value
          * @param string|bool [$quotation = false]
@@ -665,7 +695,6 @@ namespace Aomebo\Database
                 return true;
 
             } else {
-
                 Throw new \Exception(
                     sprintf(
                         self::systemTranslate('Can\'t query "%s" when database '
@@ -675,9 +704,7 @@ namespace Aomebo\Database
                         $sql
                     )
                 );
-
             }
-
         }
 
         /**
@@ -1116,11 +1143,9 @@ namespace Aomebo\Database
          */
         private static function _instanciate()
         {
-
             if (!self::_isConstructed()) {
                 self::getInstance(__CLASS__);
             }
-
         }
 
     }

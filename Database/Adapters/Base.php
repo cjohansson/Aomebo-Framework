@@ -190,6 +190,14 @@ namespace Aomebo\Database\Adapters
 
         /**
          * @internal
+         * @param string $tableName
+         * @return string|bool
+         * @throws \Exception
+         */
+        abstract public function getNextInsertId($tableName);
+
+        /**
+         * @internal
          */
         public function __destruct()
         {

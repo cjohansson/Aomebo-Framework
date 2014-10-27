@@ -418,7 +418,7 @@ namespace Aomebo\Associatives
 
             $cacheParameters = 'Associatives/Engine/Associatives';
             $cacheKey = md5('last_mod=' . \Aomebo\Application::getRuntimesLastModificationTime()
-                . '&engine=' . \Aomebo\Filesystem::getFileLastModificationTime(__FILE__)
+                . '&engine=' . \Aomebo\Filesystem::getFileLastModificationTime(__FILE__, false)
             );
 
             $loadedCache = false;
@@ -792,7 +792,7 @@ namespace Aomebo\Associatives
             foreach ($roots as $root)
             {
                 if ($dirModTime = \Aomebo\Filesystem::getDirectoryLastModificationTime(
-                    $root, true, 2)
+                    $root, true, 2, false)
                 ) {
                     if ($dirModTime > $lastModificationTime) {
                         $lastModificationTime = $dirModTime;
@@ -805,7 +805,7 @@ namespace Aomebo\Associatives
 
             $cacheParameters = 'Associatives/Engine/Dependencies';
             $cacheKey = md5('last_mod=' . $lastModificationTime
-                . '&engine=' . \Aomebo\Filesystem::getFileLastModificationTime(__FILE__)
+                . '&engine=' . \Aomebo\Filesystem::getFileLastModificationTime(__FILE__, false)
             );
 
             $loadedCache = false;

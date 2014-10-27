@@ -173,12 +173,14 @@ namespace Aomebo
         /**
          * @static
          * @param string $filename
+         * @param bool [$validate = true]
          * @return int|bool
          */
-        public static function getFileLastModificationTime($filename)
+        public static function getFileLastModificationTime($filename, $validate = true)
         {
-            if (!\Aomebo\Configuration::isLoaded()
-                || self::isPathInBasedir($filename)
+            if (!$validate
+                || (!\Aomebo\Configuration::isLoaded()
+                    || self::isPathInBasedir($filename))
             ) {
                 if ($filemtime = @filemtime($filename)) {
                     return $filemtime;
@@ -192,13 +194,15 @@ namespace Aomebo
          * @param string $directory
          * @param bool [$recursive = true]
          * @param int|bool [$maxDepth = 2]
+         * @param bool [$validate = true]
          * @return int|bool
          */
         public static function getDirectoryLastModificationTime($directory,
-            $recursive = true, $maxDepth = 2)
+            $recursive = true, $maxDepth = 2, $validate = true)
         {
-            if (!\Aomebo\Configuration::isLoaded()
-                || self::isPathInBasedir($directory)
+            if (!$validate
+                || (!\Aomebo\Configuration::isLoaded()
+                    || self::isPathInBasedir($directory))
             ) {
                 if (($recursive
                     && !isset(self::$_recDiremTimes[$directory][$maxDepth]))
@@ -226,7 +230,10 @@ namespace Aomebo
                                         // Is it current directory?
                                         if ($subitem == '.') {
 
-                                            if ($filemtime = @filemtime($path)) {
+                                            if ($filemtime = self::getFileLastModificationTime(
+                                                $path,
+                                                false)
+                                            ) {
                                                 $subitemtime = $filemtime;
                                             }
 
@@ -238,13 +245,16 @@ namespace Aomebo
                                             $subitemtime = self::getDirectoryLastModificationTime(
                                                 $path,
                                                 $recursive,
-                                                ($maxDepth === false ? false : $maxDepth - 1)
+                                                ($maxDepth === false ? false : $maxDepth - 1),
+                                                false
                                             );
                                         }
 
                                     // Is it a file?
                                     } else if (is_file($path)) {
-                                        $subitemtime = self::getFileLastModificationTime($path);
+                                        $subitemtime = self::getFileLastModificationTime(
+                                            $path, false
+                                        );
                                     }
 
                                     // Is modification time above last maximum?

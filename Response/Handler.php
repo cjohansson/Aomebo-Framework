@@ -146,7 +146,8 @@ namespace Aomebo\Response
             $diremTime = \Aomebo\Filesystem::getDirectoryLastModificationTime(
                 self::_getResponsesDir(),
                 true,
-                2
+                2,
+                false
             );
             if ($diremTime > $lastEmTime) {
                 $lastEmTime = $diremTime;
@@ -154,7 +155,8 @@ namespace Aomebo\Response
             $diremTime = \Aomebo\Filesystem::getDirectoryLastModificationTime(
                 self::_getResponsesSiteDir(),
                 true,
-                2
+                2,
+                false
             );
             if ($diremTime > $lastEmTime) {
                 $lastEmTime = $diremTime;

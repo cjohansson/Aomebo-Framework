@@ -56,7 +56,7 @@ namespace Aomebo\Internationalization\Adapters\Gettext
             {
                 $dirtime =
                     \Aomebo\Filesystem::getDirectoryLastModificationTime(
-                        $textDomain, true, 2);
+                        $textDomain, true, 2, false);
                 if ($dirtime > $lastModificationTime)
                 {
                     $lastModificationTime = $dirtime;

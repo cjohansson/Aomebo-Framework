@@ -25,15 +25,15 @@ namespace Aomebo
 {
 
     /**
+     * This class first loads structure internally and externally, first from
+     * PHP sources, then from YML sources. After that it loads configuration internally
+     * and externally, first from PHP sources and then from YML sources. It also validates
+     * the configuration with the structure and uses filesystem cache to speed up this loading.
+     *
      * @method static \Aomebo\Configuration getInstance()
      */
     class Configuration extends Singleton
     {
-
-        /**
-         * @var string
-         */
-        const DEFAULT_ADAPTER = 'YAML';
 
         /**
          * @var string
@@ -166,6 +166,13 @@ namespace Aomebo
         private static $_spycLoaded = false;
 
         /**
+         * @internal
+         * @static
+         * @var bool
+         */
+        private static $_hasSiteConfiguration = false;
+
+        /**
          *
          */
         public function __construct()
@@ -174,6 +181,15 @@ namespace Aomebo
             if (!$this->_isConstructed()) {
                 $this->_flagThisConstructed();
             }
+        }
+
+        /**
+         * @static
+         * @return bool
+         */
+        public static function hasSiteConfiguration()
+        {
+            return self::$_hasSiteConfiguration;
         }
 
         /**
@@ -289,18 +305,21 @@ namespace Aomebo
 
             if (file_exists($externalConfigurationFilename . '.php')) {
 
+                self::$_hasSiteConfiguration = true;
+
                 $cacheString .=
                     '&ECTime=' . filemtime($externalConfigurationFilename . '.php')
                     . '&ECSize=' . filesize($externalConfigurationFilename . '.php');
 
             } else if (file_exists($externalConfigurationFilename . '.yml')) {
 
+                self::$_hasSiteConfiguration = true;
+
                 $cacheString .=
                     '&ECTime=' . filemtime($externalConfigurationFilename . '.yml')
                     . '&ECSize=' . filesize($externalConfigurationFilename . '.yml');
 
             }
-
 
             // Use alternate internal structure-file if requested
             if (!empty($internalStructureFilename)) {
@@ -327,7 +346,6 @@ namespace Aomebo
 
             }
 
-
             // Use alternate external structure-file if requested
             if (!empty($externalStructureFilename)) {
                 self::$_externalStructureFilename = $externalStructureFilename;
@@ -353,16 +371,10 @@ namespace Aomebo
 
             }
 
-            if (empty($configurationAdapter)) {
-                $configurationAdapter = self::DEFAULT_ADAPTER;
-            }
-
-            $cacheString .= '&adapter=' . $configurationAdapter;
-
             /**
              * Cache parameters, static.
              */
-            $cacheParameters = 'Configuration/' . $configurationAdapter;
+            $cacheParameters = 'Configuration';
 
             /**
              * Cache key, unique per:

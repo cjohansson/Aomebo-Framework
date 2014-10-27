@@ -67,6 +67,40 @@ namespace Aomebo\Database\Adapters\Mysqli
         }
 
         /**
+         * @param string $tableName
+         * @return bool|int
+         * @throws \Exception
+         */
+        public function getNextInsertId($tableName)
+        {
+            if (isset($tableName)) {
+                if ($resultset = \Aomebo\Database\Adapter::query(
+                    'SELECT `AUTO_INCREMENT` FROM `information_schema`.`TABLES` '
+                    . 'WHERE `table_schema` = {database} AND `table_name` = {table}',
+                    array(
+                        'database' => array(
+                            'value' => \Aomebo\Configuration::getSetting(
+                                'database,database'),
+                            'quoted' => true,
+                        ),
+                        'table' => array(
+                            'value' => $tableName,
+                            'quoted' => true,
+                        ),
+                    ))
+                ) {
+                    $row = $resultset->fetchAssoc();
+                    return $row['AUTO_INCREMENT'];
+                }
+            } else {
+                Throw new \Exception('Invalid parameters');
+            }
+
+            return false;
+
+        }
+
+        /**
          * @param string $charset
          * @throws \Exception
          * @return bool
