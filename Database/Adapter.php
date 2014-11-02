@@ -544,6 +544,119 @@ namespace Aomebo\Database
         }
 
         /**
+         * Performs all SQL (multiple or single) queries via the vsprintf format.
+         *
+         * Example:
+         * queryf('SELECT * FROM `my_table` WHERE `a` = "%s"', "dog")
+         *
+         * @static
+         * @param string $sql
+         * @param array|null [$values = null]
+         * @param bool [$unbuffered = false]
+         * @param bool [$throwExceptionOnFailure = true]
+         * @param bool [$allowMultipleQueries = false]
+         * @throws \Exception
+         * @see vsprintf()
+         * @return \Aomebo\Database\Adapters\Resultset|bool
+         */
+        public static function queryf($sql, $values = null,
+             $unbuffered = false, $throwExceptionOnFailure = true,
+             $allowMultipleQueries = false)
+        {
+            if (self::isConnected()) {
+
+                // Do we have any triggers?
+                if ($newSql = \Aomebo\Trigger\System::processTriggers(
+                    \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_QUERY,
+                    $sql)
+                ) {
+                    $sql = $newSql;
+                }
+
+                if ($allowMultipleQueries) {
+
+                    $queries = explode(';', $sql);
+                    if (is_array($queries)) {
+                        $queryCount = sizeof($queries);
+                    } else {
+                        $queries = array($sql);
+                        $queryCount = (int) 1;
+                    }
+
+                } else {
+                    $queries = array($sql);
+                    $queryCount = (int) 1;
+                }
+
+                if (isset($values)
+                    && is_array($values)
+                ) {
+                    $valuesCount = sizeof($values);
+                    foreach ($values as & $value)
+                    {
+                        $value = self::escape($value);
+                    }
+                } else {
+                    $values = array();
+                    if (isset($value)) {
+                        $values = self::escape($value);
+                    }
+                    $valuesCount = 0;
+                }
+
+                foreach ($queries as $rawQuery)
+                {
+
+                    $query = trim($rawQuery);
+
+                    if ($valuesCount > 0) {
+                        $query = vsprintf($query, $values);
+                    }
+
+                    if (!empty($query)) {
+
+                        $sqlKey = strtoupper(trim(substr($query, 0, stripos($query, ' '))));
+                        self::$_lastSql = $query;
+
+                        if ($queryCount === 1) {
+                            return self::_query($query, $unbuffered, $sqlKey, $queryCount, $throwExceptionOnFailure);
+                        } else {
+                            self::_query($query, $unbuffered, $sqlKey, $queryCount, $throwExceptionOnFailure);
+                        }
+
+                    } else {
+                        if (!empty($rawQuery)) {
+
+                            Throw new \Exception(
+                                sprintf(
+                                    self::systemTranslate(
+                                        'SQL: "%s" evaluated into empty query in %s'
+                                    ),
+                                    print_r($rawQuery, true),
+                                    __FUNCTION__
+                                )
+                            );
+
+                        }
+                    }
+                }
+
+                return true;
+
+            } else {
+                Throw new \Exception(
+                    sprintf(
+                        self::systemTranslate('Can\'t query "%s" when database '
+                            . 'connection hasn\'t been established. '
+                            . 'Database adapter constructed: ' .
+                            (self::_isConstructed() ? 'YES' : 'NO')),
+                        $sql
+                    )
+                );
+            }
+        }
+
+        /**
          * Performs all SQL (multiple or single) queries.
          *
          * @static
