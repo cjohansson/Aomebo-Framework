@@ -495,7 +495,8 @@ namespace Aomebo
                 self::$_parameters[$key] = $value;
             } else {
                 Throw new \Exception(
-                    'Invalid parameters for ' . __METHOD__);
+                    self::systemTranslate('Invalid parameters')
+                );
             }
         }
 
@@ -517,7 +518,8 @@ namespace Aomebo
                 }
             } else {
                 Throw new \Exception(
-                    'Invalid parameters for ' . __METHOD__);
+                    self::systemTranslate('Invalid parameters')
+                );
             }
         }
 

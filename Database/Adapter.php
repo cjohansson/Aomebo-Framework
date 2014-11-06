@@ -547,7 +547,8 @@ namespace Aomebo\Database
          * Performs all SQL (multiple or single) queries via the vsprintf format.
          *
          * Example:
-         * queryf('SELECT * FROM `my_table` WHERE `a` = "%s"', "dog")
+         * $result = \Aomebo\Database\Adapter::
+         *      queryf('SELECT * FROM `my_table` WHERE `a` = "%s" AND `b` = %d ORDER BY `name`', array("dog", 3));
          *
          * @static
          * @param string $sql
@@ -658,6 +659,10 @@ namespace Aomebo\Database
 
         /**
          * Performs all SQL (multiple or single) queries.
+         *
+         * Example:
+         * $result = \Aomebo\Database\Adapter::
+         *      query('SELECT * FROM `my_table` WHERE `a` = "{animal}" AND `b` = {age} ORDER BY `name`', array('name' => 'dog', 'age' => 3));
          *
          * @static
          * @param string $sql

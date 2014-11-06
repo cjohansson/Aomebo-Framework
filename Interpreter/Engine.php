@@ -1120,6 +1120,7 @@ namespace Aomebo\Interpreter
 
                 } else {
 
+                    // Is ordinary page request
                     if ($page = $dispatcher::getPage()) {
 
                         $filename = $page . $fileSuffix;
@@ -1133,30 +1134,32 @@ namespace Aomebo\Interpreter
 
                         if (file_exists($path)) {
 
-                            $pageData = \Aomebo\Filesystem::getFileContents(
-                                $path);
-
-                            if (method_exists($adapter, 'applyDefaultEncapsulation')) {
-                                $pageData =
-                                    $adapter->applyDefaultEncapsulation($pageData);
-                            }
-
                             /**
                              * Cache key, unique per:
-                             * - Page contents
+                             * - Page last modified
                              */
-                            $cacheKey = md5($pageData);
+                            $cacheKey = \Aomebo\Filesystem::getFileLastModificationTime(
+                                $path, false
+                            );
 
                             if (\Aomebo\Cache\System::cacheExists(
                                 $cacheParameters,
                                 $cacheKey)
                             ) {
-                                return
-                                    \Aomebo\Cache\System::loadCache(
-                                        $cacheParameters,
-                                        $cacheKey,
-                                        \Aomebo\Cache\System::FORMAT_JSON_ENCODE);
+
+                                return \Aomebo\Cache\System::loadCache(
+                                    $cacheParameters,
+                                    $cacheKey,
+                                    \Aomebo\Cache\System::FORMAT_JSON_ENCODE
+                                );
+
                             } else {
+
+                                $pageData = \Aomebo\Filesystem::getFileContents($path);
+
+                                if (method_exists($adapter, 'applyDefaultEncapsulation')) {
+                                    $pageData = $adapter->applyDefaultEncapsulation($pageData);
+                                }
 
                                 \Aomebo\Cache\System::clearCache(
                                     $cacheParameters,
@@ -1175,14 +1178,16 @@ namespace Aomebo\Interpreter
                                     return $processed;
 
                                 } else {
-                                    Throw new \Exception('Could not process page at "'
-                                        . $path . '".');
+                                    Throw new \Exception(
+                                        'Could not process page at "' . $path . '".'
+                                    );
                                 }
 
                             }
                         } else {
-                            Throw new \Exception('Could not find requested page at "'
-                                . $path . '" in ' . __FUNCTION__);
+                            Throw new \Exception(
+                                'Could not find requested page at "' . $path . '"'
+                            );
                         }
                     } else {
                         Throw new \Exception('Found no page to interpret for request GET: '

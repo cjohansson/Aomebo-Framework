@@ -186,14 +186,17 @@ namespace Aomebo\Trigger
          * @static
          * @param string $key
          * @param array|null [$args = null]
-         * @return string|bool
+         * @return int|string|bool|null             null if no triggers were executed
          */
         public static function processTriggers($key, $args = null)
         {
 
             if ($triggers = self::getTriggers($key)) {
 
-                $output = '';
+                $outputIsLiteral = true;
+                $outputIsNumeric = true;
+                $outputIsBoolean = true;
+                $triggerCount = sizeof($triggers);
 
                 // Process arguments
                 if (func_num_args() > 2) {
@@ -216,15 +219,60 @@ namespace Aomebo\Trigger
                     $args = array($args);
                 }
 
-                foreach ($triggers as $trigger) {
-                    $output .= self::callFunctionReference($trigger, $args);
+                $returns = array();
+
+                foreach ($triggers as $trigger)
+                {
+
+                    $return = self::callFunctionReference($trigger, $args);
+
+                    if ($triggerCount > 0) {
+
+                        $outputIsBoolean = ($outputIsBoolean && is_bool($return));
+                        $outputIsLiteral = ($outputIsLiteral && is_string($return));
+                        $outputIsNumeric = ($outputIsNumeric && is_numeric($return));
+                        $returns[] = $return;
+
+                    } else {
+                        return $return;
+                    }
+
+                }
+
+                if ($outputIsBoolean) {
+
+                    // Return the accumulated boolean value
+                    $output = true;
+                    foreach ($returns as $return)
+                    {
+                        $output = ($output && $return);
+                    }
+
+                } else if ($outputIsNumeric) {
+
+                    // Return last return-value
+                    $output = 0;
+                    foreach ($returns as $return)
+                    {
+                        $output = $return;
+                    }
+
+                } else {
+
+                    // Concatenate return values
+                    $output = '';
+                    foreach ($returns as $return)
+                    {
+                        $output .= $return;
+                    }
+
                 }
 
                 return $output;
 
             }
 
-            return false;
+            return null;
 
         }
 
