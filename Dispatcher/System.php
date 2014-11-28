@@ -1966,7 +1966,7 @@ namespace Aomebo\Dispatcher
                 ) {
 
                     /** @var \Aomebo\Dispatcher\Route $route */
-                    self::$_routes[$route->getHashKey()] = $route;
+                    self::$_routes[] = $route;
                     return true;
 
                 }
