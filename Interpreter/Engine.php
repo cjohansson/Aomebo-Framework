@@ -207,6 +207,34 @@ namespace Aomebo\Interpreter
         private static $_useOutputBuffering = true;
 
         /**
+         * @internal
+         * @static
+         * @var array
+         */
+        private static $_pagesToRuntimes = array();
+
+        /**
+         * @internal
+         * @static
+         * @var array
+         */
+        private static $_runtimesToPages = array();
+
+        /**
+         * @static
+         * @internal
+         * @var array
+         */
+        private static $_pagesToData = array();
+
+        /**
+         * @internal
+         * @static
+         * @var null|\Aomebo\Interpreter\Adapters\Base
+         */
+        private static $_adapter = null;
+
+        /**
          * @throws \Exception
          */
         public function __construct()
@@ -216,10 +244,41 @@ namespace Aomebo\Interpreter
                 parent::__construct();
                 self::_checkMode();
                 self::_loadRuntimes();
+                self::_loadAdapter();
                 self::_loadPages();
                 self::_flagThisConstructed();
 
             }
+        }
+
+        /**
+         * @static
+         * @param string $runtime
+         * @return bool|array
+         */
+        public static function getPagesByRuntime($runtime)
+        {
+            if (!empty($runtime)
+                && isset(self::$_runtimesToPages[$runtime])
+            ) {
+                return self::$_runtimesToPages[$runtime];
+            }
+            return false;
+        }
+
+        /**
+         * @static
+         * @param string $page
+         * @return bool|array
+         */
+        public static function getRuntimesByPage($page)
+        {
+            if (!empty($page)
+                && isset(self::$_pagesToRuntimes[$page])
+            ) {
+                return self::$_pagesToRuntimes[$page];
+            }
+            return false;
         }
 
         /**
@@ -233,8 +292,8 @@ namespace Aomebo\Interpreter
                 self::$_useOutputBuffering = (!empty($useOutoutBuffering));
             } else {
                 Throw new \Exception(
-                    'Invalid parameter for "'
-                    . $useOutoutBuffering . '" in ' . __FUNCTION__);
+                    self::systemTranslate('Invalid parameter')
+                );
             }
         }
 
@@ -750,13 +809,18 @@ namespace Aomebo\Interpreter
                         ) {
                         } else {
                             Throw new \Exception(
-                                'Invalid interpretation status');
+                                self::systemTranslate('Invalid interpretation status')
+                            );
                         }
 
                     }
 
                 } else {
-                    Throw new \Exception('Couldn\'t process page.');
+                    Throw new \Exception(
+                        self::systemTranslate(
+                            "Couldn't process page."
+                        )
+                    );
                 }
             }
 
@@ -916,12 +980,118 @@ namespace Aomebo\Interpreter
         }
 
         /**
-         * This method interprets a single node in tree.
+         * This method interprets collects runtimes in a single node in tree,
+         * recursively.
          *
          * @internal
          * @static
-         * @param mixed $node
-         * @param mixed [$parent = null]
+         * @param array|string & $node
+         * @param array|null [& $parent = null]
+         * @param array [& $runtimes = array()]
+         * @throws \Exception
+         * @return string|bool
+         */
+        private static function _collectNodeRuntimes(
+            & $node,
+            & $parent = null,
+            & $runtimes = array())
+        {
+            if (is_array($node)) {
+                foreach ($node as $child)
+                {
+                    if (is_array($child)) {
+                        if (isset($child[\Aomebo\Interpreter\Adapters\Base::FIELD_KEY],
+                            $child[\Aomebo\Interpreter\Adapters\Base::FIELD_VALUE])
+                        ) {
+                            $key =
+                                strtolower($child[\Aomebo\Interpreter\Adapters\Base::FIELD_KEY]);
+                            $value =
+                                $child[\Aomebo\Interpreter\Adapters\Base::FIELD_VALUE];
+                            if (self::_isRuntimeName($key)) {
+                                if (!isset($runtimes[$key])) {
+                                    $runtimes[$key] = $key;
+                                }
+                                if (is_array($value)) {
+                                    self::_collectNodeRuntimes(
+                                        $value,
+                                        $key,
+                                        $runtimes
+                                    );
+                                } else {
+                                    $lowValue = strtolower($value);
+                                    if (!empty($value)) {
+                                        if (self::_isRuntimeName($lowValue)) {
+                                            if (!isset($runtimes[$lowValue])) {
+                                                $runtimes[$lowValue] = $lowValue;
+                                            }
+                                        }
+                                    }
+                                }
+                            } else if (isset($parent)
+                                && self::isRuntimeParameter(
+                                    $parent, $key)
+                            ) {
+                                self::_collectNodeRuntimes(
+                                    $value,
+                                    $parent,
+                                    $runtimes
+                                );
+                            } else {
+                                Throw new \Exception(
+                                    sprintf(
+                                        self::systemTranslate(
+                                            '"%s" is neither a Runtime or a Runtime '
+                                            . 'parameter to "%s". '
+                                            . 'Loaded Runtimes: "%s"'
+                                        ),
+                                        $key,
+                                        $parent,
+                                        print_r(self::$_runtimeNameToObject, true)
+                                    )
+                                );
+                            }
+                        } else {
+                            Throw new \Exception(
+                                sprintf(
+                                    self::systemTranslate(
+                                        'Invalid array: "%s"'
+                                    ),
+                                    print_r($child, true)
+                                )
+                            );
+                        }
+                    } else {
+                        Throw new \Exception(
+                            sprintf(
+                                self::systemTranslate('"%s" is not an array.'),
+                                $child
+                            )
+                        );
+                    }
+                }
+                if (isset($parent)
+                    && self::_isRuntimeName($parent)
+                ) {
+                    if (!isset($runtimes[$parent])) {
+                        $runtimes[$parent] = $parent;
+                    }
+                }
+            } else {
+                if (self::_isRuntimeName($node)) {
+                    if (!isset($runtimes[$node])) {
+                        $runtimes[$node] = $node;
+                    }
+                }
+            }
+        }
+
+        /**
+         * This method interprets a single node in tree, recursively.
+         *
+         * @internal
+         * @static
+         * @param array|string $node
+         * @param array|null [$parent = null]
          * @throws \Exception
          * @return string|bool
          */
@@ -937,9 +1107,13 @@ namespace Aomebo\Interpreter
                     foreach ($node as $child)
                     {
                         if (is_array($child)) {
-                            if (isset($child['key'], $child['value'])) {
-                                $key = strtolower($child['key']);
-                                $value = $child['value'];
+                            if (isset($child[\Aomebo\Interpreter\Adapters\Base::FIELD_KEY],
+                                $child[\Aomebo\Interpreter\Adapters\Base::FIELD_VALUE])
+                            ) {
+                                $key =
+                                    strtolower($child[\Aomebo\Interpreter\Adapters\Base::FIELD_KEY]);
+                                $value =
+                                    $child[\Aomebo\Interpreter\Adapters\Base::FIELD_VALUE];
                                 if (self::_isRuntimeName($key)) {
                                     if (is_array($value)) {
                                         $output .= self::
@@ -968,17 +1142,35 @@ namespace Aomebo\Interpreter
                                         self::_interpretNode($value);
                                 } else {
                                     Throw new \Exception(
-                                        '"' . $key . '" is neither a Runtime or a Runtime '
-                                        . 'parameter to "' . $parent . '". Loaded Runtimes: "'
-                                        . print_r(self::$_runtimeNameToObject, true) . '"');
+                                        sprintf(
+                                            self::systemTranslate(
+                                                '"%s" is neither a Runtime or a Runtime '
+                                                . 'parameter to "%s". '
+                                                . 'Loaded Runtimes: "%s"'
+                                            ),
+                                            $key,
+                                            $parent,
+                                            print_r(self::$_runtimeNameToObject, true)
+                                        )
+                                    );
                                 }
                             } else {
                                 Throw new \Exception(
-                                    'Invalid array "' . print_r($child, true) . '"');
+                                    sprintf(
+                                        self::systemTranslate(
+                                            'Invalid array: "%s"'
+                                        ),
+                                        print_r($child, true)
+                                    )
+                                );
                             }
                         } else {
                             Throw new \Exception(
-                                '"' . $child . '" is not an array.');
+                                sprintf(
+                                    self::systemTranslate('"%s" is not an array.'),
+                                    $child
+                                )
+                            );
                         }
                     }
                     if (isset($parent)
@@ -999,6 +1191,106 @@ namespace Aomebo\Interpreter
             } else {
                 return false;
             }
+        }
+
+        /**
+         * This method gathers all runtimes in a node, recursively.
+         *
+         * @internal
+         * @static
+         * @param mixed $node
+         * @param mixed [$parent = null]
+         * @param array [$runtimes = array()]
+         * @throws \Exception
+         * @return string|bool
+         */
+        private static function _getNodeRuntimes(& $node,
+            & $parent = null, & $runtimes = array())
+        {
+            if (self::_hasOKStatus()) {
+                if (is_array($node)) {
+                    foreach ($node as $child)
+                    {
+                        if (is_array($child)) {
+                            if (isset($child[Adapters\Base::FIELD_KEY],
+                                $child[Adapters\Base::FIELD_VALUE])
+                            ) {
+                                $key = strtolower($child[Adapters\Base::FIELD_KEY]);
+                                $value = $child[Adapters\Base::FIELD_VALUE];
+                                if (self::_isRuntimeName($key)) {
+                                    if (!isset($runtimes[$key])) {
+                                        $runtimes[$key] = $key;
+                                    }
+                                    if (is_array($value)) {
+                                        self::_getNodeRuntimes($value, $key, $runtimes);
+                                    } else {
+                                        $lowValue = strtolower($value);
+                                        if (!empty($value)) {
+                                            if (self::_isRuntimeName($lowValue)) {
+                                                if (!isset($runtimes[$lowValue])) {
+                                                    $runtimes[$lowValue] = $lowValue;
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else if (isset($parent)
+                                    && self::isRuntimeParameter(
+                                        $parent, $key)
+                                ) {
+                                    self::_getNodeRuntimes($value);
+                                } else {
+                                    Throw new \Exception(
+                                        sprintf(
+                                            self::systemTranslate(
+                                                '"%s" is neither a Runtime or a Runtime '
+                                                . 'parameter to "%s". '
+                                                . 'Loaded Runtimes: "%s"'
+                                            ),
+                                            $key,
+                                            $parent,
+                                            print_r(self::$_runtimeNameToObject, true)
+                                        )
+                                    );
+                                }
+                            } else {
+                                Throw new \Exception(
+                                    sprintf(
+                                        self::systemTranslate(
+                                            'Invalid array: "%s"'
+                                        ),
+                                        print_r($child, true)
+                                    )
+                                );
+                            }
+                        } else {
+                            Throw new \Exception(
+                                sprintf(
+                                    self::systemTranslate('"%s" is not an array.'),
+                                    $child
+                                )
+                            );
+                        }
+                    }
+                    if (isset($parent)
+                        && self::_isRuntimeName($parent)
+                    ) {
+                        if (!isset($runtimes[$parent])) {
+                            $runtimes[$parent] = $parent;
+                        }
+                    } else {
+                        return $runtimes;
+                    }
+                } else {
+                    if (self::_isRuntimeName($node)) {
+                        if (!isset($runtimes[$node])) {
+                            $runtimes[$node] = $node;
+                        }
+                    }
+                }
+            } else {
+                return false;
+            }
+            return false;
         }
 
         /**
@@ -1028,8 +1320,14 @@ namespace Aomebo\Interpreter
                     return $runtime->getField('output');
 
                 } else {
-                    Throw new \Exception('"' . $name . '" is not a valid '
-                        . 'Runtime for evaluation.');
+                    Throw new \Exception(
+                        sprintf(
+                            self::systemTranslate('"%s" is not a valid '
+                                . 'Runtime for evaluation.'
+                            ),
+                            $name
+                        )
+                    );
                 }
             } else {
                 return false;
@@ -1049,25 +1347,15 @@ namespace Aomebo\Interpreter
 
             $dispatcher =
                 \Aomebo\Dispatcher\System::getInstance();
-            $defaultAdapter =
-                \Aomebo\Configuration::getSetting('dispatch,page adapter');
-            $className = '\\Aomebo\\Interpreter\\Adapters\\'
-                . $defaultAdapter . '\\Adapter';
 
             try
             {
 
-                /** @var \Aomebo\Interpreter\Adapters\Base $adapter  */
-                $adapter = new $className();
-                $fileSuffix = $adapter->getFileSuffix();
+                $fileSuffix = self::$_adapter->getFileSuffix();
 
                 if ($dispatcher::isAjaxRequest()) {
 
-                    $pageData =
-                        $dispatcher->getCurrentAjaxPageData();
-                    if (method_exists($adapter, 'applyDefaultEncapsulation')) {
-                        $pageData = $adapter->applyDefaultEncapsulation($pageData);
-                    }
+                    $pageData = $dispatcher->getCurrentAjaxPageData();
 
                     /**
                      * Cache parameters, unique per:
@@ -1099,9 +1387,7 @@ namespace Aomebo\Interpreter
                             \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
                         );
 
-                        if ($processed =
-                            $adapter->process($pageData)
-                        ) {
+                        if ($processed = self::_processPageData($pageData)) {
 
                             \Aomebo\Cache\System::saveCache(
                                 $cacheParameters,
@@ -1113,7 +1399,13 @@ namespace Aomebo\Interpreter
 
                         } else {
                             Throw new \Exception(
-                                'Could not process page from ajax request.');
+                                sprintf(
+                                    self::systemTranslate(
+                                        'Could not process page from ajax request %s'
+                                    ),
+                                    $pageData
+                                )
+                            );
                         }
 
                     }
@@ -1123,83 +1415,258 @@ namespace Aomebo\Interpreter
                     // Is ordinary page request
                     if ($page = $dispatcher::getPage()) {
 
-                        $filename = $page . $fileSuffix;
-                        $path = _SITE_ROOT_ . 'Pages/' . $filename;
+                        return self::_processPage(
+                            $page,
+                            self::_getPagesDirectory() . $page . $fileSuffix
+                        );
+
+                    } else {
+                        Throw new \Exception(
+                            sprintf(
+                                self::systemTranslate(
+                                    'Found no page to interpret for request '
+                                    . 'GET: %s, POST: %s, SERVER: %s'
+                                ),
+                                $_GET,
+                                $_POST,
+                                $_SERVER
+                            )
+                        );
+                    }
+                }
+            } catch (\Exception $e) {
+                Throw new \Exception(
+                    sprintf(
+                        self::systemTranslate(
+                            'Something went wrong when starting interpretation, error: "%s"'
+                        ),
+                        $e->getMessage()
+                    )
+                );
+            }
+        }
+
+        /**
+         * @static
+         * @param string $page
+         * @param string $path
+         * @param bool [$returnContents = true]
+         * @return array
+         * @throws \Exception
+         */
+        private static function _processPage($page, $path,
+             $returnContents = true)
+        {
+            if (!empty($page)
+                && !empty($path)
+            ) {
+                if (!isset(self::$_pagesToData[$page])) {
+                    if (file_exists($path)) {
 
                         /* Cache parameters, unique per:
                          * - Normal request
                          * - Page
                          */
-                        $cacheParameters = 'InterpreterEngine/NormalRequest/' . md5($page);
+                        $cacheParameters =
+                            'InterpreterEngine/NormalRequest/' . md5($page);
 
-                        if (file_exists($path)) {
+                        /**
+                         * Cache key, unique per:
+                         * - Page last modified
+                         * - This file modified
+                         */
+                        $cacheKey = md5('page_mod='
+                            . \Aomebo\Filesystem::getFileLastModificationTime(
+                            $path, false) . '&sys_mod=' . filemtime(__FILE__)
+                        );
 
-                            /**
-                             * Cache key, unique per:
-                             * - Page last modified
-                             */
-                            $cacheKey = \Aomebo\Filesystem::getFileLastModificationTime(
-                                $path, false
+                        if (\Aomebo\Cache\System::cacheExists(
+                            $cacheParameters,
+                            $cacheKey)
+                        ) {
+
+                            self::$_pagesToData[$page] = \Aomebo\Cache\System::loadCache(
+                                $cacheParameters,
+                                $cacheKey,
+                                \Aomebo\Cache\System::FORMAT_JSON_ENCODE
                             );
 
-                            if (\Aomebo\Cache\System::cacheExists(
-                                $cacheParameters,
-                                $cacheKey)
-                            ) {
+                            return (!empty($returnContents) ?
+                                self::$_pagesToData[$page] : true);
 
-                                return \Aomebo\Cache\System::loadCache(
+                        } else {
+
+                            \Aomebo\Cache\System::clearCache(
+                                $cacheParameters,
+                                null,
+                                \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                            );
+
+                            $pageData = \Aomebo\Filesystem::getFileContents($path);
+
+                            if ($processed = self::_processPageData($pageData)) {
+
+                                \Aomebo\Cache\System::saveCache(
                                     $cacheParameters,
                                     $cacheKey,
-                                    \Aomebo\Cache\System::FORMAT_JSON_ENCODE
-                                );
+                                    $processed,
+                                    \Aomebo\Cache\System::FORMAT_JSON_ENCODE);
+
+                                self::$_pagesToData[$page] = $processed;
+
+                                return (!empty($returnContents) ?
+                                    self::$_pagesToData[$page] : true);
 
                             } else {
-
-                                $pageData = \Aomebo\Filesystem::getFileContents($path);
-
-                                if (method_exists($adapter, 'applyDefaultEncapsulation')) {
-                                    $pageData = $adapter->applyDefaultEncapsulation($pageData);
-                                }
-
-                                \Aomebo\Cache\System::clearCache(
-                                    $cacheParameters,
-                                    null,
-                                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                                Throw new \Exception(
+                                    sprintf(
+                                        self::systemTranslate('Could not process page at "%s"'),
+                                        $path
+                                    )
                                 );
-
-                                if ($processed = $adapter->process($pageData)) {
-
-                                    \Aomebo\Cache\System::saveCache(
-                                        $cacheParameters,
-                                        $cacheKey,
-                                        $processed,
-                                        \Aomebo\Cache\System::FORMAT_JSON_ENCODE);
-
-                                    return $processed;
-
-                                } else {
-                                    Throw new \Exception(
-                                        'Could not process page at "' . $path . '".'
-                                    );
-                                }
-
                             }
-                        } else {
-                            Throw new \Exception(
-                                'Could not find requested page at "' . $path . '"'
-                            );
                         }
                     } else {
-                        Throw new \Exception('Found no page to interpret for request GET: '
-                            . print_r($_GET, true) . ' and POST: '
-                            . print_r($_POST, true) . ' and SERVER: '
-                            . print_r($_SERVER, true) . ' in ' . __FUNCTION__);
+                        Throw new \Exception(
+                            sprintf(
+                                self::systemTranslate('Could not find requested page at "%s"'),
+                                $path
+                            )
+                        );
+                    }
+                } else {
+                    if (!empty($returnContents)) {
+                        return self::$_pagesToData[$page];
+                    } else {
+                        return true;
                     }
                 }
-            } catch (\Exception $e) {
-                Throw new \Exception('Something went wrong when starting interpretation "'
-                    . $e->getMessage() . '"');
+            } else {
+                Throw new \Exception(
+                    self::systemTranslate('Invalid parameters')
+                );
             }
+        }
+
+        /**
+         * @static
+         * @param string $page
+         * @param string $path
+         * @throws \Exception
+         */
+        private function _processPageRuntimes($page, $path)
+        {
+            if (!isset(self::$_pagesToRuntimes[$page])) {
+
+                /* Cache parameters, unique per:
+                 * - Normal request
+                 * - Page
+                 */
+                $cacheParameters =
+                    'InterpreterEngine/PageToRuntimes/' . md5($page);
+
+                /**
+                 * Cache key, unique per:
+                 * - Page last modified
+                 * - This file modified
+                 */
+                $cacheKey = md5('page_mod=' .
+                    \Aomebo\Filesystem::getFileLastModificationTime($path, false)
+                    . '&sys_mod=' . filemtime(__FILE__)
+                );
+
+                if (\Aomebo\Cache\System::cacheExists(
+                    $cacheParameters,
+                    $cacheKey)
+                ) {
+                    self::$_pagesToRuntimes[$page] =
+                        \Aomebo\Cache\System::loadCache(
+                            $cacheParameters,
+                            $cacheKey,
+                            \Aomebo\Cache\System::FORMAT_JSON_ENCODE
+                        );
+                } else {
+
+                    \Aomebo\Cache\System::clearCache(
+                        $cacheParameters,
+                        null,
+                        \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                    );
+
+                    $runtimes = array();
+                    $parent = null;
+
+                    $contents = self::_processPage(
+                        $page,
+                        $path,
+                        true
+                    );
+
+                    self::_collectNodeRuntimes(
+                        $contents,
+                        $parent,
+                        $runtimes
+                    );
+
+                    \Aomebo\Cache\System::saveCache(
+                        $cacheParameters,
+                        $cacheKey,
+                        $runtimes,
+                        \Aomebo\Cache\System::FORMAT_JSON_ENCODE,
+                        \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                    );
+
+                    self::$_pagesToRuntimes[$page] = $runtimes;
+
+                }
+            }
+        }
+
+        /**
+         * @internal
+         * @static
+         */
+        private static function _processRuntimePages()
+        {
+            foreach (self::$_pagesToRuntimes as $page => $runtimes)
+            {
+                foreach ($runtimes as $runtime => $ignore)
+                {
+                    if (!isset(self::$_runtimesToPages[$runtime])) {
+                        self::$_runtimesToPages[$runtime] = array();
+                    }
+                    if (!isset(self::$_runtimesToPages[$runtime][$page])) {
+                        self::$_runtimesToPages[$runtime][$page] = $page;
+                    }
+                }
+            }
+        }
+
+        /**
+         * @internal
+         * @static
+         * @param string $pageData
+         * @return string|null
+         */
+        private static function _processPageData($pageData)
+        {
+
+            try {
+
+                if (method_exists(self::$_adapter, 'applyDefaultEncapsulation')) {
+                    $pageData = self::$_adapter->applyDefaultEncapsulation($pageData);
+                }
+
+                if ($processed = self::$_adapter->process($pageData)) {
+
+                    return $processed;
+
+                }
+
+            } catch (\Exception $e) {}
+
+            return null;
+
         }
 
         /**
@@ -1213,19 +1680,88 @@ namespace Aomebo\Interpreter
         }
 
         /**
-         * This method should load pages and store in
-         * which pages each runtime exists.
+         * This method loads the default adapter.
+         *
+         * @internal
+         * @static
+         * @throws \Exception
+         */
+        private static function _loadAdapter()
+        {
+
+            if (!isset(self::$_adapter)) {
+
+                try {
+
+                    $defaultAdapter =
+                        \Aomebo\Configuration::getSetting('dispatch,page adapter');
+                    $className = '\\Aomebo\\Interpreter\\Adapters\\'
+                        . $defaultAdapter . '\\Adapter';
+
+                    /** @var \Aomebo\Interpreter\Adapters\Base $adapter  */
+                    $adapter = new $className();
+
+                    self::$_adapter = $adapter;
+
+                } catch (\Exception $e) {
+                    Throw new \Exception(
+                        sprintf(
+                            self::systemTranslate('Failed to load default adapter: Error: %s'),
+                            $e->getMessage()
+                        )
+                    );
+                }
+            }
+        }
+
+        /**
+         * This method should load all pages and store in
+         * which pages each runtime exists and also
+         * create caches for each page.
          *
          * @internal
          * @static
          */
         private static function _loadPages()
         {
+            $pagesDir = self::_getPagesDirectory();
+            $fileSuffix = self::$_adapter->getFileSuffix();
+            if ($files = scandir($pagesDir))
+            {
+                foreach ($files as $file)
+                {
+                    if (!empty($file)
+                        && $file != '.'
+                        && $file != '..'
+                    ) {
+                        if (strtolower(substr($file, -strlen($fileSuffix))) ==
+                            strtolower($fileSuffix)
+                        ) {
+
+                            $page = substr($file, 0, -strlen($fileSuffix));
+
+                            self::_processPage(
+                                $page,
+                                $pagesDir . $file,
+                                false
+                            );
+
+                            self::_processPageRuntimes(
+                                $page,
+                                $pagesDir . $file
+                            );
+
+                        }
+                    }
+                }
+            }
+
+            self::_processRuntimePages();
+
         }
 
         /**
-         * This method starts the scanning of filesystem
-         * for Runtimes.
+         * This method builts a list of runtimes loaded.
          *
          * @internal
          * @static
@@ -1233,7 +1769,6 @@ namespace Aomebo\Interpreter
          */
         private static function _loadRuntimes()
         {
-
             if ($runtimes = \Aomebo\Application::getRuntimes()) {
                 foreach ($runtimes as & $runtime)
                 {
@@ -1255,7 +1790,6 @@ namespace Aomebo\Interpreter
 
                 }
             }
-
         }
 
         /**
@@ -1319,6 +1853,18 @@ namespace Aomebo\Interpreter
         private static function _buildExternalStyleMarkup($href)
         {
             return '<link rel="stylesheet" href="' . $href . '" />';
+        }
+
+        /**
+         * @internal
+         * @static
+         * @return string
+         */
+        private static function _getPagesDirectory()
+        {
+            return _SITE_ROOT_
+                . \Aomebo\Configuration::getSetting('paths,pages dir')
+                . DIRECTORY_SEPARATOR;
         }
 
     }

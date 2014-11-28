@@ -43,7 +43,7 @@
             </div>
             <div>
                 <p>
-                    <label for="site_slogan">Slogan</label>
+                    <label for="site_slogan">{__('Slogan')}</label>
                 </p>
                 <input type="text" name="site_slogan" id="site_slogan" value="{$submit.siteSlogan|escape}" />
             </div>
@@ -55,7 +55,7 @@
             </div>
             <div>
                 <p>
-                    <label for="site_server_name">Public external root (i.e. example.org)</label>
+                    <label for="site_server_name">{__('Public external root (i.e. example.org)')}</label>
                 </p>
                 <input type="text" name="site_server_name" id="site_server_name" value="{$submit.siteServerName|escape}" />
             </div>
@@ -67,6 +67,23 @@
             </div>
             <div>
                 Localized2: "{$translated|escape}"
+            </div>
+            <div>
+                <strong>{__('Routes examples:')}</strong>
+                <ul>
+                    <li>
+                        {__('Route 1:')}
+                        <br /><a href="{url page='about'}">{__('About')}</a>
+                    </li>
+                    <li>
+                        {__('Route 2:')}
+                        <br /><a href="{url parameter1='save' parameter2='settings'}">{__("Save settings")}</a>
+                    </li>
+                    <li>
+                        {__('Route 3:')}
+                        <br /><a href="{url parameter1='save' parameter2='settings' parameter3='confirm'}">{__("Confirm save settings")}</a>
+                    </li>
+                </ul>
             </div>
         </fieldset>
         <div>

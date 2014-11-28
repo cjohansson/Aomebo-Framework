@@ -278,6 +278,13 @@ namespace Aomebo\Dispatcher
         private static $_pageSyntaxRegexp = '';
 
         /**
+         * @internal
+         * @static
+         * @var array
+         */
+        private static $_pageRoutes = array();
+
+        /**
          *
          */
         public function __construct()
@@ -289,14 +296,16 @@ namespace Aomebo\Dispatcher
                     \Aomebo\Trigger\System::TRIGGER_KEY_BEFORE_DISPATCH);
 
                 if (!isset(self::$_rewriteEnabled)) {
-                    $this->_parseServer();
+                    self::_parseServer();
                 }
 
                 if (!isset(self::$_serverProtocol)
                     || !isset(self::$_serverProtocolVersion)
                 ) {
-                    $this->_parseProtocol();
+                    self::_parseProtocol();
                 }
+
+                self::_parsePageRoutes();
 
                 if (!isset(self::$_requestUri)
                     || !isset(self::$_fullRequest)
@@ -305,19 +314,48 @@ namespace Aomebo\Dispatcher
                     || !isset(self::$_pageBaseUri)
                     || !isset(self::$_httpRequestMethod)
                 ) {
-                    $this->_parseRequest();
+                    self::_parseRequest();
                 }
 
                 if (!isset(self::$_page)
-                    && !$this->isAjaxRequest()
+                    && !self::isAjaxRequest()
                 ) {
-                    $this->_parsePage();
+                    self::_parsePage();
                 }
 
                 \Aomebo\Trigger\System::processTriggers(
                     \Aomebo\Trigger\System::TRIGGER_KEY_AFTER_DISPATCH);
 
                 $this->_flagThisConstructed();
+
+            }
+        }
+
+        /**
+         * @internal
+         * @static
+         */
+        private static function _parsePageRoutes()
+        {
+            foreach (self::$_routes as & $route)
+            {
+
+                /** @var \Aomebo\Dispatcher\Route $route */
+                $name = strtolower($route->reference->getField('name'));
+
+                if ($pages =
+                    \Aomebo\Interpreter\Engine::getPagesByRuntime($name)
+                ) {
+                    foreach ($pages as $page)
+                    {
+                        if (!isset(self::$_pageRoutes[$page])) {
+                            self::$_pageRoutes[$page] = array();
+                        }
+
+                        self::$_pageRoutes[$page][$route->getHashKey()] = & $route;
+
+                    }
+                }
 
             }
         }
@@ -1633,12 +1671,11 @@ namespace Aomebo\Dispatcher
          * @param array|null [$getArray = null]
          * @param string|null [$page = null]
          * @param bool [$clear = false]
-         * @param \Aomebo\Modules\Base|null [$ref = null]
          * @throws \Exception
          * @return string
          */
         public static function buildUri($getArray = null,
-            $page = null, $clear = false, & $ref = null)
+            $page = null, $clear = false)
         {
 
             $uri = self::$_pageBaseUri;
@@ -1653,6 +1690,8 @@ namespace Aomebo\Dispatcher
 
             // Is page specified?
             if (!empty($page)) {
+
+                $implicitPage = $page;
 
                 // Is specified page not default page?
                 if (!self::isDefaultPage($page)) {
@@ -1676,6 +1715,8 @@ namespace Aomebo\Dispatcher
 
             // Otherwise - no page specified
             } else {
+
+                $implicitPage = self::getPage();
 
                 // Is current page not file-not-found and not the default-page?
                 if (self::getPage() != \Aomebo\Configuration::getSetting(
@@ -1714,9 +1755,9 @@ namespace Aomebo\Dispatcher
 
                 // Is reference specified, rewrite enabled and there is a matching route?
                 if (self::$_rewriteEnabled
-                    && self::routeExistsByUriParameters($getArray)
+                    && self::routeExistsByUriParameters($getArray, $implicitPage)
                 ) {
-                    return self::buildRouteUri($getArray, $page, $clear);
+                    return self::buildRouteUri($getArray, $implicitPage, $clear);
                 } else {
 
                     $pairCount = (int) 0;
@@ -1766,27 +1807,35 @@ namespace Aomebo\Dispatcher
                 && sizeof($uriParameters) > 0
             ) {
                 if ($route = self::getRouteByUriParameters(
-                    $uriParameters)
+                    $uriParameters,
+                    $page)
                 ) {
                     return $route->buildUri($uriParameters, $page, $clear);
                 }
             }
             Throw new \Exception(
-                'Could not find route for parameters: "' . print_r(func_get_args(), true)
-                . ' in ' . __FUNCTION__ . ' in ' . __FILE__);
+                sprintf(
+                    self::systemTranslate(
+                        'Could not find route for parameters: "%s"'
+                    ),
+                    print_r(func_get_args(), true)
+                )
+            );
         }
 
         /**
          * @static
          * @param array $uriParameters       Associative array with keys => values
+         * @param string $page
+         * @see \Aomebo\Interpreter\Engine::getRuntimesByPage()
          * @return bool
          */
-        public static function routeExistsByUriParameters($uriParameters)
+        public static function routeExistsByUriParameters($uriParameters, $page)
         {
             if ($hashKey = self::generateRouteHashKeyByUrlParameters(
                 $uriParameters)
             ) {
-                if (self::getRouteByHashKey($hashKey)) {
+                if (self::getRouteByHashKey($hashKey, $page)) {
                     return true;
                 }
             }
@@ -1796,14 +1845,17 @@ namespace Aomebo\Dispatcher
         /**
          * @static
          * @param array $uriParameters       Associative array with keys => values
+         * @param string $page
          * @return bool|\Aomebo\Dispatcher\Route
          */
-        public static function getRouteByUriParameters($uriParameters)
+        public static function getRouteByUriParameters($uriParameters, $page)
         {
             if ($hashKey = self::generateRouteHashKeyByUrlParameters(
                 $uriParameters)
             ) {
-                return self::getRouteByHashKey($hashKey);
+                if ($route = self::getRouteByHashKey($hashKey, $page)) {
+                    return $route;
+                }
             }
             return false;
         }
@@ -1833,13 +1885,16 @@ namespace Aomebo\Dispatcher
         /**
          * @static
          * @param string $hashKey
+         * @param string $page
          * @return \Aomebo\Dispatcher\Route|bool
          */
-        public static function getRouteByHashKey($hashKey)
+        public static function getRouteByHashKey($hashKey, $page)
         {
-            if (!empty($hashKey)) {
-                if (isset(self::$_routes[$hashKey])) {
-                    return self::$_routes[$hashKey];
+            if (!empty($hashKey)
+                && !empty($page)
+            ) {
+                if (isset(self::$_pageRoutes[$page][$hashKey])) {
+                    return self::$_pageRoutes[$page][$hashKey];
                 }
             }
             return false;
@@ -1932,7 +1987,6 @@ namespace Aomebo\Dispatcher
         public static function setRoutes($routes)
         {
             self::$_routes = $routes;
-            $true = true;
         }
 
         /**
@@ -2339,7 +2393,6 @@ namespace Aomebo\Dispatcher
 
                 // Otherwise - use default page as page
                 } else {
-
                     self::setPage($defaultPage);
                 }
 
@@ -2421,8 +2474,24 @@ namespace Aomebo\Dispatcher
                             // Is it a HTTP request?
                             if (self::isHttpRequest()) {
 
-                                // Flag that file could not be found and restart interpretation
-                                self::fileNotFound(true);
+                                foreach (self::$_pageRoutes[$defaultPage] as $route)
+                                {
+                                    /** @var \Aomebo\Dispatcher\Route $route */
+                                    if ($route->isMatchingUrl(self::$_fullRequest)) {
+                                        $hit = true;
+                                        self::setPage($defaultPage);
+                                        self::setRequestUri('');
+                                        self::setQueryString(self::$_fullRequest);
+                                        break;
+                                    }
+                                }
+
+                                if (!$hit) {
+
+                                    // Flag that file could not be found and restart interpretation
+                                    self::fileNotFound(true);
+
+                                }
 
                             }
                         }

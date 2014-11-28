@@ -134,7 +134,13 @@ $configuration = array (
       'required' => true,
       'default' => 'Uploads',
     ),
-    'uploads dir is absolute' => 
+    'pages dir' =>
+    array (
+      'type' => 'string',
+      'required' => true,
+      'default' => 'Pages',
+    ),
+    'uploads dir is absolute' =>
     array (
       'type' => 'boolean',
       'required' => true,

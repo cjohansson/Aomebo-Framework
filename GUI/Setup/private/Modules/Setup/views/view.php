@@ -71,6 +71,23 @@
             <div>
                 Localized2: "<?php echo $this->translated; ?>"
             </div>
+            <div>
+                <strong><?php _e('Routes examples:'); ?></strong>
+                <ul>
+                    <li>
+                        <?php _e('Route 1:'); ?>
+                        <br /><a href="<?php echo $this->uri(array('page' => 'about')); ?>"><?php _e('About'); ?></a>
+                    </li>
+                    <li>
+                        <?php _e('Route 2:'); ?>
+                        <br /><a href="<?php echo $this->uri(array('parameter1' => 'save', 'parameter2' => 'settings')); ?>"><?php _e('Save settings'); ?></a>
+                    </li>
+                    <li>
+                        <?php _e('Route 3:'); ?>
+                        <br /><a href="<?php echo $this->uri(array('parameter1' => 'save', 'parameter2' => 'settings', 'parameter3' => 'confirm')); ?>"><?php _e('Confirm save settings'); ?></a>
+                    </li>
+                </ul>
+            </div>
         </fieldset>
         <div>
             <input type="submit" value="Save" />

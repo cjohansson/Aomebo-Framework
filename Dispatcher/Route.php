@@ -141,6 +141,7 @@ namespace Aomebo\Dispatcher
                     $this->reference =
                         & $backtrace[2]['object'];
                 }
+
             }
             if (!empty($name)) {
                 $this->name = $name;
@@ -274,6 +275,27 @@ namespace Aomebo\Dispatcher
                         $this->keys);
                 }
                 return $this->_hashKey;
+            }
+            return false;
+        }
+
+        /**
+         * @param string $url
+         * @return bool
+         */
+        public function isMatchingUrl($url)
+        {
+            if (!empty($url)) {
+                if ($this->isValid()) {
+
+                    // Does the RegExp match URL?
+                    if (preg_match(
+                        $this->regexp,
+                        $url) === 1
+                    ) {
+                        return true;
+                    }
+                }
             }
             return false;
         }

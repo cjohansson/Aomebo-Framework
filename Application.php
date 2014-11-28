@@ -173,6 +173,11 @@ namespace Aomebo
             // Only allow one instance per request.
             if (!self::_isConstructed()) {
 
+                // Log errors by default
+                ini_set('display_errors', false);
+                ini_set('log_errors', true);
+                ini_set('error_reporting', E_ALL);
+
                 /** @define _SYSTEM_START_TIME_     Startup time for system */
                 define('_SYSTEM_START_TIME_', microtime(true));
 
@@ -370,6 +375,8 @@ namespace Aomebo
 
                         // Load feedback engine
                         new \Aomebo\Feedback\Debug();
+
+                        \Aomebo\Interpreter\Engine::getInstance();
 
                         /**
                          * Load dispatcher for analyzing of request
@@ -825,7 +832,6 @@ namespace Aomebo
             $cacheKey = '';
 
             if ($useRuntimeCache) {
-
                 foreach ($roots as $root)
                 {
                     if ($diremtime = \Aomebo\Filesystem::getDirectoryLastModificationTime(
@@ -842,7 +848,6 @@ namespace Aomebo
                     . '&framework=' . \Aomebo\Filesystem::getDirectoryLastModificationTime(
                         __DIR__, false, 0, false)
                 );
-
             }
 
             $loadedCache = false;

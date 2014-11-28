@@ -1,0 +1,52 @@
+# Disallow Apache file index module
+Options -Indexes
+
+# Dispatcher
+<IfModule mod_rewrite.c>
+
+    # Set flag that rewrite is enabled
+    SetEnv REWRITE_ENABLED 1
+
+    # Start rewrite engine
+    RewriteEngine On
+
+    # set proper URI base
+    RewriteBase /
+
+    # Redirect associatives for scripts
+    RewriteCond %{REQUEST_URI} /associatives.js?.*$ [OR]
+    RewriteCond %{REQUEST_URI} /dependencies.js?.*$ [OR]
+    RewriteCond %{REQUEST_URI} /bridge.js?.*$
+    RewriteRule ^.*$ index.php?mode=associatives&at=js [QSA,NC,L]
+
+    # Redirect associatives for styles
+    RewriteCond %{REQUEST_URI} /associatives.css?.*$ [OR]
+    RewriteCond %{REQUEST_URI} /dependencies.css?.*$ [OR]
+    RewriteCond %{REQUEST_URI} /bridge.css?.*$
+    RewriteRule ^.*$ index.php?mode=associatives&at=css [QSA,NC,L]
+
+    # Redirect ajax requests
+    RewriteCond %{REQUEST_URI} /ajax$
+    RewriteRule ^.*$ index.php?mode=ajax [QSA,NC,L]
+
+    # Redirect favicon to index
+    RewriteCond %{REQUEST_URI} ^/favicon\.ico.*$
+    RewriteRule ^.*$ index.php [NC,L]
+    RewriteRule ^.*$ - [NC]
+
+    # Redirect files without file-types, which aren't directories,
+    # or symbolic links or executables to index
+    RewriteCond %{REQUEST_URI} /[^\.]*$
+    RewriteCond %{REQUEST_URI} !-d
+    RewriteCond %{REQUEST_URI} !-l
+    RewriteCond %{REQUEST_URI} !-x
+    RewriteRule ^.*$ index.php [NC,L]
+    RewriteRule ^.*$ - [NC,L]
+
+</IfModule>
+<IfModule !mod_rewrite.c>
+
+    # Set flag that rewrite is disabled
+    SetEnv REWRITE_ENABLED 0
+
+</IfModule>
