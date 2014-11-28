@@ -258,6 +258,7 @@ namespace Aomebo\Interpreter
          */
         public static function getPagesByRuntime($runtime)
         {
+            self::_instanciate();
             if (!empty($runtime)
                 && isset(self::$_runtimesToPages[$runtime])
             ) {
@@ -273,6 +274,7 @@ namespace Aomebo\Interpreter
          */
         public static function getRuntimesByPage($page)
         {
+            self::_instanciate();
             if (!empty($page)
                 && isset(self::$_pagesToRuntimes[$page])
             ) {
@@ -1865,6 +1867,17 @@ namespace Aomebo\Interpreter
             return _SITE_ROOT_
                 . \Aomebo\Configuration::getSetting('paths,pages dir')
                 . DIRECTORY_SEPARATOR;
+        }
+
+        /**
+         * @internal
+         * @static
+         */
+        private static function _instanciate()
+        {
+            if (!self::_isConstructed()) {
+                self::getInstance(__CLASS__);
+            }
         }
 
     }
