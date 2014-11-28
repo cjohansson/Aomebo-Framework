@@ -376,7 +376,8 @@ namespace Aomebo
                         // Load feedback engine
                         new \Aomebo\Feedback\Debug();
 
-                        \Aomebo\Interpreter\Engine::getInstance();
+                        // Load interpreter engine
+                        new \Aomebo\Interpreter\Engine();
 
                         /**
                          * Load dispatcher for analyzing of request
