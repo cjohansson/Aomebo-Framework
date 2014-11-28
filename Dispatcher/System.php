@@ -337,6 +337,9 @@ namespace Aomebo\Dispatcher
          */
         private static function _parsePageRoutes()
         {
+
+            self::$_pageRoutes = array();
+
             foreach (self::$_routes as & $route)
             {
 
@@ -1987,6 +1990,7 @@ namespace Aomebo\Dispatcher
         public static function setRoutes($routes)
         {
             self::$_routes = $routes;
+            self::_parsePageRoutes();
         }
 
         /**
