@@ -1990,6 +1990,7 @@ namespace Aomebo\Dispatcher
         public static function setRoutes($routes)
         {
             self::$_routes = $routes;
+            self::_parsePageRoutes();
         }
 
         /**
