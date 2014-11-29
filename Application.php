@@ -981,9 +981,7 @@ namespace Aomebo
          */
         private static function _loadRuntimesFromDirectory($absPath)
         {
-            if (!empty($absPath)
-                && is_dir($absPath)
-            ) {
+            if (!empty($absPath)) {
 
                 $namespaceName = basename(dirname($absPath));
                 $namespaceClassName = substr($namespaceName, 0, -1);
@@ -1036,7 +1034,7 @@ namespace Aomebo
                             /** @var \Aomebo\Runtime $runtime */
                             $runtime = new $foundClassName();
 
-                            if (is_a($runtime, '\\Aomebo\\Runtime'))
+                            if (is_a($runtime, '\Aomebo\Runtime'))
                             {
                                 self::$_runtimes[] = $runtime;
                             }

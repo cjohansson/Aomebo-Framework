@@ -155,7 +155,7 @@ namespace Aomebo\Database\Adapters\Mysqli
         protected function _isValid($resultset)
         {
             if (isset($resultset)
-                && is_a($resultset, '\\MySQLi_Result')
+                && is_a($resultset, '\MySQLi_Result')
             )  {
                 return true;
             }

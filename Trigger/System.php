@@ -285,7 +285,7 @@ namespace Aomebo\Trigger
         {
             if (isset($ref)) {
                 if (is_object($ref)) {
-                    if (is_a($ref, 'Closure')) {
+                    if (is_a($ref, '\Closure')) {
                         return true;
                     }
                 } else if (is_array($ref)) {
@@ -318,7 +318,7 @@ namespace Aomebo\Trigger
         {
             if (isset($ref)) {
                 if (is_object($ref)) {
-                    if (is_a($ref, 'Closure')) {
+                    if (is_a($ref, '\Closure')) {
 
                         /** @var \Closure $ref */
 

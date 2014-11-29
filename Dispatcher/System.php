@@ -354,9 +354,15 @@ namespace Aomebo\Dispatcher
                         if (!isset(self::$_pageRoutes[$page])) {
                             self::$_pageRoutes[$page] = array();
                         }
+                        if (!isset(self::$_pageRoutes[$page][$route->getHashKey()])) {
+                            self::$_pageRoutes[$page][$route->getHashKey()] = & $route;
+                        }
+                    }
+                }
 
-                        self::$_pageRoutes[$page][$route->getHashKey()] = & $route;
-
+                if (!empty($route->page)) {
+                    if (!isset(self::$_pageRoutes[$route->page][$route->getHashKey()])) {
+                        self::$_pageRoutes[$route->page][$route->getHashKey()] = & $route;
                     }
                 }
 
