@@ -454,10 +454,125 @@ namespace Aomebo\Database
         }
 
         /**
+         * @static
+         * @param \Aomebo\Database\Adapters\Table $table
+         * @param array $columnsAndValues
+         * @return int|bool
+         * @throws \Exception
+         */
+        public static function tableAdd($table, $columnsAndValues)
+        {
+            if (isset($table, $columnsAndValues)
+                && is_array($columnsAndValues)
+                && sizeof($columnsAndValues) > 0
+            ) {
+                return self::$_object->tableAdd(
+                    $table,
+                    $columnsAndValues
+                );
+            } else {
+                Throw new \Exception(
+                    self::systemTranslate('Invalid parameters')
+                );
+            }
+        }
+
+        /**
+         * @static
+         * @param \Aomebo\Database\Adapters\Table $table
+         * @param array $set
+         * @param array|null [$where = null]
+         * @param int|null [$limit = 1]
+         * @return bool
+         * @throws \Exception
+         */
+        public static function tableUpdate($table, $set, $where = null, $limit = 1)
+        {
+            if (isset($table, $set)
+                && is_array($set)
+                && sizeof($set) > 0
+            ) {
+                return self::$_object->tableUpdate(
+                    $table,
+                    $set,
+                    $where,
+                    $limit
+                );
+            } else {
+                Throw new \Exception(
+                    self::systemTranslate('Invalid parameters')
+                );
+            }
+        }
+
+        /**
+         * @static
+         * @param \Aomebo\Database\Adapters\Table $table
+         * @return bool
+         * @throws \Exception
+         */
+        public static function tableCreate($table)
+        {
+            if (isset($table)
+            ) {
+                return self::$_object->tableCreate(
+                    $table
+                );
+            } else {
+                Throw new \Exception(
+                    self::systemTranslate('Invalid parameters')
+                );
+            }
+        }
+
+        /**
+         * @static
+         * @param \Aomebo\Database\Adapters\Table $table
+         * @return bool
+         * @throws \Exception
+         */
+        public static function tableDrop($table)
+        {
+            if (isset($table)
+            ) {
+                return self::$_object->tableDrop(
+                    $table
+                );
+            } else {
+                Throw new \Exception(
+                    self::systemTranslate('Invalid parameters')
+                );
+            }
+        }
+
+        /**
+         * @static
+         * @param \Aomebo\Database\Adapters\Table $table
+         * @param array|null [$where = null]
+         * @param int|null [$limit = 1]
+         * @return bool
+         * @throws \Exception
+         */
+        public static function tableDelete($table, $where = null, $limit = 1)
+        {
+            if (isset($table)) {
+                return self::$_object->tableDelete(
+                    $table,
+                    $where,
+                    $limit
+                );
+            } else {
+                Throw new \Exception(
+                    self::systemTranslate('Invalid parameters')
+                );
+            }
+        }
+
+        /**
          * This method returns whether or not table exists.
          *
          * @static
-         * @param string $rawTableName
+         * @param string|\Aomebo\Database\Adapters\Table $rawTableName
          * @return bool
          */
         public static function tableExists($rawTableName)
@@ -466,6 +581,12 @@ namespace Aomebo\Database
             self::_instanciate();
 
             if (self::isConnected()) {
+
+                if (is_a($rawTableName,
+                    '\Aomebo\Database\Adapters\Table')
+                ) {
+                    $rawTableName = '{TABLE PREFIX}' . $rawTableName->getName();
+                }
 
                 $tableName = str_replace(
                     self::$_replaceKeys,
@@ -488,7 +609,7 @@ namespace Aomebo\Database
          * This method returns whether or not table exists.
          *
          * @static
-         * @param string $rawTableName
+         * @param string|\Aomebo\Database\Adapters\Table $rawTableName
          * @return bool|int
          */
         public static function getNextInsertId($rawTableName)
@@ -498,10 +619,17 @@ namespace Aomebo\Database
 
             if (self::isConnected()) {
 
+                if (is_a($rawTableName,
+                    '\Aomebo\Database\Adapters\Table')
+                ) {
+                    $rawTableName = '{TABLE PREFIX}' . $rawTableName->getName();
+                }
+
                 $tableName = str_replace(
                     self::$_replaceKeys,
                     self::$_replaceValues,
-                    $rawTableName);
+                    $rawTableName
+                );
 
                 if ($insertId = self::$_object->getNextInsertId(
                     $tableName)

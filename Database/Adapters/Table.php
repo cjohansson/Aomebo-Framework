@@ -26,69 +26,181 @@ namespace Aomebo\Database\Adapters
 
     /**
      * @internal
+     * @method static \Aomebo\Database\Adapters\Table getInstance()
      */
-    abstract class Table extends \Aomebo\Base
+    class Table extends \Aomebo\Singleton
     {
 
         /**
-         * @var \Aomebo\Database\Adapters\TableColumns|null
+         * @var string
          */
-        private $_tableColumns;
+        protected $_name = '';
 
         /**
-         * @param \Aomebo\Database\Adapters\TableColumns|null [$tableColumns = null]
+         * @var string
+         */
+        protected $_specification = '';
+
+        /**
+         * @var string
+         */
+        protected $_columnSpecification = '';
+
+        /**
+         * @param string [$name = '']
+         * @param string [$specification = '']
+         * @param string [$columnSpecification = '']
          * @throws \Exception
          */
-        public function __construct($tableColumns = null)
+        public function __construct($name = '', $specification = '',
+            $columnSpecification = '')
         {
 
-            if (isset($tableColumns)
-                && is_a($tableColumns, '\Aomebo\Database\Adapters\TableColumns')
-            ) {
-                $this->_tableColumns = $tableColumns;
-            } else {
-                Throw new \Exception(
-                    'Invalid parameters for constructor');
+            if (!self::_isConstructed()) {
+                parent::__construct();
+                self::_flagThisConstructed();
             }
+
+            $this->_name = $name;
+            $this->_specification = $specification;
+            $this->_columnSpecification = $columnSpecification;
 
         }
 
         /**
-         * @param array $data
+         * @param array $columnsAndValues       array(($column, $value), ... ($column, $value))
          * @throws \Exception
          * @return int|bool                     Insert id (if available or true) or false
          */
-        public function add($data)
+        public function add($columnsAndValues)
         {
-
-            if (isset($data)
-                && is_array($data)
-                && sizeof($data) > 0
-            ) {
-            } else {
-                Throw new \Exception('Invalid parameters');
-            }
-
-            return false;
-
+            return \Aomebo\Database\Adapter::tableAdd(
+                $this,
+                $columnsAndValues
+            );
         }
 
         /**
-         * @param int|array $id
-         * @param array $data
-         * @throws \Exception
+         * @return bool|int
+         */
+        public function getNextInsertId()
+        {
+            return \Aomebo\Database\Adapter::getNextInsertId(
+                $this
+            );
+        }
+
+        /**
+         * @param array $set
+         * @param array|null [$where = null]
+         * @param int|null [$limit = 1]
          * @return bool
          */
-        public function update($where, $data)
+        public function update($set, $where = null, $limit = 1)
         {
-            if (isset($where, $data)
-                && is_array($data)
-                && sizeof($data) > 0
-            ) {
-            } else {
-                Throw new \Exception('Invalid parameters');
+            return \Aomebo\Database\Adapter::tableUpdate(
+                $this,
+                $set,
+                $where,
+                $limit
+            );
+        }
+
+        /**
+         * @param array|null [$where = null]
+         * @param int|null [$limit = 1]
+         * @return bool
+         */
+        public function delete($where = null, $limit = 1)
+        {
+            return \Aomebo\Database\Adapter::tableDelete(
+                $this,
+                $where,
+                $limit
+            );
+        }
+
+        /**
+         * @return bool
+         */
+        public function create()
+        {
+            return \Aomebo\Database\Adapter::tableCreate(
+                $this
+            );
+        }
+
+        /**
+         * @return bool
+         */
+        public function drop()
+        {
+            return \Aomebo\Database\Adapter::tableDrop(
+                $this
+            );
+        }
+
+        /**
+         * @return array
+         */
+        public function getColumns()
+        {
+            $fields = get_object_vars($this);
+            $newFields = array();
+            foreach ($fields as $key => & $value)
+            {
+                if (substr($key, 0, 1) != '_') {
+                    $newFields[$key] = & $value;
+                }
+            }
+            if (sizeof($newFields) > 0) {
+                return $newFields;
             }
             return false;
+        }
+
+        /**
+         * @return bool
+         */
+        public function exists()
+        {
+            return \Aomebo\Database\Adapter::tableExists(
+                $this
+            );
+        }
+
+        /**
+         * @return string
+         */
+        public function getName()
+        {
+            return $this->_name;
+        }
+
+        /**
+         * @return string
+         */
+        public function getSpecification()
+        {
+            return $this->_specification;
+        }
+
+        /**
+         * @return string
+         */
+        public function getColumnSpecification()
+        {
+            return $this->_columnSpecification;
+        }
+
+        /**
+         * @return string
+         */
+        public function __toString()
+        {
+            return \Aomebo\Database\Adapter::backquote(
+                '{TABLE PREFIX}' . $this->_name
+            );
         }
 
     }

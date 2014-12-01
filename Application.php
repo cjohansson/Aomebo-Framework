@@ -396,12 +396,22 @@ namespace Aomebo
                         }
 
                     } else {
-                        Throw new \Exception('Failed to load configuration');
+                        Throw new \Exception(
+                            self::systemTranslate(
+                                'Failed to load configuration'
+                            )
+                        );
                     }
                 } else {
                     Throw new \Exception(
-                        'Invalid parameters for Aomebo Application. '
-                        . 'parameters: "' . print_r(self::$_parameters, true) . '"');
+                        sprintf(
+                            self::systemTranslate(
+                                'Invalid parameters for Aomebo Application. '
+                                . 'parameters: "%s"'
+                            ),
+                            print_r(self::$_parameters, true)
+                        )
+                    );
                 }
 
             }
@@ -714,63 +724,122 @@ namespace Aomebo
                 try {
                     require_once($pathSystem);
                 } catch (\Exception $e) {
-                    Throw new \Exception('Something went wrong when including '
-                        . 'file "' . $pathSystem . '", error: '
-                        . $e->getMessage());
+                    Throw new \Exception(
+                        sprintf(
+                            self::systemTranslate(
+                                'Something went wrong when including '
+                                . 'file "%s", error: "%s"'
+                            ),
+                            $pathSystem,
+                            $e->getMessage()
+                        )
+                    );
                 }
             } else if (file_exists($pathPrivate)) {
                 try {
                     require_once($pathPrivate);
                 } catch (\Exception $e) {
-                    Throw new \Exception('Something went wrong when including '
-                        . 'file "' . $pathPrivate . '", error: '
-                        . $e->getMessage());
+                    Throw new \Exception(
+                        sprintf(
+                            self::systemTranslate(
+                                'Something went wrong when including '
+                                . 'file "%s", error: "%s"'
+                            ),
+                            $pathPrivate,
+                            $e->getMessage()
+                        )
+                    );
                 }
             } else if (file_exists($pathPublic)) {
                 try {
                     require_once($pathPublic);
                 } catch (\Exception $e) {
-                    Throw new \Exception('Something went wrong when including '
-                        . 'file "' . $pathPublic . '", error: '
-                        . $e->getMessage());
+                    Throw new \Exception(
+                        sprintf(
+                            self::systemTranslate(
+                                'Something went wrong when including '
+                                . 'file "%s", error: "%s"'
+                            ),
+                            $pathPublic,
+                            $e->getMessage()
+                        )
+                    );
                 }
             } else if (file_exists($pathSite)) {
                 try {
                     require_once($pathSite);
                 } catch (\Exception $e) {
-                    Throw new \Exception('Something went wrong when including '
-                        . 'file "' . $pathSite . '", error: '
-                        . $e->getMessage());
+                    Throw new \Exception(
+                        sprintf(
+                            self::systemTranslate(
+                                'Something went wrong when including '
+                                . 'file "%s", error: "%s"'
+                            ),
+                            $pathSite,
+                            $e->getMessage()
+                        )
+                    );
                 }
             } else if (file_exists($pathPrivateAlternate)) {
                 try {
                     require_once($pathPrivateAlternate);
                 } catch (\Exception $e) {
-                    Throw new \Exception('Something went wrong when including '
-                        . 'file "' . $pathPrivateAlternate . '", error: '
-                        . $e->getMessage());
+                    Throw new \Exception(
+                        sprintf(
+                            self::systemTranslate(
+                                'Something went wrong when including '
+                                . 'file "%s", error: "%s"'
+                            ),
+                            $pathPrivateAlternate,
+                            $e->getMessage()
+                        )
+                    );
                 }
             } else if (file_exists($pathPublicAlternate)) {
                 try {
                     require_once($pathPublicAlternate);
                 } catch (\Exception $e) {
-                    Throw new \Exception('Something went wrong when including '
-                        . 'file "' . $pathPublicAlternate . '", error: '
-                        . $e->getMessage());
+                    Throw new \Exception(
+                        sprintf(
+                            self::systemTranslate(
+                                'Something went wrong when including '
+                                . 'file "%s", error: "%s"'
+                            ),
+                            $pathPublicAlternate,
+                            $e->getMessage()
+                        )
+                    );
                 }
             } else if (file_exists($pathSiteAlternate)) {
                 try {
                     require_once($pathSiteAlternate);
                 } catch (\Exception $e) {
-                    Throw new \Exception('Something went wrong when including '
-                        . 'file "' . $pathSiteAlternate . '", error: '
-                        . $e->getMessage());
+                    Throw new \Exception(
+                        sprintf(
+                            self::systemTranslate(
+                                'Something went wrong when including '
+                                . 'file "%s", error: "%s"'
+                            ),
+                            $pathSiteAlternate,
+                            $e->getMessage()
+                        )
+                    );
                 }
             } else {
                 if (self::$_autoloadFailureTriggersException) {
-                    Throw new \Exception('Couldn\'t find file "' . $name
-                        . '" at "' . $pathSystem . '", "' . $pathPrivate . '" or at "'
-                        . $pathPublic . '" or at "' . $pathSite . '"');
+                    Throw new \Exception(
+                        sprintf(
+                            self::systemTranslate(
+                                'Couldn\'t find file "%s" at "%s", '
+                                . '"%s", "%s" or at "%s".'
+                            ),
+                            $name,
+                            $pathSystem,
+                            $pathPrivate,
+                            $pathPublic,
+                            $pathSite
+                        )
+                    );
                 }
             }
         }
@@ -1045,8 +1114,13 @@ namespace Aomebo
                                 'feedback,halt on runtime construct exceptions')
                             ) {
                                 Throw new \Exception(
-                                    'Failed to construct runtime "'
-                                    . $foundClassName . '"');
+                                    sprintf(
+                                        self::systemTranslate(
+                                            'Failed to construct runtime "%s"'
+                                        ),
+                                        $foundClassName
+                                    )
+                                );
                             }
 
                         }
@@ -1117,7 +1191,11 @@ namespace Aomebo
                     }
                 }
             } else {
-                Throw new \Exception('Invalid parameters for ' . __FILE__);
+                Throw new \Exception(
+                    self::systemTranslate(
+                        'Invalid parameters'
+                    )
+                );
             }
         }
 

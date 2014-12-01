@@ -198,6 +198,50 @@ namespace Aomebo\Database\Adapters
 
         /**
          * @internal
+         * @param \Aomebo\Database\Adapters\Table $table
+         * @param array $columnsToValues
+         * @return int|bool
+         * @throws \Exception
+         */
+        abstract public function tableAdd($table, $columnsToValues);
+
+        /**
+         * @internal
+         * @param \Aomebo\Database\Adapters\Table $table
+         * @param array $set
+         * @param array|null [$where = null]
+         * @param int|null [$limit = 1]
+         * @return bool
+         * @throws \Exception
+         */
+        abstract public function tableUpdate($table, $set, $where = null, $limit = 1);
+
+        /**
+         * @internal
+         * @param \Aomebo\Database\Adapters\Table $table
+         * @param array|null [$where = null]
+         * @param int|null [$limit = 1]
+         * @return bool
+         * @throws \Exception
+         */
+        abstract public function tableDelete($table, $where = null, $limit = 1);
+
+        /**
+         * @static
+         * @param \Aomebo\Database\Adapters\Table $table
+         * @throws \Exception
+         */
+        abstract public function tableCreate($table);
+
+        /**
+         * @static
+         * @param \Aomebo\Database\Adapters\Table $table
+         * @throws \Exception
+         */
+        abstract public function tableDrop($table);
+
+        /**
+         * @internal
          */
         public function __destruct()
         {

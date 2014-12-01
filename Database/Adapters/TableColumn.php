@@ -21,14 +21,51 @@
 /**
  *
  */
-namespace Aomebo\Database\Adapters\Mysqli
+namespace Aomebo\Database\Adapters
 {
 
     /**
      *
      */
-    final class TableColumns
+    class TableColumn
     {
-    }
 
+        /**
+         * @var string
+         */
+        public $name = '';
+
+        /**
+         * @var string
+         */
+        public $specification = '';
+
+        /**
+         * @var bool
+         */
+        public $isString = false;
+
+        /**
+         * @param string [$name = '']
+         * @param string [$specification = '']
+         * @param bool [$isString = false]
+         */
+        public function __construct($name = '', $specification = '', $isString = false)
+        {
+            $this->name = $name;
+            $this->specification = $specification;
+            $this->isString = $isString;
+        }
+
+        /**
+         *
+         */
+        public function __toString()
+        {
+            return \Aomebo\Database\Adapter::backquote(
+                $this->name
+            );
+        }
+
+    }
 }

@@ -8,6 +8,7 @@
  */
 namespace Modules\Setup
 {
+    use Aomebo\Database\Adapters\Table;
 
     /**
      * @method static \Modules\Setup\Module getInstance()
@@ -115,6 +116,32 @@ namespace Modules\Setup
                     \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_DATABASE
                 );
 
+            }
+
+            $table = \Modules\Setup\Table::getInstance();
+
+            if ($table->exists()) {
+                $table->drop();
+            } else {
+                if ($table->create()) {
+                    if ($id = $table->add(
+                        array(
+                            array($table->name, 'Göran Svensson'),
+                            array($table->cash, 250),
+                        ))
+                    ) {
+                        $table->update(
+                            array(array($table->name, 'Göransson')),
+                            array(
+                                array($table->id, $id),
+                                array($table->name, 'Göran Svensson')
+                            ),
+                            5
+                        );
+                        $table->delete(array(array($table->id, $id)));
+                    }
+                   $table->delete();
+                }
             }
 
             $view = \Aomebo\Template\Adapters\Smarty\Adapter::getInstance();

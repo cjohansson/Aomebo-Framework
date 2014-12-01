@@ -123,6 +123,42 @@ namespace Aomebo\Database\Adapters
         abstract public function fetchAssocAllAndFree();
 
         /**
+         * Return a row from resultset as object.
+         *
+         * @internal
+         * @param int [$limit = 0]
+         * @return array|bool
+         */
+        abstract public function fetchObject($limit = 0);
+
+        /**
+         * Return a row from resultset as object
+         * and free result.
+         *
+         * @internal
+         * @param int [$limit = 0]
+         * @return array|bool
+         */
+        abstract public function fetchObjectAndFree($limit = 0);
+
+        /**
+         * Return all rows from resultset as objects.
+         *
+         * @internal
+         * @return array|bool
+         */
+        abstract public function fetchObjectAll();
+
+        /**
+         * Return all rows from resultset as array of
+         * objects and free result.
+         *
+         * @internal
+         * @return array|bool
+         */
+        abstract public function fetchObjectAllAndFree();
+
+        /**
          * @internal
          * @param mixed $resultset
          * @return bool

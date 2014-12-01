@@ -148,6 +148,89 @@ namespace Aomebo\Database\Adapters\Mysqli
         }
 
         /**
+         * Return a row from resultset as object.
+         *
+         * @internal
+         * @param int [$limit = 0]
+         * @return array|bool
+         */
+        public function fetchObject($limit = 0)
+        {
+            if (isset($this->_resultset)) {
+                if ($limit > 0) {
+                    $result = array();
+                    for ($i = 0; $i < $limit; $i++)
+                    {
+                        if ($row = $this->_resultset->fetch_object()) {
+                            $result[] = $row;
+                        } else {
+                            break;
+                        }
+                    }
+                    return $result;
+                } else {
+                    return $this->_resultset->fetch_object();
+                }
+            } else {
+                return false;
+            }
+        }
+
+        /**
+         * Return a row from resultset as object
+         * and free result.
+         *
+         * @internal
+         * @param int [$limit = 0]
+         * @return array|bool
+         */
+        public function fetchObjectAndFree($limit = 0)
+        {
+            if ($result = $this->fetchObject($limit)) {
+                $this->free();
+                return $result;
+            }
+            return false;
+        }
+
+        /**
+         * Return all rows from resultset as objects.
+         *
+         * @internal
+         * @return array|bool
+         */
+        public function fetchObjectAll()
+        {
+            if (isset($this->_resultset)) {
+                $total = array();
+                while ($row =
+                    $this->_resultset->fetch_object()
+                ) {
+                    $total[] = $row;
+                }
+                return $total;
+            } else {
+                return false;
+            }
+        }
+
+        /**
+         * Return all rows from resultset as array of
+         * objects and free result.
+         *
+         * @internal
+         * @return array|bool
+         */
+        public function fetchObjectAllAndFree()
+        {
+            if ($result = $this->fetchObjectAll()) {
+                $this->free();
+                return $result;
+            }
+            return false;
+        }
+
+        /**
          * @internal
          * @param mixed $resultset
          * @return bool

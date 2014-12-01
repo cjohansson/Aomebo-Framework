@@ -93,7 +93,11 @@ namespace Aomebo\Database\Adapters\Mysqli
                     return $row['AUTO_INCREMENT'];
                 }
             } else {
-                Throw new \Exception('Invalid parameters');
+                Throw new \Exception(
+                    self::systemTranslate(
+                        'Invalid parameters'
+                    )
+                );
             }
 
             return false;
@@ -112,8 +116,13 @@ namespace Aomebo\Database\Adapters\Mysqli
             ) {
                 if (!$this->_con->set_charset($charset)) {
                     Throw new \Exception(
-                        'Could not set database handle charset to: "'
-                        . $charset . '"');
+                        sprintf(
+                            self::systemTranslate(
+                                'Could not set database handle charset to: "%s"'
+                            ),
+                            $charset
+                        )
+                    );
                 } else {
                     return true;
                 }
@@ -155,15 +164,19 @@ namespace Aomebo\Database\Adapters\Mysqli
                         return $escaped;
                     } else {
                         Throw new \Exception(
-                            'Failed to perform SQL escape in ' . __METHOD__
-                            . ' in ' . __FILE__ . ', make sure there is a database '
-                            . 'connection');
+                            self::systemTranslate(
+                                'Failed to perform SQL escape, make sure '
+                                . 'there is a database connection'
+                            )
+                        );
                     }
                 }
             } else {
                 Throw new \Exception(
-                    'Can not SQL escape when not connected in '
-                    . __METHOD__ . ' in ' . __FILE__);
+                    self::systemTranslate(
+                        'Can not SQL escape when not connected'
+                    )
+                );
             }
         }
 
@@ -240,8 +253,8 @@ namespace Aomebo\Database\Adapters\Mysqli
         public function databaseExists($databaseName)
         {
             if (!empty($databaseName)) {
-                $dba = \Aomebo\Database\Adapter::getInstance();
-                if ($dba->query('SELECT `SCHEMA_NAME` FROM `INFORMATION_SCHEMA`.`SCHEMATA`'
+                if (\Aomebo\Database\Adapter::query(
+                    'SELECT `SCHEMA_NAME` FROM `INFORMATION_SCHEMA`.`SCHEMATA`'
                     . ' WHERE `SCHEMA_NAME` = {name}',
                     array(
                         'name' => array(
@@ -254,7 +267,10 @@ namespace Aomebo\Database\Adapters\Mysqli
                 }
             } else {
                 Throw new \Exception(
-                    'Invalid parameters for ' . __FUNCTION__);
+                    self::systemTranslate(
+                        'Invalid parameters'
+                    )
+                );
             }
             return false;
         }
@@ -273,8 +289,10 @@ namespace Aomebo\Database\Adapters\Mysqli
                 }
             } else {
                 Throw new \Exception(
-                    'Invalid parameters for '
-                    . __METHOD__ . ' in ' . __FILE__);
+                    self::systemTranslate(
+                        'Invalid parameters'
+                    )
+                );
             }
             return false;
         }
@@ -285,9 +303,9 @@ namespace Aomebo\Database\Adapters\Mysqli
          */
         public function getSelectedDatabase()
         {
-            $dba =
-                \Aomebo\Database\Adapter::getInstance();
-            if ($resultset = $dba->query('SELECT DATABASE() AS `database`')) {
+            if ($resultset = \Aomebo\Database\Adapter::query(
+                'SELECT DATABASE() AS `database`')
+            ) {
                 $row = $resultset->fetchAssocAndFree();
                 if (isset($row['database'])) {
                     return $row['database'];
@@ -305,7 +323,6 @@ namespace Aomebo\Database\Adapters\Mysqli
         public function tableExists($tableName)
         {
             if (!empty($tableName)) {
-
                 if ($resultset = \Aomebo\Database\Adapter::query(
                     'SELECT COUNT(*) AS `count` FROM `information_schema`.`tables` '
                     . 'WHERE `table_schema` = {database} AND `table_name` = {table}',
@@ -326,10 +343,12 @@ namespace Aomebo\Database\Adapters\Mysqli
                         return true;
                     }
                 }
-
             } else {
                 Throw new \Exception(
-                    'Invalid parameters for ' . __FUNCTION__);
+                    self::systemTranslate(
+                        'Invalid parameters'
+                    )
+                );
             }
             return false;
         }
@@ -344,9 +363,7 @@ namespace Aomebo\Database\Adapters\Mysqli
             $databaseName)
         {
             if (!empty($databaseName)) {
-                $dba =
-                    \Aomebo\Database\Adapter::getInstance();
-                if ($dba->query(
+                if (\Aomebo\Database\Adapter::query(
                     'CREATE DATABASE IF NOT EXISTS `{database}` '
                     . 'DEFAULT CHARSET="{DATA CHARSET}" '
                     . 'DEFAULT COLLATE="{COLLATE CHARSET}"',
@@ -361,7 +378,10 @@ namespace Aomebo\Database\Adapters\Mysqli
                 }
             } else {
                 Throw new \Exception(
-                    'Invalid parameters for ' . __FUNCTION__);
+                    self::systemTranslate(
+                        'Invalid parameters'
+                    )
+                );
             }
             return false;
         }
@@ -397,6 +417,399 @@ namespace Aomebo\Database\Adapters\Mysqli
         public function getBackQuoteCharacter($useAnsiQuotes)
         {
             return '`';
+        }
+
+        /**
+         * @internal
+         * @param \Aomebo\Database\Adapters\Table $table
+         * @param array $columnsAndValues               array(($column, $value), ... ($column, $value))
+         * @return int|bool
+         * @throws \Exception
+         */
+        public function tableAdd($table, $columnsToValues)
+        {
+
+            $sql = 'INSERT INTO ' . $table . '(';
+
+            $dataIndex = 0;
+            foreach ($columnsToValues as $columnsToValuesAndValue)
+            {
+                if ($dataIndex > 0) {
+                    $sql .= ', ';
+                }
+                if  (is_a($columnsToValuesAndValue[0],
+                    '\Aomebo\Database\Adapters\TableColumn')
+                ) {
+
+                    /** @var \Aomebo\Database\Adapters\TableColumn $key */
+
+                    $sql .= $columnsToValuesAndValue[0];
+
+                } else {
+                    $sql .= \Aomebo\Database\Adapter::backquote(
+                        $columnsToValuesAndValue[0],
+                        true
+                    );
+                }
+                $dataIndex++;
+            }
+
+            $sql .= ') VALUES(';
+            $dataIndex = 0;
+
+            foreach ($columnsToValues as $columnsToValuesAndValue)
+            {
+                if ($dataIndex > 0) {
+                    $sql .= ', ';
+                }
+                if  (is_a($columnsToValuesAndValue[0],
+                    '\Aomebo\Database\Adapters\TableColumn')
+                ) {
+
+                    /** @var \Aomebo\Database\Adapters\TableColumn $key */
+
+                    if ($columnsToValuesAndValue[0]->isString) {
+                        $sql .= \Aomebo\Database\Adapter::quote(
+                            $columnsToValuesAndValue[1],
+                            true
+                        );
+                    } else {
+                        $sql .= \Aomebo\Database\Adapter::escape(
+                            $columnsToValuesAndValue[1]
+                        );
+                    }
+
+                } else {
+                    $sql .= \Aomebo\Database\Adapter::escape(
+                        $columnsToValuesAndValue[1]
+                    );
+                }
+                $dataIndex++;
+            }
+
+            $sql .= ')';
+
+            if ($result = \Aomebo\Database\Adapter::query(
+                $sql)
+            ) {
+                return \Aomebo\Database\Adapter::getLastInsertId();
+            }
+
+            return false;
+
+        }
+
+        /**
+         * @internal
+         * @param \Aomebo\Database\Adapters\Table $table
+         * @param array $set
+         * @param array|null [$where = null]
+         * @param int|null [$limit = 1]
+         * @return bool
+         * @throws \Exception
+         */
+        public function tableUpdate($table, $set, $where = null, $limit = 1)
+        {
+
+            $sql = 'UPDATE ' . $table . ' SET ';
+            $dataIndex = 0;
+
+            foreach ($set as $columnAndValue)
+            {
+                if ($dataIndex > 0) {
+                    $sql .= ', ';
+                }
+                if  (is_a($columnAndValue[0],
+                    '\Aomebo\Database\Adapters\TableColumn')
+                ) {
+
+                    $sql .= $columnAndValue[0];
+
+                } else {
+                    $sql .= \Aomebo\Database\Adapter::backquote(
+                        $columnAndValue[0],
+                        true
+                    );
+                }
+
+                $sql .= ' = ';
+
+                if  (is_a($columnAndValue[0],
+                    '\Aomebo\Database\Adapters\TableColumn')
+                ) {
+
+                    if ($columnAndValue[0]->isString) {
+                        $sql .= \Aomebo\Database\Adapter::quote(
+                            $columnAndValue[1],
+                            true
+                        );
+                    } else {
+                        $sql .= \Aomebo\Database\Adapter::escape(
+                            $columnAndValue[1]
+                        );
+                    }
+
+                } else {
+                    $sql .= \Aomebo\Database\Adapter::escape(
+                        $columnAndValue[1]
+                    );
+                }
+
+                $dataIndex++;
+
+            }
+
+            if (isset($where)
+                && is_array($where)
+                && sizeof($where) > 0
+            ) {
+
+                $sql .= ' WHERE ';
+                $dataIndex = 0;
+
+                foreach ($where as $columnAndValue)
+                {
+                    if ($dataIndex > 0) {
+                        if (!isset($columnAndValue[3])
+                            || $columnAndValue[3] == 'AND'
+                        ) {
+                            $sql .= ' AND ';
+                        } else {
+                            $sql .= ' ' . $columnAndValue[3] . ' ';
+                        }
+                    }
+                    if  (is_a($columnAndValue[0],
+                        '\Aomebo\Database\Adapters\TableColumn')
+                    ) {
+
+                        $sql .= $columnAndValue[0];
+
+                    } else {
+                        $sql .= \Aomebo\Database\Adapter::backquote(
+                            $columnAndValue[0],
+                            true
+                        );
+                    }
+
+                    // Operator
+                    if (!isset($columnAndValue[2])
+                        || $columnAndValue[2] == '='
+                    ) {
+                        $sql .= ' = ';
+                    } else {
+                        $sql .= ' ' . $columnAndValue[2] . ' ';
+                    }
+
+                    if  (is_a($columnAndValue[0],
+                        '\Aomebo\Database\Adapters\TableColumn')
+                    ) {
+
+                        if ($columnAndValue[0]->isString) {
+                            $sql .= \Aomebo\Database\Adapter::quote(
+                                $columnAndValue[1]
+                            );
+                        } else {
+                            $sql .= \Aomebo\Database\Adapter::escape(
+                                $columnAndValue[1]
+                            );
+                        }
+
+                    } else {
+                        $sql .= \Aomebo\Database\Adapter::escape(
+                            $columnAndValue[1]
+                        );
+                    }
+
+                    $dataIndex++;
+
+                }
+
+            }
+
+            if (isset($limit)) {
+                $sql .= ' LIMIT ' . \Aomebo\Database\Adapter::escape(
+                    $limit
+                );
+            }
+
+            if ($result = \Aomebo\Database\Adapter::query(
+                $sql)
+            ) {
+                return $result;
+            }
+
+            return false;
+
+        }
+
+        /**
+         * @internal
+         * @param \Aomebo\Database\Adapters\Table $table
+         * @param array|null [$where = null]
+         * @param int|null [$limit = 1]
+         * @return bool
+         * @throws \Exception
+         */
+        public function tableDelete($table, $where = null, $limit = 1)
+        {
+
+            $sql = 'DELETE FROM ' . $table . ' ';
+
+            if (isset($where)
+                && is_array($where)
+                && sizeof($where) > 0
+            ) {
+
+                $sql .= 'WHERE ';
+                $dataIndex = 0;
+
+                foreach ($where as $columnAndValue)
+                {
+                    if ($dataIndex > 0) {
+                        if (!isset($columnAndValue[3])
+                            || $columnAndValue[3] == 'AND'
+                        ) {
+                            $sql .= ' AND ';
+                        } else {
+                            $sql .= ' ' . $columnAndValue[3] . ' ';
+                        }
+                    }
+                    if  (is_a($columnAndValue[0],
+                        '\Aomebo\Database\Adapters\TableColumn')
+                    ) {
+
+                        $sql .= $columnAndValue[0];
+
+                    } else {
+                        $sql .= \Aomebo\Database\Adapter::backquote(
+                            $columnAndValue[0],
+                            true
+                        );
+                    }
+
+                    // Operator
+                    if (!isset($columnAndValue[2])
+                        || $columnAndValue[2] == '='
+                    ) {
+                        $sql .= ' = ';
+                    } else {
+                        $sql .= ' ' . $columnAndValue[2] . ' ';
+                    }
+
+                    if  (is_a($columnAndValue[0],
+                        '\Aomebo\Database\Adapters\TableColumn')
+                    ) {
+
+                        if ($columnAndValue[0]->isString) {
+                            $sql .= \Aomebo\Database\Adapter::quote(
+                                $columnAndValue[1],
+                                true
+                            );
+                        } else {
+                            $sql .= \Aomebo\Database\Adapter::escape(
+                                $columnAndValue[1]
+                            );
+                        }
+
+                    } else {
+                        $sql .= \Aomebo\Database\Adapter::escape(
+                            $columnAndValue[1]
+                        );
+                    }
+
+                    $dataIndex++;
+
+                }
+
+            }
+
+            if (isset($limit)) {
+                $sql .= ' LIMIT ' . \Aomebo\Database\Adapter::escape(
+                    $limit
+                );
+            }
+
+            if ($result = \Aomebo\Database\Adapter::query(
+                $sql)
+            ) {
+                return $result;
+            }
+
+            return false;
+
+        }
+
+        /**
+         * @static
+         * @param \Aomebo\Database\Adapters\Table $table
+         * @return bool
+         * @throws \Exception
+         */
+        public function tableCreate($table)
+        {
+
+            $sql = 'CREATE TABLE IF NOT EXISTS ' . $table;
+
+            if ($columns = $table->getColumns()) {
+
+                $sql .= '(';
+                $dataIndex = 0;
+
+                foreach ($table->getColumns() as $column)
+                {
+
+                    /** @var \Aomebo\Database\Adapters\TableColumn $column */
+
+                    if ($dataIndex > 0) {
+                        $sql .= ', ';
+                    }
+
+                    $sql .= $column . ' ' . $column->specification;
+                    $dataIndex++;
+
+                }
+
+                if ($columnSpecification = $table->getColumnSpecification()) {
+                    $sql .= ', ' . $columnSpecification;
+                }
+
+                $sql .= ')';
+
+            }
+
+            if ($specification = $table->getSpecification()) {
+                $sql .= ' ' . $specification;
+            }
+
+            if ($result = \Aomebo\Database\Adapter::query(
+                $sql)
+            ) {
+                return $result;
+            }
+
+            return false;
+
+        }
+
+        /**
+         * @static
+         * @param \Aomebo\Database\Adapters\Table $table
+         * @return bool
+         * @throws \Exception
+         */
+        public function tableDrop($table)
+        {
+
+            $sql = 'DROP TABLE ' . $table;
+
+            if ($result = \Aomebo\Database\Adapter::query(
+                $sql)
+            ) {
+                return $result;
+            }
+
+            return false;
+
         }
 
     }

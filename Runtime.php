@@ -770,6 +770,10 @@ namespace Aomebo
             $this->setEnabled(true);
             $this->resetFields();
 
+            $isPageOrShellRequest =
+                \Aomebo\Dispatcher\System::isPageRequest()
+                || \Aomebo\Dispatcher\System::isShellRequest();
+
             if (!self::_isConstructed()) {
 
                 parent::__construct();
@@ -784,7 +788,9 @@ namespace Aomebo
              *
              * @see \Aomebo\Runtime\Installable
              */
-            if ($this->isInstallable()) {
+            if ($isPageOrShellRequest
+                && $this->isInstallable()
+            ) {
 
                 /** @var \Aomebo\Runtime\Installable $ref */
                 $ref = & $this;
@@ -798,7 +804,9 @@ namespace Aomebo
 
             }
 
-            if ($this->isEnabled()) {
+            if ($isPageOrShellRequest
+                && $this->isEnabled()
+            ) {
 
                 /**
                  * Routable interface.
@@ -841,8 +849,9 @@ namespace Aomebo
                     }
                 }
 
-
-                if ($this->isExecutionParameters()) {
+                if ($isPageOrShellRequest
+                    && $this->isExecutionParameters()
+                ) {
 
                     /** @var \Aomebo\Runtime\ExecutionParameters $ref */
                     $ref = & $this;
@@ -878,10 +887,14 @@ namespace Aomebo
 
             }
 
-            if ($this->isInitializable()) {
+            if ($isPageOrShellRequest
+                && $this->isInitializable()
+            ) {
+
                 /** @var \Aomebo\Runtime\Initializable $ref */
                 $ref = & $this;
                 $ref->initialize();
+
             }
 
         }
