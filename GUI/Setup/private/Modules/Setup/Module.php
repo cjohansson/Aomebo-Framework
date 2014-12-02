@@ -138,6 +138,11 @@ namespace Modules\Setup
                             ),
                             5
                         );
+
+                        if ($result = $table->select()) {
+                            $all = $result->fetchObjectAndFree();
+                        }
+
                         $table->delete(array(array($table->id, $id)));
                     }
                    $table->delete();

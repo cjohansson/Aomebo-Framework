@@ -121,6 +121,27 @@ namespace Aomebo\Database\Adapters
         }
 
         /**
+         * @param array|null [$columns = null]
+         * @param array|null [$where = null]
+         * @param array|null [$groupBy = null]
+         * @param array|null [$orderBy = null]
+         * @param int|null [$limit = null]
+         * @return \Aomebo\Database\Adapters\Resultset|bool
+         */
+        public function select($columns = null, $where = null,
+            $groupBy = null, $orderBy = null, $limit = null)
+        {
+            return \Aomebo\Database\Adapter::tableSelect(
+                $this,
+                $columns,
+                $where,
+                $groupBy,
+                $orderBy,
+                $limit
+            );
+        }
+
+        /**
          * @return bool
          */
         public function create()

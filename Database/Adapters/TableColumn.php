@@ -50,7 +50,9 @@ namespace Aomebo\Database\Adapters
          * @param string [$specification = '']
          * @param bool [$isString = false]
          */
-        public function __construct($name = '', $specification = '', $isString = false)
+        public function __construct($name = '',
+            $specification = '',
+            $isString = false)
         {
             $this->name = $name;
             $this->specification = $specification;

@@ -563,73 +563,11 @@ namespace Aomebo\Database\Adapters\Mysqli
                 && is_array($where)
                 && sizeof($where) > 0
             ) {
-
-                $sql .= ' WHERE ';
-                $dataIndex = 0;
-
-                foreach ($where as $columnAndValue)
-                {
-                    if ($dataIndex > 0) {
-                        if (!isset($columnAndValue[3])
-                            || $columnAndValue[3] == 'AND'
-                        ) {
-                            $sql .= ' AND ';
-                        } else {
-                            $sql .= ' ' . $columnAndValue[3] . ' ';
-                        }
-                    }
-                    if  (is_a($columnAndValue[0],
-                        '\Aomebo\Database\Adapters\TableColumn')
-                    ) {
-
-                        $sql .= $columnAndValue[0];
-
-                    } else {
-                        $sql .= \Aomebo\Database\Adapter::backquote(
-                            $columnAndValue[0],
-                            true
-                        );
-                    }
-
-                    // Operator
-                    if (!isset($columnAndValue[2])
-                        || $columnAndValue[2] == '='
-                    ) {
-                        $sql .= ' = ';
-                    } else {
-                        $sql .= ' ' . $columnAndValue[2] . ' ';
-                    }
-
-                    if  (is_a($columnAndValue[0],
-                        '\Aomebo\Database\Adapters\TableColumn')
-                    ) {
-
-                        if ($columnAndValue[0]->isString) {
-                            $sql .= \Aomebo\Database\Adapter::quote(
-                                $columnAndValue[1]
-                            );
-                        } else {
-                            $sql .= \Aomebo\Database\Adapter::escape(
-                                $columnAndValue[1]
-                            );
-                        }
-
-                    } else {
-                        $sql .= \Aomebo\Database\Adapter::escape(
-                            $columnAndValue[1]
-                        );
-                    }
-
-                    $dataIndex++;
-
-                }
-
+                $sql .= self::_generateWhereSubquery($where);
             }
 
             if (isset($limit)) {
-                $sql .= ' LIMIT ' . \Aomebo\Database\Adapter::escape(
-                    $limit
-                );
+                $sql .= self::_generateLimitSubquery($limit);
             }
 
             if ($result = \Aomebo\Database\Adapter::query(
@@ -659,74 +597,11 @@ namespace Aomebo\Database\Adapters\Mysqli
                 && is_array($where)
                 && sizeof($where) > 0
             ) {
-
-                $sql .= 'WHERE ';
-                $dataIndex = 0;
-
-                foreach ($where as $columnAndValue)
-                {
-                    if ($dataIndex > 0) {
-                        if (!isset($columnAndValue[3])
-                            || $columnAndValue[3] == 'AND'
-                        ) {
-                            $sql .= ' AND ';
-                        } else {
-                            $sql .= ' ' . $columnAndValue[3] . ' ';
-                        }
-                    }
-                    if  (is_a($columnAndValue[0],
-                        '\Aomebo\Database\Adapters\TableColumn')
-                    ) {
-
-                        $sql .= $columnAndValue[0];
-
-                    } else {
-                        $sql .= \Aomebo\Database\Adapter::backquote(
-                            $columnAndValue[0],
-                            true
-                        );
-                    }
-
-                    // Operator
-                    if (!isset($columnAndValue[2])
-                        || $columnAndValue[2] == '='
-                    ) {
-                        $sql .= ' = ';
-                    } else {
-                        $sql .= ' ' . $columnAndValue[2] . ' ';
-                    }
-
-                    if  (is_a($columnAndValue[0],
-                        '\Aomebo\Database\Adapters\TableColumn')
-                    ) {
-
-                        if ($columnAndValue[0]->isString) {
-                            $sql .= \Aomebo\Database\Adapter::quote(
-                                $columnAndValue[1],
-                                true
-                            );
-                        } else {
-                            $sql .= \Aomebo\Database\Adapter::escape(
-                                $columnAndValue[1]
-                            );
-                        }
-
-                    } else {
-                        $sql .= \Aomebo\Database\Adapter::escape(
-                            $columnAndValue[1]
-                        );
-                    }
-
-                    $dataIndex++;
-
-                }
-
+                $sql .= self::_generateWhereSubquery($where);
             }
 
             if (isset($limit)) {
-                $sql .= ' LIMIT ' . \Aomebo\Database\Adapter::escape(
-                    $limit
-                );
+                $sql .= self::_generateLimitSubquery($limit);
             }
 
             if ($result = \Aomebo\Database\Adapter::query(
@@ -809,6 +684,267 @@ namespace Aomebo\Database\Adapters\Mysqli
             }
 
             return false;
+
+        }
+
+        /**
+         * @internal
+         * @param \Aomebo\Database\Adapters\Table $table
+         * @param array|null [$columns = null]
+         * @param array|null [$where = null]
+         * @param array|null [$groupBy = null]
+         * @param array|null [$orderBy = null]
+         * @param int|null [$limit = null]
+         * @return \Aomebo\Database\Adapters\Resultset|bool
+         * @throws \Exception
+         */
+        public function tableSelect($table, $columns = null,
+            $where = null, $groupBy = null, $orderBy = null,
+            $limit = null)
+        {
+
+            $sql = 'SELECT ';
+
+            if (isset($columns)
+                && is_array($columns)
+            ) {
+
+                $dataIndex = 0;
+
+                foreach ($columns as $columnAndValue)
+                {
+                    if ($dataIndex > 0) {
+                        $sql .= ', ';
+                    }
+                    if  (is_a($columnAndValue[0],
+                        '\Aomebo\Database\Adapters\TableColumn')
+                    ) {
+
+                        $sql .= $columnAndValue[0];
+
+                    } else {
+                        $sql .= \Aomebo\Database\Adapter::backquote(
+                            $columnAndValue[0],
+                            true
+                        );
+                    }
+
+                    if (isset($columnAndValue[1])) {
+                        $sql .= ' AS ' . \Aomebo\Database\Adapter::backquote(
+                            $columnAndValue[1],
+                            true
+                        );
+                    }
+
+                }
+
+            } else {
+                $sql .= '*';
+            }
+
+            $sql .= ' FROM ' . $table . ' ';
+
+            if (isset($groupBy)) {
+                $sql .= self::_generateGroupSubquery($groupBy);
+            }
+
+            if (isset($where)) {
+                $sql .= self::_generateWhereSubquery($where);
+            }
+
+            if (isset($orderBy)) {
+                $sql .= self::_generateOrderBySubquery($orderBy);
+            }
+
+            if (isset($limit)) {
+                $sql .= self::_generateLimitSubquery($limit);
+            }
+
+            if ($result = \Aomebo\Database\Adapter::query(
+                $sql)
+            ) {
+                return $result;
+            }
+
+            return false;
+
+        }
+
+        /**
+         * @internal
+         * @param array $where
+         * @return string
+         * @throws \Exception
+         */
+        private function _generateWhereSubquery($where)
+        {
+
+            $sql = 'WHERE ';
+            $dataIndex = 0;
+
+            foreach ($where as $columnAndValue)
+            {
+                if ($dataIndex > 0) {
+                    if (!isset($columnAndValue[3])
+                        || $columnAndValue[3] == 'AND'
+                    ) {
+                        $sql .= ' AND ';
+                    } else {
+                        $sql .= ' ' . $columnAndValue[3] . ' ';
+                    }
+                }
+                if  (is_a($columnAndValue[0],
+                    '\Aomebo\Database\Adapters\TableColumn')
+                ) {
+
+                    $sql .= $columnAndValue[0];
+
+                } else {
+                    $sql .= \Aomebo\Database\Adapter::backquote(
+                        $columnAndValue[0],
+                        true
+                    );
+                }
+
+                // Operator
+                if (!isset($columnAndValue[2])
+                    || $columnAndValue[2] == '='
+                ) {
+                    $sql .= ' = ';
+                } else {
+                    $sql .= ' ' . $columnAndValue[2] . ' ';
+                }
+
+                if  (is_a($columnAndValue[0],
+                    '\Aomebo\Database\Adapters\TableColumn')
+                ) {
+
+                    if ($columnAndValue[0]->isString) {
+                        $sql .= \Aomebo\Database\Adapter::quote(
+                            $columnAndValue[1],
+                            true
+                        );
+                    } else {
+                        $sql .= \Aomebo\Database\Adapter::escape(
+                            $columnAndValue[1]
+                        );
+                    }
+
+                } else {
+                    $sql .= \Aomebo\Database\Adapter::escape(
+                        $columnAndValue[1]
+                    );
+                }
+
+                $dataIndex++;
+
+            }
+
+            $sql .= ' ';
+
+            return $sql;
+
+        }
+
+        /**
+         * @internal
+         * @param array $groupBy
+         * @return string
+         * @throws \Exception
+         */
+        private function _generateGroupSubquery($groupBy)
+        {
+
+            $sql = 'GROUP BY ';
+            $dataIndex = 0;
+
+            foreach ($groupBy as $columnAndValue)
+            {
+                if ($dataIndex > 0) {
+                    $sql .= ', ';
+                }
+                if  (is_a($columnAndValue[0],
+                    '\Aomebo\Database\Adapters\TableColumn')
+                ) {
+
+                    $sql .= $columnAndValue[0];
+
+                } else {
+                    $sql .= \Aomebo\Database\Adapter::backquote(
+                        $columnAndValue[0],
+                        true
+                    );
+                }
+
+                $dataIndex++;
+
+            }
+
+            $sql .= ' ';
+
+            return $sql;
+
+        }
+
+        /**
+         * @internal
+         * @param int|string $limit
+         * @return string
+         * @throws \Exception
+         */
+        private function _generateLimitSubquery($limit)
+        {
+            return ' LIMIT ' . \Aomebo\Database\Adapter::escape(
+                    $limit
+            ) . ' ';
+        }
+
+        /**
+         * @internal
+         * @param array $orderBy
+         * @return string
+         * @throws \Exception
+         */
+        private function _generateOrderBySubquery($orderBy)
+        {
+
+            $sql = 'ORDER BY ';
+            $dataIndex = 0;
+
+            foreach ($orderBy as $columnAndValue)
+            {
+                if ($dataIndex > 0) {
+                    $sql .= ', ';
+                }
+                if  (is_a($columnAndValue[0],
+                    '\Aomebo\Database\Adapters\TableColumn')
+                ) {
+
+                    $sql .= $columnAndValue[0];
+
+                } else {
+                    $sql .= \Aomebo\Database\Adapter::backquote(
+                        $columnAndValue[0],
+                        true
+                    );
+                }
+
+                // Operator
+                if (!isset($columnAndValue[1])
+                    || $columnAndValue[1] == 'ASC'
+                ) {
+                    $sql .= ' ASC ';
+                } else {
+                    $sql .= ' ' . $columnAndValue[1] . ' ';
+                }
+
+                $dataIndex++;
+
+            }
+
+            $sql .= ' ';
+
+            return $sql;
 
         }
 

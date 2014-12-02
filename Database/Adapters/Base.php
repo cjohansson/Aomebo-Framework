@@ -227,18 +227,31 @@ namespace Aomebo\Database\Adapters
         abstract public function tableDelete($table, $where = null, $limit = 1);
 
         /**
-         * @static
+         * @internal
          * @param \Aomebo\Database\Adapters\Table $table
          * @throws \Exception
          */
         abstract public function tableCreate($table);
 
         /**
-         * @static
          * @param \Aomebo\Database\Adapters\Table $table
          * @throws \Exception
          */
         abstract public function tableDrop($table);
+
+        /**
+         * @internal
+         * @param \Aomebo\Database\Adapters\Table $table
+         * @param array|null [$columns = null]
+         * @param array|null [$where = null]
+         * @param array|null [$groupBy = null]
+         * @param array|null [$orderBy = null]
+         * @param int|null [$limit = null]
+         * @return \Aomebo\Database\Adapters\Resultset|bool
+         * @throws \Exception
+         */
+        abstract public function tableSelect($table, $columns = null,
+            $where = null, $groupBy = null, $orderBy = null, $limit = null);
 
         /**
          * @internal

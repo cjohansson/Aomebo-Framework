@@ -508,6 +508,32 @@ namespace Aomebo\Database
         /**
          * @static
          * @param \Aomebo\Database\Adapters\Table $table
+         * @param array|null [$columns = null]
+         * @param array|null [$where = null]
+         * @param array|null [$groupBy = null]
+         * @param array|null [$orderBy = null]
+         * @param int|null [$limit = null]
+         * @return \Aomebo\Database\Adapters\Resultset|bool
+         * @throws \Exception
+         */
+        public static function tableSelect($table)
+        {
+            if (isset($table)
+            ) {
+                return self::$_object->tableSelect(
+                    $table
+                );
+            } else {
+                Throw new \Exception(
+                    self::systemTranslate('Invalid parameters')
+                );
+            }
+        }
+
+
+        /**
+         * @static
+         * @param \Aomebo\Database\Adapters\Table $table
          * @return bool
          * @throws \Exception
          */
