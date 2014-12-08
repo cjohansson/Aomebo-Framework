@@ -516,12 +516,19 @@ namespace Aomebo\Database
          * @return \Aomebo\Database\Adapters\Resultset|bool
          * @throws \Exception
          */
-        public static function tableSelect($table)
+        public static function tableSelect($table, $columns = null,
+            $where = null, $groupBy = null, $orderBy = null,
+            $limit = null)
         {
             if (isset($table)
             ) {
                 return self::$_object->tableSelect(
-                    $table
+                    $table,
+                    $columns,
+                    $where,
+                    $groupBy,
+                    $orderBy,
+                    $limit
                 );
             } else {
                 Throw new \Exception(

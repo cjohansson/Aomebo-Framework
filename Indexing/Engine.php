@@ -538,7 +538,6 @@ namespace Aomebo\Indexing
                     'content_md5' => $contentMd5,
                     'content_last_modified' => $contentLastModified,
                 ));
-                $contentLastModifiedDuration = 0;
 
                 \Aomebo\Dispatcher\System::setHttpHeaderField(
                     'Last-Modified',
@@ -555,6 +554,7 @@ namespace Aomebo\Indexing
          * @param string $uri
          * @param array $row
          * @return bool
+         * @throws \Exception
          */
         private static function _addUri($uri, $row)
         {
@@ -928,8 +928,6 @@ namespace Aomebo\Indexing
         private function _install()
         {
 
-            $dba =
-                \Aomebo\Database\Adapter::getInstance();
             $databaseAdapter =
                 strtolower(\Aomebo\Configuration::getSetting(
                     'database,adapter'));
@@ -949,7 +947,8 @@ namespace Aomebo\Indexing
                 ) {
 
                     // Create table preferably with InnoDB otherwise MyISAM
-                    $dba->query('CREATE TABLE IF NOT EXISTS `' . self::getTable(). '`('
+                    \Aomebo\Database\Adapter::query(
+                        'CREATE TABLE IF NOT EXISTS `' . self::getTable(). '`('
                         . '`uri` BLOB NOT NULL DEFAULT "",'
                         . '`title` LONGBLOB NOT NULL DEFAULT "",'
                         . '`description` LONGBLOB NOT NULL DEFAULT "",'
@@ -963,7 +962,8 @@ namespace Aomebo\Indexing
                         . '`edited` TIMESTAMP NOT NULL DEFAULT "0000-00-00 00:00:00" ON UPDATE CURRENT_TIMESTAMP, '
                         . 'PRIMARY KEY(uri(500))) '
                         . 'ENGINE={storage_engine} DEFAULT CHARSET={DATA CHARSET};', array(
-                            'storage_engine' => ($storageEngine == 'myisam' ? 'MyISAM' : 'InnoDB')));
+                            'storage_engine' => ($storageEngine == 'myisam' ? 'MyISAM' : 'InnoDB'))
+                    );
 
                     if (\Aomebo\Configuration::getSetting('indexing,save content')) {
 

@@ -1308,28 +1308,29 @@ namespace Aomebo\Session
                     || $storageEngine == 'all'
                 ) {
 
-                    // Create sessions table
-                    \Aomebo\Database\Adapter::query(
-                        'CREATE TABLE IF NOT EXISTS `' . self::getTableSessions() . '`('
-                        . '`session_id` VARCHAR(50) NOT NULL,'
-                        . '`session_time_start` DATETIME NOT NULL,'
-                        . '`session_time_last` TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,'
-                        . '`session_remote_ip` VARCHAR(20) NOT NULL,'
-                        . '`session_remote_port` VARCHAR(10) NOT NULL,'
-                        . '`session_http_agent` VARCHAR(200) NOT NULL,'
-                        . '`session_http_accept` VARCHAR(100) NOT NULL,'
-                        . '`session_http_accept_language` VARCHAR(100) NOT NULL,'
-                        . '`session_http_accept_encoding` VARCHAR(100) NOT NULL,'
-                        . '`session_http_connection` VARCHAR(100) NOT NULL,'
-                        . '`session_request_uri` VARCHAR(100) NOT NULL,'
-                        . '`session_request_query_string` VARCHAR(100) NOT NULL,'
-                        . '`session_request_path_info` VARCHAR(100) NOT NULL,'
-                        . 'PRIMARY KEY (`session_id`)) ENGINE=InnoDB DEFAULT CHARSET={DATA CHARSET};');
-
                     // Is storage-engine innodb or all?
                     if ($storageEngine == 'innodb'
                         || $storageEngine == 'all'
                     ) {
+
+                        // Create sessions table
+                        \Aomebo\Database\Adapter::query(
+                            'CREATE TABLE IF NOT EXISTS `' . self::getTableSessions() . '`('
+                            . '`session_id` VARCHAR(50) NOT NULL,'
+                            . '`session_time_start` DATETIME NOT NULL,'
+                            . '`session_time_last` TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,'
+                            . '`session_remote_ip` VARCHAR(20) NOT NULL,'
+                            . '`session_remote_port` VARCHAR(10) NOT NULL,'
+                            . '`session_http_agent` VARCHAR(200) NOT NULL,'
+                            . '`session_http_accept` VARCHAR(100) NOT NULL,'
+                            . '`session_http_accept_language` VARCHAR(100) NOT NULL,'
+                            . '`session_http_accept_encoding` VARCHAR(100) NOT NULL,'
+                            . '`session_http_connection` VARCHAR(100) NOT NULL,'
+                            . '`session_request_uri` VARCHAR(100) NOT NULL,'
+                            . '`session_request_query_string` VARCHAR(100) NOT NULL,'
+                            . '`session_request_path_info` VARCHAR(100) NOT NULL,'
+                            . 'PRIMARY KEY (`session_id`)) ENGINE=InnoDB DEFAULT CHARSET={DATA CHARSET};'
+                        );
 
                         \Aomebo\Database\Adapter::query(
                             'CREATE TABLE IF NOT EXISTS `' . self::getTableSessionsBlocksData() . '` ('
@@ -1346,6 +1347,25 @@ namespace Aomebo\Session
 
                     } else {
 
+                        // Create sessions table
+                        \Aomebo\Database\Adapter::query(
+                            'CREATE TABLE IF NOT EXISTS `' . self::getTableSessions() . '`('
+                            . '`session_id` VARCHAR(50) NOT NULL,'
+                            . '`session_time_start` DATETIME NOT NULL,'
+                            . '`session_time_last` TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,'
+                            . '`session_remote_ip` VARCHAR(20) NOT NULL,'
+                            . '`session_remote_port` VARCHAR(10) NOT NULL,'
+                            . '`session_http_agent` VARCHAR(200) NOT NULL,'
+                            . '`session_http_accept` VARCHAR(100) NOT NULL,'
+                            . '`session_http_accept_language` VARCHAR(100) NOT NULL,'
+                            . '`session_http_accept_encoding` VARCHAR(100) NOT NULL,'
+                            . '`session_http_connection` VARCHAR(100) NOT NULL,'
+                            . '`session_request_uri` VARCHAR(100) NOT NULL,'
+                            . '`session_request_query_string` VARCHAR(100) NOT NULL,'
+                            . '`session_request_path_info` VARCHAR(100) NOT NULL,'
+                            . 'PRIMARY KEY (`session_id`)) ENGINE=MyISAM DEFAULT CHARSET={DATA CHARSET};'
+                        );
+
                         \Aomebo\Database\Adapter::query(
                             'CREATE TABLE IF NOT EXISTS `' . self::getTableSessionsBlocksData() . '` ('
                             . '`session_id` VARCHAR(50) NOT NULL,'
@@ -1355,16 +1375,19 @@ namespace Aomebo\Session
                             . '`session_block_data_added` DATETIME NOT NULL DEFAULT "0000-00-00 00:00:00",'
                             . '`session_block_data_edited` TIMESTAMP NOT NULL DEFAULT "0000-00-00 00:00:00" ON UPDATE CURRENT_TIMESTAMP, '
                             . 'PRIMARY KEY (`session_id`, `session_block_name`, `session_block_data_key`)) '
-                            . 'ENGINE=MyISAM DEFAULT CHARSET={DATA CHARSET};');
+                            . 'ENGINE=MyISAM DEFAULT CHARSET={DATA CHARSET};'
+                        );
 
                     }
                 } else {
                     Throw new \Exception(
-                        'Aomebo Session Handler only supports MyISAM or InnoDB as storage engines');
+                        'Aomebo Session Handler only supports MyISAM or InnoDB as storage engines'
+                    );
                 }
             } else {
                 Throw new \Exception(
-                    'Aomebo Session Handler only supports MySQL or MySQLi as database adapter');
+                    'Aomebo Session Handler only supports MySQL or MySQLi as database adapter'
+                );
             }
         }
 

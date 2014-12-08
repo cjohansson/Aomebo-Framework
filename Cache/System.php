@@ -165,7 +165,8 @@ namespace Aomebo\Cache
                 . '`cache_data` LONGBLOB NOT NULL DEFAULT "",'
                 . '`cache_added` DATETIME NOT NULL DEFAULT "0000-00-00 00:00:00",'
                 . '`cache_edited` TIMESTAMP NOT NULL DEFAULT "0000-00-00 00:00:00" ON UPDATE CURRENT_TIMESTAMP, '
-                . 'PRIMARY KEY(`cache_parameters`,`cache_key`))'
+                . 'PRIMARY KEY(`cache_parameters`,`cache_key`)) ENGINE={storage} DEFAULT CHARSET={DATA CHARSET};',
+                array('storage' => \Aomebo\Configuration::getSetting('database,storage engine'))
             );
 
         }
