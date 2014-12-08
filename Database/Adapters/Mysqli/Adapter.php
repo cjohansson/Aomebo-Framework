@@ -713,29 +713,30 @@ namespace Aomebo\Database\Adapters\Mysqli
 
                 foreach ($columns as $columnAndValue)
                 {
-                    if ($dataIndex > 0) {
-                        $sql .= ', ';
+                    if (isset($columnAndValue)) {
+                        if ($dataIndex > 0) {
+                            $sql .= ', ';
+                        }
+                        if  (is_a($columnAndValue[0],
+                            '\Aomebo\Database\Adapters\TableColumn')
+                        ) {
+
+                            $sql .= $columnAndValue[0];
+
+                        } else {
+                            $sql .= \Aomebo\Database\Adapter::backquote(
+                                $columnAndValue[0],
+                                true
+                            );
+                        }
+
+                        if (isset($columnAndValue[1])) {
+                            $sql .= ' AS ' . \Aomebo\Database\Adapter::backquote(
+                                $columnAndValue[1],
+                                true
+                            );
+                        }
                     }
-                    if  (is_a($columnAndValue[0],
-                        '\Aomebo\Database\Adapters\TableColumn')
-                    ) {
-
-                        $sql .= $columnAndValue[0];
-
-                    } else {
-                        $sql .= \Aomebo\Database\Adapter::backquote(
-                            $columnAndValue[0],
-                            true
-                        );
-                    }
-
-                    if (isset($columnAndValue[1])) {
-                        $sql .= ' AS ' . \Aomebo\Database\Adapter::backquote(
-                            $columnAndValue[1],
-                            true
-                        );
-                    }
-
                 }
 
             } else {
@@ -784,60 +785,61 @@ namespace Aomebo\Database\Adapters\Mysqli
 
             foreach ($where as $columnAndValue)
             {
-                if ($dataIndex > 0) {
-                    if (!isset($columnAndValue[3])
-                        || $columnAndValue[3] == 'AND'
-                    ) {
-                        $sql .= ' AND ';
-                    } else {
-                        $sql .= ' ' . $columnAndValue[3] . ' ';
+                if (isset($columnAndValue)) {
+                    if ($dataIndex > 0) {
+                        if (!isset($columnAndValue[3])
+                            || $columnAndValue[3] == 'AND'
+                        ) {
+                            $sql .= ' AND ';
+                        } else {
+                            $sql .= ' ' . $columnAndValue[3] . ' ';
+                        }
                     }
-                }
-                if  (is_a($columnAndValue[0],
-                    '\Aomebo\Database\Adapters\TableColumn')
-                ) {
+                    if  (is_a($columnAndValue[0],
+                        '\Aomebo\Database\Adapters\TableColumn')
+                    ) {
 
-                    $sql .= $columnAndValue[0];
+                        $sql .= $columnAndValue[0];
 
-                } else {
-                    $sql .= \Aomebo\Database\Adapter::backquote(
-                        $columnAndValue[0],
-                        true
-                    );
-                }
-
-                // Operator
-                if (!isset($columnAndValue[2])
-                    || $columnAndValue[2] == '='
-                ) {
-                    $sql .= ' = ';
-                } else {
-                    $sql .= ' ' . $columnAndValue[2] . ' ';
-                }
-
-                if  (is_a($columnAndValue[0],
-                    '\Aomebo\Database\Adapters\TableColumn')
-                ) {
-
-                    if ($columnAndValue[0]->isString) {
-                        $sql .= \Aomebo\Database\Adapter::quote(
-                            $columnAndValue[1],
+                    } else {
+                        $sql .= \Aomebo\Database\Adapter::backquote(
+                            $columnAndValue[0],
                             true
                         );
+                    }
+
+                    // Operator
+                    if (!isset($columnAndValue[2])
+                        || $columnAndValue[2] == '='
+                    ) {
+                        $sql .= ' = ';
+                    } else {
+                        $sql .= ' ' . $columnAndValue[2] . ' ';
+                    }
+
+                    if  (is_a($columnAndValue[0],
+                        '\Aomebo\Database\Adapters\TableColumn')
+                    ) {
+
+                        if ($columnAndValue[0]->isString) {
+                            $sql .= \Aomebo\Database\Adapter::quote(
+                                $columnAndValue[1],
+                                true
+                            );
+                        } else {
+                            $sql .= \Aomebo\Database\Adapter::escape(
+                                $columnAndValue[1]
+                            );
+                        }
+
                     } else {
                         $sql .= \Aomebo\Database\Adapter::escape(
                             $columnAndValue[1]
                         );
                     }
 
-                } else {
-                    $sql .= \Aomebo\Database\Adapter::escape(
-                        $columnAndValue[1]
-                    );
+                    $dataIndex++;
                 }
-
-                $dataIndex++;
-
             }
 
             $sql .= ' ';
@@ -860,24 +862,25 @@ namespace Aomebo\Database\Adapters\Mysqli
 
             foreach ($groupBy as $columnAndValue)
             {
-                if ($dataIndex > 0) {
-                    $sql .= ', ';
+                if (isset($columnAndValue)) {
+                    if ($dataIndex > 0) {
+                        $sql .= ', ';
+                    }
+                    if  (is_a($columnAndValue[0],
+                        '\Aomebo\Database\Adapters\TableColumn')
+                    ) {
+
+                        $sql .= $columnAndValue[0];
+
+                    } else {
+                        $sql .= \Aomebo\Database\Adapter::backquote(
+                            $columnAndValue[0],
+                            true
+                        );
+                    }
+
+                    $dataIndex++;
                 }
-                if  (is_a($columnAndValue[0],
-                    '\Aomebo\Database\Adapters\TableColumn')
-                ) {
-
-                    $sql .= $columnAndValue[0];
-
-                } else {
-                    $sql .= \Aomebo\Database\Adapter::backquote(
-                        $columnAndValue[0],
-                        true
-                    );
-                }
-
-                $dataIndex++;
-
             }
 
             $sql .= ' ';
@@ -894,9 +897,12 @@ namespace Aomebo\Database\Adapters\Mysqli
          */
         private function _generateLimitSubquery($limit)
         {
-            return ' LIMIT ' . \Aomebo\Database\Adapter::escape(
-                    $limit
-            ) . ' ';
+            if (isset($limit)) {
+                return ' LIMIT ' . \Aomebo\Database\Adapter::escape(
+                        $limit
+                ) . ' ';
+            }
+            return '';
         }
 
         /**
@@ -913,33 +919,34 @@ namespace Aomebo\Database\Adapters\Mysqli
 
             foreach ($orderBy as $columnAndValue)
             {
-                if ($dataIndex > 0) {
-                    $sql .= ', ';
+                if (isset($columnAndValue)) {
+                    if ($dataIndex > 0) {
+                        $sql .= ', ';
+                    }
+                    if  (is_a($columnAndValue[0],
+                        '\Aomebo\Database\Adapters\TableColumn')
+                    ) {
+
+                        $sql .= $columnAndValue[0];
+
+                    } else {
+                        $sql .= \Aomebo\Database\Adapter::backquote(
+                            $columnAndValue[0],
+                            true
+                        );
+                    }
+
+                    // Operator
+                    if (!isset($columnAndValue[1])
+                        || $columnAndValue[1] == 'ASC'
+                    ) {
+                        $sql .= ' ASC ';
+                    } else {
+                        $sql .= ' ' . $columnAndValue[1] . ' ';
+                    }
+
+                    $dataIndex++;
                 }
-                if  (is_a($columnAndValue[0],
-                    '\Aomebo\Database\Adapters\TableColumn')
-                ) {
-
-                    $sql .= $columnAndValue[0];
-
-                } else {
-                    $sql .= \Aomebo\Database\Adapter::backquote(
-                        $columnAndValue[0],
-                        true
-                    );
-                }
-
-                // Operator
-                if (!isset($columnAndValue[1])
-                    || $columnAndValue[1] == 'ASC'
-                ) {
-                    $sql .= ' ASC ';
-                } else {
-                    $sql .= ' ' . $columnAndValue[1] . ' ';
-                }
-
-                $dataIndex++;
-
             }
 
             $sql .= ' ';
