@@ -163,7 +163,7 @@ namespace Aomebo\Database
 
                     self::$_useDatabase = true;
 
-                    if (self::_connect(
+                    if (self::connect(
                         $databaseConfiguration['host'],
                         $databaseConfiguration['username'],
                         $databaseConfiguration['password'],
@@ -171,44 +171,11 @@ namespace Aomebo\Database
                         (isset($databaseConfiguration['options']) ? $databaseConfiguration['options'] : null))
                     ) {
 
-                        \Aomebo\Trigger\System::processTriggers(
-                            \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_CONNECTION_SUCCESS);
+                        self::_flagThisConstructed();
 
-                        if (!self::_isInstalled()) {
-                            if (!self::_install()) {
-
-                                Throw new \Exception(
-                                    sprintf(
-                                        self::systemTranslate('Could not install database in %s in %s'),
-                                        __METHOD__,
-                                        __FILE__
-                                    )
-                                );
-
-                            }
-                        }
-                        if (self::selectDatabase(
-                            \Aomebo\Configuration::getSetting('database,database'))
-                        ) {
-
-                            \Aomebo\Trigger\System::processTriggers(
-                                \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_SELECTED_SUCCESS);
-
-                            self::_flagThisConstructed();
-
-                        } else {
-
-                            \Aomebo\Trigger\System::processTriggers(
-                                \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_SELECTED_FAIL);
-
-                            Throw new \Exception(
-                                sprintf(
-                                    self::systemTranslate('Could not select database in %s in %s'),
-                                    __METHOD__,
-                                    __FILE__)
-                            );
-                        }
                     } else {
+
+                        self::_flagThisConstructed();
 
                         \Aomebo\Trigger\System::processTriggers(
                             \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_CONNECTION_FAIL);
@@ -282,12 +249,8 @@ namespace Aomebo\Database
 
             self::_instanciate();
 
-            if (self::$_object->selectDatabase(
-                \Aomebo\Configuration::getSetting('database,database'))
-            ) {
-                if ($selectedDatabase =
-                    self::getSelectedDatabase()
-                ) {
+            if (self::$_object->selectDatabase($databaseName)) {
+                if ($selectedDatabase = self::getSelectedDatabase()) {
                     if ($selectedDatabase == $databaseName) {
                         return true;
                     } else {
@@ -1170,11 +1133,12 @@ namespace Aomebo\Database
          * @param string $password
          * @param string $database
          * @param array|null [$options = null]
+         * @param bool [$select = true]
          * @throws \Exception
          * @return bool
          */
-        private static function _connect($host, $username,
-            $password, $database, $options = null)
+        public static function connect($host, $username,
+            $password, $database, $options = null, $select = true)
         {
 
             self::$_connected = false;
@@ -1254,6 +1218,43 @@ namespace Aomebo\Database
                     $dbObject->setHandleCharset(
                         \Aomebo\Configuration::getSetting(
                             'database,handle charset'));
+
+                    \Aomebo\Trigger\System::processTriggers(
+                        \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_CONNECTION_SUCCESS);
+
+                    if (!self::_isInstalled($database)) {
+                        if (!self::_install($database)) {
+
+                            Throw new \Exception(
+                                sprintf(
+                                    self::systemTranslate('Could not install database in %s in %s'),
+                                    __METHOD__,
+                                    __FILE__
+                                )
+                            );
+
+                        }
+                    }
+
+                    if (!empty($select)) {
+                        if (self::selectDatabase($database)) {
+
+                            \Aomebo\Trigger\System::processTriggers(
+                                \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_SELECTED_SUCCESS);
+
+                        } else {
+
+                            \Aomebo\Trigger\System::processTriggers(
+                                \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_SELECTED_FAIL);
+
+                            Throw new \Exception(
+                                sprintf(
+                                    self::systemTranslate('Could not select database in %s in %s'),
+                                    __METHOD__,
+                                    __FILE__)
+                            );
+                        }
+                    }
 
                     return true;
 
@@ -1377,14 +1378,13 @@ namespace Aomebo\Database
         /**
          * @internal
          * @static
+         * @param string $database
          * @return bool
          */
-        private static function _isInstalled()
+        private static function _isInstalled($database)
         {
             if (self::isConnected()) {
-                if (self::$_object->databaseExists(
-                    \Aomebo\Configuration::getSetting('database,database'))
-                ) {
+                if (self::$_object->databaseExists($database)) {
                     return true;
                 }
             }
@@ -1394,18 +1394,17 @@ namespace Aomebo\Database
         /**
          * @internal
          * @static
+         * @param string $database
          * @return bool
          */
-        private static function _install()
+        private static function _install($database)
         {
             if (self::isConnected()) {
 
                 if (\Aomebo\Configuration::getSetting(
                     'database,create database')
                 ) {
-                    if (self::$_object->createDatabase(
-                        \Aomebo\Configuration::getSetting('database,database'))
-                    ) {
+                    if (self::$_object->createDatabase($database)) {
                         return true;
                     }
                 } else {

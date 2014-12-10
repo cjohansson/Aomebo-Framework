@@ -597,14 +597,16 @@ $configuration = array (
       'required' => true,
       'default' => 
       array (
-        'home' => 'index.php',
+        'index' => 'index.php',
       ),
     ),
     'uri pages' => 
     array (
       'type' => 'associative array',
-      'required' => false,
-      'default' => '',
+      'required' => true,
+      'default' => array(
+        'home' => 'index',
+      ),
     ),
     'default page' => 
     array (
@@ -685,13 +687,13 @@ $configuration = array (
     array (
       'type' => 'string',
       'required' => true,
-      'default' => 'Untitled Site',
+      'default' => 'New Aomebo Framework Application',
     ),
     'title delimiter' => 
     array (
       'type' => 'string',
       'required' => true,
-      'default' => false,
+      'default' => ' - ',
     ),
     'title direction' => 
     array (
@@ -745,7 +747,7 @@ $configuration = array (
     array (
       'type' => 'string',
       'required' => true,
-      'default' => 1.1000000000000001,
+      'default' => '1.1',
     ),
     'server name' => 
     array (

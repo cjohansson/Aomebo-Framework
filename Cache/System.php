@@ -69,11 +69,15 @@ namespace Aomebo\Cache
 
                 parent::__construct();
 
-                if (!self::isInstalled()) {
-                    self::install();
-                }
+                if (\Aomebo\Database\Adapter::useDatabaseAndIsConnected()) {
 
-                self::garbageCollect();
+                    if (!self::isInstalled()) {
+                        self::install();
+                    }
+
+                    self::garbageCollect();
+
+                }
 
                 self::_flagThisConstructed();
 
@@ -375,12 +379,12 @@ namespace Aomebo\Cache
 
             } else if ($storage == self::CACHE_STORAGE_LOCATION_DATABASE) {
 
-                return self::saveCacheInDatabase(
-                    $parameters,
-                    $key,
-                    $data,
-                    $format
-                );
+                    return self::saveCacheInDatabase(
+                        $parameters,
+                        $key,
+                        $data,
+                        $format
+                    );
 
             }
 
@@ -455,8 +459,9 @@ namespace Aomebo\Cache
             $data,
             $format = self::FORMAT_RAW)
         {
-
-            if (isset($data)) {
+            if (isset($data)
+                && \Aomebo\Database\Adapter::useDatabaseAndIsConnected()
+            ) {
 
                 // Format data
                 if ($format == self::FORMAT_JSON_ENCODE) {
@@ -731,7 +736,9 @@ namespace Aomebo\Cache
         public static function cacheExistsInDatabase(
             $parameters, $key = null)
         {
-            if (!empty($parameters)) {
+            if (!empty($parameters)
+                && \Aomebo\Database\Adapter::useDatabaseAndIsConnected()
+            ) {
 
                 if (!isset($key)) {
 

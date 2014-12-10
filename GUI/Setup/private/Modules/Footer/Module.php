@@ -12,7 +12,8 @@ namespace Modules\Footer
     /**
      * @method static \Modules\Footer\Module getInstance()
      */
-    class Module extends \Aomebo\Runtime\Module implements \Aomebo\Runtime\Executable
+    class Module extends \Aomebo\Runtime\Module implements
+        \Aomebo\Runtime\Executable
     {
 
         /**

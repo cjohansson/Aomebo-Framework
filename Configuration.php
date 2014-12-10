@@ -399,7 +399,6 @@ namespace Aomebo
                         && is_array($cacheData['configuration'])
                         && is_array($cacheData['structure'])
                         && is_array($cacheData['settings'])
-                        && sizeof($cacheData['configuration']) > 0
                         && sizeof($cacheData['structure']) > 0
                         && sizeof($cacheData['settings']) > 0
                     ) {
@@ -931,7 +930,6 @@ namespace Aomebo
             self::$_settings = array();
             if (isset(self::$_configuration)
                 && is_array(self::$_configuration)
-                && sizeof(self::$_configuration) > 0
                 && isset(self::$_structure)
                 && is_array(self::$_structure)
                 && sizeof(self::$_structure) > 0

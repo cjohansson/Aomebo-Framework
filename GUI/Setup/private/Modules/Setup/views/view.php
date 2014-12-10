@@ -89,6 +89,13 @@
                 </ul>
             </div>
         </fieldset>
+        <fieldset>
+            <legend><?php _e('Database'); ?></legend>
+            <div>
+                <strong><?php _e('Database tests:'); ?></strong>
+                <br /><?php _e($this->databaseTests); ?>
+            </div>
+        </fieldset>
         <div>
             <input type="submit" value="Save" />
         </div>

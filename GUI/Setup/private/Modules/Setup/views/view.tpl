@@ -86,8 +86,15 @@
                 </ul>
             </div>
         </fieldset>
+        <fieldset>
+            <legend>{__('Database')}</legend>
+            <div>
+                <strong>{__('Database tests:')}</strong>
+                <br />{$databaseTests|escape}
+            </div>
+        </fieldset>
         <div>
-            <input type="submit" value="Save" />
+            <input type="submit" value="{__('Save')}" />
         </div>
     </form>
 </div>

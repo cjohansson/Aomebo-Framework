@@ -65,8 +65,7 @@ namespace Aomebo\Response\Responses
             \Aomebo\Cache\System::getInstance();
 
             // Load indexing engine
-            $indexing =
-                \Aomebo\Indexing\Engine::getInstance();
+            $indexing = \Aomebo\Indexing\Engine::getInstance();
 
             new \Aomebo();
 

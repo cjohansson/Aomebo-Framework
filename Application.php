@@ -174,7 +174,7 @@ namespace Aomebo
             if (!self::_isConstructed()) {
 
                 // Log errors by default
-                ini_set('display_errors', false);
+                ini_set('display_errors', true);
                 ini_set('log_errors', true);
                 ini_set('error_reporting', E_ALL);
 

@@ -118,39 +118,82 @@ namespace Modules\Setup
 
             }
 
-            $table = \Modules\Setup\Table::getInstance();
+            $databaseTests = '';
 
-            if ($table->exists()) {
-                $table->drop();
-            } else {
-                if ($table->create()) {
-                    if ($id = $table->add(
-                        array(
-                            array($table->name, 'Göran Svensson'),
-                            array($table->cash, 250),
-                        ))
-                    ) {
-                        $table->update(
-                            array(array($table->name, 'Göransson')),
-                            array(
-                                array($table->id, $id),
-                                array($table->name, 'Göran Svensson')
-                            ),
-                            5
-                        );
+            if (!empty($_SERVER['SERVER_NAME'])
+                && $_SERVER['SERVER_NAME'] == 'aomebo.cvj.se'
+            ) {
 
-                        if ($result = $table->select()) {
-                            $all = $result->fetchObjectAndFree();
+                if (\Aomebo\Database\Adapter::connect(
+                    'localhost',
+                    'aomebo',
+                    'A0m3b0',
+                    'aomebo_testing')
+                )  {
+
+                    $databaseTests .= 'Connected to database. Selected database. ';
+
+                    $table = \Modules\Setup\Table::getInstance();
+
+                    if ($table->exists()) {
+
+                        $databaseTests .= 'Table exists. ';
+
+                        $table->drop();
+
+                        $databaseTests .= 'Dropped table. ';
+
+                    } else {
+                        if ($table->create()) {
+
+                            $databaseTests .= 'Table created. ';
+
+                            if ($id = $table->add(
+                                array(
+                                    array($table->name, 'Göran Svensson'),
+                                    array($table->cash, 250),
+                                ))
+                            ) {
+
+                                $databaseTests .= 'Entry added. ';
+
+                                $table->update(
+                                    array(array($table->name, 'Göransson')),
+                                    array(
+                                        array($table->id, $id),
+                                        array($table->name, 'Göran Svensson')
+                                    ),
+                                    5
+                                );
+
+                                $databaseTests .= 'Entry updated. ';
+
+                                if ($result = $table->select()) {
+
+                                    $databaseTests .= 'Entry selected. ';
+
+                                    $all = $result->fetchObjectAndFree();
+
+                                }
+
+                                $table->delete(array(array($table->id, $id)));
+
+                                $databaseTests .= 'Entry deleted. ';
+
+                            }
+
+                            $table->delete();
+
+                            $databaseTests .= 'All entries deleted. ';
+
                         }
-
-                        $table->delete(array(array($table->id, $id)));
                     }
-                   $table->delete();
                 }
             }
 
             $view = \Aomebo\Template\Adapters\Smarty\Adapter::getInstance();
             $view->setFile('views/view.tpl');
+            $view->attachVariable('databaseTests', $databaseTests);
             $view->attachVariable('locale', \Aomebo\Internationalization\System::getLocale());
             $view->attachVariable('submit', $submit);
             $view->attachVariable('cache', $abc);
@@ -159,6 +202,7 @@ namespace Modules\Setup
 
             $view2 = new \Aomebo\Template\Adapters\Php\Adapter();
             $view2->setFile('views/view.php');
+            $view2->attachVariable('databaseTests', $databaseTests);
             $view2->attachVariable('locale', \Aomebo\Internationalization\System::getLocale());
             $view2->attachVariable('submit', $submit);
             $view2->attachVariable('cache', $abc);
@@ -169,7 +213,6 @@ namespace Modules\Setup
 
 
         }
-
 
     }
 

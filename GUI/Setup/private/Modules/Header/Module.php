@@ -12,7 +12,8 @@ namespace Modules\Header
     /**
      * @method static \Modules\Header\Module getInstance()
      */
-    class Module extends \Aomebo\Runtime\Module implements \Aomebo\Runtime\Executable
+    class Module extends \Aomebo\Runtime\Module implements
+        \Aomebo\Runtime\Executable
     {
 
         /**
