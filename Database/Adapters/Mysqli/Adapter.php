@@ -772,6 +772,16 @@ namespace Aomebo\Database\Adapters\Mysqli
         }
 
         /**
+         * @param \Aomebo\Database\Adapters\Transaction $transaction
+         * @return \Aomebo\Database\Adapters\Resultset|bool
+         */
+        public function executeTransaction($transaction)
+        {
+            // TODO: Implement executeTransaction() method.
+            return false;
+        }
+
+        /**
          * @internal
          * @param array $where
          * @return string

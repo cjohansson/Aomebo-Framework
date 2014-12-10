@@ -254,6 +254,12 @@ namespace Aomebo\Database\Adapters
             $where = null, $groupBy = null, $orderBy = null, $limit = null);
 
         /**
+         * @param \Aomebo\Database\Adapters\Transaction $transaction
+         * @return \Aomebo\Database\Adapters\Resultset|bool
+         */
+        abstract public function executeTransaction($transaction);
+
+        /**
          * @internal
          */
         public function __destruct()

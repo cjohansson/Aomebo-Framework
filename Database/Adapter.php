@@ -1124,6 +1124,24 @@ namespace Aomebo\Database
         }
 
         /**
+         * @static
+         * @param \Aomebo\Database\Adapters\Transaction $transaction
+         * @return \Aomebo\Database\Adapters\Resultset|bool
+         */
+        public static function executeTransaction($transaction)
+        {
+
+            if (isset($transaction)
+                && is_a($transaction, '\Aomebo\Database\Adapters\Transaction')
+            ) {
+
+            }
+
+            return false;
+
+        }
+
+        /**
          * This method tries to establish a database connection.
          *
          * @internal
