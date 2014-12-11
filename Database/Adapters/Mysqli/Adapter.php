@@ -777,8 +777,44 @@ namespace Aomebo\Database\Adapters\Mysqli
          */
         public function executeTransaction($transaction)
         {
-            // TODO: Implement executeTransaction() method.
+            if ($this->query('BEGIN')) {
+                try {
+                    foreach ($transaction->getQueries() as $query)
+                    {
+                        $this->query($query);
+                    }
+                    if ($this->query('COMMIT')) {
+                        return true;
+                    }
+                } catch (\Exception $e) {
+                    $this->query('ROLLBACK');
+                }
+            }
             return false;
+        }
+
+        /**
+         * @return bool
+         */
+        public function beginTransaction()
+        {
+            return ($this->query('BEGIN') ? true : false);
+        }
+
+        /**
+         * @return bool
+         */
+        public function commitTransaction()
+        {
+            return ($this->query('COMMIT') ? true : false);
+        }
+
+        /**
+         * @return bool
+         */
+        public function rollbackTransaction()
+        {
+            return ($this->query('ROLLBACK') ? true : false);
         }
 
         /**

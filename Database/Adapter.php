@@ -668,7 +668,57 @@ namespace Aomebo\Database
         }
 
         /**
-         * Performs all SQL (multiple or single) queries via the vsprintf format.
+         * Prepares a SQL (multiple or single) query via the vsprintf format.
+         *
+         * Example:
+         * $result = \Aomebo\Database\Adapter::
+         *      prepare('SELECT * FROM `my_table` WHERE `a` = "%s" AND `b` = %d ORDER BY `name`', array("dog", 3));
+         *
+         * @static
+         * @param string $sql
+         * @param array|null [$values = null]
+         * @throws \Exception
+         * @see vsprintf()
+         * @return string|bool
+         */
+        public static function preparef($sql, $values = null)
+        {
+            if (self::isConnected()) {
+
+                if (isset($values)
+                    && is_array($values)
+                ) {
+                    $valuesCount = sizeof($values);
+                    foreach ($values as & $value)
+                    {
+                        $value = self::escape($value);
+                    }
+                } else {
+                    $values = array();
+                    if (isset($value)) {
+                        $values = self::escape($value);
+                    }
+                    $valuesCount = 0;
+                }
+
+                $query = trim($sql);
+
+                if ($valuesCount > 0) {
+                    $query = vsprintf($query, $values);
+                }
+
+                if (!empty($query)) {
+                    return $query;
+                }
+
+            }
+
+            return false;
+
+        }
+
+        /**
+         * Prepare and then Execute SQL Query.
          *
          * Example:
          * $result = \Aomebo\Database\Adapter::
@@ -690,79 +740,45 @@ namespace Aomebo\Database
         {
             if (self::isConnected()) {
 
+                $query = self::preparef(
+                    $sql,
+                    $values
+                );
+
                 // Do we have any triggers?
                 if ($newSql = \Aomebo\Trigger\System::processTriggers(
                     \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_QUERY,
-                    $sql)
+                    $query)
                 ) {
-                    $sql = $newSql;
+                    $query = $newSql;
                 }
 
-                if ($allowMultipleQueries) {
+                if (!empty($query)) {
 
-                    $queries = explode(';', $sql);
-                    if (is_array($queries)) {
-                        $queryCount = sizeof($queries);
-                    } else {
-                        $queries = array($sql);
-                        $queryCount = (int) 1;
-                    }
+                    $sqlKey = strtoupper(trim(substr($query, 0, stripos($query, ' '))));
+                    self::$_lastSql = $query;
+
+                    return self::execute(
+                        $query,
+                        $unbuffered,
+                        $sqlKey,
+                        1,
+                        $throwExceptionOnFailure
+                    );
 
                 } else {
-                    $queries = array($sql);
-                    $queryCount = (int) 1;
-                }
+                    if (!empty($sql)) {
 
-                if (isset($values)
-                    && is_array($values)
-                ) {
-                    $valuesCount = sizeof($values);
-                    foreach ($values as & $value)
-                    {
-                        $value = self::escape($value);
-                    }
-                } else {
-                    $values = array();
-                    if (isset($value)) {
-                        $values = self::escape($value);
-                    }
-                    $valuesCount = 0;
-                }
+                        Throw new \Exception(
+                            sprintf(
+                                self::systemTranslate(
+                                    'SQL: "%s" evaluated into empty query in %s'
+                                ),
+                                print_r($sql, true),
+                                __FUNCTION__
+                            )
+                        );
 
-                foreach ($queries as $rawQuery)
-                {
-
-                    $query = trim($rawQuery);
-
-                    if ($valuesCount > 0) {
-                        $query = vsprintf($query, $values);
-                    }
-
-                    if (!empty($query)) {
-
-                        $sqlKey = strtoupper(trim(substr($query, 0, stripos($query, ' '))));
-                        self::$_lastSql = $query;
-
-                        if ($queryCount === 1) {
-                            return self::_query($query, $unbuffered, $sqlKey, $queryCount, $throwExceptionOnFailure);
-                        } else {
-                            self::_query($query, $unbuffered, $sqlKey, $queryCount, $throwExceptionOnFailure);
-                        }
-
-                    } else {
-                        if (!empty($rawQuery)) {
-
-                            Throw new \Exception(
-                                sprintf(
-                                    self::systemTranslate(
-                                        'SQL: "%s" evaluated into empty query in %s'
-                                    ),
-                                    print_r($rawQuery, true),
-                                    __FUNCTION__
-                                )
-                            );
-
-                        }
                     }
                 }
 
@@ -791,6 +807,111 @@ namespace Aomebo\Database
          * @static
          * @param string $sql
          * @param array|null [$values = null]
+         * @throws \Exception
+         * @return string|bool
+         */
+        public static function prepare($sql, $values = null)
+        {
+            if (self::isConnected()) {
+
+                if (isset($values)
+                    && is_array($values)
+                ) {
+                    $valuesCount = sizeof($values);
+                } else {
+                    $valuesCount = 0;
+                }
+
+                $rawQuery = trim($sql);
+                $query = str_replace(
+                    self::$_replaceKeys,
+                    self::$_replaceValues,
+                    $rawQuery
+                );
+
+                if ($valuesCount > 0) {
+                    reset($values);
+                    foreach ($values as $key => $valueArray)
+                    {
+                        if (isset($valueArray)) {
+                            if (is_array($valueArray)) {
+                                if (isset($valueArray[self::QUERY_VALUE])) {
+
+                                    if (!empty($valueArray[self::QUERY_VALUE_QUOTATION_QUOTED])) {
+
+                                        $replaceWith = self::quote($valueArray[self::QUERY_VALUE],
+                                            empty($valueArray[self::QUERY_VALUE_UNESCAPED])
+                                        );
+
+                                    } else if (!empty($valueArray[self::QUERY_VALUE_QUOTATION_BACKQUOTED])) {
+
+                                        $replaceWith = self::backquote(
+                                            $valueArray[self::QUERY_VALUE],
+                                            empty($valueArray[self::QUERY_VALUE_UNESCAPED])
+                                        );
+
+                                    } else if (empty($valueArray[self::QUERY_VALUE_UNESCAPED])) {
+
+                                        $replaceWith = self::escape($valueArray[self::QUERY_VALUE]);
+
+                                    } else {
+
+                                        $replaceWith = $valueArray[self::QUERY_VALUE];
+
+                                    }
+
+                                    $query = str_replace(
+                                        self::formatQueryReplaceKey($key),
+                                        $replaceWith,
+                                        $query);
+
+                                } else if (!empty($valueArray[self::QUERY_VALUE_QUOTATION_QUOTED])) {
+
+                                    $query = str_replace(
+                                        self::formatQueryReplaceKey($key),
+                                        self::query('', false),
+                                        $query);
+
+                                } else if (!empty($valueArray[self::QUERY_VALUE_QUOTATION_BACKQUOTED])) {
+
+                                    $query = str_replace(
+                                        self::formatQueryReplaceKey($key),
+                                        self::backquote('', false),
+                                        $query);
+
+                                }
+                            } else {
+
+                                $query = str_replace(
+                                    self::formatQueryReplaceKey($key),
+                                    self::escape($valueArray),
+                                    $query);
+
+                            }
+                        }
+                    }
+                }
+
+                if (!empty($query)) {
+                    return $query;
+                }
+
+            }
+
+            return false;
+
+        }
+
+        /**
+         * Prepare and then execute SQL query.
+         *
+         * Example:
+         * $result = \Aomebo\Database\Adapter::
+         *      query('SELECT * FROM `my_table` WHERE `a` = "{animal}" AND `b` = {age} ORDER BY `name`', array('name' => 'dog', 'age' => 3));
+         *
+         * @static
+         * @param string $sql
+         * @param array|null [$values = null]
          * @param bool [$unbuffered = false]
          * @param bool [$throwExceptionOnFailure = true]
          * @param bool [$allowMultipleQueries = false]
@@ -803,134 +924,47 @@ namespace Aomebo\Database
         {
             if (self::isConnected()) {
 
+                $query = self::prepare(
+                    $sql,
+                    $values,
+                    $allowMultipleQueries
+                );
+
                 // Do we have any triggers?
                 if ($newSql = \Aomebo\Trigger\System::processTriggers(
                     \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_QUERY,
-                    $sql)
+                    $query)
                 ) {
-                    $sql = $newSql;
+                    $query = $newSql;
                 }
 
-                if ($allowMultipleQueries) {
+                if (!empty($query)) {
 
-                    $queries = explode(';', $sql);
-                    if (is_array($queries)) {
-                        $queryCount = sizeof($queries);
-                    } else {
-                        $queries = array($sql);
-                        $queryCount = (int) 1;
-                    }
+                    $sqlKey = strtoupper(trim(
+                        substr($query, 0, stripos($query, ' '))));
+                    self::$_lastSql = $query;
+
+                    return self::execute(
+                        $query,
+                        $unbuffered,
+                        $sqlKey,
+                        1,
+                        $throwExceptionOnFailure
+                    );
 
                 } else {
-                    $queries = array($sql);
-                    $queryCount = (int) 1;
-                }
+                    if (!empty($sql)) {
 
-                if (isset($values)
-                    && is_array($values)
-                ) {
-                    $valuesCount = sizeof($values);
-                } else {
-                    $valuesCount = 0;
-                }
+                        Throw new \Exception(
+                            sprintf(
+                                self::systemTranslate(
+                                    'SQL: "%s" evaluated into empty query in %s'
+                                ),
+                                print_r($sql, true),
+                                __FUNCTION__
+                            )
+                        );
 
-                foreach ($queries as $rawQuery)
-                {
-                    $rawQuery = trim($rawQuery);
-                    $query = str_replace(
-                        self::$_replaceKeys,
-                        self::$_replaceValues,
-                        $rawQuery);
-
-                    if ($valuesCount > 0) {
-                        reset($values);
-                        foreach ($values as $key => $valueArray)
-                        {
-                            if (isset($valueArray)) {
-                                if (is_array($valueArray)) {
-                                    if (isset($valueArray[self::QUERY_VALUE])) {
-
-                                        if (!empty($valueArray[self::QUERY_VALUE_QUOTATION_QUOTED])) {
-
-                                            $replaceWith = self::quote($valueArray[self::QUERY_VALUE],
-                                                empty($valueArray[self::QUERY_VALUE_UNESCAPED])
-                                            );
-
-                                        } else if (!empty($valueArray[self::QUERY_VALUE_QUOTATION_BACKQUOTED])) {
-
-                                            $replaceWith = self::backquote(
-                                                $valueArray[self::QUERY_VALUE],
-                                                empty($valueArray[self::QUERY_VALUE_UNESCAPED])
-                                            );
-
-                                        } else if (empty($valueArray[self::QUERY_VALUE_UNESCAPED])) {
-
-                                            $replaceWith = self::escape($valueArray[self::QUERY_VALUE]);
-
-                                        } else {
-
-                                            $replaceWith = $valueArray[self::QUERY_VALUE];
-
-                                        }
-
-                                        $query = str_replace(
-                                            self::formatQueryReplaceKey($key),
-                                            $replaceWith,
-                                            $query);
-
-                                    } else if (!empty($valueArray[self::QUERY_VALUE_QUOTATION_QUOTED])) {
-
-                                        $query = str_replace(
-                                            self::formatQueryReplaceKey($key),
-                                            self::query('', false),
-                                            $query);
-
-                                    } else if (!empty($valueArray[self::QUERY_VALUE_QUOTATION_BACKQUOTED])) {
-
-                                        $query = str_replace(
-                                            self::formatQueryReplaceKey($key),
-                                            self::backquote('', false),
-                                            $query);
-
-                                    }
-                                } else {
-
-                                    $query = str_replace(
-                                        self::formatQueryReplaceKey($key),
-                                        self::escape($valueArray),
-                                        $query);
-
-                                }
-                            }
-                        }
-                    }
-
-                    if (!empty($query)) {
-
-                        $sqlKey = strtoupper(trim(
-                            substr($query, 0, stripos($query, ' '))));
-                        self::$_lastSql = $query;
-
-                        if ($queryCount === 1) {
-                            return self::_query($query, $unbuffered, $sqlKey, $queryCount, $throwExceptionOnFailure);
-                        } else {
-                            self::_query($query, $unbuffered, $sqlKey, $queryCount, $throwExceptionOnFailure);
-                        }
-
-                    } else {
-                        if (!empty($rawQuery)) {
-
-                            Throw new \Exception(
-                                sprintf(
-                                    self::systemTranslate(
-                                        'SQL: "%s" evaluated into empty query in %s'
-                                    ),
-                                    print_r($rawQuery, true),
-                                    __FUNCTION__
-                                )
-                            );
-
-                        }
                     }
                 }
 
@@ -1012,115 +1046,39 @@ namespace Aomebo\Database
         }
 
         /**
-         * Perform a single SQL query.
-         *
-         * @internal
          * @static
-         * @param string $sql
-         * @param bool [$unbuffered = false]
-         * @param string [$sqlKey = '']
-         * @param int [$queryCount = 1]
-         * @param bool [$throwExceptionOnFailure = true]
-         * @throws \Exception
-         * @return Adapters\Resultset|bool
+         * @return bool
          */
-        private static function _query($sql, $unbuffered = false,
-            $sqlKey = '', $queryCount = 1, $throwExceptionOnFailure = true)
+        public static function beginTransaction()
         {
-            if ($queryCount === 1) {
-
-                if ($unbuffered) {
-                    $result = self::$_object->unbufferedQuery($sql);
-                } else {
-                    $result = self::$_object->query($sql);
-                }
-
-                if ($result) {
-                    if ($result === true) {
-                        return true;
-                    } else {
-
-                        /** @var \Aomebo\Database\Adapters\Resultset $resultset  */
-                        $resultset = new self::$_resultsetClass(
-                            $result,
-                            $unbuffered,
-                            $sql
-                        );
-
-                        if (!$unbuffered
-                            && $sqlKey === 'SELECT'
-                            && $resultset->numRows() == 0
-                        ) {
-                            return false;
-                        } else {
-                            return $resultset;
-                        }
-                    }
-                } else {
-
-                    if (self::$_object->hasError()) {
-
-                        self::$_lastError = self::$_object->getError();
-
-                        if ($throwExceptionOnFailure) {
-
-                            Throw new \Exception(
-                                sprintf(
-                                    self::systemTranslate('Query:' . "<p>\n%s</p>\n returned error:<p>\n"
-                                    . "<p>\n%s</p>"),
-                                    $sql,
-                                    self::$_object->getError()
-                                )
-                            );
-
-                        }
-                    }
-
-                }
-            } else {
-                if ($unbuffered) {
-                    $result = self::$_object->unbufferedQuery($sql);
-                } else {
-                    $result = self::$_object->query($sql);
-                }
-                if ($result) {
-                    if ($result !== true) {
-
-                        /** @var \Aomebo\Database\Adapters\Resultset $resultset  */
-                        $resultset = new self::$_resultsetClass(
-                            $result,
-                            $unbuffered,
-                            $sql
-                        );
-                        $resultset->free();
-
-                    }
-                } else {
-
-                    if (self::$_object->hasError()) {
-
-                        self::$_lastError =
-                            self::$_object->getError();
-
-                        if ($throwExceptionOnFailure) {
-
-                            Throw new \Exception(
-                                sprintf(
-                                    self::systemTranslate('Query:' . "<p>\n%s</p>\n returned error:<p>\n"
-                                        . "<p>\n%s</p>"),
-                                    $sql,
-                                    self::$_object->getError()
-                                )
-                            );
-
-                        }
-                    }
-
-                }
+            if (self::isConnected()) {
+                return self::$_object->beginTransaction();
             }
-
             return false;
+        }
 
+        /**
+         * @static
+         * @return bool
+         */
+        public static function commitTransaction()
+        {
+            if (self::isConnected()) {
+                return self::$_object->commitTransaction();
+            }
+            return false;
+        }
+
+        /**
+         * @static
+         * @return bool
+         */
+        public static function rollbackTransaction()
+        {
+            if (self::isConnected()) {
+                return self::$_object->rollbackTransaction();
+            }
+            return false;
         }
 
         /**
@@ -1130,11 +1088,137 @@ namespace Aomebo\Database
          */
         public static function executeTransaction($transaction)
         {
+            if (self::isConnected()) {
+                if (isset($transaction)
+                    && is_a($transaction,
+                        '\Aomebo\Database\Adapters\Transaction')
+                ) {
+                    return self::$_object->executeTransaction($transaction);
+                }
+            }
+            return false;
+        }
 
-            if (isset($transaction)
-                && is_a($transaction, '\Aomebo\Database\Adapters\Transaction')
-            ) {
+        /**
+         * Execute SQL query.
+         *
+         * @internal
+         * @static
+         * @param string $sql                   WARNING! No escaping is done on SQL
+         * @param bool [$unbuffered = false]
+         * @param string [$sqlKey = '']
+         * @param int [$queryCount = 1]
+         * @param bool [$throwExceptionOnFailure = true]
+         * @throws \Exception
+         * @return Adapters\Resultset|bool
+         */
+        public static function execute($sql,
+            $unbuffered = false,
+            $sqlKey = '', $queryCount = 1,
+            $throwExceptionOnFailure = true)
+        {
+            if (self::isConnected()) {
+                if ($queryCount === 1) {
 
+                    if ($unbuffered) {
+                        $result = self::$_object->unbufferedQuery($sql);
+                    } else {
+                        $result = self::$_object->query($sql);
+                    }
+
+                    if ($result) {
+                        if ($result === true) {
+                            return true;
+                        } else {
+
+                            /** @var \Aomebo\Database\Adapters\Resultset $resultset  */
+                            $resultset = new self::$_resultsetClass(
+                                $result,
+                                $unbuffered,
+                                $sql
+                            );
+
+                            if (!$unbuffered
+                                && $sqlKey === 'SELECT'
+                                && $resultset->numRows() == 0
+                            ) {
+                                return false;
+                            } else {
+                                return $resultset;
+                            }
+                        }
+                    } else {
+
+                        if (self::$_object->hasError()) {
+
+                            self::$_lastError = self::$_object->getError();
+
+                            if ($throwExceptionOnFailure) {
+
+                                Throw new \Exception(
+                                    sprintf(
+                                        self::systemTranslate('Query:' . "<p>\n%s</p>\n returned error:<p>\n"
+                                            . "<p>\n%s</p>"),
+                                        $sql,
+                                        self::$_object->getError()
+                                    )
+                                );
+
+                            }
+                        }
+
+                    }
+                } else {
+                    if ($unbuffered) {
+                        $result = self::$_object->unbufferedQuery($sql);
+                    } else {
+                        $result = self::$_object->query($sql);
+                    }
+                    if ($result) {
+                        if ($result !== true) {
+
+                            /** @var \Aomebo\Database\Adapters\Resultset $resultset  */
+                            $resultset = new self::$_resultsetClass(
+                                $result,
+                                $unbuffered,
+                                $sql
+                            );
+                            $resultset->free();
+
+                        }
+                    } else {
+
+                        if (self::$_object->hasError()) {
+
+                            self::$_lastError =
+                                self::$_object->getError();
+
+                            if ($throwExceptionOnFailure) {
+
+                                Throw new \Exception(
+                                    sprintf(
+                                        self::systemTranslate('Query:' . "<p>\n%s</p>\n returned error:<p>\n"
+                                            . "<p>\n%s</p>"),
+                                        $sql,
+                                        self::$_object->getError()
+                                    )
+                                );
+
+                            }
+                        }
+
+                    }
+                }
+            } else {
+                Throw new \Exception(
+                    sprintf(
+                        self::systemTranslate('Can\'t query "%s" when database '
+                            . 'connection hasn\'t been established. '
+                            . 'Database adapter constructed: ' .
+                            (self::_isConstructed() ? 'YES' : 'NO')),
+                        $sql
+                    )
+                );
             }
 
             return false;

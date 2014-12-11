@@ -255,9 +255,24 @@ namespace Aomebo\Database\Adapters
 
         /**
          * @param \Aomebo\Database\Adapters\Transaction $transaction
-         * @return \Aomebo\Database\Adapters\Resultset|bool
+         * @return bool
          */
         abstract public function executeTransaction($transaction);
+
+        /**
+         * @return bool
+         */
+        abstract public function beginTransaction();
+
+        /**
+         * @return bool
+         */
+        abstract public function commitTransaction();
+
+        /**
+         * @return bool
+         */
+        abstract public function rollbackTransaction();
 
         /**
          * @internal
