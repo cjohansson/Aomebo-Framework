@@ -569,7 +569,7 @@ namespace Aomebo
                     );
 
                     // Are any data in convert-queue?
-                    if (\Aomebo\Application::isCacheEnabled()
+                    if (\Aomebo\Application::isWritingnabled()
                         && sizeof($convertQueue) > 0
                     ) {
                         foreach ($convertQueue as $convertQueueItem)

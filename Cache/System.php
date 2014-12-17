@@ -89,7 +89,7 @@ namespace Aomebo\Cache
          */
         public static function garbageCollect()
         {
-            if (\Aomebo\Application::isCacheEnabled()) {
+            if (\Aomebo\Application::isWritingnabled()) {
 
                 $garbageCollectOnPageRequests =
                     \Aomebo\Configuration::getSetting(
@@ -188,7 +188,7 @@ namespace Aomebo\Cache
             $format = self::FORMAT_RAW,
             $storage = self::CACHE_STORAGE_LOCATION_FILESYSTEM)
         {
-            if (\Aomebo\Application::isCacheEnabled()) {
+            if (\Aomebo\Application::isWritingnabled()) {
                 if ($storage == self::CACHE_STORAGE_LOCATION_FILESYSTEM) {
 
                     return self::loadCacheInFilesystem(
@@ -223,7 +223,7 @@ namespace Aomebo\Cache
              $key = null,
              $format = self::FORMAT_RAW)
         {
-            if (\Aomebo\Application::isCacheEnabled()) {
+            if (\Aomebo\Application::isWritingnabled()) {
                 if (self::cacheExistsInFilesystem($parameters, $key)) {
                     if ($cachePath = self::getCachePath($parameters, $key)) {
 
@@ -266,7 +266,7 @@ namespace Aomebo\Cache
             $key = null,
             $format = self::FORMAT_RAW)
         {
-            if (\Aomebo\Application::isCacheEnabled()) {
+            if (\Aomebo\Application::isWritingnabled()) {
                 if (self::cacheExistsInDatabase($parameters, $key)) {
 
                     if (!isset($key)) {
@@ -365,7 +365,7 @@ namespace Aomebo\Cache
             $format = self::FORMAT_RAW,
             $storage = self::CACHE_STORAGE_LOCATION_FILESYSTEM)
         {
-            if (\Aomebo\Application::isCacheEnabled()) {
+            if (\Aomebo\Application::isWritingnabled()) {
                 if ($storage == self::CACHE_STORAGE_LOCATION_FILESYSTEM) {
 
                     return self::saveCacheInFilesystem(
@@ -402,7 +402,7 @@ namespace Aomebo\Cache
             $data,
             $format = self::FORMAT_RAW)
         {
-            if (\Aomebo\Application::isCacheEnabled()) {
+            if (\Aomebo\Application::isWritingnabled()) {
                 if (isset($data)) {
                     if ($cachePath = self::getCachePath(
                         $parameters, $key)
@@ -457,7 +457,7 @@ namespace Aomebo\Cache
             $data,
             $format = self::FORMAT_RAW)
         {
-            if (\Aomebo\Application::isCacheEnabled()) {
+            if (\Aomebo\Application::isWritingnabled()) {
                 if (isset($data)
                     && \Aomebo\Database\Adapter::useDatabaseAndIsConnected()
                 ) {
@@ -516,7 +516,7 @@ namespace Aomebo\Cache
             $key = null,
             $storage = self::CACHE_STORAGE_LOCATION_FILESYSTEM)
         {
-            if (\Aomebo\Application::isCacheEnabled()) {
+            if (\Aomebo\Application::isWritingnabled()) {
                 if ($storage == self::CACHE_STORAGE_LOCATION_FILESYSTEM) {
 
                     return self::clearCacheInFilesystem(
@@ -544,7 +544,7 @@ namespace Aomebo\Cache
         public static function clearCacheInFilesystem(
             $parameters, $key = null)
         {
-            if (\Aomebo\Application::isCacheEnabled()) {
+            if (\Aomebo\Application::isWritingnabled()) {
                 if (self::cacheExistsInFilesystem($parameters, $key)) {
 
                     // Make directories if needed
@@ -583,7 +583,7 @@ namespace Aomebo\Cache
         public static function clearCacheInDatabase(
             $parameters, $key = null)
         {
-            if (\Aomebo\Application::isCacheEnabled()) {
+            if (\Aomebo\Application::isWritingnabled()) {
                 if (self::cacheExistsInDatabase($parameters, $key)) {
 
                     if (!isset($key)) {
@@ -661,7 +661,7 @@ namespace Aomebo\Cache
             $key = null,
             $storage = self::CACHE_STORAGE_LOCATION_FILESYSTEM)
         {
-            if (\Aomebo\Application::isCacheEnabled()) {
+            if (\Aomebo\Application::isWritingnabled()) {
                 if ($storage == self::CACHE_STORAGE_LOCATION_FILESYSTEM) {
 
                     return self::cacheExistsInFilesystem(
@@ -690,7 +690,7 @@ namespace Aomebo\Cache
         public static function cacheExistsInFilesystem(
             $parameters, $key = null)
         {
-            if (\Aomebo\Application::isCacheEnabled()) {
+            if (\Aomebo\Application::isWritingnabled()) {
                 if (!empty($parameters)) {
 
                     $path =
@@ -733,7 +733,7 @@ namespace Aomebo\Cache
         public static function cacheExistsInDatabase(
             $parameters, $key = null)
         {
-            if (\Aomebo\Application::isCacheEnabled()) {
+            if (\Aomebo\Application::isWritingnabled()) {
                 if (!empty($parameters)
                     && \Aomebo\Database\Adapter::useDatabaseAndIsConnected()
                 ) {

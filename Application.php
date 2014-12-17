@@ -166,7 +166,7 @@ namespace Aomebo
          * @static
          * @var bool
          */
-        private static $_cacheEnabled = true;
+        private static $_writingEnabled = true;
 
         /**
          * This starts up the framework.
@@ -253,7 +253,7 @@ namespace Aomebo
                             self::PARAMETER_SITE_PATH,
                             self::_getSetupSitePath()
                         );
-                        self::$_cacheEnabled = false;
+                        self::$_writingEnabled = false;
 
                     // Otherwise - should configuration be presented?
                     } else if (self::getParameter(self::PARAMETER_SHOW_CONFIGURATION)) {
@@ -262,7 +262,7 @@ namespace Aomebo
                             self::PARAMETER_SITE_PATH,
                             self::_getConfigurationSitePath()
                         );
-                        self::$_cacheEnabled = false;
+                        self::$_writingEnabled = false;
 
                     }
 
@@ -441,9 +441,9 @@ namespace Aomebo
          * @static
          * @return bool
          */
-        public static function isCacheEnabled()
+        public static function isWritingnabled()
         {
-            return (self::$_cacheEnabled == true);
+            return (self::$_writingEnabled == true);
         }
 
         /**
@@ -953,7 +953,7 @@ namespace Aomebo
                 $runtimesLastModificationTime;
 
             if ($useRuntimeCache
-                && self::isCacheEnabled()
+                && self::isWritingnabled()
                 && \Aomebo\Cache\System::cacheExists(
                 $cacheParameters,
                 $cacheKey,
@@ -1276,7 +1276,7 @@ namespace Aomebo
         private static function _flushApplicationData()
         {
             if (!self::$_flushedApplicationData
-                && self::isCacheEnabled()
+                && self::isWritingnabled()
             ) {
                 try {
                     if ($jsonData = json_encode(self::$_applicationData)) {
