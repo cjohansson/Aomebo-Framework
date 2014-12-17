@@ -804,54 +804,53 @@ namespace Aomebo
 
             }
 
-            if ($isPageOrShellRequest
-                && $this->isEnabled()
-            ) {
+            if ($this->isEnabled()) {
 
-                /**
-                 * Routable interface.
-                 *
-                 * @see \Aomebo\Runtime\Routable
-                 */
-                if ($this->isRoutable()) {
+                if ($isPageOrShellRequest) {
 
-                    /** @var \Aomebo\Runtime\Routable $ref */
-                    $ref = & $this;
+                    /**
+                     * Routable interface.
+                     *
+                     * @see \Aomebo\Runtime\Routable
+                     */
+                    if ($this->isRoutable()) {
 
-                    if ($routes = $ref->getRoutes()) {
-                        $this->loadRoutes($routes);
-                    }
+                        /** @var \Aomebo\Runtime\Routable $ref */
+                        $ref = & $this;
 
-                // TODO: This below is deprecated and will be removed in next major version.
-                } else if (isset($this->_routes)
-                    && is_array($this->_routes)
-                    && sizeof($this->_routes) > 0
-                ) {
-                    foreach ($this->_routes as $route)
-                    {
-                        if (isset($route)
-                            && is_array($route)
-                            && isset($route['regexp'],
-                            $route['sprintf'],
-                            $route['keys'])
-                        ) {
-                            $routeObject = new \Aomebo\Dispatcher\Route(
-                                (!empty($route['name']) ? $route['name'] : null),
-                                $route['regexp'],
+                        if ($routes = $ref->getRoutes()) {
+                            $this->loadRoutes($routes);
+                        }
+
+                    // TODO: This below is deprecated and will be removed in next major version.
+                    } else if (isset($this->_routes)
+                        && is_array($this->_routes)
+                        && sizeof($this->_routes) > 0
+                    ) {
+                        foreach ($this->_routes as $route)
+                        {
+                            if (isset($route)
+                                && is_array($route)
+                                && isset($route['regexp'],
                                 $route['sprintf'],
-                                $route['keys'],
-                                (!empty($route['method']) ? $route['method'] : null));
-                            if ($routeObject->isValid()) {
-                                \Aomebo\Dispatcher\System::addRoute(
-                                    $route);
+                                $route['keys'])
+                            ) {
+                                $routeObject = new \Aomebo\Dispatcher\Route(
+                                    (!empty($route['name']) ? $route['name'] : null),
+                                    $route['regexp'],
+                                    $route['sprintf'],
+                                    $route['keys'],
+                                    (!empty($route['method']) ? $route['method'] : null));
+                                if ($routeObject->isValid()) {
+                                    \Aomebo\Dispatcher\System::addRoute(
+                                        $route);
+                                }
                             }
                         }
                     }
                 }
 
-                if ($isPageOrShellRequest
-                    && $this->isExecutionParameters()
-                ) {
+                if ($this->isExecutionParameters()) {
 
                     /** @var \Aomebo\Runtime\ExecutionParameters $ref */
                     $ref = & $this;
@@ -887,9 +886,7 @@ namespace Aomebo
 
             }
 
-            if ($isPageOrShellRequest
-                && $this->isInitializable()
-            ) {
+            if ($this->isInitializable()) {
 
                 /** @var \Aomebo\Runtime\Initializable $ref */
                 $ref = & $this;

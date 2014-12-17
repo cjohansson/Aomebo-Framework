@@ -76,141 +76,206 @@ namespace Modules\Setup
         public function execute()
         {
 
-            $submit = array();
+            $tests = array();
 
-            if ($siteSettings = self::$_aomebo->Configuration()->getSetting('site')) {
-                $submit['siteTitle'] = $siteSettings['title'];
-                $submit['siteTitleDelimiter'] = $siteSettings['title delimiter'];
-                $submit['siteTitleDirection'] = $siteSettings['title direction'];
-                $submit['siteSlogan'] = $siteSettings['slogan'];
-            }
+            if (\Aomebo\Dispatcher\System::isHttpPostRequestWithPostData()) {
 
-            if ($pathsSettings = self::$_aomebo->Configuration()->getSetting('paths')) {
-                $submit['pathsDefaultFileMod'] = $pathsSettings['default file mod'];
-            }
-
-            if (self::$_aomebo->Cache()->System()->cacheExists(
-                'abcd',
-                '123',
-                \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_DATABASE)
-            ) {
-
-                $abc = self::$_aomebo->Cache()->System()->loadCache(
-                    'abcd',
-                    '123',
-                    \Aomebo\Cache\System::FORMAT_RAW,
-                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_DATABASE
+                $submit = array(
+                    'database_host' => self::_getPostLiterals('database_host'),
+                    'database_database' => self::_getPostLiterals('database_database'),
+                    'database_username' => self::_getPostLiterals('database_username'),
+                    'database_password' => self::_getPostLiterals('database_password'),
                 );
 
-                $abc .= ' (from database)';
-
-            } else {
-
-                $abc = 'random';
-
-                self::$_aomebo->Cache()->System()->saveCache(
-                    'abcd',
-                    '123',
-                    $abc,
-                    \Aomebo\Cache\System::FORMAT_RAW,
-                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_DATABASE
-                );
-
-            }
-
-            $databaseTests = '';
-
-            if (!empty($_SERVER['SERVER_NAME'])
-                && $_SERVER['SERVER_NAME'] == 'aomebo.cvj.se'
-            ) {
-
-                if (\Aomebo\Database\Adapter::connect(
-                    'localhost',
-                    'aomebo',
-                    'A0m3b0',
-                    'aomebo_testing')
-                )  {
-
-                    $databaseTests .= 'Connected to database. Selected database. ';
-
-                    $table = \Modules\Setup\Table::getInstance();
-
-                    if ($table->exists()) {
-
-                        $databaseTests .= 'Table exists. ';
-
-                        $table->drop();
-
-                        $databaseTests .= 'Dropped table. ';
-
-                    } else {
-                        if ($table->create()) {
-
-                            $databaseTests .= 'Table created. ';
-
-                            if ($id = $table->add(
-                                array(
-                                    array($table->name, 'Göran Svensson'),
-                                    array($table->cash, 250),
-                                ))
-                            ) {
-
-                                $databaseTests .= 'Entry added. ';
-
-                                $table->update(
-                                    array(array($table->name, 'Göransson')),
-                                    array(
-                                        array($table->id, $id),
-                                        array($table->name, 'Göran Svensson')
-                                    ),
-                                    5
-                                );
-
-                                $databaseTests .= 'Entry updated. ';
-
-                                if ($result = $table->select()) {
-
-                                    $databaseTests .= 'Entry selected. ';
-
-                                    $all = $result->fetchObjectAndFree();
-
-                                }
-
-                                $table->delete(array(array($table->id, $id)));
-
-                                $databaseTests .= 'Entry deleted. ';
-
-                            }
-
-                            $table->delete();
-
-                            $databaseTests .= 'All entries deleted. ';
-
-                        }
+                if (!empty($submit['database_host'])
+                    && !empty($submit['database_database'])
+                    && !empty($submit['database_username'])
+                ) {
+                    if ($dbTests = $this->_testDatabase(
+                        $submit['database_host'],
+                        $submit['database_database'],
+                        $submit['database_username'],
+                        $submit['database_password'])
+                    ) {
+                        $tests[] = $dbTests;
                     }
                 }
+
+            } else {
+                $submit = array(
+                    'database_host' => '',
+                    'database_database' => '',
+                    'database_username' => '',
+                    'database_password' => '',
+                );
             }
 
             $view = \Aomebo\Template\Adapters\Smarty\Adapter::getInstance();
             $view->setFile('views/view.tpl');
-            $view->attachVariable('databaseTests', $databaseTests);
-            $view->attachVariable('locale', \Aomebo\Internationalization\System::getLocale());
+            $view->attachVariable('tests', $tests);
             $view->attachVariable('submit', $submit);
-            $view->attachVariable('cache', $abc);
-            $view->attachVariable('translated', self::__('Invalid parameters'));
-            $return = $view->parse();
 
-            $view2 = new \Aomebo\Template\Adapters\Php\Adapter();
-            $view2->setFile('views/view.php');
-            $view2->attachVariable('databaseTests', $databaseTests);
-            $view2->attachVariable('locale', \Aomebo\Internationalization\System::getLocale());
-            $view2->attachVariable('submit', $submit);
-            $view2->attachVariable('cache', $abc);
-            $view2->attachVariable('translated', self::__('Invalid parameters'));
-            $return2 = $view2->parse();
+            return $view->parse();
 
-            return $return . $return2;
 
+        }
+
+        /**
+         * @param string $host
+         * @param string $database
+         * @param string $username
+         * @param string [$password = '']
+         * @throws \Exception
+         * @return string
+         */
+        private function _testDatabase($host, $database, $username, $password = '')
+        {
+
+            $databaseTests = '';
+
+            if (\Aomebo\Database\Adapter::connect(
+                $host,
+                $username,
+                $password,
+                $database)
+            )  {
+
+                $databaseTests = sprintf(
+                    __('Connected to host `%s`. '
+                    . 'Selected database `%s`. '),
+                    $host,
+                    $database
+                );
+
+                $rawSql = 'SELECT * FROM WHERE `user` = {user}';
+
+                $preparedSql = \Aomebo\Database\Adapter::prepare(
+                    $rawSql, array('user' => '1 OR 1=1'));
+
+                $rawSql2 = 'SELECT * FROM WHERE `user` = %s';
+
+                $preparedSql2 = \Aomebo\Database\Adapter::preparef($rawSql2, "'1' OR 1=1");
+
+
+                $table = \Modules\Setup\Table::getInstance();
+
+                if ($table->exists()) {
+
+                    $databaseTests .= sprintf(
+                        __('Table `%s` exists. '),
+                        $table->getName()
+                    );
+
+                    if ($table->drop()) {
+
+                        $databaseTests .= sprintf(
+                            __('Dropped table `%s`. '),
+                            $table->getName()
+                        );
+
+                    } else {
+                        $databaseTests .=
+                            sprintf(
+                                __('Failed to drop table `%s`. '),
+                                $table->getName()
+                            );
+                    }
+
+                } else {
+                    if ($table->create()) {
+
+                        $databaseTests .= sprintf(
+                            __('Table `%s` created. '),
+                            $table->getName()
+                        );
+
+                        if ($id = $table->add(
+                            array(
+                                array($table->name, 'Göran Svensson'),
+                                array($table->cash, 250),
+                            ))
+                        ) {
+
+                            $databaseTests .= sprintf(
+                                __('Entry added with assigned id %d. '),
+                                $id
+                            );
+
+                            if ($table->update(
+                                array(array($table->name, 'Göransson')),
+                                array(
+                                    array($table->id, $id),
+                                    array($table->name, 'Göran Svensson')
+                                ),
+                                5)
+                            ) {
+
+                                $databaseTests .= sprintf(
+                                    __('Entry updated with id %d. '),
+                                    $id
+                                );
+
+                            } else {
+                                $databaseTests .= __('Failed to update data. ');
+                            }
+
+                            if ($result = $table->select()) {
+
+                                $databaseTests .= sprintf(
+                                    __('Entry with id %d selected. Assoc data: "%s". '),
+                                    $id,
+                                    print_r($result->fetchAssoc(), true)
+                                );
+
+                                $result->free();
+
+                            } else {
+                                $databaseTests .= __('Failed to select data. ');
+                            }
+
+                            if ($result = $table->select()) {
+
+                                $databaseTests .= sprintf(
+                                    __('Entry with id %d selected again. Object data: "%s". '),
+                                    $id,
+                                    print_r($result->fetchObjectAndFree(), true)
+                                );
+
+                            } else {
+                                $databaseTests .= __('Failed to select data. ');
+                            }
+
+
+                            $table->delete(array(array($table->id, $id)));
+
+                            $databaseTests .= sprintf(
+                                __('Entry with id %d deleted. '),
+                                $id
+                            );
+
+                        } else {
+
+                            $databaseTests .= __('Failed to data to table. ');
+
+                        }
+
+                        $table->delete();
+
+                        $databaseTests .= __('All entries deleted. ');
+
+                    } else {
+                        $databaseTests .= __('Failed to create table. ');
+                    }
+                }
+            } else {
+                $databaseTests .= sprintf(
+                    __('Failed to connect to host `%s` or failed to select database `%`. '),
+                    $host,
+                    $database
+                );
+            }
+
+            return $databaseTests;
 
         }
 

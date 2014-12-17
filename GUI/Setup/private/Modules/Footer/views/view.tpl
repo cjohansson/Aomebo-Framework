@@ -1,7 +1,10 @@
 {**
- * @var string $F
- * @var string $R
+ * view
+ *
+ * @var string $website
+ * @var string $year
  **}
 <div id="{$F}">
-    <a href="http://www.aomebo.org" target="_blank">www.aomebo.org</a>
+    &copy; {$year|escape}
+    <br /><a href="{$website|escape}" target="_blank">{$website|escape}</a>
 </div>

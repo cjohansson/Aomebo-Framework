@@ -660,7 +660,9 @@ namespace Aomebo\Associatives
                     }
 
                 } else {
-                    Throw new \Exception('Malformed data.');
+                    Throw new \Exception(
+                        self::systemTranslate('Malformed data.')
+                    );
                 }
             }
 

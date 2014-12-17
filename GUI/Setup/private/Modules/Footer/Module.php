@@ -23,9 +23,12 @@ namespace Modules\Footer
         {
             $view = \Aomebo\Template\Adapters\Smarty\Adapter::getInstance();
             $view->setFile('views/view.tpl');
+            $view->attachVariable('website',
+                \Aomebo\Configuration::getSetting('framework,website'));
+            $view->attachVariable('year', date('Y'));
+
             return $view->parse();
         }
-
 
     }
 

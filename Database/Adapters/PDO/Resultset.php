@@ -21,7 +21,7 @@
 /**
  *
  */
-namespace Aomebo\Database\Adapters\Mysqli
+namespace Aomebo\Database\Adapters\PDO
 {
 
     /**
@@ -54,6 +54,7 @@ namespace Aomebo\Database\Adapters\Mysqli
         }
 
         /**
+         * 
          */
         public function free()
         {

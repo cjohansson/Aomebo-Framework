@@ -25,7 +25,7 @@ namespace Aomebo\Database\Adapters
 {
 
     /**
-     * @internal
+     * 
      */
     abstract class Resultset extends \Aomebo\Base
     {
@@ -33,13 +33,11 @@ namespace Aomebo\Database\Adapters
         /**
          * This field contains pointer to a resultset.
          *
-         * @internal
          * @var \Aomebo\Database\Adapters\Resultset
          */
         protected $_resultset;
 
         /**
-         * @internal
          * @var bool
          */
         protected $_unbuffered;
@@ -50,7 +48,6 @@ namespace Aomebo\Database\Adapters
         protected $_sql = '';
 
         /**
-         * @internal
          * @param \Aomebo\Database\Adapters\Resultset $resultset
          * @param bool [$unbuffered = false]
          * @param string [$sql = '']
@@ -73,7 +70,6 @@ namespace Aomebo\Database\Adapters
         /**
          * This method clears recent resultset from memory.
          *
-         * @internal
          * @return mixed
          */
         abstract public function free();
@@ -81,7 +77,6 @@ namespace Aomebo\Database\Adapters
         /**
          * This method returns number of rows in resultset.
          *
-         * @internal
          * @return int|bool
          */
         abstract public function numRows();
@@ -89,7 +84,6 @@ namespace Aomebo\Database\Adapters
         /**
          * Return a row from resultset as associative array.
          *
-         * @internal
          * @param int [$limit = 0]
          * @return array|bool
          */
@@ -99,7 +93,6 @@ namespace Aomebo\Database\Adapters
          * Return a row from resultset as associative
          * array and free result.
          *
-         * @internal
          * @param int [$limit = 0]
          * @return array|bool
          */
@@ -108,7 +101,6 @@ namespace Aomebo\Database\Adapters
         /**
          * Return all rows from resultset as associative arrays.
          *
-         * @internal
          * @return array|bool
          */
         abstract public function fetchAssocAll();
@@ -117,7 +109,6 @@ namespace Aomebo\Database\Adapters
          * Return all rows from resultset as associative
          * arrays and free result.
          *
-         * @internal
          * @return array|bool
          */
         abstract public function fetchAssocAllAndFree();
@@ -125,7 +116,6 @@ namespace Aomebo\Database\Adapters
         /**
          * Return a row from resultset as object.
          *
-         * @internal
          * @param int [$limit = 0]
          * @return array|bool
          */
@@ -135,7 +125,6 @@ namespace Aomebo\Database\Adapters
          * Return a row from resultset as object
          * and free result.
          *
-         * @internal
          * @param int [$limit = 0]
          * @return array|bool
          */
@@ -144,7 +133,6 @@ namespace Aomebo\Database\Adapters
         /**
          * Return all rows from resultset as objects.
          *
-         * @internal
          * @return array|bool
          */
         abstract public function fetchObjectAll();
@@ -153,13 +141,11 @@ namespace Aomebo\Database\Adapters
          * Return all rows from resultset as array of
          * objects and free result.
          *
-         * @internal
          * @return array|bool
          */
         abstract public function fetchObjectAllAndFree();
 
         /**
-         * @internal
          * @param mixed $resultset
          * @return bool
          */
@@ -174,7 +160,6 @@ namespace Aomebo\Database\Adapters
         }
 
         /**
-         * @internal
          * @return bool
          */
         public function isUnbuffered()

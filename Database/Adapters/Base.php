@@ -25,32 +25,27 @@ namespace Aomebo\Database\Adapters
 {
 
     /**
-     * @internal
      * @method static \Aomebo\Database\Adapters\Base getInstance()
      */
     abstract class Base extends \Aomebo\Singleton
     {
 
         /**
-         * @internal
          * @var mixed
          */
         protected $_con;
 
         /**
-         * @internal
          * @var array
          */
         protected $_options;
 
         /**
-         * @internal
          * @var bool
          */
         protected $_connected;
 
         /**
-         * @internal
          * @abstract
          * @param string $host
          * @param string $user
@@ -63,21 +58,18 @@ namespace Aomebo\Database\Adapters
             $database, $options);
 
         /**
-         * @internal
          * @param string $useAnsiQuotes
          * @return string
          */
         abstract public function getQuoteCharacter($useAnsiQuotes);
 
         /**
-         * @internal
          * @param string $useAnsiQuotes
          * @return string
          */
         abstract public function getBackQuoteCharacter($useAnsiQuotes);
 
         /**
-         * @internal
          * @abstract
          * @param mixed $string
          * @return mixed
@@ -85,14 +77,12 @@ namespace Aomebo\Database\Adapters
         abstract public function escape($string);
 
         /**
-         * @internal
          * @abstract
          * @return boolean
          */
         abstract public function disconnect();
 
         /**
-         * @internal
          * @abstract
          * @param string $sql
          * @return Resultset|boolean
@@ -100,7 +90,6 @@ namespace Aomebo\Database\Adapters
         abstract public function query($sql);
 
         /**
-         * @internal
          * @abstract
          * @param string $sql
          * @throws \Exception
@@ -109,7 +98,6 @@ namespace Aomebo\Database\Adapters
         abstract public function unbufferedQuery($sql);
 
         /**
-         * @internal
          * @abstract
          * @param string $databaseName
          * @throws \Exception
@@ -118,7 +106,6 @@ namespace Aomebo\Database\Adapters
         abstract public function databaseExists($databaseName);
 
         /**
-         * @internal
          * @abstract
          * @param string $databaseName
          * @throws \Exception
@@ -127,7 +114,6 @@ namespace Aomebo\Database\Adapters
         abstract public function createDatabase($databaseName);
 
         /**
-         * @internal
          * @abstract
          * @param string $databaseName
          * @throws \Exception
@@ -136,14 +122,12 @@ namespace Aomebo\Database\Adapters
         abstract public function selectDatabase($databaseName);
 
         /**
-         * @internal
          * @abstract
          * @return string|bool
          */
         abstract public function getSelectedDatabase();
 
         /**
-         * @internal
          * @abstract
          * @param string $tableName
          * @throws \Exception
@@ -155,13 +139,10 @@ namespace Aomebo\Database\Adapters
          * This method tries to determine if database
          * connection has privilegies to check if tables exists,
          * create tables, check if database exists and create databases.
-         *
-         * @internal
          */
         abstract public function getPrivilegies();
 
         /**
-         * @internal
          * @abstract
          * @return int
          */
@@ -176,20 +157,17 @@ namespace Aomebo\Database\Adapters
         abstract public function setHandleCharset($charset);
 
         /**
-         * @internal
          * @abstract
          * @return bool
          */
         abstract public function hasError();
 
         /**
-         * @internal
          * @return string
          */
         abstract public function getError();
 
         /**
-         * @internal
          * @param string $tableName
          * @return string|bool
          * @throws \Exception
@@ -197,7 +175,6 @@ namespace Aomebo\Database\Adapters
         abstract public function getNextInsertId($tableName);
 
         /**
-         * @internal
          * @param \Aomebo\Database\Adapters\Table $table
          * @param array $columnsToValues
          * @return int|bool
@@ -206,7 +183,6 @@ namespace Aomebo\Database\Adapters
         abstract public function tableAdd($table, $columnsToValues);
 
         /**
-         * @internal
          * @param \Aomebo\Database\Adapters\Table $table
          * @param array $set
          * @param array|null [$where = null]
@@ -217,7 +193,6 @@ namespace Aomebo\Database\Adapters
         abstract public function tableUpdate($table, $set, $where = null, $limit = 1);
 
         /**
-         * @internal
          * @param \Aomebo\Database\Adapters\Table $table
          * @param array|null [$where = null]
          * @param int|null [$limit = 1]
@@ -227,7 +202,6 @@ namespace Aomebo\Database\Adapters
         abstract public function tableDelete($table, $where = null, $limit = 1);
 
         /**
-         * @internal
          * @param \Aomebo\Database\Adapters\Table $table
          * @throws \Exception
          */
@@ -240,7 +214,6 @@ namespace Aomebo\Database\Adapters
         abstract public function tableDrop($table);
 
         /**
-         * @internal
          * @param \Aomebo\Database\Adapters\Table $table
          * @param array|null [$columns = null]
          * @param array|null [$where = null]

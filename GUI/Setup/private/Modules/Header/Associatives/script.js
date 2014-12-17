@@ -1,7 +1,7 @@
 /**
- * <F>
+ * header
  *
- * @namespace #<F>
+ * @namespace #header
  */
 
 /**

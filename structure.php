@@ -9,7 +9,7 @@ $configuration = array (
     array (
       'type' => 'string',
       'required' => true,
-      'default' => 'Aomebo',
+      'default' => 'Aomebo Framework',
     ),
     'version' => 
     array (
@@ -705,7 +705,7 @@ $configuration = array (
     array (
       'type' => 'string',
       'required' => true,
-      'default' => 'Because it\'s a new site',
+      'default' => 'Because it\'s worth it',
     ),
     'shortcut icon' => 
     array (

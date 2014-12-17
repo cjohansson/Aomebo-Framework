@@ -23,9 +23,12 @@ namespace Modules\Header
         {
             $view = \Aomebo\Template\Adapters\Smarty\Adapter::getInstance();
             $view->setFile('views/view.tpl');
+            $view->attachVariable('title',
+                \Aomebo\Configuration::getSetting('framework,name'));
+            $view->attachVariable('version',
+                \Aomebo\Configuration::getSetting('framework,version'));
             return $view->parse();
         }
-
 
     }
 

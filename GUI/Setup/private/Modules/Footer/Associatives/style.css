@@ -1,9 +1,11 @@
 /**
- * <F>
- * @namespace #<F>
+ * footer
+ *
+ * @namespace #footer
  */
-#/* F */
+#footer
 {
     margin: 40px;
     padding: 0;
+    line-height: 2.0;
 }

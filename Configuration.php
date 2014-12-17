@@ -91,11 +91,6 @@ namespace Aomebo
         const STRUCTURE_TYPE_ARRAY_ASSOCIATIVE = 'associative array';
 
         /**
-         * @var string
-         */
-        const DEFAULT_TIMEZONE = 'UTC';
-
-        /**
          * @internal
          * @static
          * @var array
@@ -256,14 +251,6 @@ namespace Aomebo
             $internalStructureFilename = '',
             $externalStructureFilename = '')
         {
-
-            /**
-             * Set default time-zone
-             *
-             * This is to prevent PHP for generating any warnings.
-             * This timezone is soon overridden.
-             */
-            date_default_timezone_set(self::DEFAULT_TIMEZONE);
 
             $cacheString = '';
 
@@ -446,12 +433,14 @@ namespace Aomebo
 
                 // Does internal structure-file exists?
                 if (file_exists($internalStructureFilename . '.php')) {
-                    $internalStructure = self::_loadPhpConfiguration(
+                    
+                    $internalStructure = self::loadPhpConfiguration(
                         $internalStructureFilename . '.php'
                     );
+                    
                 } else if (file_exists($internalStructureFilename . '.yml')) {
 
-                    $internalStructure = self::_loadYmlConfiguration(
+                    $internalStructure = self::loadYmlConfiguration(
                         $internalStructureFilename . '.yml'
                     );
 
@@ -474,12 +463,14 @@ namespace Aomebo
 
                 // Does internal configuration-file exists?
                 if (file_exists($internalConfigurationFilename . '.php')) {
-                    $internalConfiguration = self::_loadPhpConfiguration(
+                    
+                    $internalConfiguration = self::loadPhpConfiguration(
                         $internalConfigurationFilename . '.php'
                     );
+                    
                 } else if (file_exists($internalConfigurationFilename . '.yml')) {
 
-                    $internalConfiguration = self::_loadYmlConfiguration(
+                    $internalConfiguration = self::loadYmlConfiguration(
                         $internalConfigurationFilename . '.yml'
                     );
 
@@ -502,12 +493,14 @@ namespace Aomebo
 
                 // Does external structure-file exists?
                 if (file_exists($externalStructureFilename . '.php')) {
-                    $externalStructure = self::_loadPhpConfiguration(
+                    
+                    $externalStructure = self::loadPhpConfiguration(
                         $externalStructureFilename . '.php'
                     );
+                    
                 } else if (file_exists($externalStructureFilename . '.yml')) {
 
-                    $externalStructure = self::_loadYmlConfiguration(
+                    $externalStructure = self::loadYmlConfiguration(
                         $externalStructureFilename . '.yml'
                     );
 
@@ -530,12 +523,14 @@ namespace Aomebo
 
                 // Does external config-file exists?
                 if (file_exists($externalConfigurationFilename . '.php')) {
-                    $externalConfiguration = self::_loadPhpConfiguration(
+                    
+                    $externalConfiguration = self::loadPhpConfiguration(
                         $externalConfigurationFilename . '.php'
                     );
+                    
                 } else if (file_exists($externalConfigurationFilename . '.yml')) {
 
-                    $externalConfiguration = self::_loadYmlConfiguration(
+                    $externalConfiguration = self::loadYmlConfiguration(
                         $externalConfigurationFilename . '.yml'
                     );
 
@@ -574,13 +569,15 @@ namespace Aomebo
                     );
 
                     // Are any data in convert-queue?
-                    if (sizeof($convertQueue) > 0) {
+                    if (\Aomebo\Application::isCacheEnabled()
+                        && sizeof($convertQueue) > 0
+                    ) {
                         foreach ($convertQueue as $convertQueueItem)
                         {
                             if (isset($convertQueueItem[0],
                                 $convertQueueItem[1])
                             ) {
-                                self::_savePhpConfigurationFile(
+                                self::savePhpConfigurationFile(
                                     $convertQueueItem[0],
                                     $convertQueueItem[1]
                                 );
@@ -1131,22 +1128,24 @@ namespace Aomebo
         }
 
         /**
-         * @internal
          * @static
          * @param string $path
+         * @param string [$variableName = 'configuration']
          * @return array
          */
-        private static function _loadPhpConfiguration($path)
+        public static function loadPhpConfiguration($path,
+            $variableName = 'configuration')    
         {
             if (file_exists($path)) {
                 try {
-                    $configuration = array();
+                    
+                    $$variableName = array();
                     require_once($path);
-                    global $configuration;
-                    if (isset($configuration)
-                        && is_array($configuration)
+                    global $$variableName;
+                    if (isset($$variableName)
+                        && is_array($$variableName)
                     ) {
-                        return $configuration;
+                        return $$variableName;
                     }
 
                 } catch (\Exception $e) {}
@@ -1156,12 +1155,11 @@ namespace Aomebo
         }
 
         /**
-         * @static
          * @param string $path
          * @return array
          * @throws \Exception
          */
-        private static function _loadYmlConfiguration($path)
+        public static function loadYmlConfiguration($path)
         {
             if (!self::$_spycLoaded) {
                 $spyc = new \Aomebo\Library\Books\spyc\Book();
@@ -1189,20 +1187,21 @@ namespace Aomebo
          */
         private static function _savePhpConfiguration()
         {
-            return self::_savePhpConfigurationFile(
+            return self::savePhpConfigurationFile(
                 _SITE_ROOT_ . self::$_externalConfigurationFilename . '.php',
                 self::$_settings
             );
         }
 
         /**
-         * @internal
          * @static
          * @param string $file
          * @param array $data
+         * @param string [$variableName = 'configuration']
          * @return bool
          */
-        private static function _savePhpConfigurationFile($file, $data)
+        public static function savePhpConfigurationFile($file, $data,
+            $variableName = 'configuration')
         {
 
             if (isset($data)
@@ -1212,9 +1211,9 @@ namespace Aomebo
 
                 $phpData = "<?php \n"
                     . "\n"
-                    . 'global $configuration; ' . "\n"
+                    . 'global $' . $variableName . '; ' . "\n"
                     . "\n"
-                    . '$configuration = ' . var_export($data, true)
+                    . '$' . $variableName . ' = ' . var_export($data, true)
                     . ';' . "\n"
                     . "\n";
 
@@ -1239,21 +1238,20 @@ namespace Aomebo
          */
         private static function _saveYmlConfiguration()
         {
-            return self::_saveYmlConfigurationFile(
+            return self::saveYmlConfigurationFile(
                 _SITE_ROOT_ . self::$_externalConfigurationFilename . '.yml',
                 self::$_settings
             );
         }
 
         /**
-         * @internal
          * @static
          * @param string $file
          * @param array $data
          * @throws \Exception
          * @return bool
          */
-        private static function _saveYmlConfigurationFile($file, $data)
+        public static function saveYmlConfigurationFile($file, $data)
         {
 
             if (!self::$_spycLoaded) {

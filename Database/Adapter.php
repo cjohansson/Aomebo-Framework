@@ -125,6 +125,20 @@ namespace Aomebo\Database
         private static $_useDatabase = null;
 
         /**
+         * @internal
+         * @static
+         * @var array
+         */
+        private static $_queries = array();
+
+        /**
+         * @internal
+         * @static
+         * @var int
+         */
+        private static $_queryCount = 0;
+
+        /**
          * @var string
          */
         const QUERY_VALUE_QUOTATION_QUOTED = 'quoted';
@@ -200,6 +214,24 @@ namespace Aomebo\Database
 
                 }
             }
+        }
+
+        /**
+         * @static
+         * @return int
+         */
+        public static function getQueryCount()
+        {
+            return self::$_queryCount;
+        }
+
+        /**
+         * @static
+         * @return array
+         */
+        public static function getQueries()
+        {
+            return self::$_queries;
         }
 
         /**
@@ -672,11 +704,16 @@ namespace Aomebo\Database
          *
          * Example:
          * $result = \Aomebo\Database\Adapter::
-         *      prepare('SELECT * FROM `my_table` WHERE `a` = "%s" AND `b` = %d ORDER BY `name`', array("dog", 3));
+         *      preparef('SELECT * FROM `my_table` WHERE `a` = "%s" AND `b` = %d ORDER BY `name`', array("dog", 3));
+         *
+         * Another example:
+         * $result = \Aomebo\Database\Adapter::
+         *      preparef('SELECT * FROM `my_table` WHERE `a` = "%s" AND `b` = %d ORDER BY `name`', "dog", 3);
          *
          * @static
          * @param string $sql
          * @param array|null [$values = null]
+         * @param ... [$value = null]
          * @throws \Exception
          * @see vsprintf()
          * @return string|bool
@@ -685,26 +722,35 @@ namespace Aomebo\Database
         {
             if (self::isConnected()) {
 
-                if (isset($values)
-                    && is_array($values)
-                ) {
-                    $valuesCount = sizeof($values);
-                    foreach ($values as & $value)
-                    {
-                        $value = self::escape($value);
+                $newValues = array();
+
+                if (isset($values)) {
+                    if (is_array($values)) {
+                        foreach ($values as $value)
+                        {
+                            $newValues[] = self::escape($value);
+                        }
+                    } else {
+
+                        $newValues[] = self::escape($values);
+
+                        if ($args = func_get_args()) {
+                            $argsCount = sizeof($args);
+                            if ($argsCount > 2) {
+                                for ($i = 2; $i < $argsCount; $i++)
+                                {
+                                    $newValues[] = self::escape($args[$i]);
+                                }
+                            }
+                        }
+
                     }
-                } else {
-                    $values = array();
-                    if (isset($value)) {
-                        $values = self::escape($value);
-                    }
-                    $valuesCount = 0;
                 }
 
                 $query = trim($sql);
 
-                if ($valuesCount > 0) {
-                    $query = vsprintf($query, $values);
+                if (sizeof($newValues) > 0) {
+                    $query = vsprintf($query, $newValues);
                 }
 
                 if (!empty($query)) {
@@ -1118,6 +1164,10 @@ namespace Aomebo\Database
             $throwExceptionOnFailure = true)
         {
             if (self::isConnected()) {
+                
+                self::$_queries[] = $sql;
+                self::$_queryCount++;
+                
                 if ($queryCount === 1) {
 
                     if ($unbuffered) {

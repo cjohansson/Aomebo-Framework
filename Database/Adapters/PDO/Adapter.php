@@ -21,17 +21,17 @@
 /**
  *
  */
-namespace Aomebo\Database\Adapters\Mysqli
+namespace Aomebo\Database\Adapters\PDO
 {
 
     /**
-     * @method static \Aomebo\Database\Adapters\Mysqli\Adapter getInstance()
+     * @method static \Aomebo\Database\Adapters\PDO\Adapter getInstance()
      */
     final class Adapter extends \Aomebo\Database\Adapters\Base
     {
 
         /**
-         * @var \mysqli
+         * @var \PDO
          */
         protected $_con;
 
@@ -43,22 +43,51 @@ namespace Aomebo\Database\Adapters\Mysqli
          * @param array $options
          * @throws \Exception
          * @return bool
+         * @link http://php.net/manual/en/pdo.construct.php
          */
         public function connect($host, $user, $password,
             $database, $options)
         {
+            
+            if (isset($options['dsn'])) {
 
-            $this->_options = $options;
-            $this->_con = new \mysqli($host, $user, $password);
+                $this->_options = $options;
+                
+                $dbOptions = array();
+                if (isset($options['options'])) {
+                    $dbOptions = $options['options'];
+                }
+                
+                try {
+                
+                    $this->_con = new \PDO(
+                        $options['dsn'],
+                        $user,
+                        $password,
+                        $dbOptions
+                    );
+                    
+                    if (isset($this->_con)) {
+    
+                        $this->_connected = true;
+                        return true;
+                        
+                    }
+                    
+                } catch (\Exception $e) {
+                    Throw new \Exception(
+                        sprintf(
+                            __('Failed to construct database connection. Error: "%s"'),
+                            $e->getMessage()
+                        )
+                    );
+                }
 
-            if ($this->_con->connect_error
-                || mysqli_connect_errno()
-            ) {
                 $this->_connected = false;
                 return false;
+                
             } else {
-                $this->_connected = true;
-                return true;
+                Throw new \Exception(__('Missing database-engine DNS.'));
             }
 
         }
@@ -150,21 +179,16 @@ namespace Aomebo\Database\Adapters\Mysqli
         public function escape($string)
         {
             if ($this->_connected) {
-                $escaped =
-                    $this->_con->real_escape_string($string);
+                $escaped = $this->_con->quote($string);
                 if (isset($escaped)) {
                     return $escaped;
                 } else {
-                    if ($escaped = mysqli_real_escape_string($this->_con, $string)) {
-                        return $escaped;
-                    } else {
-                        Throw new \Exception(
-                            self::systemTranslate(
-                                'Failed to perform SQL escape, make sure '
-                                . 'there is a database connection'
-                            )
-                        );
-                    }
+                    Throw new \Exception(
+                        self::systemTranslate(
+                            'Failed to perform SQL escape, make sure '
+                            . 'there is a database connection'
+                        )
+                    );
                 }
             } else {
                 Throw new \Exception(
@@ -179,7 +203,7 @@ namespace Aomebo\Database\Adapters\Mysqli
          * Performs an SQL-query.
          *
          * @param string $sql
-         * @return \mysqli_result|bool
+         * @return \PDOStatement
          */
         public function query($sql)
         {
@@ -190,6 +214,7 @@ namespace Aomebo\Database\Adapters\Mysqli
         }
 
         /**
+         * 
          */
         public function getPrivilegies()
         {
@@ -217,7 +242,7 @@ namespace Aomebo\Database\Adapters\Mysqli
         public function hasError()
         {
             if ($this->_connected) {
-                return !empty($this->_con->error);
+                return ($this->_con->errorInfo() ? true : false);
             }
             return false;
         }
@@ -373,10 +398,11 @@ namespace Aomebo\Database\Adapters\Mysqli
 
         /**
          * @return int
+         * @link http://php.net/manual/en/pdo.lastinsertid.php
          */
         public function getLastInsertId()
         {
-            return $this->_con->insert_id;
+            return $this->_con->lastInsertId();
         }
 
         /**
@@ -773,26 +799,29 @@ namespace Aomebo\Database\Adapters\Mysqli
 
         /**
          * @return bool
+         * @link http://php.net/manual/en/pdo.begintransaction.php
          */
         public function beginTransaction()
         {
-            return ($this->query('BEGIN') ? true : false);
+            return ($this->_con->beginTransaction() ? true : false);
         }
 
         /**
          * @return bool
+         * @link http://php.net/manual/en/pdo.commit.php
          */
         public function commitTransaction()
         {
-            return ($this->query('COMMIT') ? true : false);
+            return ($this->_con->commit() ? true : false);
         }
 
         /**
          * @return bool
+         * @link http://php.net/manual/en/pdo.rollback.php
          */
         public function rollbackTransaction()
         {
-            return ($this->query('ROLLBACK') ? true : false);
+            return ($this->_con->rollBack() ? true : false);
         }
 
         /**

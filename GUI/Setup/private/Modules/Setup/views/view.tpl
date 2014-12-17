@@ -1,100 +1,53 @@
 {**
- * @var array|null $submit
- * @var string $locale
- * @var string $translated
+ * view
+ *
+ * @var array $submit
+ * @var array $tests
  **}
 <div id="{$F}">
-    <h2>Setup template via Smarty</h2>
+    <h2>{__('Configuration')}</h2>
     <div>
-        Fill in form below to setup a Aomebo Framework system.
+        {__('Fill in form below to test or export configuration.')}
     </div>
     <form action="" method="post" enctype="application/x-www-form-urlencoded">
         <fieldset>
-            <legend>Paths</legend>
-            <div>
-                <p>
-                    <label for="paths_default_file_mod">Default file mod</label>
-                </p>
-                <input type="text" name="paths_default_file_mod" id="paths_default_file_mod" value="{$submit.pathsDefaultFileMod|escape}" />
-            </div>
-        </fieldset>
-        <fieldset>
-            <legend>Site</legend>
-            <div>
-                <p>
-                    <label for="site_title">Title</label>
-                </p>
-                <input type="text" name="site_title" id="site_title" value="{$submit.siteTitle|escape}" />
-            </div>
-            <div>
-                <p>
-                    <label for="site_title_delimiter">Title delimiter</label>
-                </p>
-                <input type="text" name="site_title_delimiter" id="site_title_delimiter" value="{$submit.siteTitleDelimiter|escape}" />
-            </div>
-            <div>
-                <p>
-                    <label for="site_title_direction">Title direction</label>
-                </p>
-                <select name="site_title_direction" id="site_title_direction">
-                    <option value="prepend"{if $submit.siteTitleDirection == 'prepend'} selected="selected"{/if}>prepend</option>
-                    <option value="append"{if $submit.siteTitleDirection == 'append'} selected="selected"{/if}>append</option>
-                </select>
-            </div>
-            <div>
-                <p>
-                    <label for="site_slogan">{__('Slogan')}</label>
-                </p>
-                <input type="text" name="site_slogan" id="site_slogan" value="{$submit.siteSlogan|escape}" />
-            </div>
-            <div>
-                <p>
-                    <label for="site_internal_root">Public internal root (i.e. /var/www/mysite/public)</label>
-                </p>
-                <input type="text" name="site_internal_root" id="site_internal_root" value="{$submit.siteInternalRoot|escape}" />
-            </div>
-            <div>
-                <p>
-                    <label for="site_server_name">{__('Public external root (i.e. example.org)')}</label>
-                </p>
-                <input type="text" name="site_server_name" id="site_server_name" value="{$submit.siteServerName|escape}" />
-            </div>
-            <div>
-                From database cache: "{$cache}"
-            </div>
-            <div>
-                Localized "Invalid parameters" to locale "{$locale|escape}": "{__('Invalid parameters')}"
-            </div>
-            <div>
-                Localized2: "{$translated|escape}"
-            </div>
-            <div>
-                <strong>{__('Routes examples:')}</strong>
-                <ul>
-                    <li>
-                        {__('Route 1:')}
-                        <br /><a href="{url page='about'}">{__('About')}</a>
-                    </li>
-                    <li>
-                        {__('Route 2:')}
-                        <br /><a href="{url parameter1='save' parameter2='settings'}">{__("Save settings")}</a>
-                    </li>
-                    <li>
-                        {__('Route 3:')}
-                        <br /><a href="{url parameter1='save' parameter2='settings' parameter3='confirm'}">{__("Confirm save settings")}</a>
-                    </li>
-                </ul>
-            </div>
-        </fieldset>
-        <fieldset>
             <legend>{__('Database')}</legend>
             <div>
-                <strong>{__('Database tests:')}</strong>
-                <br />{$databaseTests|escape}
+                <p>
+                    <label for="database_host">{__('Host')}</label>
+                </p>
+                <input type="text" name="database_host" id="database_host" value="{$submit.database_host|escape}" />
+            </div>
+            <div>
+                <p>
+                    <label for="database_database">{__('Database')}</label>
+                </p>
+                <input type="text" name="database_database" id="database_database" value="{$submit.database_database|escape}" />
+            </div>
+            <div>
+                <p>
+                    <label for="database_username">{__('Username')}</label>
+                </p>
+                <input type="text" name="database_username" id="database_username" value="{$submit.database_username|escape}" />
+            </div>
+            <div>
+                <p>
+                    <label for="database_password">{__('Password')}</label>
+                </p>
+                <input type="text" name="database_password" id="database_password" value="{$submit.database_password|escape}" />
             </div>
         </fieldset>
         <div>
-            <input type="submit" value="{__('Save')}" />
+            <input type="submit" name="action" value="{__('Test')}" />
+            <input type="submit" name="action" value="{__('Export configuration.php')}" />
         </div>
+        {if sizeof($tests) > 0}
+            <fieldset>
+                <legend>{__('Tests')}</legend>
+                {foreach $tests as $test}
+                    <div>{$test|escape}</div>
+                {/foreach}
+            </fieldset>
+        {/if}
     </form>
 </div>

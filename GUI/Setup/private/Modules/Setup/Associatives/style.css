@@ -1,44 +1,46 @@
 /**
- * <F>
- * @namespace #<F>
+ * setup
+ *
+ * @namespace #setup
  */
-#/* F */
+#setup
 {
     margin: 40px;
     padding: 0;
 }
-#/* F */ form
+#setup form
 {
     padding: 0;
     margin: 40px 0;
     font-size: 16px;
     line-height: 1.2;
 }
-#/* F */ form input[type="text"],
-#/* F */ form input[type="password"]
+#setup form input[type="text"],
+#setup form input[type="password"]
 {
     width: 400px;
+    padding: 5px;
 }
-#/* F */ form fieldset
+#setup form fieldset
 {
     padding: 10px 20px;
     border: 1px #cccccc solid;
     margin: 20px 0;
 }
-#/* F */ form fieldset legend
+#setup form fieldset legend
 {
     font-weight: bold;
     color: #cccccc;
 }
-#/* F */ form label
+#setup form label
 {
     font-weight: bold;
 }
-#/* F */ form p
+#setup form p
 {
     margin: 5px 0;
 }
-#/* F */ form div
+#setup form div
 {
     margin: 10px 0;
 }

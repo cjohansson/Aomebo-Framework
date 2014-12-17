@@ -1,7 +1,7 @@
 /**
- * <F>
+ * setup
  *
- * @namespace #<F>
+ * @namespace #setup
  */
 
 /**
@@ -9,5 +9,5 @@
  */
 $(document).ready(function(event)
 {
-    $('#<F> input').hide();
+
 });

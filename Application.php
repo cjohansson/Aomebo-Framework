@@ -162,6 +162,13 @@ namespace Aomebo
         private static $_pid = null;
 
         /**
+         * @internal
+         * @static
+         * @var bool
+         */
+        private static $_cacheEnabled = true;
+
+        /**
          * This starts up the framework.
          *
          * @param array|null [$parameters = null]       Contains all site-specific parameters.
@@ -173,13 +180,22 @@ namespace Aomebo
             // Only allow one instance per request.
             if (!self::_isConstructed()) {
 
+
+                /** @define _SYSTEM_START_TIME_     Startup time for system */
+                define('_SYSTEM_START_TIME_', microtime(true));
+
                 // Log errors by default
                 ini_set('display_errors', false);
                 ini_set('log_errors', true);
                 ini_set('error_reporting', E_ALL);
 
-                /** @define _SYSTEM_START_TIME_     Startup time for system */
-                define('_SYSTEM_START_TIME_', microtime(true));
+                /**
+                 * Set default time-zone
+                 *
+                 * This is to prevent PHP for generating any warnings.
+                 * This timezone is soon overridden.
+                 */
+                date_default_timezone_set('UTC');
 
                 self::$_pid = posix_getpid();
 
@@ -235,14 +251,18 @@ namespace Aomebo
 
                         self::setParameter(
                             self::PARAMETER_SITE_PATH,
-                            self::_getSetupSitePath());
+                            self::_getSetupSitePath()
+                        );
+                        self::$_cacheEnabled = false;
 
                     // Otherwise - should configuration be presented?
                     } else if (self::getParameter(self::PARAMETER_SHOW_CONFIGURATION)) {
 
                         self::setParameter(
                             self::PARAMETER_SITE_PATH,
-                            self::_getConfigurationSitePath());
+                            self::_getConfigurationSitePath()
+                        );
+                        self::$_cacheEnabled = false;
 
                     }
 
@@ -418,6 +438,15 @@ namespace Aomebo
         }
 
         /**
+         * @static
+         * @return bool
+         */
+        public static function isCacheEnabled()
+        {
+            return (self::$_cacheEnabled == true);
+        }
+
+        /**
          *
          */
         public function __destruct()
@@ -484,8 +513,7 @@ namespace Aomebo
          */
         public static function clearCache()
         {
-            return \Aomebo\Filesystem::deleteFilesInDirectory(
-                self::getCacheDir());
+            return \Aomebo\Filesystem::deleteFilesInDirectory(self::getCacheDir());
         }
 
         /**
@@ -925,6 +953,7 @@ namespace Aomebo
                 $runtimesLastModificationTime;
 
             if ($useRuntimeCache
+                && self::isCacheEnabled()
                 && \Aomebo\Cache\System::cacheExists(
                 $cacheParameters,
                 $cacheKey,
@@ -1246,7 +1275,9 @@ namespace Aomebo
          */
         private static function _flushApplicationData()
         {
-            if (!self::$_flushedApplicationData) {
+            if (!self::$_flushedApplicationData
+                && self::isCacheEnabled()
+            ) {
                 try {
                     if ($jsonData = json_encode(self::$_applicationData)) {
                         file_put_contents(self::_getApplicationDataPath(), $jsonData);

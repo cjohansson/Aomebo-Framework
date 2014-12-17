@@ -1,10 +1,10 @@
 /**
- * <F> - Base
+ * html - Base
  */
 body
 {
-    background: /* color_html_bg */ none top left repeat scroll;
-    /* style_text_color */
+    background: white none top left repeat scroll;
+    color: black;
     text-align: left;
     line-height: 1.5;
     position: relative;
@@ -13,19 +13,19 @@ body a,
 body a:visited,
 body a:active
 {
-    /* style_text_color_anchors */
+    color: blue;
     text-decoration: underline;
 }
 body a:hover
 {
-    /* style_text_color_anchors_hover */
+    color: red;
     text-decoration: none;
 }
 body,
 body input,
 body textarea
 {
-    font-family: 'Helvetica', 'Arial', serif;
+    font-family: 'Georgia', 'Helvetica', sans-serif;
     font-size: 12px;
 }
 body label
@@ -36,20 +36,20 @@ body h1
 {
     font-size: 40px;
     letter-spacing: 3px;
-    /* style_text_color_1 */
+    color: gray;
 }
 body h1 a,
 body h1 a:visited,
 body h1 a:hover
 {
-    /* style_text_color_1 */
+    color: gray;
     text-decoration: none;
 }
 body h2
 {
     font-size: 25px;
     margin: 5px 0 0 0;
-    /* style_text_color_3 */
+    color: gray;
 }
 body h3
 {
@@ -57,7 +57,7 @@ body h3
     line-height: 2.0;
     text-transform: lowercase;
     margin: 0 0 10px 0;
-    /* style_text_color_2 */
+    color: gray;
 }
 body h3+div,
 body h3+p
@@ -74,5 +74,5 @@ body h1,
 body h2,
 body h3
 {
-    font-family: 'Noto Sans', sans-serif;
+    font-family: 'Arial', sans-serif;
 }
