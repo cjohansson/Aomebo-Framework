@@ -235,7 +235,6 @@ namespace Aomebo
         /**
          * This method tries to load the configuration.
          *
-         * @internal
          * @static
          * @param string [$internalConfigurationFilename = '']
          * @param string [$externalConfigurationFilename = '']

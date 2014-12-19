@@ -56,7 +56,6 @@ namespace Aomebo
         }
 
         /**
-         * @internal
          * @return string
          */
         public function getAbsoluteFilename()

@@ -147,6 +147,7 @@ namespace Aomebo\Internationalization\Adapters\Gettext
          * from their headers.
          *
          * @param integer $count number of items
+         * @return int
          */
         public function select_plural_form($count)
         {

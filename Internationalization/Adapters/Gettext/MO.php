@@ -299,6 +299,7 @@ namespace Aomebo\Internationalization\Adapters\Gettext
          * 	0x04 as context separator or 0x00 as singular/plural separator
          * @param string $translation translation string from MO file. Might contain
          * 	0x00 as a plural translations separator
+         * @return \Aomebo\Internationalization\Adapters\Gettext\Translation_Entry
          */
         public function &make_entry($original, $translation)
         {

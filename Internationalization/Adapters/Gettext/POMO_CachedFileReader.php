@@ -41,6 +41,7 @@ namespace Aomebo\Internationalization\Adapters\Gettext
                 return false;
             }
             $this->_pos = 0;
+            return $this;
         }
 
     }

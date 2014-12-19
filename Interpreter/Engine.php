@@ -486,7 +486,7 @@ namespace Aomebo\Interpreter
          * @param string $style
          * @see \Aomebo\Interpreter\Engine::addHeadInlineStyleData()
          */
-        public function addHeadStyleData($style)
+        public static function addHeadStyleData($style)
         {
             self::addHeadInlineStyleData($style);
         }
@@ -759,7 +759,6 @@ namespace Aomebo\Interpreter
         /**
          * This method interprets whole tree.
          *
-         * @internal
          * @static
          * @throws \Exception
          * @return bool
@@ -1556,7 +1555,7 @@ namespace Aomebo\Interpreter
          * @param string $path
          * @throws \Exception
          */
-        private function _processPageRuntimes($page, $path)
+        private static function _processPageRuntimes($page, $path)
         {
             if (!isset(self::$_pagesToRuntimes[$page])) {
 

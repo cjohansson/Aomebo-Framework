@@ -31,12 +31,23 @@ namespace Aomebo\Internationalization\Adapters\Gettext
     {
 
         /**
+         * @var array
+         */
+        private $_nplurals = array();
+
+        /**
+         * @var null|string
+         */
+        private $_gettext_select_plural_form = null;
+
+        /**
          * The gettext implementation of select_plural_form.
          *
          * It lives in this class, because there are more than one descendand, which will use it and
          * they can't share it effectively.
          *
          * @param int $count
+         * @return mixed
          */
         public function gettext_select_plural_form($count)
         {
@@ -69,6 +80,7 @@ namespace Aomebo\Internationalization\Adapters\Gettext
          *
          * @param bool $nplurals
          * @param string $expression
+         * @return string
          */
         public function make_plural_form_function($nplurals, $expression)
         {

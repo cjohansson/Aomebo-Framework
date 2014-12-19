@@ -842,8 +842,7 @@ namespace Aomebo
                                     $route['keys'],
                                     (!empty($route['method']) ? $route['method'] : null));
                                 if ($routeObject->isValid()) {
-                                    \Aomebo\Dispatcher\System::addRoute(
-                                        $route);
+                                    \Aomebo\Dispatcher\System::addRoute($routeObject);
                                 }
                             }
                         }

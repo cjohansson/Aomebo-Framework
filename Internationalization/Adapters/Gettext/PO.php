@@ -106,6 +106,8 @@ namespace Aomebo\Internationalization\Adapters\Gettext
          * Text to include as a comment before the start of the PO contents
          *
          * Doesn't need to include # in the beginning of lines, these are added automatically
+         * 
+         * @param string $text
          */
         public function set_comment_before_headers($text)
         {
@@ -183,6 +185,7 @@ namespace Aomebo\Internationalization\Adapters\Gettext
          * @static
          * @param string $string prepend lines in this string
          * @param string $with prepend lines with this string
+         * @return string
          */
         public function prepend_each_line($string, $with)
         {
@@ -204,6 +207,7 @@ namespace Aomebo\Internationalization\Adapters\Gettext
          * @param string $text the comment text
          * @param string $char character to denote a special PO comment,
          * 	like :, default is a space
+         * @return string
          */
         public function comment_block($text, $char = ' ')
         {

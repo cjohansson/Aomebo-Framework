@@ -35,10 +35,6 @@
                 {$met}
             {/foreach}
         {/if}
-        <link rel="apple-touch-icon" href="{$R}/images/shortcut-icon-57x57.png" />
-        <link rel="apple-touch-icon" sizes="72x72" href="{$R}/images/shortcut-icon-72x72.png" />
-        <link rel="apple-touch-icon" sizes="114x114" href="{$R}/images/shortcut-icon-114x114.png" />
-        <link rel="apple-touch-icon" sizes="144x144" href="{$R}/images/shortcut-icon-144x144.png" />
         <script type="text/javascript">
             var _AJAX_URI_ = '{$ajax_uri}';
             var _PUBLIC_URI_ = '{$public_uri}';

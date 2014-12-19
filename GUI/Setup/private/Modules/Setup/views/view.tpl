@@ -36,6 +36,21 @@
                 </p>
                 <input type="text" name="database_password" id="database_password" value="{$submit.database_password|escape}" />
             </div>
+            <div>
+                <p>
+                    <label for="database_type">{__('Type')}</label>
+                </p>
+                <select name="database_type" id="database_type">
+                    <option value="mysqli"{if $submit.database_type == 'mysqli'} selected="selected"{/if}>{__('MySQLi')}</option>
+                    <option value="pdo"{if $submit.database_type == 'pdo'} selected="selected"{/if}>{__('PDO')}</option>
+                </select>
+            </div>
+            <div>
+                <p>
+                    <label for="database_dsn">{__('DSN')}</label>
+                </p>
+                <input type="text" name="database_dsn" id="database_dsn" value="{$submit.database_dsn|escape}" />
+            </div>
         </fieldset>
         <div>
             <input type="submit" name="action" value="{__('Test')}" />

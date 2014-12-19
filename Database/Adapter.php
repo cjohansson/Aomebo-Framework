@@ -1278,7 +1278,6 @@ namespace Aomebo\Database
         /**
          * This method tries to establish a database connection.
          *
-         * @internal
          * @static
          * @param string $host
          * @param string $username

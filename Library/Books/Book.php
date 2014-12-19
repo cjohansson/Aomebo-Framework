@@ -40,7 +40,7 @@ namespace Aomebo\Library\Books
         /**
          * This method requires a file relative to child.
          *
-         * @internal
+         * @static
          * @param string $filename [$absoluteDir = __DIR__]
          * @param string $absoluteDir
          * @throws \Exception

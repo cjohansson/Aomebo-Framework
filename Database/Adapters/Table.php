@@ -25,7 +25,6 @@ namespace Aomebo\Database\Adapters
 {
 
     /**
-     * @internal
      * @method static \Aomebo\Database\Adapters\Table getInstance()
      */
     class Table extends \Aomebo\Singleton

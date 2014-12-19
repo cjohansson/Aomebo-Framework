@@ -149,7 +149,6 @@ namespace Aomebo\Database\Adapters
         abstract public function getLastInsertId();
 
         /**
-         * @internal
          * @abstract
          * @param string $charset
          * @return bool

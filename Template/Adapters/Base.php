@@ -204,7 +204,6 @@ namespace Aomebo\Template\Adapters
         abstract protected function _attachDefaultFunctions();
 
         /**
-         * @internal
          * @return string
          */
         protected function _getCacheLocation()
