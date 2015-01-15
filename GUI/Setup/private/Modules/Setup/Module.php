@@ -88,23 +88,32 @@ namespace Modules\Setup
                     'database_password' => self::_getPostLiterals('database_password'),
                     'database_type' => self::_getPostLiterals('database_type'),
                     'database_dsn' => self::_getPostLiterals('database_dsn'),
+                    'action' => self::_getPostLiterals('action'),
                 );
+                
+                if ($submit['action'] == __('Test')) {
 
-                if (!empty($submit['database_host'])
-                    && !empty($submit['database_database'])
-                    && !empty($submit['database_username'])
-                    && !empty($submit['database_type'])
-                ) {
-                    if ($dbTests = $this->_testDatabase(
-                        $submit['database_host'],
-                        $submit['database_database'],
-                        $submit['database_username'],
-                        $submit['database_password'],
-                        $submit['database_type'],
-                        $submit['database_dsn'])
+                    if (!empty($submit['database_host'])
+                        && !empty($submit['database_database'])
+                        && !empty($submit['database_username'])
+                        && !empty($submit['database_type'])
                     ) {
-                        $tests[] = $dbTests;
+                        if ($dbTests = $this->_testDatabase(
+                            $submit['database_host'],
+                            $submit['database_database'],
+                            $submit['database_username'],
+                            $submit['database_password'],
+                            $submit['database_type'],
+                            $submit['database_dsn'])
+                        ) {
+                            $tests[] = $dbTests;
+                        }
                     }
+                    
+                } else if ($submit['action'] == __('Export configuration.php')) {
+                    
+                    // TODO: Export configuration here
+                    
                 }
 
             } else {
@@ -113,6 +122,8 @@ namespace Modules\Setup
                     'database_database' => '',
                     'database_username' => '',
                     'database_password' => '',
+                    'database_type' => '',
+                    'database_dsn' => '',
                 );
             }
 

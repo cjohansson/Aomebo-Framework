@@ -885,7 +885,8 @@ namespace Aomebo\Database
 
                                     if (!empty($valueArray[self::QUERY_VALUE_QUOTATION_QUOTED])) {
 
-                                        $replaceWith = self::quote($valueArray[self::QUERY_VALUE],
+                                        $replaceWith = self::quote(
+                                            $valueArray[self::QUERY_VALUE],
                                             empty($valueArray[self::QUERY_VALUE_UNESCAPED])
                                         );
 
@@ -898,7 +899,8 @@ namespace Aomebo\Database
 
                                     } else if (empty($valueArray[self::QUERY_VALUE_UNESCAPED])) {
 
-                                        $replaceWith = self::escape($valueArray[self::QUERY_VALUE]);
+                                        $replaceWith = 
+                                            self::escape($valueArray[self::QUERY_VALUE]);
 
                                     } else {
 
@@ -909,21 +911,24 @@ namespace Aomebo\Database
                                     $query = str_replace(
                                         self::formatQueryReplaceKey($key),
                                         $replaceWith,
-                                        $query);
+                                        $query
+                                    );
 
                                 } else if (!empty($valueArray[self::QUERY_VALUE_QUOTATION_QUOTED])) {
 
                                     $query = str_replace(
                                         self::formatQueryReplaceKey($key),
                                         self::query('', false),
-                                        $query);
+                                        $query
+                                    );
 
                                 } else if (!empty($valueArray[self::QUERY_VALUE_QUOTATION_BACKQUOTED])) {
 
                                     $query = str_replace(
                                         self::formatQueryReplaceKey($key),
                                         self::backquote('', false),
-                                        $query);
+                                        $query
+                                    );
 
                                 }
                             } else {
@@ -931,7 +936,8 @@ namespace Aomebo\Database
                                 $query = str_replace(
                                     self::formatQueryReplaceKey($key),
                                     self::escape($valueArray),
-                                    $query);
+                                    $query
+                                );
 
                             }
                         }
