@@ -89,9 +89,15 @@ namespace Modules\Setup
                     'database_type' => self::_getPostLiterals('database_type'),
                     'database_dsn' => self::_getPostLiterals('database_dsn'),
                     'action' => self::_getPostLiterals('action'),
+                    'locale' => self::_getPostLiterals('localization_locale'),
                 );
                 
-                if ($submit['action'] == __('Test')) {
+                if ($submit['action'] == 'Test') {
+                    
+                    // Use locale?
+                    if (!empty($submit['locale'])) {
+                        $tests[] = $this->_testLocale($submit['locale']);
+                    }
 
                     if (!empty($submit['database_host'])
                         && !empty($submit['database_database'])
@@ -110,7 +116,7 @@ namespace Modules\Setup
                         }
                     }
                     
-                } else if ($submit['action'] == __('Export configuration.php')) {
+                } else if ($submit['action'] == 'Export configuration.php') {
                     
                     // TODO: Export configuration here
                     
@@ -124,6 +130,7 @@ namespace Modules\Setup
                     'database_password' => '',
                     'database_type' => '',
                     'database_dsn' => '',
+                    'locale' => '',
                 );
             }
 
@@ -131,9 +138,74 @@ namespace Modules\Setup
             $view->setFile('views/view.tpl');
             $view->attachVariable('tests', $tests);
             $view->attachVariable('submit', $submit);
+            $view->attachVariable('locales',
+                \Aomebo\Internationalization\System::getLocalesFromDirectory(
+                    dirname(dirname(__DIR__)) . '/Language'));
 
             return $view->parse();
 
+
+        }
+
+        /**
+         * @internal
+         * @param string $locale
+         * @return string
+         */
+        private function _testLocale($locale)
+        {
+            
+            $tests = '';
+            
+            \Aomebo\Internationalization\System::init();
+            \Aomebo\Internationalization\System::addTextDomain(
+                'site',
+                dirname(dirname(__DIR__)) . '/Language'
+            );
+
+            if (\Aomebo\Internationalization\System::setLocale('en_US')) {
+
+                $tests .= sprintf(
+                    __('Successfully set locale to %s. '),
+                    'en_US'
+                );
+                    
+            } else {
+                $tests .= sprintf(
+                    __('Failed to set locale to %s. '),
+                    'en_US'
+                );
+            }
+
+            if (\Aomebo\Internationalization\System::setLocale('sv_SE')) {
+
+                $tests .= sprintf(
+                    __('Successfully set locale to %s. '),
+                    'sv_SE'
+                );
+
+            } else {
+                $tests .= sprintf(
+                    __('Failed to set locale to %s. '),
+                    'sv_SE'
+                );
+            }
+
+            if (\Aomebo\Internationalization\System::setLocale($locale)) {
+                
+                $tests .= sprintf(
+                    __('Successfully set locale to %s. '),
+                    $locale
+                );
+
+            } else {
+                $tests .= sprintf(
+                    __('Failed to set locale to %s. '),
+                    $locale
+                );
+            }
+            
+            return $tests;
 
         }
 
@@ -164,7 +236,9 @@ namespace Modules\Setup
                 $username,
                 $password,
                 $database,
-                $options)
+                $options,
+                true,
+                false)
             )  {
 
                 $databaseTests = sprintf(
@@ -182,7 +256,8 @@ namespace Modules\Setup
                 $rawSql2 = 'SELECT * FROM WHERE `user` = %s';
 
                 $preparedSql2 = \Aomebo\Database\Adapter::preparef($rawSql2, "'1' OR 1=1");
-
+                
+                // TODO: Should verify escaping here
 
                 $table = \Modules\Setup\Table::getInstance();
 
@@ -282,7 +357,7 @@ namespace Modules\Setup
 
                         } else {
 
-                            $databaseTests .= __('Failed to data to table. ');
+                            $databaseTests .= __('Failed to add data to table. ');
 
                         }
 
@@ -296,7 +371,7 @@ namespace Modules\Setup
                 }
             } else {
                 $databaseTests .= sprintf(
-                    __('Failed to connect to host `%s` or failed to select database `%`. '),
+                    __('Failed to connect to host `%s` or failed to select database `%s`. '),
                     $host,
                     $database
                 );

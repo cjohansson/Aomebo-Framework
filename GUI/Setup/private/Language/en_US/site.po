@@ -1,86 +1,201 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Aomebo Framework\n"
-"POT-Creation-Date: 2014-04-08 10:01+0100\n"
-"PO-Revision-Date: 2014-04-08 10:01+0100\n"
-"Last-Translator: \n"
+"POT-Creation-Date: 2015-01-16 15:55+0100\n"
+"PO-Revision-Date: 2015-01-16 15:56+0100\n"
+"Last-Translator: Christian Johansson <christian@cvj.se>\n"
 "Language-Team: \n"
 "Language: en_US\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.6.4\n"
+"X-Generator: Poedit 1.7\n"
 "X-Poedit-Basepath: ../\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Poedit-KeywordsList: gettext\n"
-"X-Poedit-SearchPath-0: Database\n"
+"X-Poedit-KeywordsList: gettext;__;_e\n"
+"X-Poedit-SearchPath-0: ../..\n"
 
-#: Database/Adapter.php:162
-#, php-format
-msgid "Could not install database in %s in %s"
-msgstr "Could not install database in %s in %s"
-
-#: Database/Adapter.php:186
-#, php-format
-msgid "Could not select database in %s in %s"
-msgstr "Could not select database in %s in %s"
-
-#: Database/Adapter.php:199
-#, php-format
-msgid ""
-"Could not connect to database server in %s in %s. Check your configuration."
+#: ../../private/Modules/Setup/views/view.tpl:8
+msgid "Configuration"
 msgstr ""
-"Could not connect to database server in %s in %s. Check your configuration."
 
-#: Database/Adapter.php:260
-#, php-format
-msgid ""
-"Selected database \"%s\" does not match requested database \"%s\" in %s in %s"
+#: ../../private/Modules/Setup/views/view.tpl:14
+msgid "Localization"
 msgstr ""
-"Selected database \"%s\" does not match requested database \"%s\" in %s in %s"
 
-#: Database/Adapter.php:277
+#: ../../private/Modules/Setup/views/view.tpl:28
+#: ../../private/Modules/Setup/views/view.php:93
+msgid "Database"
+msgstr ""
+
+#: ../../private/Modules/Setup/views/view.tpl:58
+msgid "MySQLi"
+msgstr ""
+
+#: ../../private/Modules/Setup/views/view.tpl:59
+msgid "PDO"
+msgstr ""
+
+#: ../../private/Modules/Setup/Module.php:95
+msgid "Test"
+msgstr ""
+
+#: ../../private/Modules/Setup/Module.php:110
+#: ../../private/Modules/Setup/Module.php:115
+msgid "Testing locale"
+msgstr ""
+
+#: ../../private/Modules/Setup/Module.php:142
+msgid "Export configuration.php"
+msgstr ""
+
+#: ../../private/Modules/Setup/Module.php:204
 #, php-format
-msgid "Failed to get selected database in %s in %s"
-msgstr "Failed to get selected database in %s in %s"
+msgid "Connected to host `%s`. Selected database `%s`. "
+msgstr ""
 
-#: Database/Adapter.php:328 Database/Adapter.php:619 Database/Adapter.php:642
+#: ../../private/Modules/Setup/Module.php:225
+#, php-format
+msgid "Table `%s` exists. "
+msgstr ""
+
+#: ../../private/Modules/Setup/Module.php:232
+#, php-format
+msgid "Dropped table `%s`. "
+msgstr ""
+
+#: ../../private/Modules/Setup/Module.php:239
+#, php-format
+msgid "Failed to drop table `%s`. "
+msgstr ""
+
+#: ../../private/Modules/Setup/Module.php:248
+#, php-format
+msgid "Table `%s` created. "
+msgstr ""
+
+#: ../../private/Modules/Setup/Module.php:260
+#, php-format
+msgid "Entry added with assigned id %d. "
+msgstr ""
+
+#: ../../private/Modules/Setup/Module.php:274
+#, php-format
+msgid "Entry updated with id %d. "
+msgstr ""
+
+#: ../../private/Modules/Setup/Module.php:279
+msgid "Failed to update data. "
+msgstr ""
+
+#: ../../private/Modules/Setup/Module.php:285
+#, php-format
+msgid "Entry with id %d selected. Assoc data: \"%s\". "
+msgstr ""
+
+#: ../../private/Modules/Setup/Module.php:293
+#: ../../private/Modules/Setup/Module.php:305
+msgid "Failed to select data. "
+msgstr ""
+
+#: ../../private/Modules/Setup/Module.php:299
+#, php-format
+msgid "Entry with id %d selected again. Object data: \"%s\". "
+msgstr ""
+
+#: ../../private/Modules/Setup/Module.php:312
+#, php-format
+msgid "Entry with id %d deleted. "
+msgstr ""
+
+#: ../../private/Modules/Setup/Module.php:318
+msgid "Failed to data to table. "
+msgstr ""
+
+#: ../../private/Modules/Setup/Module.php:324
+msgid "All entries deleted. "
+msgstr ""
+
+#: ../../private/Modules/Setup/Module.php:327
+msgid "Failed to create table. "
+msgstr ""
+
+#: ../../private/Modules/Setup/Module.php:332
+msgid "Failed to connect to host `%s` or failed to select database `%`. "
+msgstr ""
+
+#: ../../private/Modules/Setup/views/view.php:69
 msgid "Invalid parameters"
-msgstr "Invalid parameters"
-
-#: Database/Adapter.php:559
-#, php-format
-msgid "SQL: \"%s\" evaluated into empty query in %s"
-msgstr "SQL: \"%s\" evaluated into empty query in %s"
-
-#: Database/Adapter.php:576
-#, php-format
-msgid "Can't query \"%s\" when database connection hasn't been established."
-msgstr "Can't query \"%s\" when database connection hasn't been established."
-
-#: Database/Adapter.php:700 Database/Adapter.php:737
-#, php-format
-msgid ""
-"Query:<p>\n"
-"%s</p>\n"
-" returned error:<p>\n"
-"<p>\n"
-"%s</p>"
 msgstr ""
-"Query:<p>\n"
-"%s</p>\n"
-" returned error:<p>\n"
-"<p>\n"
-"%s</p>"
 
-#: Database/Adapter.php:852
-#, php-format
-msgid "Could not connect using: \"%s\""
-msgstr "Could not connect using: \"%s\""
-
-#: Database/Adapter.php:861
-#, php-format
-msgid ""
-"Could not find Database adapter class or database resultset class: %s, %s"
+#: ../../private/Modules/Setup/views/view.php:75
+msgid "Routes examples:"
 msgstr ""
-"Could not find Database adapter class or database result set class: %s, %s"
+
+#: ../../private/Modules/Setup/views/view.php:78
+msgid "Route 1:"
+msgstr ""
+
+#: ../../private/Modules/Setup/views/view.php:79
+msgid "About"
+msgstr ""
+
+#: ../../private/Modules/Setup/views/view.php:82
+msgid "Route 2:"
+msgstr ""
+
+#: ../../private/Modules/Setup/views/view.php:83
+msgid "Save settings"
+msgstr ""
+
+#: ../../private/Modules/Setup/views/view.php:86
+msgid "Route 3:"
+msgstr ""
+
+#: ../../private/Modules/Setup/views/view.php:87
+msgid "Confirm save settings"
+msgstr ""
+
+#: ../../private/Modules/Setup/views/view.php:95
+msgid "Database tests:"
+msgstr ""
+
+#~ msgid "Could not install database in %s in %s"
+#~ msgstr "Could not install database in %s in %s"
+
+#~ msgid "Could not select database in %s in %s"
+#~ msgstr "Could not select database in %s in %s"
+
+#~ msgid "Could not connect to database server in %s in %s. Check your configuration."
+#~ msgstr "Could not connect to database server in %s in %s. Check your configuration."
+
+#~ msgid "Selected database \"%s\" does not match requested database \"%s\" in %s in %s"
+#~ msgstr "Selected database \"%s\" does not match requested database \"%s\" in %s in %s"
+
+#~ msgid "Failed to get selected database in %s in %s"
+#~ msgstr "Failed to get selected database in %s in %s"
+
+#~ msgid "SQL: \"%s\" evaluated into empty query in %s"
+#~ msgstr "SQL: \"%s\" evaluated into empty query in %s"
+
+#~ msgid "Can't query \"%s\" when database connection hasn't been established."
+#~ msgstr "Can't query \"%s\" when database connection hasn't been established."
+
+#~ msgid ""
+#~ "Query:<p>\n"
+#~ "%s</p>\n"
+#~ " returned error:<p>\n"
+#~ "<p>\n"
+#~ "%s</p>"
+#~ msgstr ""
+#~ "Query:<p>\n"
+#~ "%s</p>\n"
+#~ " returned error:<p>\n"
+#~ "<p>\n"
+#~ "%s</p>"
+
+#~ msgid "Could not connect using: \"%s\""
+#~ msgstr "Could not connect using: \"%s\""
+
+#~ msgid "Could not find Database adapter class or database resultset class: %s, %s"
+#~ msgstr "Could not find Database adapter class or database result set class: %s, %s"

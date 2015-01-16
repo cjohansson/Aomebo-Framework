@@ -31,9 +31,16 @@ namespace Aomebo\Response\Responses
     {
 
         /**
+         * @internal
          * @var int
          */
         protected $_priority = 60;
+
+        /**
+         * @internal
+         * @var string
+         */
+        protected $_name = 'Page';
 
         /**
          * @return bool

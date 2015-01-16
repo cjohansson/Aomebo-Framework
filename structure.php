@@ -237,7 +237,7 @@ $configuration = array (
       'required' => false,
       'default' => 
       array (
-        0 => 'Locale',
+        'framework' => 'Locale',
       ),
     ),
     'site text domains' => 

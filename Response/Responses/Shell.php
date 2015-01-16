@@ -31,9 +31,16 @@ namespace Aomebo\Response\Responses
     {
 
         /**
+         * @internal
          * @var int
          */
         protected $_priority = 80;
+
+        /**
+         * @internal
+         * @var string
+         */
+        protected $_name = 'Shell';
 
         /**
          * @return bool

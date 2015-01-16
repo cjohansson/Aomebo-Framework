@@ -102,6 +102,13 @@ namespace Aomebo\Internationalization
         private static $_textDomain = null;
 
         /**
+         * @internal
+         * @static
+         * @var bool
+         */
+        private static $_loadedTextDomains = false;
+
+        /**
          * @throws \Exception
          */
         public function __construct()
@@ -197,10 +204,12 @@ namespace Aomebo\Internationalization
                                     $textDomains[] = $domainPath;
                                 } else {
                                     Throw new \Exception(
-                                        'Invalid internationalization "'
-                                        . $path . '", '
-                                        . 'no directory found at "'
-                                        . $domainPath . '".'
+                                        sprintf(
+                                            __('Invalid internationalization "%s", '
+                                            . 'no directory found at "%s".'),
+                                            $path,
+                                            $domainPath
+                                        )
                                     );
                                 }
 
@@ -226,7 +235,7 @@ namespace Aomebo\Internationalization
                 $this->_flagThisConstructed();
 
                 if (self::isEnabled()) {
-                    self::_init();
+                    self::init();
                 }
 
             }
@@ -246,6 +255,35 @@ namespace Aomebo\Internationalization
                 return self::$_adapterClass->gettext($message);
             }
             return $message;
+        }
+
+        /**
+         * @static
+         * @param string $directory
+         * @return array
+         */
+        public static function getLocalesFromDirectory($directory)
+        {
+            $locales = array();
+            if (is_dir($directory)) {
+                if ($items = scandir($directory)) {
+                    foreach ($items as $item)
+                    {
+                        if ($item != '.'
+                            && $item != '..'
+                            && is_dir($directory . '/' . $item)
+                        ) {
+                            if (preg_match(
+                                '/^[a-z]{2}\_[A-Z]{2}$/',
+                                $item) === 1
+                            ) {
+                                $locales[] = $item;
+                            }
+                        }
+                    }
+                }
+            }
+            return $locales;
         }
 
         /**
@@ -430,10 +468,20 @@ namespace Aomebo\Internationalization
         /**
          * @static
          * @param string $locale
+         * @return bool
          */
         public static function setLocale($locale)
         {
+            
             self::$_locale = $locale;
+            
+            // Are text-domains loaded already?
+            if (self::$_loadedTextDomains) {
+                return self::$_adapterClass->setLocale($locale);
+            } else {
+                return true;
+            }
+            
         }
 
         /**
@@ -501,13 +549,30 @@ namespace Aomebo\Internationalization
 
         /**
          * @static
+         * @param string $domain
+         * @param string $location
+         */
+        public static function addTextDomain($domain, $location)
+        {
+            
+            self::$_textDomains[$domain] = $location;
+            
+            // Are textdomains loaded already?
+            if (self::$_loadedTextDomains) {                
+                self::$_adapterClass->loadTextDomain($domain, $location);
+            }
+            
+        }
+
+        /**
+         * @static
          * @param array $textDomains
          */
         public static function setTextDomains($textDomains)
         {
-            foreach ($textDomains as $key => $location)
+            foreach ($textDomains as $domain => $location)
             {
-                self::$_textDomains[$key] = $location;
+                self::addTextDomain($domain, $location);
             }
         }
 
@@ -591,10 +656,9 @@ namespace Aomebo\Internationalization
         }
 
         /**
-         * @internal
          * @static
          */
-        private static function _init()
+        public static function init()
         {
 
             self::_loadAdapters();
@@ -609,16 +673,20 @@ namespace Aomebo\Internationalization
 
                     /** @var \Aomebo\Internationalization\Adapters\Base $classObj */
                     $classObj = new $className();
-                    $classObj->init();
+                    $classObj->initLocale();
+                    $classObj->setLocale(self::getLocale());
 
                     self::$_adapterClass = $classObj;
+                    self::$_loadedTextDomains = true;
 
                 } catch (\Exception $e) {
 
                     \Aomebo\FeedBack\Debug::output(
-                        'Failed to init internationalization adapter "'
-                        . self::$_adapter . '" , error: "'
-                        . $e->getMessage() . '"',
+                        sprintf(
+                            __('Failed to init internationalization adapter "%s", error: "%s".'),
+                            self::$_adapter,
+                            $e->getMessage()
+                        ),
                         false,
                         true
                     );

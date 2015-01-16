@@ -37,6 +37,12 @@ namespace Aomebo\Response
         protected $_priority = 0;
 
         /**
+         * @internal
+         * @var string
+         */
+        protected $_name = '';
+
+        /**
          * This method determins if request suites this response.
          *
          * @return bool
@@ -56,6 +62,14 @@ namespace Aomebo\Response
         public function getPriority()
         {
             return $this->_priority;
+        }
+
+        /**
+         * @return string
+         */
+        public function getName()
+        {
+            return $this->_name;
         }
 
     }

@@ -1291,11 +1291,13 @@ namespace Aomebo\Database
          * @param string $database
          * @param array|null [$options = null]
          * @param bool [$select = true]
+         * @param bool [$throwExceptionOnFailure = true]
          * @throws \Exception
          * @return bool
          */
         public static function connect($host, $username,
-            $password, $database, $options = null, $select = true)
+            $password, $database, $options = null, 
+            $select = true, $throwExceptionOnFailure = true)
         {
 
             self::$_connected = false;
@@ -1381,15 +1383,19 @@ namespace Aomebo\Database
 
                     if (!self::_isInstalled($database)) {
                         if (!self::_install($database)) {
-
-                            Throw new \Exception(
-                                sprintf(
-                                    self::systemTranslate('Could not install database in %s in %s'),
-                                    __METHOD__,
-                                    __FILE__
-                                )
-                            );
-
+                            
+                            if ($throwExceptionOnFailure) {
+                                Throw new \Exception(
+                                    sprintf(
+                                        self::systemTranslate('Could not install database in %s in %s'),
+                                        __METHOD__,
+                                        __FILE__
+                                    )
+                                );
+                            }
+                            
+                            return false;
+                            
                         }
                     }
 
@@ -1404,37 +1410,53 @@ namespace Aomebo\Database
                             \Aomebo\Trigger\System::processTriggers(
                                 \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_SELECTED_FAIL);
 
-                            Throw new \Exception(
-                                sprintf(
-                                    self::systemTranslate('Could not select database in %s in %s'),
-                                    __METHOD__,
-                                    __FILE__)
-                            );
+                            if ($throwExceptionOnFailure) {
+                                Throw new \Exception(
+                                    sprintf(
+                                        self::systemTranslate('Could not select database in %s in %s'),
+                                        __METHOD__,
+                                        __FILE__)
+                                );
+                            }
+                            
+                            return false;
+                            
                         }
                     }
 
                     return true;
 
                 } else {
+
+                    if ($throwExceptionOnFailure) {
+                        Throw new \Exception(
+                            sprintf(
+                                self::systemTranslate('Could not connect using: "%s"'),
+                                print_r(\Aomebo\Configuration::getSetting('database'), true)
+                            )
+                        );
+                    }
+                    
+                    return false;
+                    
+                }
+            } else {
+                
+                if ($throwExceptionOnFailure) {
                     Throw new \Exception(
                         sprintf(
-                            self::systemTranslate('Could not connect using: "%s"'),
-                            print_r(\Aomebo\Configuration::getSetting('database'), true)
+                            self::systemTranslate(
+                                'Could not find Database adapter class or database resultset class: '
+                                . '%s, %s'),
+                            $dbClass,
+                            $resultsetClass
                         )
                     );
                 }
-            } else {
-                Throw new \Exception(
-                    sprintf(
-                        self::systemTranslate(
-                            'Could not find Database adapter class or database resultset class: '
-                            . '%s, %s'),
-                        $dbClass,
-                        $resultsetClass
-                    )
-                );
+                
+                return false;
+                
             }
-
         }
 
         /**

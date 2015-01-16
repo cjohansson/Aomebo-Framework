@@ -31,9 +31,16 @@ namespace Aomebo\Response\Responses
     {
 
         /**
+         * @internal
          * @var int
          */
         protected $_priority = 90;
+
+        /**
+         * @internal
+         * @var string
+         */
+        protected $_name = 'Associatives';
 
         /**
          * @return bool

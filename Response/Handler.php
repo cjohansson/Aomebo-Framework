@@ -76,7 +76,15 @@ namespace Aomebo\Response
             if (self::hasResponse()) {
                 try {
                     self::$_response->respond();
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                    Throw new \Exception(
+                        sprintf(
+                            __('Response "%s" returned error "%s"'),
+                            self::$_response->getName(),
+                            $e->getMessage()
+                        )
+                    );
+                }
             } else {
                 Throw new \Exception('No response exists');
             }

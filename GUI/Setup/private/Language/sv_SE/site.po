@@ -1,84 +1,233 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Aomebo Framework\n"
-"POT-Creation-Date: 2014-04-08 10:01+0100\n"
-"PO-Revision-Date: 2014-04-08 10:04+0100\n"
-"Last-Translator: \n"
+"POT-Creation-Date: 2015-01-16 16:15+0100\n"
+"PO-Revision-Date: 2015-01-16 16:16+0100\n"
+"Last-Translator: Christian Johansson <christian@cvj.se>\n"
 "Language-Team: \n"
 "Language: sv_SE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.6.4\n"
+"X-Generator: Poedit 1.7\n"
 "X-Poedit-Basepath: ../\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Poedit-KeywordsList: gettext\n"
-"X-Poedit-SearchPath-0: Database\n"
+"X-Poedit-KeywordsList: __;_e;translate\n"
+"X-Poedit-SearchPath-0: ../..\n"
 
-#: Database/Adapter.php:162
+#: ../../private/Modules/Setup/views/view.tpl:8
+msgid "Configuration"
+msgstr "Inställningar"
+
+#: ../../private/Modules/Setup/views/view.tpl:14
+msgid "Localization"
+msgstr "Översättningar"
+
+#: ../../private/Modules/Setup/views/view.tpl:28
+#: ../../private/Modules/Setup/views/view.php:93
+msgid "Database"
+msgstr "Databas"
+
+#: ../../private/Modules/Setup/views/view.tpl:58
+msgid "MySQLi"
+msgstr "MySQLi"
+
+#: ../../private/Modules/Setup/views/view.tpl:59
+msgid "PDO"
+msgstr "PDO"
+
+#: ../../private/Modules/Setup/Module.php:95
+msgid "Test"
+msgstr "Testa"
+
+#: ../../private/Modules/Setup/Module.php:119
+msgid "Export configuration.php"
+msgstr "Exportera configuration.php"
+
+#: ../../private/Modules/Setup/Module.php:169
+#: ../../private/Modules/Setup/Module.php:183
+#: ../../private/Modules/Setup/Module.php:197
 #, php-format
-msgid "Could not install database in %s in %s"
-msgstr "Kunde inte installera databasen %s i %s"
+msgid "Successfully set locale to %s. "
+msgstr "Lyckades sätta språk till %s. "
 
-#: Database/Adapter.php:186
+#: ../../private/Modules/Setup/Module.php:175
+#: ../../private/Modules/Setup/Module.php:189
+#: ../../private/Modules/Setup/Module.php:203
 #, php-format
-msgid "Could not select database in %s in %s"
-msgstr "Kunde inte ansluta till databasen %s i %s"
+msgid "Failed to set locale to %s. "
+msgstr "Misslyckades att sätta språk till %s. "
 
-#: Database/Adapter.php:199
+#: ../../private/Modules/Setup/Module.php:243
 #, php-format
-msgid ""
-"Could not connect to database server in %s in %s. Check your configuration."
-msgstr "Kunde inte ansluta med %s i %s. Se över dina inställningar."
+msgid "Connected to host `%s`. Selected database `%s`. "
+msgstr "Ansluten till värden `%s`. Valde databasen `%s`. "
 
-#: Database/Adapter.php:260
+#: ../../private/Modules/Setup/Module.php:264
 #, php-format
-msgid ""
-"Selected database \"%s\" does not match requested database \"%s\" in %s in %s"
-msgstr "Vald databas \"%s\" matchar inte förfrågad databas \"%s\" i %s i %s"
+msgid "Table `%s` exists. "
+msgstr "Tabellen `%s` finns. "
 
-#: Database/Adapter.php:277
+#: ../../private/Modules/Setup/Module.php:271
 #, php-format
-msgid "Failed to get selected database in %s in %s"
-msgstr "Misslyckades med att välja databas i %s i %s"
+msgid "Dropped table `%s`. "
+msgstr "Tog bort tabellen `%s`. "
 
-#: Database/Adapter.php:328 Database/Adapter.php:619 Database/Adapter.php:642
+#: ../../private/Modules/Setup/Module.php:278
+#, php-format
+msgid "Failed to drop table `%s`. "
+msgstr "Misslyckades med att ta bort tabellen `%s`. "
+
+#: ../../private/Modules/Setup/Module.php:287
+#, php-format
+msgid "Table `%s` created. "
+msgstr "Tabellen `%s` skapades. "
+
+#: ../../private/Modules/Setup/Module.php:299
+#, php-format
+msgid "Entry added with assigned id %d. "
+msgstr "Skapade rad med id %d. "
+
+#: ../../private/Modules/Setup/Module.php:313
+#, php-format
+msgid "Entry updated with id %d. "
+msgstr "Uppdaterade rad med id %d. "
+
+#: ../../private/Modules/Setup/Module.php:318
+msgid "Failed to update data. "
+msgstr "Misslyckades med att uppdatera rad. "
+
+#: ../../private/Modules/Setup/Module.php:324
+#, php-format
+msgid "Entry with id %d selected. Assoc data: \"%s\". "
+msgstr "Rad med id %d vald. Associativ data \"%s\". "
+
+#: ../../private/Modules/Setup/Module.php:332
+#: ../../private/Modules/Setup/Module.php:344
+msgid "Failed to select data. "
+msgstr "Misslyckades med att välja rad. "
+
+#: ../../private/Modules/Setup/Module.php:338
+#, php-format
+msgid "Entry with id %d selected again. Object data: \"%s\". "
+msgstr "Rad med id %d vald igen. Objekt data: \"%s\". "
+
+#: ../../private/Modules/Setup/Module.php:351
+#, php-format
+msgid "Entry with id %d deleted. "
+msgstr "Rad med id %d raderad. "
+
+#: ../../private/Modules/Setup/Module.php:357
+msgid "Failed to add data to table. "
+msgstr "Misslyckades med att lägga till rad till tabellen. "
+
+#: ../../private/Modules/Setup/Module.php:363
+msgid "All entries deleted. "
+msgstr "Alla rader borttagna. "
+
+#: ../../private/Modules/Setup/Module.php:366
+msgid "Failed to create table. "
+msgstr "Misslyckades med att skapa tabell. "
+
+#: ../../private/Modules/Setup/Module.php:371
+#, php-format
+msgid "Failed to connect to host `%s` or failed to select database `%s`. "
+msgstr ""
+"Misslyckades med att ansluta till värden `%s` eller misslyckades med att "
+"välja databasen `%s`. "
+
+#: ../../private/Modules/Setup/views/view.php:69
 msgid "Invalid parameters"
 msgstr "Ogiltiga parametrar"
 
-#: Database/Adapter.php:559
-#, php-format
-msgid "SQL: \"%s\" evaluated into empty query in %s"
-msgstr "SQL: \"%s\" blev tom förfrågan i %s"
+#: ../../private/Modules/Setup/views/view.php:75
+msgid "Routes examples:"
+msgstr "Exempel på routes:"
 
-#: Database/Adapter.php:576
-#, php-format
-msgid "Can't query \"%s\" when database connection hasn't been established."
-msgstr "Kan inte göra förfrågan \"%s\" då databasen inte är ansluten."
+#: ../../private/Modules/Setup/views/view.php:78
+msgid "Route 1:"
+msgstr "Route 1:"
 
-#: Database/Adapter.php:700 Database/Adapter.php:737
-#, php-format
-msgid ""
-"Query:<p>\n"
-"%s</p>\n"
-" returned error:<p>\n"
-"<p>\n"
-"%s</p>"
-msgstr ""
-"Förfrågan:<p>\n"
-"%s</p>\n"
-" svarade med felet:<p>\n"
-"<p>\n"
-"%s</p>"
+#: ../../private/Modules/Setup/views/view.php:79
+msgid "About"
+msgstr "Om"
 
-#: Database/Adapter.php:852
-#, php-format
-msgid "Could not connect using: \"%s\""
-msgstr "Kunde inte ansluta med: \"%s\""
+#: ../../private/Modules/Setup/views/view.php:82
+msgid "Route 2:"
+msgstr "Route 2:"
 
-#: Database/Adapter.php:861
-#, php-format
-msgid ""
-"Could not find Database adapter class or database resultset class: %s, %s"
-msgstr ""
-"Kunde inte hitta någon databasadapter klass eller resultset klass: %s, %s"
+#: ../../private/Modules/Setup/views/view.php:83
+msgid "Save settings"
+msgstr "Spara inställningar"
+
+#: ../../private/Modules/Setup/views/view.php:86
+msgid "Route 3:"
+msgstr "Route 3:"
+
+#: ../../private/Modules/Setup/views/view.php:87
+msgid "Confirm save settings"
+msgstr "Bekräfta att du vill spara inställningar"
+
+#: ../../private/Modules/Setup/views/view.php:95
+msgid "Database tests:"
+msgstr "Databastester:"
+
+#~ msgid "Testing locale for %s: \"%s\". "
+#~ msgstr "Testar översättning för %s: \"%s\". "
+
+#~ msgid "Testing locale"
+#~ msgstr "Testar översättningar"
+
+#~ msgid "Failed to connect to host `%s` or failed to select database `%`. "
+#~ msgstr ""
+#~ "Misslyckades med att ansluta till värden `%s` eller misslyckades med att "
+#~ "välja databasen `%s`. "
+
+#~ msgid "Failed to data to table. "
+#~ msgstr "Misslyckades med "
+
+#~ msgid "Could not install database in %s in %s"
+#~ msgstr "Kunde inte installera databasen %s i %s"
+
+#~ msgid "Could not select database in %s in %s"
+#~ msgstr "Kunde inte ansluta till databasen %s i %s"
+
+#~ msgid ""
+#~ "Could not connect to database server in %s in %s. Check your "
+#~ "configuration."
+#~ msgstr "Kunde inte ansluta med %s i %s. Se över dina inställningar."
+
+#~ msgid ""
+#~ "Selected database \"%s\" does not match requested database \"%s\" in %s "
+#~ "in %s"
+#~ msgstr "Vald databas \"%s\" matchar inte förfrågad databas \"%s\" i %s i %s"
+
+#~ msgid "Failed to get selected database in %s in %s"
+#~ msgstr "Misslyckades med att välja databas i %s i %s"
+
+#~ msgid "SQL: \"%s\" evaluated into empty query in %s"
+#~ msgstr "SQL: \"%s\" blev tom förfrågan i %s"
+
+#~ msgid "Can't query \"%s\" when database connection hasn't been established."
+#~ msgstr "Kan inte göra förfrågan \"%s\" då databasen inte är ansluten."
+
+#~ msgid ""
+#~ "Query:<p>\n"
+#~ "%s</p>\n"
+#~ " returned error:<p>\n"
+#~ "<p>\n"
+#~ "%s</p>"
+#~ msgstr ""
+#~ "Förfrågan:<p>\n"
+#~ "%s</p>\n"
+#~ " svarade med felet:<p>\n"
+#~ "<p>\n"
+#~ "%s</p>"
+
+#~ msgid "Could not connect using: \"%s\""
+#~ msgstr "Kunde inte ansluta med: \"%s\""
+
+#~ msgid ""
+#~ "Could not find Database adapter class or database resultset class: %s, %s"
+#~ msgstr ""
+#~ "Kunde inte hitta någon databasadapter klass eller resultset klass: %s, %s"

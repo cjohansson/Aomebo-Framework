@@ -31,9 +31,38 @@ namespace Aomebo\Internationalization\Adapters
     {
 
         /**
+         * @param array|null [$textDomains = null]
+         * @param string|null [$locale = null]
+         * @param string|null [$defaultLocale = null]
          * @return bool
          */
-        abstract public function init();
+        abstract public function initLocale($textDomains = null, 
+            $locale = null, $defaultLocale = null);
+
+        /**
+         * @param array $textDomains
+         * @param string|null [$locale = null]
+         * @param string|null [$defaultLocale = null]
+         * @return bool
+         */
+        abstract public function loadTextDomains($textDomains, 
+            $locale = null, $defaultLocale = null);
+
+        /**
+         * @param array $textDomains
+         * @param string $location
+         * @param string|null [$locale = null]
+         * @param string|null [$defaultLocale = null]
+         * @return bool
+         */
+        abstract public function loadTextDomain($textDomains,
+            $location, $locale = null, $defaultLocale = null);
+
+        /**
+         * @param string|null [$locale = null]
+         * @return bool
+         */
+        abstract public function setLocale($locale = null);
 
         /**
          * Lookup a message in the current domain.

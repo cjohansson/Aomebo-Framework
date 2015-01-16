@@ -11,6 +11,20 @@
     </div>
     <form action="" method="post" enctype="application/x-www-form-urlencoded">
         <fieldset>
+            <legend>{__('Localization')}</legend>
+            <div>
+                <p>
+                    <label for="localization_locale">{__('Locale')}</label>
+                </p>
+                <select name="localization_locale" id="localization_locale">
+                    <option> </option>
+                    {foreach $locales as $locale}
+                        <option{if $submit.locale == $locale} selected="selected"{/if}>{$locale|escape}</option>
+                    {/foreach}
+                </select>
+            </div>
+        </fieldset>
+        <fieldset>
             <legend>{__('Database')}</legend>
             <div>
                 <p>
@@ -53,8 +67,8 @@
             </div>
         </fieldset>
         <div>
-            <input type="submit" name="action" value="{__('Test')}" />
-            <input type="submit" name="action" value="{__('Export configuration.php')}" />
+            <input type="submit" name="action" value="Test" />
+            <input type="submit" name="action" value="Export configuration.php" />
         </div>
         {if sizeof($tests) > 0}
             <fieldset>
