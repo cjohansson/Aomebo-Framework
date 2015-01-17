@@ -242,7 +242,6 @@ namespace Aomebo\Template\Adapters\Smarty
         {
             
             if (\Aomebo\Application::isWritingnabled()) {
-                $this->_smarty->caching = 1;
                 $this->_smarty->setCompileDir($this->_getCacheLocation());
                 $this->_smarty->setCacheDir($this->_getCacheLocation());
             } else {
