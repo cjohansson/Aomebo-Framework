@@ -100,9 +100,14 @@ namespace Aomebo\Template\Adapters\Smarty
                     require_once($syspluginPath);
                     return true;
                 } catch (\Exception $e) {
-                    Throw new \Exception('Something went wrong when including '
-                        . 'file "' . $syspluginPath . '", error: '
-                        . $e->getMessage());
+                    Throw new \Exception(
+                        sprintf(
+                            __('Something went wrong when including '
+                            . 'file "%s", error "%s".'),
+                            $syspluginPath,
+                            $e->getMessage()
+                        )
+                    );
                 }
             } else if ($pluginsPath = self::_getPluginsPath()) {
                 if (is_array($pluginsPath)) {
@@ -115,9 +120,14 @@ namespace Aomebo\Template\Adapters\Smarty
                                 require_once($path);
                                 return true;
                             } catch (\Exception $e) {
-                                Throw new \Exception('Something went wrong when including '
-                                . 'file "' . $path . '", error: '
-                                . $e->getMessage());
+                                Throw new \Exception(
+                                    sprintf(
+                                        __('Something went wrong when including '
+                                            . 'file "%s", error "%s".'),
+                                        $syspluginPath,
+                                        $e->getMessage()
+                                    )
+                                );
                             }
                         }
                     }
@@ -129,9 +139,14 @@ namespace Aomebo\Template\Adapters\Smarty
                             require_once($path);
                             return true;
                         } catch (\Exception $e) {
-                            Throw new \Exception('Something went wrong when including '
-                                . 'file "' . $path . '", error: '
-                                . $e->getMessage());
+                            Throw new \Exception(
+                                sprintf(
+                                    __('Something went wrong when including '
+                                        . 'file "%s", error "%s".'),
+                                    $syspluginPath,
+                                    $e->getMessage()
+                                )
+                            );
                         }
                     }
                 }
@@ -221,12 +236,19 @@ namespace Aomebo\Template\Adapters\Smarty
          * @param string $directory
          * @param string $filename
          * @return bool
+         * @link http://www.smarty.net/docsv2/en/caching.tpl
          */
         protected function _getTemplate($directory, $filename)
         {
-
-            $this->_smarty->setCompileDir($this->_getCacheLocation());
-            $this->_smarty->setCacheDir($this->_getCacheLocation());
+            
+            if (\Aomebo\Application::isWritingnabled()) {
+                $this->_smarty->caching = 1;
+                $this->_smarty->setCompileDir($this->_getCacheLocation());
+                $this->_smarty->setCacheDir($this->_getCacheLocation());
+            } else {
+                $this->_smarty->caching = 0;
+            }
+            
             $this->_smarty->setTemplateDir($directory);
             $this->_smarty->setConfigDir($directory);
 
