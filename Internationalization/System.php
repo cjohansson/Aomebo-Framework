@@ -151,7 +151,7 @@ namespace Aomebo\Internationalization
                         \Aomebo\Configuration::getSetting(
                             'internationalization,system text domains')
                     ) {
-                        foreach ($systemTextDomains as $path)
+                        foreach ($systemTextDomains as $domain => $path)
                         {
 
                             if (is_array($path)
@@ -167,7 +167,7 @@ namespace Aomebo\Internationalization
                                 $domainPath = _SYSTEM_ROOT_ . $path;
 
                                 if (is_dir($domainPath)) {
-                                    $textDomains[] = $domainPath;
+                                    $textDomains[$domain] = $domainPath;
                                 } else {
                                     Throw new \Exception(
                                         'Invalid internationalization "'
@@ -185,7 +185,7 @@ namespace Aomebo\Internationalization
                         \Aomebo\Configuration::getSetting(
                             'internationalization,site text domains')
                     ) {
-                        foreach ($siteTextDomains as $path)
+                        foreach ($siteTextDomains as $domain => $path)
                         {
 
                             if (is_array($path)
@@ -201,7 +201,7 @@ namespace Aomebo\Internationalization
                                 $domainPath = _SITE_ROOT_ . $path;
 
                                 if (is_dir($domainPath)) {
-                                    $textDomains[] = $domainPath;
+                                    $textDomains[$domain] = $domainPath;
                                 } else {
                                     Throw new \Exception(
                                         sprintf(
