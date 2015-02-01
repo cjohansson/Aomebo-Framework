@@ -78,6 +78,8 @@ namespace Modules\Setup
             $tests = array();
             
             ini_set('display_errors', 1);
+            
+            $this->_testTriggers();
 
             if (\Aomebo\Dispatcher\System::isHttpPostRequestWithPostData()) {
 
@@ -379,6 +381,28 @@ namespace Modules\Setup
 
             return $databaseTests;
 
+        }
+
+        /**
+         * 
+         */
+        private function _testTriggers()
+        {
+            \Aomebo\Trigger\System::addTrigger(
+                'random',
+                array( & $this, 'execute'),
+                10
+            );
+            \Aomebo\Trigger\System::addTrigger(
+                'random',
+                array( & $this, 'useCache'),
+                11
+            );
+            
+            $triggers = \Aomebo\Trigger\System::getTriggers('random');
+            
+            $here = true;
+            
         }
 
     }
