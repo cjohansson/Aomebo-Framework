@@ -120,50 +120,52 @@ namespace Aomebo
         {
 
             $accBool = true;
-
-            if ($components = explode(
-                DIRECTORY_SEPARATOR, $absolutePath)
-            ) {
-
-                $path = '';
-                $pathIndex = 0;
-                $pathSize = sizeof($components);
-
-                foreach ($components as $component)
-                {
-                    if ($component !== '') {
-                        if ($pathIndex < $pathSize - 1
-                            || $trailingIsDirectory
-                        ) {
-
-                            if ($pathIndex > 0) {
-                                $path .= DIRECTORY_SEPARATOR;
-                            }
-
-                            $path .= $component;
-
-                            if (\Aomebo\Configuration::isLoaded()
-                                && self::isPathInBasedir($path)
+            
+            if (\Aomebo\Application::isWritingnabled()) {
+                if ($components = explode(
+                    DIRECTORY_SEPARATOR, $absolutePath)
+                ) {
+    
+                    $path = '';
+                    $pathIndex = 0;
+                    $pathSize = sizeof($components);
+    
+                    foreach ($components as $component)
+                    {
+                        if ($component !== '') {
+                            if ($pathIndex < $pathSize - 1
+                                || $trailingIsDirectory
                             ) {
-
-                                if (!is_dir($path)) {
-                                    if (!self::makeDirectory(
-                                        $path,
-                                        $throwExceptions)
-                                    ) {
-                                        $accBool = false;
-                                    }
+    
+                                if ($pathIndex > 0) {
+                                    $path .= DIRECTORY_SEPARATOR;
                                 }
-
+    
+                                $path .= $component;
+    
+                                if (\Aomebo\Configuration::isLoaded()
+                                    && self::isPathInBasedir($path)
+                                ) {
+    
+                                    if (!is_dir($path)) {
+                                        if (!self::makeDirectory(
+                                            $path,
+                                            $throwExceptions)
+                                        ) {
+                                            $accBool = false;
+                                        }
+                                    }
+    
+                                }
+    
                             }
-
                         }
+    
+                        $pathIndex++;
+    
                     }
-
-                    $pathIndex++;
-
+    
                 }
-
             }
 
             return $accBool;
@@ -305,6 +307,7 @@ namespace Aomebo
             $throwExceptions = true)
         {
             if (\Aomebo\Configuration::isLoaded()
+                && \Aomebo\Application::isWritingnabled()
                 && self::isPathInBasedir($absolutePath)
             ) {
                 if (is_dir($absolutePath)) {
@@ -394,6 +397,7 @@ namespace Aomebo
         public static function truncateFile($absolutePath, $size = 0)
         {
             if (\Aomebo\Configuration::isLoaded()
+                && \Aomebo\Application::isWritingnabled()
                 && self::isPathInBasedir($absolutePath)
             ) {
                 if (!empty($absolutePath)
@@ -433,8 +437,10 @@ namespace Aomebo
             $throwExceptions = true)
         {
             if (\Aomebo\Configuration::isLoaded()
+                && \Aomebo\Application::isWritingnabled()
                 && self::isPathInBasedir($absolutePath)
             ) {
+                
                 self::makeDirectories($absolutePath);
 
                 if (self::_writeFile(
@@ -446,6 +452,7 @@ namespace Aomebo
                 ) {
                     return true;
                 }
+                
             }
             return false;
 
@@ -459,6 +466,7 @@ namespace Aomebo
         public static function deleteFile($absolutePath)
         {
             if (\Aomebo\Configuration::isLoaded()
+                && \Aomebo\Application::isWritingnabled()
                 && self::isPathInBasedir($absolutePath)
             ) {
                 if (unlink($absolutePath)) {
@@ -477,6 +485,7 @@ namespace Aomebo
         public static function deleteFilesInDirectory($absolutePath)
         {
             if (\Aomebo\Configuration::isLoaded()
+                && \Aomebo\Application::isWritingnabled()
                 && self::isPathInBasedir($absolutePath)
             ) {
                 if (!empty($absolutePath)) {
@@ -543,6 +552,7 @@ namespace Aomebo
             $deleteFilesInDirectory = false)
         {
             if (\Aomebo\Configuration::isLoaded()
+                && \Aomebo\Application::isWritingnabled()
                 && self::isPathInBasedir($absolutePath)
             ) {
                 if (!empty($absolutePath)) {
@@ -575,6 +585,7 @@ namespace Aomebo
         public static function appendFile($absolutePath, $contents = '')
         {
             if (\Aomebo\Configuration::isLoaded()
+                && \Aomebo\Application::isWritingnabled()
                 && self::isPathInBasedir($absolutePath)
             ) {
                 if (self::_writeFile($absolutePath, $contents, null, false)) {
@@ -594,6 +605,7 @@ namespace Aomebo
         public static function applyPermissions($path, $throwExceptions = true)
         {
             if (\Aomebo\Configuration::isLoaded()
+                && \Aomebo\Application::isWritingnabled()
                 && self::isPathInBasedir($path)
             ) {
                 if (!chmod($path, self::_getChmod())) {
@@ -686,6 +698,7 @@ namespace Aomebo
             $chmod = null, $truncate = true, $throwExceptions = true)
         {
             if (\Aomebo\Configuration::isLoaded()
+                && \Aomebo\Application::isWritingnabled()
                 && self::isPathInBasedir($absolutePath)
             ) {
                 if ($file = fopen($absolutePath, 'ab+')) {

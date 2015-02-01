@@ -281,7 +281,7 @@ namespace Aomebo\Response
             $path = __DIR__ . DIRECTORY_SEPARATOR . self::RESPONSES_DIR;
 
             if (!is_dir($path)) {
-                \Aomebo\Filesystem::makeDirectory($path);
+                \Aomebo\Filesystem::makeDirectories($path);
             }
 
             return $path;
@@ -298,7 +298,7 @@ namespace Aomebo\Response
             $path = _SYSTEM_SITE_ROOT_ . DIRECTORY_SEPARATOR . self::RESPONSES_DIR;
 
             if (!is_dir($path)) {
-                \Aomebo\Filesystem::makeDirectory($path);
+                \Aomebo\Filesystem::makeDirectories($path);
             }
 
             return $path;
