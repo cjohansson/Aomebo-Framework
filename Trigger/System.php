@@ -27,9 +27,7 @@ namespace Aomebo\Trigger
     /**
      * @method static \Aomebo\Trigger\System getInstance()
      */
-    class
-
-    System extends \Aomebo\Singleton
+    class System extends \Aomebo\Singleton
     {
 
         /**
@@ -124,6 +122,12 @@ namespace Aomebo\Trigger
         private static $_triggers = array();
 
         /**
+         * @static
+         * @var array
+         */
+        private static $_sortedTriggers = array();
+
+        /**
          *
          */
         public function __construct()
@@ -137,17 +141,35 @@ namespace Aomebo\Trigger
          * @static
          * @param string $key
          * @param \Closure|string|array $ref
+         * @param int [$priority = 0]               Higher means executed sooner.
          * @return bool
          */
-        public static function addTrigger($key, $ref)
+        public static function addTrigger($key, $ref, $priority = 0)
         {
             if (isset($key, $ref)) {
                 if (self::isFunctionReference($ref)) {
+                    
                     if (!isset(self::$_triggers[$key])) {
                         self::$_triggers[$key] = array();
                     }
-                    self::$_triggers[$key][] = $ref;
+                    if (!is_numeric($priority)) {
+                        $priority = 0;
+                    }
+                    if (isset(self::$_triggers[$key][$priority])) {
+                        $priority--;
+                        while (isset(self::$_triggers[$priority])) {
+                            $priority--;
+                        }
+                    }
+                    
+                    // Add trigger to list for this key
+                    self::$_triggers[$key][$priority] = $ref;
+                    
+                    // Add flag that this key has not been sorted yet
+                    self::$_sortedTriggers[$key] = false;
+                    
                     return true;
+                    
                 }
             }
             return false;
@@ -177,7 +199,15 @@ namespace Aomebo\Trigger
                 && is_array(self::$_triggers[$key])
                 && sizeof(self::$_triggers[$key]) > 0
             ) {
+                
+                // Has this key not been sorted yet?
+                if (empty(self::$_sortedTriggers[$key])) {
+                    krsort(self::$_triggers[$key]);
+                    self::$_sortedTriggers[$key] = true;
+                }
+                
                 return self::$_triggers[$key];
+                
             }
             return false;
         }

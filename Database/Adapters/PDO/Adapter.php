@@ -75,12 +75,14 @@ namespace Aomebo\Database\Adapters\PDO
                     }
                     
                 } catch (\Exception $e) {
+                    /*
                     Throw new \Exception(
                         sprintf(
                             __('Failed to construct database connection. Error: "%s"'),
                             $e->getMessage()
                         )
                     );
+                    */
                 }
 
                 $this->_connected = false;
@@ -134,13 +136,14 @@ namespace Aomebo\Database\Adapters\PDO
          * @param string $charset
          * @throws \Exception
          * @return bool
+         * @link http://stackoverflow.com/questions/4361459/php-pdo-charset-set-names
          */
         public function setHandleCharset($charset)
         {
             if ($this->_connected
                 && !empty($charset)
             ) {
-                if (!$this->_con->set_charset($charset)) {
+                if (!$this->_con->query('set names ' . self::escape($charset))) {
                     Throw new \Exception(
                         sprintf(
                             self::systemTranslate(
@@ -162,9 +165,8 @@ namespace Aomebo\Database\Adapters\PDO
         public function disconnect()
         {
             if ($this->_connected) {
-                if ($this->_con->close()) {
-                    return true;
-                }
+                $this->_con = null;
+                return true;
             }
             return false;
         }
@@ -181,7 +183,7 @@ namespace Aomebo\Database\Adapters\PDO
             if ($this->_connected) {
                 $escaped = $this->_con->quote($string);
                 if (isset($escaped)) {
-                    return $escaped;
+                    return substr($escaped, 1, -1);
                 } else {
                     Throw new \Exception(
                         self::systemTranslate(
@@ -225,13 +227,17 @@ namespace Aomebo\Database\Adapters\PDO
          *
          * @param string $sql
          * @return Resultset|bool
+         * @link http://php.net/manual/en/mysqlinfo.concepts.buffering.php
          */
         public function unbufferedQuery($sql)
         {
             if ($this->_connected) {
-                if ($this->_con->real_query($sql)) {
-                    return $this->_con->use_result();
-                }
+                
+                $this->_con->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+                $result = $this->query($sql);
+                $this->_con->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+                return $result;
+                
             }
             return false;
         }
@@ -253,7 +259,7 @@ namespace Aomebo\Database\Adapters\PDO
         public function getError()
         {
             if ($this->_connected) {
-                return $this->_con->error;
+                return $this->_con->errorCode();
             } else {
                 return '';
             }
@@ -297,7 +303,9 @@ namespace Aomebo\Database\Adapters\PDO
         public function selectDatabase($databaseName)
         {
             if (!empty($databaseName)) {
-                if ($this->_con->select_db($databaseName)) {
+                if ($this->_con->query(
+                    'USE ' . self::escape($databaseName) . '')
+                ) {
                     return true;
                 }
             } else {
