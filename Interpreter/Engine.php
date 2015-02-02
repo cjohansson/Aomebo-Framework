@@ -1521,8 +1521,9 @@ namespace Aomebo\Interpreter
                             } else {
                                 Throw new \Exception(
                                     sprintf(
-                                        self::systemTranslate('Could not process page at "%s"'),
-                                        $path
+                                        self::systemTranslate('Could not process page at: "%s", pageData: "%s"'),
+                                        $path,
+                                        $pageData
                                     )
                                 );
                             }

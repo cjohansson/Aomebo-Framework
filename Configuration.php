@@ -402,7 +402,9 @@ namespace Aomebo
                             \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
                         );
                         Throw new \Exception(
-                            'Invalid configuration cache, cleared caches.');
+                            self::systemTranslate(
+                                'Invalid configuration cache, cleared caches.')
+                        );
                     }
                 } else {
                     \Aomebo\Cache\System::clearCache(
@@ -411,7 +413,9 @@ namespace Aomebo
                         \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
                     );
                     Throw new \Exception(
-                        'Invalid configuration cache, cleared caches.');
+                        self::systemTranslate(
+                            'Invalid configuration cache, cleared caches.')
+                    );
                 }
             } else {
 
@@ -624,9 +628,12 @@ namespace Aomebo
                     }
                 }
             } else {
-                Throw new \Exception('Invalid parameters "'
-                    . print_r(func_get_args(), true) . '" for '
-                    . __FUNCTION__);
+                Throw new \Exception(
+                    sprintf(
+                        self::systemTranslate('Invalid parameters "%s"'),
+                        print_r(func_get_args(), true)
+                    )
+                );
             }
             return false;
         }
@@ -652,7 +659,12 @@ namespace Aomebo
                         if (!isset($d[$e])) {
                             if ($throwException) {
                                 Throw new \Exception(
-                                    'Setting-value for key: "' . $key . '" not found.');
+                                    sprintf(
+                                        self::systemTranslate(
+                                            'Setting-value for key: "%s" not found.'),
+                                        $key
+                                    )
+                                );
                             } else {
                                 return null;
                             }
@@ -667,13 +679,20 @@ namespace Aomebo
                     }
                 }
             } else {
-                Throw new \Exception('Invalid parameters "'
-                    . print_r(func_get_args(), true) . '" for '
-                    . __FUNCTION__);
+                Throw new \Exception(
+                    sprintf(
+                        self::systemTranslate('Invalid parameters "%s"'),
+                        print_r(func_get_args(), true)
+                    )
+                );
             }
             if ($throwException) {
                 Throw new \Exception(
-                    'Setting-value for key: "' . $key . '" not found.');
+                    sprintf(
+                        self::systemTranslate('Setting-value for key: "%s" not found.'),
+                        $key
+                    )
+                );
             } else {
                 return null;
             }
@@ -717,17 +736,24 @@ namespace Aomebo
                 }
 
             } else {
-                Throw new \Exception('Invalid parameters "'
-                    . print_r(func_get_args(), true) . '" for '
-                    . __FUNCTION__);
+                Throw new \Exception(
+                    sprintf(
+                        self::systemTranslate('Invalid parameters "%s"'),
+                        print_r(func_get_args(), true)
+                    )
+                );
             }
 
             if (sizeof($failedKeys) > 0) {
                 Throw new \Exception(
-                    'Failed to save settings. Failed with saving keys: "'
-                    . implode(',', $failedKeys) . '"');
+                    sprintf(
+                        self::systemTranslate(
+                            'Failed to save settings. Failed with saving keys: "%s"'),
+                            implode(',', $failedKeys) . '"'
+                    )
+                );
             } else {
-                Throw new \Exception('Failed to save settings.');
+                Throw new \Exception(self::systemTranslate('Failed to save settings.'));
             }
 
         }
@@ -772,7 +798,12 @@ namespace Aomebo
                     {
                         if (!isset($d[$e])) {
                             Throw new \Exception(
-                                'Setting-value for key: "' . $key . '" not found.');
+                                sprintf(
+                                    self::systemTranslate(
+                                        'Setting-value for key: "%s" not found.'),
+                                        $key
+                                )
+                            );
                         } else {
                             $d = & $d[$e];
                         }
@@ -786,7 +817,8 @@ namespace Aomebo
                 }
             } else {
                 Throw new \Exception(
-                    'Invalid parameters for ' . __FUNCTION__);
+                    self::systemTranslate('Invalid parameters')
+                );
             }
             return false;
         }
@@ -901,9 +933,16 @@ namespace Aomebo
                                 && $value[self::STRUCTURE_KEY_REQUIRED] !== false)
                             ) {
                                 Throw new \Exception(
-                                    'Configuration value for "' . $key . '.' . self::STRUCTURE_KEY_REQUIRED
-                                        . '" has invalid value "' . $value[self::STRUCTURE_KEY_REQUIRED] . '"'
-                                        . '" in structure node: "' . print_r($node, true) . '"');
+                                    sprintf(
+                                        self::systemTranslate(
+                                            'Configuration value for "%s" '
+                                            . 'has invalid value "%s" '
+                                            . 'in structure node: "%s"'),
+                                        $key . '.' . self::STRUCTURE_KEY_REQUIRED,
+                                        $value[self::STRUCTURE_KEY_REQUIRED],
+                                        print_r($node, true) . '"'
+                                    )
+                                );      
                             }
                             $status = ($status && $defStatus);
                         }
@@ -997,11 +1036,18 @@ namespace Aomebo
                                         $structureValue[self::STRUCTURE_KEY_DEFAULT];
                                 } else if (!empty($structureValue[self::STRUCTURE_KEY_REQUIRED])) {
                                     Throw new \Exception(
-                                        'No value defined in external or internal configuration for '
-                                        . 'required value "' . $structureKey . '" in structure node: "'
-                                        . print_r($structureNode, true) . '" and configuration node: "'
-                                        . (is_array($configurationNode) ? print_r($configurationNode, true)
-                                        : (isset($configurationNode) ? $configurationNode : 'null')) . '"');
+                                        sprintf(
+                                            self::systemTranslate(
+                                                'No value defined in external or internal configuration for '
+                                                . 'required value "%s" in structure node: "%s" '
+                                                . 'and configuration node: "%s"'
+                                            ),
+                                            $structureKey,
+                                            print_r($structureNode, true),
+                                            (is_array($configurationNode) ? print_r($configurationNode, true)
+                                                : (isset($configurationNode) ? $configurationNode : 'null'))
+                                        )
+                                    );
                                 }
                             }
                         }
@@ -1042,8 +1088,13 @@ namespace Aomebo
                 }
             } else {
                 Throw new \Exception(
-                    'Invalid parameters: "' . print_r(func_get_args(), true)
-                    . '" for function "' . __FUNCTION__);
+                    sprintf(
+                        self::systemTranslate(
+                            'Invalid parameters: "%s"'
+                        ),
+                        print_r(func_get_args(), true)
+                    )
+                );
             }
             return false;
         }
@@ -1165,7 +1216,9 @@ namespace Aomebo
                 if ($spyc->load()) {
                     self::$_spycLoaded = false;
                 } else {
-                    Throw new \Exception('Failed to load Spyc Library');
+                    Throw new \Exception(
+                        self::systemTranslate('Failed to load Spyc Library'
+                    ));
                 }
             }
             if (file_exists($path)) {
@@ -1258,7 +1311,8 @@ namespace Aomebo
                 if ($spyc->load()) {
                     self::$_spycLoaded = false;
                 } else {
-                    Throw new \Exception('Failed to load Spyc Library');
+                    Throw new \Exception(
+                        self::systemTranslate('Failed to load Spyc Library'));
                 }
             }
 

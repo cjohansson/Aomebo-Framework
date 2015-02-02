@@ -136,8 +136,10 @@ namespace Modules\Setup
                 );
             }
 
-            $view = \Aomebo\Template\Adapters\Smarty\Adapter::getInstance();
-            $view->setFile('views/view.tpl');
+            $view = \Aomebo\Template\Adapters\Twig\Adapter::getInstance();
+            $view->setFile('views/view.twig');
+            // $view = \Aomebo\Template\Adapters\Smarty\Adapter::getInstance();
+            // $view->setFile('views/view.tpl');
             $view->attachVariable('tests', $tests);
             $view->attachVariable('submit', $submit);
             $view->attachVariable('locales',

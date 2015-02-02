@@ -163,10 +163,8 @@ namespace Aomebo\Template\Adapters\Smarty
         public function parse()
         {
 
-            $interpreterEngine =
-                \Aomebo\Interpreter\Engine::getInstance();
             $useOb =
-                $interpreterEngine->getOutputBufferingFlag();
+                \Aomebo\Interpreter\Engine::getOutputBufferingFlag();
 
             if ($useOb) {
                 ob_start();
@@ -180,8 +178,6 @@ namespace Aomebo\Template\Adapters\Smarty
                 $output = '';
             }
 
-            unset($this->_directory, $this->_filename);
-
             return $output;
 
         }
@@ -193,9 +189,7 @@ namespace Aomebo\Template\Adapters\Smarty
          */
         public function free()
         {
-            unset($this->_smarty,
-                $this->_directory,
-                $this->_filename);
+            unset($this->_smarty, $this->_directory, $this->_filename);
         }
 
         /**
@@ -246,6 +240,8 @@ namespace Aomebo\Template\Adapters\Smarty
                 $this->_smarty->setCacheDir($this->_getCacheLocation());
             } else {
                 $this->_smarty->caching = 0;
+                $this->_smarty->cache_lifetime = 0;
+                $this->_smarty->compile_check = false;
             }
             
             $this->_smarty->setTemplateDir($directory);

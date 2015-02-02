@@ -135,12 +135,12 @@ namespace Aomebo\Associatives
                     $stylesheet
                 );
                 if (!isset($response)) {
-                    Throw new \Exception('RegExp was invalid.');
+                    Throw new \Exception(self::systemTranslate('RegExp was invalid'));
                 } else {
                     return $response;
                 }
             } else {
-                Throw new \Exception('Invalid parameters');
+                Throw new \Exception(self::systemTranslate('Invalid parameters'));
             }
         }
 
@@ -167,12 +167,12 @@ namespace Aomebo\Associatives
                     $javascript
                 );
                 if (!isset($response)) {
-                    Throw new \Exception('RegExp was invalid.');
+                    Throw new \Exception(self::systemTranslate('RegExp was invalid'));
                 } else {
                     return $response;
                 }
             } else {
-                Throw new \Exception('Invalid parameters');
+                Throw new \Exception(self::systemTranslate('Invalid parameters'));
             }
         }
 

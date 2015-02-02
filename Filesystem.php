@@ -328,8 +328,13 @@ namespace Aomebo
 
                             if ($throwExceptions) {
                                 Throw new \Exception(
-                                    'Could not make directory: '
-                                        . '"' . $absolutePath . '"');
+                                    sprintf(
+                                        self::systemTranslate(
+                                            'Could not make directory: "%s"'
+                                        ),
+                                        $absolutePath
+                                    )
+                                );
                             }
 
                         }
@@ -338,8 +343,11 @@ namespace Aomebo
 
                         if ($throwExceptions) {
                             Throw new \Exception(
-                                'Could not make directory: '
-                                    . '"' . $absolutePath . '"');
+                                sprintf(
+                                    self::systemTranslate('Could not make directory: "%s"'),
+                                    $absolutePath
+                                )
+                            );
                         }
 
                     }
@@ -353,11 +361,12 @@ namespace Aomebo
         /**
          * @param string $absolutePath
          * @param bool [$throwException = true]
+         * @param bool [$lock = true]
          * @return string
          * @throws \Exception
          */
         public static function getFileContents($absolutePath,
-            $throwException = true)
+            $throwException = true, $lock = true)
         {
 
             if (!\Aomebo\Configuration::isLoaded()
@@ -366,20 +375,30 @@ namespace Aomebo
                 if (!empty($absolutePath)
                     && file_exists($absolutePath)
                 ) {
-
-                    if ($file = fopen($absolutePath, 'ab+')) {
-                        if (flock($file, LOCK_SH)) {
-                            $fileContents =
-                                file_get_contents($absolutePath);
-                            flock($file, LOCK_UN);
-                            fclose($file);
-                            return $fileContents;
-                        }
+                    
+                    if (!\Aomebo\Application::isWritingnabled()) {
+                        $lock = false;
                     }
-
+                    
+                    if ($lock) {
+                        if ($file = fopen($absolutePath, 'br')) {
+                            if (flock($file, LOCK_SH)) {
+                                $fileContents =
+                                    file_get_contents($absolutePath);
+                                flock($file, LOCK_UN);
+                                fclose($file);
+                                return $fileContents;
+                            }
+                        }
+                    } else {
+                        return file_get_contents($absolutePath);
+                    }
+                    
                 } else {
                     if ($throwException) {
-                        Throw new \Exception('Invalid parameters');
+                        Throw new \Exception(
+                            self::systemTranslate('Invalid parameters')
+                        );
                     }
                 }
             }
@@ -611,9 +630,16 @@ namespace Aomebo
                 if (!chmod($path, self::_getChmod())) {
                     if ($throwExceptions) {
                         Throw new \Exception(
-                            'Could not set chmod for file "' . $path . '" '
-                            . 'to oct: ' . self::$_chmodOct
-                            . ', dec: ' . self::$_chmodDec);
+                            sprintf(
+                                self::systemTranslate(
+                                    'Could not set chmod for file "%s" '
+                                    . 'to oct: "%s", dec: "%s"'
+                                ),
+                                $path,
+                                self::$_chmodOct,
+                                self::$_chmodDec
+                            )
+                        );     
                     }
                 }
 
@@ -631,9 +657,15 @@ namespace Aomebo
                     if (!chown($path, $ownerUserName)) {
                         if ($throwExceptions) {
                             Throw new \Exception(
-                                'Could not set owner username to "' . $ownerUserName
-                                    . '" for "' . $path . '" in ' . __FUNCTION__
-                                    . ' in ' . __FILE__);
+                                sprintf(
+                                    self::systemTranslate(
+                                        'Could not set owner username to "%s" '
+                                        . 'for "%s"'
+                                    ),
+                                    $ownerUserName,
+                                    $path
+                                )
+                            );
                         }
                     }
 
@@ -641,9 +673,15 @@ namespace Aomebo
                     if (!chgrp($path, $ownerGroupName)) {
                         if ($throwExceptions) {
                             Throw new \Exception(
-                                'Could not set owner groupnamegroup permissions to "' . $ownerGroupName
-                                    . '" for "' . $path . '" in ' . __FUNCTION__
-                                    . ' in ' . __FILE__);
+                                sprintf(
+                                    self::systemTranslate(
+                                        'Could not set owner groupnamegroup permissions to "%s" '
+                                        . 'for "%s"'
+                                    ),
+                                    $ownerGroupName,
+                                    $path
+                                )
+                            );
                         }
                     }
 
@@ -741,7 +779,9 @@ namespace Aomebo
                         $defaultChmod = '0' . $defaultChmod;
                     } else if (strlen($defaultChmod) != 4) {
                         Throw new \Exception(
-                            'Invalid default file mode specified in configuration');
+                            self::systemTranslate(
+                                'Invalid default file mode specified in configuration')
+                        );
                     }
 
                     self::$_chmodOct = $defaultChmod;

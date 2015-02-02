@@ -209,9 +209,6 @@ namespace Aomebo\Associatives
                     }
                 }
 
-            } else {
-                Throw new \Exception(
-                    __CLASS__ . ' is instanciated more than one time');
             }
             self::_flagThisConstructed();
         }
@@ -339,9 +336,15 @@ namespace Aomebo\Associatives
                         return true;
 
                     } else {
-                        Throw new \Exception('Could not find dependency "'
-                        . $dependencyCisName . '" in "' . print_r(self::$_dependencies, true) . '" '
-                        . 'from string "' . $dependent->name . '".');
+                        Throw new \Exception(
+                            sprintf(
+                                self::systemTranslate('Could not find dependency '
+                                    . '"%s" in "%s" from strong "%s"'),
+                                $dependencyCisName,
+                                print_r(self::$_dependencies, true),
+                                $dependent->name
+                            )
+                        );
                     }
                 }
             }
@@ -547,9 +550,15 @@ namespace Aomebo\Associatives
                                                                 $fileCacheHash .= '0';
 
                                                                 Throw new \Exception(
-                                                                    'Invalid session requirement method specified! '
-                                                                    . 'Could not find ' . $sessionAuthFunctionName
-                                                                    . ' in ' . $sessionBlock . ', ' . __FILE__);
+                                                                    sprintf(
+                                                                        self::systemTranslate(
+                                                                            'Invalid session requirement method specified! '
+                                                                            . 'Could not find %s in %s'
+                                                                        ),
+                                                                        $sessionAuthFunctionName,
+                                                                        $sessionBlock
+                                                                    )
+                                                                );
                                                             }
                                                         }
                                                     }
@@ -945,8 +954,13 @@ namespace Aomebo\Associatives
 
                                     } catch (\Exception $e) {
                                         Throw new \Exception(
-                                            'Could not parse dependency ("'
-                                            . $e->getMessage() . '")');
+                                            sprintf(
+                                                self::systemTranslate(
+                                                    'Could not parse dependency ("%s")'
+                                                ),
+                                                $e->getMessage()
+                                            )
+                                        );
                                     }
                                 }
 
