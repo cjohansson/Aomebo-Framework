@@ -376,22 +376,19 @@ namespace Aomebo
                     && file_exists($absolutePath)
                 ) {
                     
-                    if (!\Aomebo\Application::isWritingnabled()) {
-                        $lock = false;
-                    }
-                    
-                    if ($lock) {
-                        if ($file = fopen($absolutePath, 'br')) {
-                            if (flock($file, LOCK_SH)) {
-                                $fileContents =
-                                    file_get_contents($absolutePath);
-                                flock($file, LOCK_UN);
-                                fclose($file);
-                                return $fileContents;
-                            }
-                        }
-                    } else {
+                    try {
                         return file_get_contents($absolutePath);
+                    } catch (\Exception $e) {
+                        if ($throwException) {
+                            Throw new \Exception(
+                                sprintf(
+                                    self::systemTranslate('Opening file: "%s" returned error: "%s"'),
+                                    $absolutePath,
+                                    $e->getMessage()
+                                )
+                            );
+                        }
+                        return false;
                     }
                     
                 } else {
