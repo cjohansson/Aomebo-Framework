@@ -166,8 +166,9 @@ namespace Aomebo\Template\Adapters\Twig
                 new \Twig_SimpleFunction('__', '__')
             );
             
-            // Add extension from Aomebo
+            // Add extension from Aomebo directory
             $dir = $this->_getFunctionsAomeboDirectory();
+            
             if ($items = scandir($dir)) {
                 foreach ($items as $item)
                 {
@@ -185,8 +186,27 @@ namespace Aomebo\Template\Adapters\Twig
                     }
                 }
             }
-            
-            // TODO: Add extensions from site here
+
+            // Add extensions from site directory
+            $dir = $this->_getFunctionsSiteDirectory();
+
+            if ($items = scandir($dir)) {
+                foreach ($items as $item)
+                {
+                    if (stripos($item, '.php') !== false) {
+
+                        require_once($dir . '/' . $item);
+
+                        $className = '\\Aomebo\\Template\\Adapters\\Twig\\'
+                            . basename($item);
+
+                        if (class_exists($className, false)) {
+                            $this->_twig->addExtension(new $className());
+                        }
+
+                    }
+                }
+            }
             
         }
 
