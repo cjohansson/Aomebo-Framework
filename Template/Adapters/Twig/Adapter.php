@@ -117,6 +117,7 @@ namespace Aomebo\Template\Adapters\Twig
             
             if (\Aomebo\Application::isWritingnabled()) {
                 $parameters['cache'] = $this->_getCacheLocation();
+                $parameters['auto_reload'] = true;
             } else {
                 $parameters['cache'] = false;
             }
