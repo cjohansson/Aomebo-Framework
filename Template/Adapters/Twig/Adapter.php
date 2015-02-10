@@ -161,11 +161,6 @@ namespace Aomebo\Template\Adapters\Twig
         protected function _attachDefaultFunctions()
         {
             
-            $this->_twig->addFunction(
-                '__', 
-                new \Twig_SimpleFunction('__', '__')
-            );
-            
             // Add extension from Aomebo directory
             $dir = $this->_getFunctionsAomeboDirectory();
             
@@ -177,7 +172,7 @@ namespace Aomebo\Template\Adapters\Twig
                         require_once($dir . '/' . $item);
                         
                         $className = '\\Aomebo\\Template\\Adapters\\Twig\\' 
-                            . basename($item);
+                            . basename($item, '.php');
                         
                         if (class_exists($className, false)) {
                             $this->_twig->addExtension(new $className());
@@ -198,7 +193,7 @@ namespace Aomebo\Template\Adapters\Twig
                         require_once($dir . '/' . $item);
 
                         $className = '\\Aomebo\\Template\\Adapters\\Twig\\'
-                            . basename($item);
+                            . basename($item, '.php');
 
                         if (class_exists($className, false)) {
                             $this->_twig->addExtension(new $className());

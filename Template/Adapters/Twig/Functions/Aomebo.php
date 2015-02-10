@@ -49,6 +49,10 @@ namespace Aomebo\Template\Adapters\Twig
                     'url',
                     array( & $this, 'url')
                 ),
+                new \Twig_SimpleFunction(
+                    '__', 
+                    '__'
+                ),
             );
         }
 
