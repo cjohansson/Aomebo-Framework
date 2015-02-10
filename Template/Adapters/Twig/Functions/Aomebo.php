@@ -53,6 +53,10 @@ namespace Aomebo\Template\Adapters\Twig
                     '__', 
                     '__'
                 ),
+                new \Twig_SimpleFunction(
+                    'sprintf',
+                    'sprintf'
+                ),
             );
         }
 
