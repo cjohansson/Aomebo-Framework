@@ -33,7 +33,7 @@ namespace Aomebo\Database\Adapters\PDO
         /**
          * Holds the native resultset object.
          *
-         * @var \mysqli_result|null
+         * @var \PDOStatement|null
          */
         protected $_resultset;
 
@@ -47,7 +47,7 @@ namespace Aomebo\Database\Adapters\PDO
             if (isset($this->_resultset)
                 && !$this->isUnbuffered()
             ) {
-                return $this->_resultset->num_rows;
+                return $this->_resultset->rowCount();
             } else {
                 return false;
             }
@@ -59,7 +59,7 @@ namespace Aomebo\Database\Adapters\PDO
         public function free()
         {
             if (isset($this->_resultset)) {
-                $this->_resultset->free();
+                $this->_resultset->closeCursor();
             }
         }
 
@@ -76,7 +76,9 @@ namespace Aomebo\Database\Adapters\PDO
                     $result = array();
                     for ($i = 0; $i < $limit; $i++)
                     {
-                        if ($row = $this->_resultset->fetch_assoc()) {
+                        if ($row = $this->_resultset->fetch(
+                            \PDO::FETCH_ASSOC
+                        )) {
                             $result[] = $row;
                         } else {
                             break;
@@ -84,7 +86,9 @@ namespace Aomebo\Database\Adapters\PDO
                     }
                     return $result;
                 } else {
-                    return $this->_resultset->fetch_assoc();
+                    return $this->_resultset->fetch(
+                        \PDO::FETCH_ASSOC
+                    );
                 }
             } else {
                 return false;
@@ -116,7 +120,7 @@ namespace Aomebo\Database\Adapters\PDO
             if (isset($this->_resultset)) {
                 $total = array();
                 while ($row =
-                    $this->_resultset->fetch_assoc()
+                    $this->_resultset->fetch(\PDO::FETCH_ASSOC)
                 ) {
                     $total[] = $row;
                 }
@@ -154,7 +158,9 @@ namespace Aomebo\Database\Adapters\PDO
                     $result = array();
                     for ($i = 0; $i < $limit; $i++)
                     {
-                        if ($row = $this->_resultset->fetch_object()) {
+                        if ($row = $this->_resultset->fetch(
+                            \PDO::FETCH_OBJ)
+                        ) {
                             $result[] = $row;
                         } else {
                             break;
@@ -162,7 +168,7 @@ namespace Aomebo\Database\Adapters\PDO
                     }
                     return $result;
                 } else {
-                    return $this->_resultset->fetch_object();
+                    return $this->_resultset->fetch(\PDO::FETCH_OBJ);
                 }
             } else {
                 return false;
@@ -195,7 +201,7 @@ namespace Aomebo\Database\Adapters\PDO
             if (isset($this->_resultset)) {
                 $total = array();
                 while ($row =
-                    $this->_resultset->fetch_object()
+                    $this->_resultset->fetch(\PDO::FETCH_OBJ)
                 ) {
                     $total[] = $row;
                 }
@@ -227,7 +233,7 @@ namespace Aomebo\Database\Adapters\PDO
         protected function _isValid($resultset)
         {
             if (isset($resultset)
-                && is_a($resultset, '\MySQLi_Result')
+                && is_a($resultset, '\PDOStatement')
             )  {
                 return true;
             }

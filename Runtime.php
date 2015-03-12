@@ -782,14 +782,25 @@ namespace Aomebo
                 self::_flagThisConstructed();
 
             }
-
+            
+            
+            $autoInstallSpecificRuntimes = \Aomebo\Configuration::getSetting(
+                'application,auto-install specific runtimes');
+            
             /**
              * Installable interface.
+             * 
+             * Only on page or shell requests, if auto-install for all is enabled 
+             * or auto-install for this module specifically.
              *
              * @see \Aomebo\Runtime\Installable
              */
             if ($isPageOrShellRequest
                 && $this->isInstallable()
+                && (\Aomebo\Configuration::getSetting(
+                    'application,auto-install all runtimes')
+                    || !empty($autoInstallSpecificRuntimes[$this->getField('name')])
+                )
             ) {
 
                 /** @var \Aomebo\Runtime\Installable $ref */

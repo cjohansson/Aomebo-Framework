@@ -1726,8 +1726,13 @@ namespace Aomebo\Interpreter
          */
         private static function _loadPages()
         {
+            
+            // TODO: 1. Here load .php pages first and .xml pages after if php version doesn't exist
+            // TODO: 2. If a .xml is loaded convert it into .php and delete it
+            
             $pagesDir = self::_getPagesDirectory();
             $fileSuffix = self::$_adapter->getFileSuffix();
+            
             if ($files = scandir($pagesDir))
             {
                 foreach ($files as $file)

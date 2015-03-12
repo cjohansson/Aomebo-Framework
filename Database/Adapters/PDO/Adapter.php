@@ -70,6 +70,7 @@ namespace Aomebo\Database\Adapters\PDO
                     if (isset($this->_con)) {
     
                         $this->_connected = true;
+                        $this->_selectedDatabase = true;
                         return true;
                         
                     }
@@ -263,6 +264,14 @@ namespace Aomebo\Database\Adapters\PDO
             } else {
                 return '';
             }
+        }
+
+        /**
+         * @return \PDO|null
+         */
+        public function getNativeObject()
+        {
+            return (isset($this->_con) ? $this->_con : null);
         }
 
         /**
@@ -1011,6 +1020,6 @@ namespace Aomebo\Database\Adapters\PDO
             return $sql;
 
         }
-
+        
     }
 }

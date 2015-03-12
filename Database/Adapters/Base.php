@@ -43,7 +43,12 @@ namespace Aomebo\Database\Adapters
         /**
          * @var bool
          */
-        protected $_connected;
+        protected $_connected = false;
+
+        /**
+         * @var bool
+         */
+        protected $_selectedDatabase = false;
 
         /**
          * @abstract
@@ -245,6 +250,27 @@ namespace Aomebo\Database\Adapters
          * @return bool
          */
         abstract public function rollbackTransaction();
+
+        /**
+         * @return mixed|null
+         */
+        abstract public function getNativeObject();
+
+        /**
+         * @return bool
+         */
+        public function isConnected()
+        {
+            return (!empty($this->_connected));
+        }
+
+        /**
+         * @return bool
+         */
+        public function hasSelectedDatabase()
+        {
+            return (!empty($this->_selectedDatabase));
+        }
 
         /**
          * @internal

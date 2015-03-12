@@ -102,7 +102,6 @@ namespace Modules\Setup
                     }
 
                     if (!empty($submit['database_host'])
-                        && !empty($submit['database_database'])
                         && !empty($submit['database_username'])
                         && !empty($submit['database_type'])
                     ) {

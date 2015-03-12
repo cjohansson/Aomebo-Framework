@@ -270,6 +270,17 @@ namespace Aomebo\Database
         }
 
         /**
+         * @static
+         * @return mixed|null
+         */
+        public static function getNativeAdapter()
+        {
+            self::_instanciate();            
+            return (isset(self::$_object) ? 
+                self::$_object->getNativeObject() : null);
+        }
+
+        /**
          * @internal
          * @static
          * @param string $databaseName
@@ -1380,26 +1391,31 @@ namespace Aomebo\Database
 
                     \Aomebo\Trigger\System::processTriggers(
                         \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_CONNECTION_SUCCESS);
-
-                    if (!self::_isInstalled($database)) {
-                        if (!self::_install($database)) {
-                            
-                            if ($throwExceptionOnFailure) {
-                                Throw new \Exception(
-                                    sprintf(
-                                        self::systemTranslate('Could not install database in %s in %s'),
-                                        __METHOD__,
-                                        __FILE__
-                                    )
-                                );
+                        
+                    if (\Aomebo\Configuration::getSetting('database,create database')) {
+                        if (!self::_isInstalled($database)) {
+                            if (!self::_install($database)) {
+                                
+                                if ($throwExceptionOnFailure) {
+                                    Throw new \Exception(
+                                        sprintf(
+                                            self::systemTranslate('Could not install database in %s in %s'),
+                                            __METHOD__,
+                                            __FILE__
+                                        )
+                                    );
+                                }
+                                
+                                return false;
+                                
                             }
-                            
-                            return false;
-                            
                         }
                     }
-
-                    if (!empty($select)) {
+                    
+                    // Should select and database is not selected already?
+                    if (!empty($select)
+                        && !$dbObject->hasSelectedDatabase()
+                    ) {
                         if (self::selectDatabase($database)) {
 
                             \Aomebo\Trigger\System::processTriggers(

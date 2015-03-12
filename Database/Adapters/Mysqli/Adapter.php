@@ -64,6 +64,14 @@ namespace Aomebo\Database\Adapters\Mysqli
         }
 
         /**
+         * @return \mysqli|null
+         */
+        public function getNativeObject()
+        {
+            return (isset($this->_con) ? $this->_con : null);
+        }
+
+        /**
          * @param string $tableName
          * @return bool|int
          * @throws \Exception
@@ -273,6 +281,7 @@ namespace Aomebo\Database\Adapters\Mysqli
         {
             if (!empty($databaseName)) {
                 if ($this->_con->select_db($databaseName)) {
+                    $this->_selectedDatabase = true;
                     return true;
                 }
             } else {
@@ -974,6 +983,6 @@ namespace Aomebo\Database\Adapters\Mysqli
             return $sql;
 
         }
-
+        
     }
 }
