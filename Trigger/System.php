@@ -116,6 +116,11 @@ namespace Aomebo\Trigger
         const TRIGGER_KEY_INTERNATIONALIZATION_TRANSLATE = 'af_internationalization_translate';
 
         /**
+         * @var string
+         */
+        const TRIGGER_KEY_SYSTEM_AUTOINSTALL = 'af_system_autoinstall';
+
+        /**
          * @static
          * @var array
          */

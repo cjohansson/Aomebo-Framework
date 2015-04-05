@@ -31,13 +31,20 @@ namespace Aomebo\Database
     {
 
         /**
+         * @internal
+         * @static
+         * @var string
+         */
+        private static $_database = '';
+
+        /**
          * This flag indicates whether we are connected to database.
          *
          * @internal
          * @static
          * @var bool|null
          */
-        private static $_connected = false;
+        private static $_connected = null;
 
         /**
          * This is a pointer to our default database adapter.
@@ -122,7 +129,7 @@ namespace Aomebo\Database
          * @static
          * @var bool|null
          */
-        private static $_useDatabase = null;
+        private static $_useDatabase = false;
 
         /**
          * @internal
@@ -175,8 +182,6 @@ namespace Aomebo\Database
                     && !empty($databaseConfiguration['database'])
                 ) {
 
-                    self::$_useDatabase = true;
-
                     if (self::connect(
                         $databaseConfiguration['host'],
                         $databaseConfiguration['username'],
@@ -209,11 +214,20 @@ namespace Aomebo\Database
 
                 } else {
 
-                    self::$_useDatabase = false;
                     self::_flagThisConstructed();
 
                 }
             }
+        }
+
+        /**
+         * @static
+         * @return bool|string
+         */
+        public static function getDatabase()
+        {
+            return (!empty(self::$_database) ? 
+                self::$_database : false);
         }
 
         /**
@@ -1312,6 +1326,8 @@ namespace Aomebo\Database
         {
 
             self::$_connected = false;
+            self::$_useDatabase = false;
+            self::$_database = false;
             self::$_replaceKeys = array();
             self::$_replaceValues = array();
             self::$_replaceKeysList = array();
@@ -1384,6 +1400,7 @@ namespace Aomebo\Database
                     }
 
                     self::$_connected = true;
+                    self::$_useDatabase = true;
 
                     $dbObject->setHandleCharset(
                         \Aomebo\Configuration::getSetting(
@@ -1417,7 +1434,8 @@ namespace Aomebo\Database
                         && !$dbObject->hasSelectedDatabase()
                     ) {
                         if (self::selectDatabase($database)) {
-
+                            
+                            self::$_database = $database;
                             \Aomebo\Trigger\System::processTriggers(
                                 \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_SELECTED_SUCCESS);
 
@@ -1438,6 +1456,8 @@ namespace Aomebo\Database
                             return false;
                             
                         }
+                    } else if ($dbObject->hasSelectedDatabase()) {
+                        self::$_database = $dbObject->getSelectedDatabase();
                     }
 
                     return true;

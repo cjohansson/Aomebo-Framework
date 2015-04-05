@@ -99,18 +99,23 @@ namespace Aomebo\Indexing
 
                 parent::__construct();
 
+                \Aomebo\Trigger\System::addTrigger(
+                    \Aomebo\Trigger\System::TRIGGER_KEY_SYSTEM_AUTOINSTALL,
+                    array($this, 'autoInstall')
+                );
+
                 if (\Aomebo\Database\Adapter::useDatabase()) {
 
                     if (\Aomebo\Configuration::getSetting(
                         'output,indexing enabled')
                     ) {
-                        if (!self::$_enabled =
-                            $this->_isInstalled()
-                        ) {
-                            $this->_install();
-                            self::$_enabled =
-                                $this->_isInstalled();
+                        
+                        if (\Aomebo\Application::shouldAutoInstall()) {
+                            self::autoInstall();
+                        } else {
+                            self::$_enabled = true;
                         }
+                        
                     }
 
                 }
@@ -118,6 +123,22 @@ namespace Aomebo\Indexing
                 $this->_flagThisConstructed();
 
             }
+        }
+
+        /**
+         * 
+         */
+        public static function autoInstall()
+        {
+            if (\Aomebo\Database\Adapter::useDatabase()) {
+                if (!self::$_enabled =
+                    self::isInstalled()
+                ) {
+                    self::install();
+                    self::$_enabled = self::isInstalled();
+                }
+            }
+            return true;
         }
 
         /**
@@ -904,10 +925,10 @@ namespace Aomebo\Indexing
         }
 
         /**
-         * @internal
+         * @static
          * @return bool
          */
-        private function _isInstalled()
+        public static function isInstalled()
         {
 
             $saveContent =
@@ -922,10 +943,10 @@ namespace Aomebo\Indexing
         }
 
         /**
-         * @internal
+         * @static
          * @throws \Exception
          */
-        private function _install()
+        public static function install()
         {
 
             $databaseAdapter =
@@ -983,11 +1004,17 @@ namespace Aomebo\Indexing
 
                 } else {
                     Throw new \Exception(
-                        'Aomebo Indexing Engine supports only MyISAM or InnoDB as storage engines');
+                        self::systemTranslate(
+                            'Aomebo Indexing Engine supports only MyISAM or InnoDB as storage engines'
+                        )
+                    );
                 }
             } else {
                 Throw new \Exception(
-                    'Aomebo Indexing Engine supports only MySQL or MySQLi as database adapter');
+                    self::systemTranslate(
+                        'Aomebo Indexing Engine supports only MySQL or MySQLi as database adapter'
+                    )
+                );
             }
         }
 

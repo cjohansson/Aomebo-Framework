@@ -158,13 +158,6 @@ namespace Aomebo\Session
          * @static
          * @var bool
          */
-        private static $_clientSentInvalidCookie;
-
-        /**
-         * @internal
-         * @static
-         * @var bool
-         */
         private static $_clientSentCookie;
 
         /**
@@ -177,15 +170,15 @@ namespace Aomebo\Session
 
                 parent::__construct();
 
-                if (\Aomebo\Database\Adapter::useDatabase()) {
+                \Aomebo\Trigger\System::addTrigger(
+                    \Aomebo\Trigger\System::TRIGGER_KEY_SYSTEM_AUTOINSTALL,
+                    array($this, 'autoInstall')
+                );
 
-                    if (!self::_isInstalled())
-                    {
-                        self::_install();
-                        if (!self::_isInstalled()) {
-                            Throw new \Exception(
-                                'Could not install ' . __CLASS__ . ' in ' . __FILE__);
-                        }
+                if (\Aomebo\Database\Adapter::useDatabase()) {
+                    
+                    if (\Aomebo\Application::shouldAutoInstall()) {
+                        self::autoInstall();
                     }
 
                     self::_loadRootSession();
@@ -203,6 +196,28 @@ namespace Aomebo\Session
 
             }
 
+        }
+
+        /**
+         * @static
+         * @throws \Exception
+         */
+        public static function autoInstall()
+        {
+            if (\Aomebo\Database\Adapter::useDatabase()) {
+                if (!self::isInstalled())
+                {
+                    self::install();
+                    if (!self::isInstalled()) {
+                        Throw new \Exception(
+                            self::systemTranslate(
+                                'Could not install Session Handler'
+                            )
+                        );
+                    }
+                }
+            }
+            return true;
         }
 
         /**
@@ -1267,7 +1282,7 @@ namespace Aomebo\Session
          * @static
          * @return bool
          */
-        private static function _isInstalled()
+        public static function isInstalled()
         {
             if (\Aomebo\Database\Adapter::tableExists(
                     self::getTableSessions())
@@ -1288,7 +1303,7 @@ namespace Aomebo\Session
          * @throws \Exception
          * @return bool
          */
-        private static function _install()
+        public static function install()
         {
 
             $databaseAdapter =

@@ -59,6 +59,12 @@ $configuration = array(
                     'required' => true,
                     'default' => false,
                 ),
+            'auto-install' =>
+                array(
+                    'type' => 'boolean',
+                    'required' => true,
+                    'default' => false,
+                ),      
         ),
     'indexing' =>
         array(

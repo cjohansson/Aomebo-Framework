@@ -1,8 +1,6 @@
 {#*
-  * view
-  *
-  * @var array $submit
-  * @var array $tests
+  * @var array submit
+  * @var array tests
  **#}
 <div id="{{ F }}">
     <h2>{{  __('Configuration') }}</h2>
@@ -64,6 +62,12 @@
                     <label for="database_dsn">{{  __('DSN') }}</label>
                 </p>
                 <input type="text" name="database_dsn" id="database_dsn" value="{{ submit.database_dsn|escape }}" />
+            </div>
+            <div>
+                <label for="database_autoinstall">
+                    <input type="checkbox" name="database_autoinstall" id="database_autoinstall" value="1" {% if not submit.database_autoinstall is empty %}checked="checked" {% endif %}/>
+                    {{ __('Perform system auto-install') }}
+                </label>
             </div>
         </fieldset>
         <div>

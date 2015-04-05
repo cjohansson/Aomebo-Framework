@@ -84,8 +84,8 @@ namespace Aomebo\Database\Adapters\Mysqli
                     . 'WHERE `table_schema` = {database} AND `table_name` = {table}',
                     array(
                         'database' => array(
-                            'value' => \Aomebo\Configuration::getSetting(
-                                'database,database'),
+                            'value' => \Aomebo\Database\Adapter::
+                                getSelectedDatabase(),
                             'quoted' => true,
                         ),
                         'table' => array(
@@ -319,12 +319,13 @@ namespace Aomebo\Database\Adapters\Mysqli
         {
             if (!empty($tableName)) {
                 if ($resultset = \Aomebo\Database\Adapter::query(
-                    'SELECT COUNT(*) AS `count` FROM `information_schema`.`tables` '
-                    . 'WHERE `table_schema` = {database} AND `table_name` = {table}',
+                    'SELECT COUNT(*) AS `count` FROM `information_schema`.`TABLES` '
+                    . 'WHERE `TABLE_SCHEMA` = {database} '
+                    . 'AND `TABLE_NAME` = {table}',
                     array(
                         'database' => array(
-                            'value' => \Aomebo\Configuration::getSetting(
-                                'database,database'),
+                            'value' => \Aomebo\Database\Adapter::
+                            getSelectedDatabase(),
                             'quoted' => true,
                         ),
                         'table' => array(

@@ -69,10 +69,15 @@ namespace Aomebo\Cache
 
                 parent::__construct();
 
-                if (\Aomebo\Database\Adapter::useDatabaseAndIsConnected()) {
+                \Aomebo\Trigger\System::addTrigger(
+                    \Aomebo\Trigger\System::TRIGGER_KEY_SYSTEM_AUTOINSTALL,
+                    array($this, 'autoInstall')
+                );
 
-                    if (!self::isInstalled()) {
-                        self::install();
+                if (\Aomebo\Database\Adapter::useDatabaseAndIsConnected()) {
+                                        
+                    if (\Aomebo\Application::shouldAutoInstall()) {
+                        self::autoInstall();
                     }
 
                     self::garbageCollect();
@@ -82,6 +87,19 @@ namespace Aomebo\Cache
                 self::_flagThisConstructed();
 
             }
+        }
+
+        /**
+         * @static
+         */
+        public static function autoInstall()
+        {
+            if (\Aomebo\Database\Adapter::useDatabaseAndIsConnected()) {
+                if (!self::isInstalled()) {
+                    self::install();
+                }
+            }
+            return true;
         }
 
         /**
@@ -158,7 +176,7 @@ namespace Aomebo\Cache
         }
 
         /**
-         *
+         * @static
          */
         public static function install()
         {

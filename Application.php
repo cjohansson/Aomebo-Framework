@@ -571,6 +571,27 @@ namespace Aomebo
 
         /**
          * @static
+         * @return bool|int|null|string
+         */
+        public static function autoInstall()
+        {
+            return \Aomebo\Trigger\System::processTriggers(
+                \Aomebo\Trigger\System::TRIGGER_KEY_SYSTEM_AUTOINSTALL
+            );
+        }
+
+        /**
+         * @static
+         * @return bool
+         */
+        public static function shouldAutoInstall()
+        {
+            return \Aomebo\Configuration::getSetting(
+                'framework,auto-install');
+        }
+
+        /**
+         * @static
          * @param int [$limit = 0]
          * @return array
          */

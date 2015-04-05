@@ -92,6 +92,7 @@ namespace Modules\Setup
                     'database_dsn' => self::_getPostLiterals('database_dsn'),
                     'action' => self::_getPostLiterals('action'),
                     'locale' => self::_getPostLiterals('localization_locale'),
+                    'database_autoinstall' => self::_getPostBoolean('database_autoinstall'),
                 );
                 
                 if ($submit['action'] == 'Test') {
@@ -100,7 +101,7 @@ namespace Modules\Setup
                     if (!empty($submit['locale'])) {
                         $tests[] = $this->_testLocale($submit['locale']);
                     }
-
+                    
                     if (!empty($submit['database_host'])
                         && !empty($submit['database_username'])
                         && !empty($submit['database_type'])
@@ -111,7 +112,8 @@ namespace Modules\Setup
                             $submit['database_username'],
                             $submit['database_password'],
                             $submit['database_type'],
-                            $submit['database_dsn'])
+                            $submit['database_dsn'],
+                            $submit['database_autoinstall'])
                         ) {
                             $tests[] = $dbTests;
                         }
@@ -132,6 +134,7 @@ namespace Modules\Setup
                     'database_type' => '',
                     'database_dsn' => '',
                     'locale' => '',
+                    'database_autoinstall' => '',
                 );
             }
 
@@ -219,11 +222,12 @@ namespace Modules\Setup
          * @param string [$password = '']
          * @param string $type
          * @param string [$dsn = '']
+         * @param bool [$autoInstall = false]
          * @throws \Exception
          * @return string
          */
         private function _testDatabase($host, $database, $username, 
-            $password = '', $type, $dsn = '')
+            $password = '', $type, $dsn = '', $autoInstall = false)
         {
 
             $databaseTests = '';
@@ -263,6 +267,16 @@ namespace Modules\Setup
                 // TODO: Should verify escaping here
 
                 $table = \Modules\Setup\Table::getInstance();
+                
+                if (!empty($autoInstall)) {
+                    if (\Aomebo\Application::autoInstall()) {
+                        $databaseTests .= 
+                            __('System successfully auto-installed. ');
+                    } else {
+                        $databaseTests .=
+                            __('System failed to auto-install. ');
+                    }
+                }
 
                 if ($table->exists()) {
 
