@@ -69,6 +69,12 @@
                     {{ __('Perform system auto-install') }}
                 </label>
             </div>
+            <div>
+                <label for="database_autouninstall">
+                    <input type="checkbox" name="database_autouninstall" id="database_autouninstall" value="1" {% if not submit.database_autouninstall is empty %}checked="checked" {% endif %}/>
+                    {{ __('Perform system auto-uninstall') }}
+                </label>
+            </div>
         </fieldset>
         <div>
             <input type="submit" name="action" value="Test" />

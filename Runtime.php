@@ -289,6 +289,22 @@ namespace Aomebo
         /**
          * @return bool
          */
+        public function isUninstallable()
+        {
+            return (is_a($this, '\Aomebo\Runtime\Uninstallable'));
+        }
+
+        /**
+         * @return bool
+         */
+        public function isUpdatable()
+        {
+            return (is_a($this, '\Aomebo\Runtime\Updatable'));
+        }
+
+        /**
+         * @return bool
+         */
         public function isInitializable()
         {
             return (is_a($this, '\Aomebo\Runtime\Initializable'));
@@ -667,12 +683,8 @@ namespace Aomebo
 
                             if ($route->isValid()) {
                                 \Aomebo\Dispatcher\System::addRoute($route);
-                            } else {
-                                $false = false;
                             }
 
-                        } else {
-                            $false = false;
                         }
 
                     }
@@ -795,6 +807,22 @@ namespace Aomebo
              *
              * @see \Aomebo\Runtime\Installable
              */
+
+            \Aomebo\Trigger\System::addTrigger(
+                \Aomebo\Trigger\System::TRIGGER_KEY_SYSTEM_AUTOINSTALL,
+                array($this, 'autoInstall')
+            );
+
+            \Aomebo\Trigger\System::addTrigger(
+                \Aomebo\Trigger\System::TRIGGER_KEY_SYSTEM_AUTOUNINSTALL,
+                array($this, 'autoUninstall')
+            );
+
+            \Aomebo\Trigger\System::addTrigger(
+                \Aomebo\Trigger\System::TRIGGER_KEY_SYSTEM_AUTOUPDATE,
+                array($this, 'autoUpdate')
+            );
+             
             if ($isPageOrShellRequest
                 && $this->isInstallable()
                 && (\Aomebo\Configuration::getSetting(
@@ -802,17 +830,7 @@ namespace Aomebo
                     || !empty($autoInstallSpecificRuntimes[$this->getField('name')])
                 )
             ) {
-
-                /** @var \Aomebo\Runtime\Installable $ref */
-                $ref = & $this;
-
-                if (!$ref->isInstalled()) {
-                    $ref->install();
-                    if (!$ref->isInstalled()) {
-                        $this->setEnabled(false);
-                    }
-                }
-
+                $this->autoInstall(); 
             }
 
             if ($this->isEnabled()) {
@@ -907,6 +925,67 @@ namespace Aomebo
         }
 
         /**
+         * 
+         */
+        public function autoInstall()
+        {
+
+            if ($this->isInstallable()) {
+            
+                /** @var \Aomebo\Runtime\Installable $ref */
+                $ref = & $this;
+    
+                if (!$ref->isInstalled()) {
+                    $ref->install();
+                    if (!$ref->isInstalled()) {
+                        $this->setEnabled(false);
+                    }
+                }
+                
+            }
+
+        }
+
+        /**
+         *
+         */
+        public function autoUninstall()
+        {
+
+            if ($this->isUninstallable()) {
+
+                /** @var \Aomebo\Runtime\Uninstallable $ref */
+                $ref = & $this;
+
+                if (!$ref->isUninstalled()) {
+                    $ref->uninstall();
+                }
+
+            }
+
+        }
+
+        /**
+         *
+         */
+        public function autoUpdate()
+        {
+
+            if ($this->isUpdatable()) {
+
+                /** @var \Aomebo\Runtime\Updatable $ref */
+                $ref = & $this;
+
+                if (!$ref->isUpdated()) {
+                    $ref->update();
+                }
+
+            }
+
+        }
+
+
+        /**
          * @internal
          * @return string
          */
@@ -918,21 +997,6 @@ namespace Aomebo
                 }
             }
             return '';
-        }
-
-        /**
-         *
-         */
-        public function getAssociativesPublicDirectory()
-        {
-
-        }
-
-        /**
-         *
-         */
-        public function getAssociativesSiteDirectory()
-        {
         }
 
         /**

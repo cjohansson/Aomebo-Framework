@@ -582,6 +582,28 @@ namespace Aomebo
 
         /**
          * @static
+         * @return bool|int|null|string
+         */
+        public static function autoUninstall()
+        {
+            return \Aomebo\Trigger\System::processTriggers(
+                \Aomebo\Trigger\System::TRIGGER_KEY_SYSTEM_AUTOUNINSTALL
+            );
+        }
+
+        /**
+         * @static
+         * @return bool|int|null|string
+         */
+        public static function autoUpdate()
+        {
+            return \Aomebo\Trigger\System::processTriggers(
+                \Aomebo\Trigger\System::TRIGGER_KEY_SYSTEM_AUTOUPDATE
+            );
+        }
+
+        /**
+         * @static
          * @return bool
          */
         public static function shouldAutoInstall()

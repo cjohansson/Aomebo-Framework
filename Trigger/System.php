@@ -121,6 +121,16 @@ namespace Aomebo\Trigger
         const TRIGGER_KEY_SYSTEM_AUTOINSTALL = 'af_system_autoinstall';
 
         /**
+         * @var string
+         */
+        const TRIGGER_KEY_SYSTEM_AUTOUNINSTALL = 'af_system_autouninstall';
+
+        /**
+         * @var string
+         */
+        const TRIGGER_KEY_SYSTEM_AUTOUPDATE = 'af_system_autoupdate';
+
+        /**
          * @static
          * @var array
          */
@@ -162,7 +172,9 @@ namespace Aomebo\Trigger
                     }
                     if (isset(self::$_triggers[$key][$priority])) {
                         $priority--;
-                        while (isset(self::$_triggers[$priority])) {
+                        while (isset(
+                            self::$_triggers[$key][$priority])
+                        ) {
                             $priority--;
                         }
                     }

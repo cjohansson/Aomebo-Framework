@@ -93,6 +93,7 @@ namespace Modules\Setup
                     'action' => self::_getPostLiterals('action'),
                     'locale' => self::_getPostLiterals('localization_locale'),
                     'database_autoinstall' => self::_getPostBoolean('database_autoinstall'),
+                    'database_autouninstall' => self::_getPostBoolean('database_autouninstall'),
                 );
                 
                 if ($submit['action'] == 'Test') {
@@ -113,7 +114,8 @@ namespace Modules\Setup
                             $submit['database_password'],
                             $submit['database_type'],
                             $submit['database_dsn'],
-                            $submit['database_autoinstall'])
+                            $submit['database_autoinstall'],
+                            $submit['database_autouninstall'])
                         ) {
                             $tests[] = $dbTests;
                         }
@@ -135,6 +137,7 @@ namespace Modules\Setup
                     'database_dsn' => '',
                     'locale' => '',
                     'database_autoinstall' => '',
+                    'database_autouninstall' => '',
                 );
             }
 
@@ -223,11 +226,13 @@ namespace Modules\Setup
          * @param string $type
          * @param string [$dsn = '']
          * @param bool [$autoInstall = false]
+         * @param bool [$autoUninstall = false]
          * @throws \Exception
          * @return string
          */
         private function _testDatabase($host, $database, $username, 
-            $password = '', $type, $dsn = '', $autoInstall = false)
+            $password = '', $type, $dsn = '', $autoInstall = false,
+            $autoUninstall = false)
         {
 
             $databaseTests = '';
@@ -275,6 +280,16 @@ namespace Modules\Setup
                     } else {
                         $databaseTests .=
                             __('System failed to auto-install. ');
+                    }
+                }
+                
+                if (!empty($autoUninstall)) {
+                    if (\Aomebo\Application::autoUninstall()) {
+                        $databaseTests .=
+                            __('System successfully auto-uninstalled. ');
+                    } else {
+                        $databaseTests .=
+                            __('System failed to auto-uninstall. ');
                     }
                 }
 

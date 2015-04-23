@@ -233,8 +233,6 @@ namespace Aomebo\Dispatcher
                             $this->reference = \Aomebo\Singleton::getInstance(
                                 $unserializedData['reference']
                             );
-                        } else {
-                            $false = false;
                         }
                     }
                 }
@@ -290,8 +288,8 @@ namespace Aomebo\Dispatcher
 
                     // Does the RegExp match URL?
                     if (preg_match(
-                        $this->regexp,
-                        $url) === 1
+                            $this->regexp,
+                            $url) === 1
                     ) {
                         return true;
                     }
@@ -315,9 +313,9 @@ namespace Aomebo\Dispatcher
 
                     // Doesn't the RegExp match current uri?
                     if (@preg_match(
-                        $this->regexp,
-                        $queryString,
-                        $this->_matches) === false
+                            $this->regexp,
+                            $queryString,
+                            $this->_matches) === false
                     ) {
                         $this->_isMatching = false;
                         if ($this->_matches === false) {
@@ -327,7 +325,7 @@ namespace Aomebo\Dispatcher
                         }
                     } else if (isset($this->_matches)
                         && (sizeof($this->_matches) - 1) ==
-                            sizeof($this->keys)
+                        sizeof($this->keys)
                     ) {
                         $this->_isMatching = true;
                     }
@@ -345,9 +343,10 @@ namespace Aomebo\Dispatcher
          * @param string|null [$page = null]
          * @param bool [$clear = false]
          * @return string
+         * @todo Implement clear parameter
          */
         public function buildUri($uriParameters = null,
-            $page = null, $clear = false)
+             $page = null, $clear = false)
         {
 
             $uri = \Aomebo\Dispatcher\System::getPageBaseUri();
@@ -415,7 +414,7 @@ namespace Aomebo\Dispatcher
                             $this->keyToValues[$keyName] = $value;
                             $this->values[] = $value;
 
-                        // Otherwise - error
+                            // Otherwise - error
                         } else {
                             Throw new \Exception(
                                 'Could not find match with index "'
