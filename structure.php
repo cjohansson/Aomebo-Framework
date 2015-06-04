@@ -72,7 +72,7 @@ $configuration = array(
                 array(
                     'type' => 'boolean',
                     'required' => true,
-                    'default' => true,
+                    'default' => false,
                 ),
         ),
     'indexing' =>
