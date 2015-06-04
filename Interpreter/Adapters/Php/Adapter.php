@@ -38,70 +38,29 @@ namespace Aomebo\Interpreter\Adapters\Php
 
         /**
          * @param string $data
-         * @return string
-         */
-        public function applyDefaultEncapsulation($data)
-        {
-            return $data;
-        }
-
-        /**
-         * @param string $data
          * @throws \Exception
          * @return array|bool|mixed
          */
         public function process($data)
         {
-            if (function_exists('simplexml_load_string')
-                && function_exists('libxml_use_internal_errors')
-            ) {
-                libxml_use_internal_errors(true);
-                if ($processed = simplexml_load_string($data,
-                    null, LIBXML_NOEMPTYTAG)
+            try {
+                
+                $page = array();
+                
+                eval('?>' . $data);
+
+                if (isset($page)
+                    && is_array($page)
+                    && sizeof($page) > 0
                 ) {
-                    $array = $this->_toArray($processed);
-                    return $array;
-                } else {
-                    Throw new \Exception('The xml is malformed ('
-                        . print_r(libxml_get_errors(), true) . ').');
+                    return $page;
                 }
+                
+            } catch (\Exception $e) {}
+            if (isset($page)) {
+                return $page;
             }
             return false;
-        }
-
-        /**
-         * @internal
-         * @param \object $data
-         * @return array|string
-         */
-        private function _toArray($data)
-        {
-            if ($data->count() > 0)
-            {
-                $children = $data->children();
-                $array = array();
-
-                foreach ($children as $child)
-                {
-
-                    /** @var \SimpleXmlElement $child */
-
-                    if ($child->count() > 0) {
-                        $array[] = array(
-                            parent::FIELD_KEY => $child->getName(),
-                            parent::FIELD_VALUE => $this->_toArray($child),
-                        );
-                    } else {
-                        $array[] = array(
-                            parent::FIELD_KEY => $child->getName(),
-                            parent::FIELD_VALUE => strval($child),
-                        );
-                    }
-                }
-                return $array;
-            } else {
-                return strval($data);
-            }
         }
 
     }

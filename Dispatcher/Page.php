@@ -25,11 +25,45 @@ namespace Aomebo\Dispatcher
 {
 
     /**
+     * Every page will be stored as a Page object in memory. 
+     * The page object holds information about page-name and page-contents.
+     * 
+     * The page object can be executed to start the execution of it's contents.
+     * 
      * @todo Implement this
      */
     class Page extends \Aomebo\Base
     {
 
+        /**
+         * @internal
+         * @var string
+         */
+        private $_name = '';
+
+        /**
+         * @internal
+         * @var array()
+         */
+        private $_contents = array();
+
+        /**
+         * @param string [$name = '']
+         * @param array [$contents = array()]
+         */
+        public function __construct($name = '', $contents = array())
+        {
+            $this->_name = $name;
+            $this->_contents = $contents;
+        }
+
+        /**
+         * @todo Implement this
+         */
+        public function execute()
+        {
+        }
+        
     }
 
 }

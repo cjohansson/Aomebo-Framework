@@ -154,7 +154,7 @@ namespace Aomebo\Indexing
         }
 
         /**
-         * This method does the indexing of a page.
+         * This method does the dynamic indexing of a page.
          *
          * @static
          */
@@ -195,7 +195,8 @@ namespace Aomebo\Indexing
 
                 \Aomebo\Dispatcher\System::setHttpHeaderField(
                     'Cache-Control',
-                    'public, no-store, no-cache, must-revalidate');
+                    'public, no-store, no-cache, must-revalidate'
+                );
 
                 if ((\Aomebo\Dispatcher\System::isHttpGetRequest()
                     || \Aomebo\Dispatcher\System::isHttpHeadRequest())
@@ -209,15 +210,18 @@ namespace Aomebo\Indexing
 
                 \Aomebo\Dispatcher\System::setHttpHeaderField(
                     'Last-Modified',
-                    date('D, d M Y H:i:s e', time()));
+                    date('D, d M Y H:i:s e', time())
+                );
                 \Aomebo\Dispatcher\System::setHttpHeaderField(
                     'Cache-Control',
-                    'private, no-store, no-cache, must-revalidate');
+                    'private, no-store, no-cache, must-revalidate'
+                );
             }
 
             \Aomebo\Dispatcher\System::setHttpHeaderField(
                 'Pragma',
-                'no-store, no-cache');
+                'no-store, no-cache'
+            );
 
         }
 

@@ -54,12 +54,6 @@ namespace Aomebo\Interpreter\Adapters
         abstract public function process($data);
 
         /**
-         * @param string $string
-         * @return string
-         */
-        abstract public function applyDefaultEncapsulation($string);
-
-        /**
          * @return bool|string
          */
         public function getFileSuffix()

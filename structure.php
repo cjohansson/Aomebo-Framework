@@ -66,6 +66,15 @@ $configuration = array(
                     'default' => false,
                 ),      
         ),
+    'interpreter' => 
+        array(
+            'convert_xml_pages_to_php' => 
+                array(
+                    'type' => 'boolean',
+                    'required' => true,
+                    'default' => true,
+                ),
+        ),
     'indexing' =>
         array(
             'expiration days' =>

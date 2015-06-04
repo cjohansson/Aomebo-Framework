@@ -230,9 +230,16 @@ namespace Aomebo\Interpreter
         /**
          * @internal
          * @static
-         * @var null|\Aomebo\Interpreter\Adapters\Base
+         * @var array
          */
-        private static $_adapter = null;
+        private static $_adapters = array();
+
+        /**
+         * @internal
+         * @static
+         * @var array
+         */
+        private static $_pageSuffixToAdapter = array();
 
         /**
          * @throws \Exception
@@ -244,7 +251,7 @@ namespace Aomebo\Interpreter
                 parent::__construct();
                 self::_checkMode();
                 self::_loadRuntimes();
-                self::_loadAdapter();
+                self::_loadAdapters();
                 self::_loadPages();
                 self::_flagThisConstructed();
 
@@ -757,7 +764,7 @@ namespace Aomebo\Interpreter
         }
 
         /**
-         * This method interprets whole tree.
+         * This method interprets the whole tree of page-contents.
          *
          * @static
          * @throws \Exception
@@ -1352,8 +1359,6 @@ namespace Aomebo\Interpreter
             try
             {
 
-                $fileSuffix = self::$_adapter->getFileSuffix();
-
                 if ($dispatcher::isAjaxRequest()) {
 
                     $pageData = $dispatcher->getCurrentAjaxPageData();
@@ -1387,8 +1392,16 @@ namespace Aomebo\Interpreter
                             $cacheKey,
                             \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
                         );
-
-                        if ($processed = self::_processPageData($pageData)) {
+                        
+                        /**
+                         * Only allow Xml page-data to be sent using AJAX because otherwise we would be possible 
+                         * to send php via ajax which would be evaluated.
+                         */
+                        
+                        if ($processed = self::_processPageData(
+                            $pageData, 
+                            self::$_adapters['Xml'])
+                        ) {
 
                             \Aomebo\Cache\System::saveCache(
                                 $cacheParameters,
@@ -1418,7 +1431,7 @@ namespace Aomebo\Interpreter
 
                         return self::_processPage(
                             $page,
-                            self::_getPagesDirectory() . $page . $fileSuffix
+                            self::_getPagesDirectory() . $page
                         );
 
                     } else {
@@ -1455,63 +1468,80 @@ namespace Aomebo\Interpreter
          * @return array
          * @throws \Exception
          */
-        private static function _processPage($page, $path,
-             $returnContents = true)
+        private static function _processPage($page, $path, 
+            $returnContents = true)
         {
             if (!empty($page)
                 && !empty($path)
             ) {
                 if (!isset(self::$_pagesToData[$page])) {
-                    if (file_exists($path)) {
 
-                        /* Cache parameters, unique per:
-                         * - Normal request
-                         * - Page
-                         */
-                        $cacheParameters =
-                            'InterpreterEngine/NormalRequest/' . md5($page);
+                    /* Cache parameters, unique per:
+                     * - Normal request
+                     * - Page
+                     */
+                    $cacheParameters =
+                        'InterpreterEngine/NormalRequest/' . md5($page);
 
-                        /**
-                         * Cache key, unique per:
-                         * - Page last modified
-                         * - This file modified
-                         */
-                        $cacheKey = md5('page_mod='
-                            . \Aomebo\Filesystem::getFileLastModificationTime(
-                            $path, false) . '&sys_mod=' . filemtime(__FILE__)
+                    /**
+                     * Cache key, unique per:
+                     * - Page last modified
+                     * - This file modified
+                     */
+                    $cacheKey = md5('page_mod='
+                        . \Aomebo\Filesystem::getFileLastModificationTime(
+                        $path, false) . '&sys_mod=' . filemtime(__FILE__)
+                    );
+
+                    if (\Aomebo\Cache\System::cacheExists(
+                        $cacheParameters,
+                        $cacheKey)
+                    ) {
+
+                        self::$_pagesToData[$page] = \Aomebo\Cache\System::loadCache(
+                            $cacheParameters,
+                            $cacheKey,
+                            \Aomebo\Cache\System::FORMAT_JSON_ENCODE
                         );
 
-                        if (\Aomebo\Cache\System::cacheExists(
+                        return (!empty($returnContents) ?
+                            self::$_pagesToData[$page] : true);
+
+                    } else {
+
+                        \Aomebo\Cache\System::clearCache(
                             $cacheParameters,
-                            $cacheKey)
+                            null,
+                            \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
+                        );
+                        
+                        $pageData = '';
+                        $adapter = null;
+                        foreach (self::$_adapters as $adapter)
+                        {
+                            
+                            /** @var \Aomebo\Interpreter\Adapters\Base $adapter */
+                            
+                            if (file_exists($path . $adapter->getFileSuffix())) {
+                                $pageData = \Aomebo\Filesystem::getFileContents(
+                                    $path  . $adapter->getFileSuffix());
+                                break;
+                            }
+                        }
+                        
+                        if (isset($adapter)
+                            && !empty($pageData)
                         ) {
-
-                            self::$_pagesToData[$page] = \Aomebo\Cache\System::loadCache(
-                                $cacheParameters,
-                                $cacheKey,
-                                \Aomebo\Cache\System::FORMAT_JSON_ENCODE
-                            );
-
-                            return (!empty($returnContents) ?
-                                self::$_pagesToData[$page] : true);
-
-                        } else {
-
-                            \Aomebo\Cache\System::clearCache(
-                                $cacheParameters,
-                                null,
-                                \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
-                            );
-
-                            $pageData = \Aomebo\Filesystem::getFileContents($path);
-
-                            if ($processed = self::_processPageData($pageData)) {
+                            if ($processed = self::_processPageData(
+                                $pageData, $adapter)
+                            ) {
 
                                 \Aomebo\Cache\System::saveCache(
                                     $cacheParameters,
                                     $cacheKey,
                                     $processed,
-                                    \Aomebo\Cache\System::FORMAT_JSON_ENCODE);
+                                    \Aomebo\Cache\System::FORMAT_JSON_ENCODE
+                                );
 
                                 self::$_pagesToData[$page] = $processed;
 
@@ -1527,14 +1557,14 @@ namespace Aomebo\Interpreter
                                     )
                                 );
                             }
+                        } else {
+                            Throw new \Exception(
+                                sprintf(
+                                    self::systemTranslate('Failed to find page "%s" with any adapter'),
+                                    $page
+                                )
+                            );
                         }
-                    } else {
-                        Throw new \Exception(
-                            sprintf(
-                                self::systemTranslate('Could not find requested page at "%s"'),
-                                $path
-                            )
-                        );
                     }
                 } else {
                     if (!empty($returnContents)) {
@@ -1648,24 +1678,35 @@ namespace Aomebo\Interpreter
          * @internal
          * @static
          * @param string $pageData
+         * @param \Aomebo\Interpreter\Adapters\Base $adapter
          * @return string|null
+         * @throws \Exception
          */
-        private static function _processPageData($pageData)
+        private static function _processPageData($pageData, $adapter)
         {
-
-            try {
-
-                if (method_exists(self::$_adapter, 'applyDefaultEncapsulation')) {
-                    $pageData = self::$_adapter->applyDefaultEncapsulation($pageData);
-                }
-
-                if ($processed = self::$_adapter->process($pageData)) {
-
-                    return $processed;
-
-                }
-
-            } catch (\Exception $e) {}
+            
+            if (isset($adapter)
+                && !empty($pageData)
+            ) {
+                try {
+                    
+                    if (method_exists(
+                        $adapter, 
+                        'applyDefaultEncapsulation')
+                    ) {
+                        $pageData = $adapter->applyDefaultEncapsulation($pageData);
+                    }
+    
+                    if ($processed = 
+                        $adapter->process($pageData)
+                    ) {
+                        return $processed;    
+                    }
+    
+                } catch (\Exception $e) {}
+            } else {
+                Throw new \Exception(self::systemTranslate('Invalid parameters'));
+            }
 
             return null;
 
@@ -1688,30 +1729,43 @@ namespace Aomebo\Interpreter
          * @static
          * @throws \Exception
          */
-        private static function _loadAdapter()
+        private static function _loadAdapters()
         {
+            
+            self::$_adapters = array();
+            
+            if ($items = scandir(__DIR__ . '/Adapters/')) {
+                foreach ($items as $item)
+                {
+                    if ($item != '.'
+                        && $item != '..'
+                        && is_dir(__DIR__ . '/Adapters/' . $item)
+                    ) {
+                        $adapter = $item;
+                        try {
 
-            if (!isset(self::$_adapter)) {
+                            $className = '\\Aomebo\\Interpreter\\Adapters\\'
+                                . $adapter . '\\Adapter';
 
-                try {
+                            /** @var \Aomebo\Interpreter\Adapters\Base $adapterClass  */
+                            $adapterClass = new $className();
 
-                    $defaultAdapter =
-                        \Aomebo\Configuration::getSetting('dispatch,page adapter');
-                    $className = '\\Aomebo\\Interpreter\\Adapters\\'
-                        . $defaultAdapter . '\\Adapter';
+                            self::$_adapters[$adapter] = $adapterClass;
+                            
+                            if ($suffix = $adapterClass->getFileSuffix()) {
+                                self::$_pageSuffixToAdapter[$suffix] = 
+                                    & self::$_adapters[$adapter]; 
+                            }
 
-                    /** @var \Aomebo\Interpreter\Adapters\Base $adapter  */
-                    $adapter = new $className();
-
-                    self::$_adapter = $adapter;
-
-                } catch (\Exception $e) {
-                    Throw new \Exception(
-                        sprintf(
-                            self::systemTranslate('Failed to load default adapter: Error: %s'),
-                            $e->getMessage()
-                        )
-                    );
+                        } catch (\Exception $e) {
+                            Throw new \Exception(
+                                sprintf(
+                                    self::systemTranslate('Failed to load default adapter: Error: %s'),
+                                    $e->getMessage()
+                                )
+                            );
+                        }
+                    }
                 }
             }
         }
@@ -1727,11 +1781,7 @@ namespace Aomebo\Interpreter
         private static function _loadPages()
         {
             
-            // TODO: 1. Here load .php pages first and .xml pages after if php version doesn't exist
-            // TODO: 2. If a .xml is loaded convert it into .php and delete it
-            
             $pagesDir = self::_getPagesDirectory();
-            $fileSuffix = self::$_adapter->getFileSuffix();
             
             if ($files = scandir($pagesDir))
             {
@@ -1741,22 +1791,43 @@ namespace Aomebo\Interpreter
                         && $file != '.'
                         && $file != '..'
                     ) {
-                        if (strtolower(substr($file, -strlen($fileSuffix))) ==
-                            strtolower($fileSuffix)
-                        ) {
+                        
+                        $pageSuffix = 
+                            strtolower(substr($file, strpos($file, '.')));
+                        
+                        if (isset(self::$_pageSuffixToAdapter[$pageSuffix])) {
 
-                            $page = substr($file, 0, -strlen($fileSuffix));
+                            $page = substr($file, 0, -strlen($pageSuffix));
 
                             self::_processPage(
                                 $page,
-                                $pagesDir . $file,
-                                false
+                                $pagesDir . $page,
+                                false,
+                                $pageSuffix
                             );
 
                             self::_processPageRuntimes(
                                 $page,
-                                $pagesDir . $file
+                                $pagesDir . $page
                             );
+                            
+                            if ($pageSuffix == '.xml'
+                                && \Aomebo\Configuration::getSetting(
+                                    'interpreter,convert_xml_pages_to_php')
+                            ) {
+                                if (self::_convertToPhpPage(
+                                    $page, 
+                                    $pagesDir,
+                                    self::$_pagesToData[$page])
+                                ) {
+                                    
+                                    // Delete XML file here because php pages are faster
+                                    \Aomebo\Filesystem::deleteFile(
+                                        $pagesDir . $file
+                                    );
+                                    
+                                }
+                            }
 
                         }
                     }
@@ -1768,11 +1839,36 @@ namespace Aomebo\Interpreter
         }
 
         /**
+         * @internal
+         * @static
+         * @param string $name
+         * @param string $dir
+         * @param array $data
+         * @return bool
+         * @throws \Exception
+         */
+        private static function _convertToPhpPage($name, $dir, $data)
+        {
+            if (!empty($name)
+                && !empty($dir)
+                && isset($data)
+            ) {
+                if (\Aomebo\Configuration::savePhpConfigurationFile(
+                    $dir . $name . '.php',
+                    $data,
+                    'page')
+                ) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /**
          * This method builts a list of runtimes loaded.
          *
          * @internal
          * @static
-         * @throws \Exception
          */
         private static function _loadRuntimes()
         {

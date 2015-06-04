@@ -94,6 +94,7 @@ namespace Modules\Setup
                     'locale' => self::_getPostLiterals('localization_locale'),
                     'database_autoinstall' => self::_getPostBoolean('database_autoinstall'),
                     'database_autouninstall' => self::_getPostBoolean('database_autouninstall'),
+                    'database_autoupdate' => self::_getPostBoolean('database_autoupdate'),
                 );
                 
                 if ($submit['action'] == 'Test') {
@@ -115,7 +116,8 @@ namespace Modules\Setup
                             $submit['database_type'],
                             $submit['database_dsn'],
                             $submit['database_autoinstall'],
-                            $submit['database_autouninstall'])
+                            $submit['database_autouninstall'],
+                            $submit['database_autoupdate'])
                         ) {
                             $tests[] = $dbTests;
                         }
@@ -138,6 +140,7 @@ namespace Modules\Setup
                     'locale' => '',
                     'database_autoinstall' => '',
                     'database_autouninstall' => '',
+                    'database_autoupdate' => '',
                 );
             }
 
@@ -227,12 +230,13 @@ namespace Modules\Setup
          * @param string [$dsn = '']
          * @param bool [$autoInstall = false]
          * @param bool [$autoUninstall = false]
+         * @param bool [$autoUpdate = false]
          * @throws \Exception
          * @return string
          */
         private function _testDatabase($host, $database, $username, 
             $password = '', $type, $dsn = '', $autoInstall = false,
-            $autoUninstall = false)
+            $autoUninstall = false, $autoUpdate = false)
         {
 
             $databaseTests = '';
@@ -290,6 +294,16 @@ namespace Modules\Setup
                     } else {
                         $databaseTests .=
                             __('System failed to auto-uninstall. ');
+                    }
+                }
+
+                if (!empty($autoUpdate)) {
+                    if (\Aomebo\Application::autoUpdate()) {
+                        $databaseTests .=
+                            __('System successfully auto-updated. ');
+                    } else {
+                        $databaseTests .=
+                            __('System failed to auto-update. ');
                     }
                 }
 
