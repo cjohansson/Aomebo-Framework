@@ -1883,8 +1883,7 @@ namespace Aomebo\Interpreter
                             $contents = self::_processPage(
                                 $page,
                                 $pagesDir . $page,
-                                false,
-                                $pageSuffix
+                                true
                             );
 
                             self::_processPageRuntimes(
