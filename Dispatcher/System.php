@@ -285,6 +285,34 @@ namespace Aomebo\Dispatcher
         private static $_pageRoutes = array();
 
         /**
+         * @internal
+         * @static
+         * @var array
+         */
+        private static $_uriToPages = array();
+
+        /**
+         * @internal
+         * @static
+         * @var bool
+         */
+        private static $_loadedUriPagesConfiguration = false;
+
+        /**
+         * @internal
+         * @static
+         * @var array
+         */
+        private static $_pagesToUri = array();
+
+        /**
+         * @internal
+         * @static
+         * @var bool
+         */
+        private static $_loadedPagesUriConfiguration = false;
+
+        /**
          *
          */
         public function __construct()
@@ -1513,12 +1541,26 @@ namespace Aomebo\Dispatcher
                         $uri .= 'index.php?mode=' . $associativesMode . '&amp;at=js&amp;';
                     }
                 } else {
-                    Throw new \Exception('Invalid associatives type for'
-                        . ' array "' . print_r($getArray, true) . '".');
+                    Throw new \Exception(
+                        sprintf(
+                            self::systemTranslate(
+                                'Invalid associatives type for'
+                                . ' array "%s".'
+                            ),
+                            print_r($getArray, true)
+                        )
+                    );
                 }
             } else {
-                Throw new \Exception('Invalid associatives type for'
-                    . ' array "' . print_r($getArray, true) . '".');
+                Throw new \Exception(
+                    sprintf(
+                        self::systemTranslate(
+                            'Invalid associatives type for'
+                            . ' array "%s".'
+                        ),
+                        print_r($getArray, true)
+                    )
+                );
             }
             if ((isset($getArray['ds'])
                 && !empty($getArray['ds']))
@@ -1539,9 +1581,15 @@ namespace Aomebo\Dispatcher
                     }
                 }
             } else {
-                Throw new \Exception('No resources for '
-                    . 'associative array "' . print_r($getArray, true)
-                    . '".');
+                Throw new \Exception(
+                    sprintf(
+                        self::systemTranslate(
+                            'No resources for '
+                            . 'associative array "%s".'
+                        ),
+                        print_r($getArray, true)
+                    )
+                );
             }
             if (isset($getArray['cv'])
                 && !empty($getArray['cv'])
@@ -1571,8 +1619,7 @@ namespace Aomebo\Dispatcher
          */
         public static function uriExistsForPage($page)
         {
-            $pagesToUri =
-                \Aomebo\Configuration::getSetting('dispatch,pages uri');
+            $pagesToUri = self::getPagesToUri();
             return isset($pagesToUri[$page]);
         }
 
@@ -1584,13 +1631,16 @@ namespace Aomebo\Dispatcher
          */
         public static function getUriForPage($page)
         {
-            $pagesToUri =
-                \Aomebo\Configuration::getSetting('dispatch,pages uri');
+            $pagesToUri = self::getPagesToUri();
             if (isset($pagesToUri[$page])) {
                 return $pagesToUri[$page];
             } else {
                 Throw new \Exception(
-                    'Not uri exists for page "' . $page . '"');
+                    sprintf(
+                        self::systemTranslate('No uri exists for page "%s".'),
+                        $page
+                    )
+                );
             }
         }
 
@@ -1717,7 +1767,12 @@ namespace Aomebo\Dispatcher
                         $usingPage = true;
 
                     } else {
-                        Throw new \Exception('Invalid page "' . $page . '" specified');
+                        Throw new \Exception(
+                            sprintf(
+                                self::systemTranslate('Invalid page "%s" specified.'),
+                                $page
+                            )
+                        );
                     }
 
                 }
@@ -2377,6 +2432,158 @@ namespace Aomebo\Dispatcher
         }
 
         /**
+         * @static
+         * @param array $pagesToUris
+         * @param bool [$replaceExisting = false]
+         * @return bool
+         * @throws \Exception
+         */
+        public static function addPagesToUris($pagesToUris,
+            $replaceExisting = false)
+        {
+            if (isset($pagesToUris)
+                && is_array($pagesToUris)
+                && sizeof($pagesToUris) > 0
+            ) {
+                $accBool = true;
+                foreach ($pagesToUris as $page => $uri)
+                {
+                    $accBool = ($accBool
+                        && self::addPageToUri($page, $uri, $replaceExisting)
+                    );
+                }
+                return $accBool;
+            } else {
+                Throw new \Exception(self::systemTranslate('Invalid parameters'));
+            }
+        }
+
+        /**
+         * @static
+         * @param array $urisToPages
+         * @param bool [$replaceExisting = false]
+         * @return bool
+         * @throws \Exception
+         */
+        public static function addUrisToPages($urisToPages, 
+            $replaceExisting = false)
+        {
+            if (isset($urisToPages)
+                && is_array($urisToPages)
+                && sizeof($urisToPages) > 0
+            ) {
+                $accBool = true;
+                foreach ($urisToPages as $uri => $page)
+                {
+                    $accBool = ($accBool 
+                        && self::addUriToPage($uri, $page, $replaceExisting)
+                    );
+                }
+                return $accBool;
+            } else {
+                Throw new \Exception(self::systemTranslate('Invalid parameters'));
+            }
+        }
+
+        /**
+         * @static
+         * @param string $uri
+         * @param string $page
+         * @param bool [$replaceExisting = false]
+         * @return bool
+         * @throws \Exception
+         */
+        public static function addUriToPage($uri, $page, 
+            $replaceExisting = false)
+        {
+            if (!empty($uri)
+                && !empty($page)
+            ) {
+                if (!isset(self::$_uriToPages[$uri])
+                    || !empty($replaceExisting)
+                ) {
+                    self::$_uriToPages[$uri] = $page;
+                    return true;
+                }
+            } else {
+                Throw new \Exception(self::systemTranslate('Invalid parameters'));
+            }
+            return false;
+        }
+
+        /**
+         * @static
+         * @param string $page
+         * @param string $uri
+         * @param bool [$replaceExisting = false]
+         * @return bool
+         * @throws \Exception
+         */
+        public static function addPageToUri($page, $uri,
+            $replaceExisting = false)
+        {
+            if (!empty($page)
+                && !empty($uri)
+            ) {
+                if (!isset(self::$_pagesToUri[$page])
+                    || !empty($replaceExisting)
+                ) {
+                    self::$_pagesToUri[$page] = $uri;
+                    return true;
+                }
+            } else {
+                Throw new \Exception(self::systemTranslate('Invalid parameters'));
+            }
+            return false;
+        }
+
+        /**
+         * @static
+         * @throws \Exception
+         */
+        public static function getUriToPages()
+        {
+            if (empty(self::$_loadedUriPagesConfiguration)) {
+                if (sizeof(self::$_uriToPages)) {
+                    $uris = 
+                        \Aomebo\Configuration::getSetting('dispatch,uri pages');
+                    foreach ($uris as $uri => $page)
+                    {
+                        self::$_uriToPages[$uri] = $page;
+                    }
+                } else {
+                    self::$_uriToPages = 
+                        \Aomebo\Configuration::getSetting('dispatch,uri pages');
+                }
+                self::$_loadedUriPagesConfiguration = true;
+            }
+            return self::$_uriToPages;
+        }
+
+        /**
+         * @static
+         * @throws \Exception
+         */
+        public static function getPagesToUri()
+        {
+            if (empty(self::$_loadedPagesUriConfiguration)) {
+                if (sizeof(self::$_pagesToUri)) {
+                    $pages =
+                        \Aomebo\Configuration::getSetting('dispatch,pages uri');
+                    foreach ($pages as $page => $uri)
+                    {
+                        self::$_pagesToUri[$page] = $uri;
+                    }
+                } else {
+                    self::$_pagesToUri =
+                        \Aomebo\Configuration::getSetting('dispatch,pages uri');
+                }
+                self::$_loadedPagesUriConfiguration = true;
+            }
+            return self::$_pagesToUri;
+        }
+
+        /**
          * This method parses adress to find page.
          *
          * @internal
@@ -2386,8 +2593,7 @@ namespace Aomebo\Dispatcher
         private static function _parsePage()
         {
 
-            $uriToPages =
-                \Aomebo\Configuration::getSetting('dispatch,uri pages');
+            $uriToPages = self::getUriToPages();
             $defaultPage =
                 \Aomebo\Configuration::getSetting('dispatch,default page');
 

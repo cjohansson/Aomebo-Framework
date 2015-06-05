@@ -289,6 +289,14 @@ namespace Aomebo
         /**
          * @return bool
          */
+        public function isPageable()
+        {
+            return (is_a($this, '\Aomebo\Runtime\Pageable'));
+        }
+
+        /**
+         * @return bool
+         */
         public function isUninstallable()
         {
             return (is_a($this, '\Aomebo\Runtime\Uninstallable'));
@@ -838,6 +846,43 @@ namespace Aomebo
                 if ($isPageOrShellRequest) {
 
                     /**
+                     * Pageable interface
+                     * 
+                     * @see \Aomebo\Runtime\Pageable
+                     */
+                    if ($this->isPageable()) {
+
+                        /** @var \Aomebo\Runtime\Pageable $ref */
+                        $ref = & $this;
+
+                        if ($pages = $ref->getPages()) {
+
+                            // Add interpreter page dynamically
+                            \Aomebo\Interpreter\Engine::addPages($pages);
+
+                        }
+                        
+                        if ($pagesToUris = $ref->getPagesToUri()) {
+
+                            // Add uri for page dynamically
+                            \Aomebo\Dispatcher\System::addPagesToUris(
+                                $pagesToUris
+                            );
+                            
+                        }
+
+                        if ($urisToPages = $ref->getUriToPages()) {
+                            
+                            // Add page for uri dynamically
+                            \Aomebo\Dispatcher\System::addUrisToPages(
+                                $urisToPages
+                            );
+
+                        }
+
+                    }
+
+                    /**
                      * Routable interface.
                      *
                      * @see \Aomebo\Runtime\Routable
@@ -876,6 +921,7 @@ namespace Aomebo
                             }
                         }
                     }
+                                       
                 }
 
                 if ($this->isExecutionParameters()) {

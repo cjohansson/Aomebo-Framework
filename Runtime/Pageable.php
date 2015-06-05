@@ -21,49 +21,37 @@
 /**
  *
  */
-namespace Aomebo\Dispatcher
+namespace Aomebo\Runtime
 {
 
     /**
-     * Every page will be stored as a Page object in memory. 
-     * The page object holds information about page-name and page-contents.
-     * 
-     * The page object can be executed to start the execution of it's contents.
-     * 
-     * @todo Implement this
+     *
      */
-    class Page extends \Aomebo\Base
+    interface Pageable
     {
 
         /**
-         * @internal
-         * @var string
+         * Should return an associative array containing page => page data or boolean false.
+         * 
+         * @return array|bool
          */
-        private $_name = '';
+        public function getPages();
 
         /**
-         * @internal
-         * @var array()
+         * Should return an associative array with uri => page or boolean false.
+         * 
+         * @return array|bool
          */
-        private $_contents = array();
+        public function getUriToPages();
 
         /**
-         * @param string [$name = '']
-         * @param array [$contents = array()]
+         * Should return an associative array with page => uri or boolean false.
+         *
+         * @return array|bool
          */
-        public function __construct($name = '', $contents = array())
-        {
-            $this->_name = $name;
-            $this->_contents = $contents;
-        }
+        public function getPagesToUri();
 
-        /**
-         * @todo Implement this
-         */
-        public function execute()
-        {
-        }
-        
+
     }
 
 }

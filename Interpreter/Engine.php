@@ -458,6 +458,63 @@ namespace Aomebo\Interpreter
         }
 
         /**
+         * @static
+         * @param array $pages
+         * @param bool [$replaceExisting = false]
+         * @return bool
+         * @throws \Exception
+         */
+        public static function addPages($pages, $replaceExisting = false)
+        {
+            if (isset($pages)
+                && is_array($pages)
+                && sizeof($pages) > 0
+            ) {
+                $accBool = true;
+                foreach ($pages as $name => $data)
+                {
+                    $accBool = ($accBool
+                        && self::addPage($name, $data, $replaceExisting)
+                    );
+                }
+                return $accBool;
+            } else {
+                Throw new \Exception(self::systemTranslate(
+                    'Invalid parameters'));
+            }
+        }
+
+        /**
+         * @static
+         * @param string $name
+         * @param array $data
+         * @param bool [$replaceExisting = false]
+         * @return bool
+         * @throws \Exception
+         */
+        public static function addPage($name, $data, $replaceExisting = false)
+        {
+            if (!empty($name)
+                && isset($data)
+                && is_array($data)
+                && sizeof($data) > 0
+            ) {
+                if (!isset(self::$_pagesToData[$name])
+                    || !empty($replaceExisting)
+                ) {
+                    
+                    self::$_pagesToData[$name] = $data;                        
+                    return true;
+                    
+                }
+            } else {
+                Throw new \Exception(self::systemTranslate(
+                    'Invalid parameters'));
+            }
+            return false;
+        }
+
+        /**
          * This method returns header meta data.
          *
          * @static
@@ -1584,9 +1641,11 @@ namespace Aomebo\Interpreter
          * @static
          * @param string $page
          * @param string $path
+         * @param array|null [$contents = null]
          * @throws \Exception
          */
-        private static function _processPageRuntimes($page, $path)
+        private static function _processPageRuntimes($page, $path, 
+            $contents = null)
         {
             if (!isset(self::$_pagesToRuntimes[$page])) {
 
@@ -1627,12 +1686,14 @@ namespace Aomebo\Interpreter
 
                     $runtimes = array();
                     $parent = null;
-
-                    $contents = self::_processPage(
-                        $page,
-                        $path,
-                        true
-                    );
+                    
+                    if (!isset($contents)) {
+                        $contents = self::_processPage(
+                            $page,
+                            $path,
+                            true
+                        );
+                    }
 
                     self::_collectNodeRuntimes(
                         $contents,
@@ -1781,6 +1842,26 @@ namespace Aomebo\Interpreter
         private static function _loadPages()
         {
             
+            // Is there any pages which hasn't been processed yet and added dynamically?
+            if (sizeof(self::$_pagesToData) > 0) {
+                foreach (self::$_pagesToData as $page => $data)
+                {
+                    
+                    $parent = null;
+                    $runtimes = array();
+                    
+                    self::_collectNodeRuntimes(
+                        $data,
+                        $parent,
+                        $runtimes
+                    );
+
+                    self::$_pagesToRuntimes[$page] = $runtimes;
+
+                }
+
+            }
+            
             $pagesDir = self::_getPagesDirectory();
             
             if ($files = scandir($pagesDir))
@@ -1799,7 +1880,7 @@ namespace Aomebo\Interpreter
 
                             $page = substr($file, 0, -strlen($pageSuffix));
 
-                            self::_processPage(
+                            $contents = self::_processPage(
                                 $page,
                                 $pagesDir . $page,
                                 false,
@@ -1808,7 +1889,8 @@ namespace Aomebo\Interpreter
 
                             self::_processPageRuntimes(
                                 $page,
-                                $pagesDir . $page
+                                $pagesDir . $page,
+                                $contents
                             );
                             
                             if ($pageSuffix == '.xml'

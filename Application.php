@@ -1344,3 +1344,13 @@ namespace Aomebo
 
 }
 
+/**
+ * Global namespace
+ */
+namespace
+{
+    
+    // TODO: Create system exception here, create site exception here
+    
+}
+

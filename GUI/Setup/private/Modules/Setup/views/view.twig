@@ -95,4 +95,12 @@
             </fieldset>
         {%  endif %}
     </form>
+    <ul>
+        <li>
+            <a href="{{ url({ _page: 'index' }) }}">{{ __('Setup on static page') }}</a>
+        </li>
+        <li>
+            <a href="{{ url({ _page: 'setup' }) }}">{{ __('Setup on dynamic page') }}</a>
+        </li>
+    </ul>
 </div>
