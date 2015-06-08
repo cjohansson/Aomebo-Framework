@@ -27,10 +27,12 @@ namespace Aomebo\Database\Adapters\Mysqli
     /**
      * @method static \Aomebo\Database\Adapters\Mysqli\Adapter getInstance()
      */
-    final class Adapter extends \Aomebo\Database\Adapters\Base
+    final class Adapter extends 
+        \Aomebo\Database\Adapters\Base
     {
 
         /**
+         * @internal
          * @var \mysqli
          */
         protected $_con;
@@ -806,6 +808,59 @@ namespace Aomebo\Database\Adapters\Mysqli
         }
 
         /**
+         * @param string $tableName
+         * @param string $columnName
+         * @return bool
+         * @throws \Exception
+         */
+        public function tableHasColumn($tableName, $columnName)
+        {
+            if (!empty($tableName)
+                && !empty($columnName)
+            ) {
+                if ($columns = $this->getTableColumns($tableName)) {
+                    foreach ($columns as $column)
+                    {
+                        if (!empty($column['Field'])
+                            && $column['Field'] == $columnName
+                        ) {
+                            return true;
+                        }
+                    }
+                }
+            } else {
+                Throw new \Exception(
+                    self::systemTranslate('Invalid parameters')
+                );
+            }
+            return false;
+        }
+
+        /**
+         * @param string $tableName
+         * @return array|bool
+         * @throws \Exception
+         */
+        public function getTableColumns($tableName)
+        {
+            if (!empty($tableName)) {
+                if ($resultset = \Aomebo\Database\Adapter::query(
+                    sprintf(
+                        'SHOW COLUMNS FROM `%s`',
+                        $this->escape($tableName)
+                    ))
+                ) {
+                    return $resultset->fetchAssocAllAndFree();
+                }
+            } else {
+                Throw new \Exception(
+                    self::systemTranslate('Invalid parameters'));
+            }
+            return false;
+        }
+
+        /**
+         * @internal
          * @param array $where
          * @return string
          * @throws \Exception
@@ -882,6 +937,7 @@ namespace Aomebo\Database\Adapters\Mysqli
         }
 
         /**
+         * @internal
          * @param array $groupBy
          * @return string
          * @throws \Exception
@@ -922,6 +978,7 @@ namespace Aomebo\Database\Adapters\Mysqli
         }
 
         /**
+         * @internal
          * @param int|string $limit
          * @return string
          * @throws \Exception
@@ -937,6 +994,7 @@ namespace Aomebo\Database\Adapters\Mysqli
         }
 
         /**
+         * @internal
          * @param array $orderBy
          * @return string
          * @throws \Exception
@@ -984,6 +1042,6 @@ namespace Aomebo\Database\Adapters\Mysqli
             return $sql;
 
         }
-        
+
     }
 }

@@ -1497,6 +1497,50 @@ namespace Aomebo\Database
 
         /**
          * @static
+         * @param string $tableName
+         * @return array
+         * @throws \Exception
+         */
+        public static function getTableColumns($tableName)
+        {
+            if (!empty($tableName)) {
+                if (self::isConnected()) {
+                    return self::$_object->getTableColumns($tableName);
+                }
+            } else {
+                Throw new \Exception(
+                    self::systemTranslate('Invalid parameters')
+                );
+            }
+            return false;
+        }
+
+        /**
+         * @static
+         * @param string $tableName
+         * @param string $columnName
+         * @return bool
+         * @throws \Aomebo\Exceptions\InvalidParametersException
+         */
+        public static function tableHasColumn($tableName, $columnName)
+        {
+            if (!empty($tableName)
+                && !empty($columnName)
+            ) {
+                if (self::isConnected()) {
+                    return self::$_object->tableHasColumn(
+                        $tableName,
+                        $columnName
+                    );
+                }
+            } else {
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
+            }
+            return false;
+        }
+
+        /**
+         * @static
          * @param string $key
          * @param string $value
          * @return bool

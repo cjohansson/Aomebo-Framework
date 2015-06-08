@@ -281,7 +281,7 @@ namespace Modules\Setup
                 if (!empty($autoInstall)) {
                     if (\Aomebo\Application::autoInstall()) {
                         $databaseTests .= 
-                            __('System successfully auto-installed. ');
+                            __('System successfully auto-installed. ');                            
                     } else {
                         $databaseTests .=
                             __('System failed to auto-install. ');
@@ -315,6 +315,40 @@ namespace Modules\Setup
                         $table->getName()
                     );
 
+                    if ($fields = $table->getTableColumns()) {
+                        $databaseTests .= sprintf(
+                            __('Found table fields `%s`. '),
+                            print_r($fields, true)
+                        );
+                    } else {
+                        $databaseTests .= 
+                            __('Found no table fields. ');
+                    }
+                    
+                    if ($table->hasTableColumn('cash')) {
+                        $databaseTests .= sprintf(
+                            __('Table column "%s" exists. '),
+                            'cash'
+                        );
+                    } else {
+                        $databaseTests .= sprintf(
+                            __('Table column "%s" does not exist. '),
+                            'cash'
+                        );
+                    }
+
+                    if ($table->hasTableColumn('casher')) {
+                        $databaseTests .= sprintf(
+                            __('Table column "%s" exists. '),
+                            'casher'
+                        );
+                    } else {
+                        $databaseTests .= sprintf(
+                            __('Table column "%s" does not exist. '),
+                            'casher'
+                        );
+                    }
+
                     if ($table->drop()) {
 
                         $databaseTests .= sprintf(
@@ -338,6 +372,40 @@ namespace Modules\Setup
                             $table->getName()
                         );
 
+                        if ($fields = $table->getTableColumns()) {
+                            $databaseTests .= sprintf(
+                                __('Found table fields `%s`. '),
+                                print_r($fields, true)
+                            );
+                        } else {
+                            $databaseTests .=
+                                __('Found no table fields. ');
+                        }
+
+                        if ($table->hasTableColumn('cash')) {
+                            $databaseTests .= sprintf(
+                                __('Table column "%s" exists. '),
+                                'cash'
+                            );
+                        } else {
+                            $databaseTests .= sprintf(
+                                __('Table column "%s" does not exist. '),
+                                'cash'
+                            );
+                        }
+
+                        if ($table->hasTableColumn('casher')) {
+                            $databaseTests .= sprintf(
+                                __('Table column "%s" exists. '),
+                                'casher'
+                            );
+                        } else {
+                            $databaseTests .= sprintf(
+                                __('Table column "%s" does not exist. '),
+                                'casher'
+                            );
+                        }
+                        
                         if ($id = $table->add(
                             array(
                                 array($table->name, 'Göran Svensson'),

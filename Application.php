@@ -24,6 +24,9 @@
 namespace Aomebo
 {
 
+    // This line is required in order to be able to use Aomebo\Exceptions
+    require_once(__DIR__ . DIRECTORY_SEPARATOR . 'Exceptions.php');
+
     // This line is required in order to be able to extend Aomebo Base class.
     require_once(__DIR__ . DIRECTORY_SEPARATOR . 'Base.php');
 
@@ -1343,14 +1346,3 @@ namespace Aomebo
     }
 
 }
-
-/**
- * Global namespace
- */
-namespace
-{
-    
-    // TODO: Create system exception here, create site exception here
-    
-}
-

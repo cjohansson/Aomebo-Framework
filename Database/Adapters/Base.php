@@ -75,6 +75,21 @@ namespace Aomebo\Database\Adapters
         abstract public function getBackQuoteCharacter($useAnsiQuotes);
 
         /**
+         * @param string $tableName
+         * @return array|bool
+         * @throws \Exception
+         */
+        abstract public function getTableColumns($tableName);
+
+        /**
+         * @param string $tableName
+         * @param string $columnName
+         * @return bool
+         * @throws \Exception
+         */
+        abstract public function tableHasColumn($tableName, $columnName);
+
+        /**
          * @abstract
          * @param mixed $string
          * @return mixed

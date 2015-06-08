@@ -27,12 +27,14 @@ namespace Aomebo\Database\Adapters\PDO
     /**
      * 
      */
-    final class Resultset extends \Aomebo\Database\Adapters\Resultset
+    final class Resultset extends 
+        \Aomebo\Database\Adapters\Resultset
     {
 
         /**
          * Holds the native resultset object.
          *
+         * @internal
          * @var \PDOStatement|null
          */
         protected $_resultset;
@@ -227,6 +229,59 @@ namespace Aomebo\Database\Adapters\PDO
         }
 
         /**
+         * This method returns the fields in the resultset.
+         *
+         * @return array|bool
+         */
+        public function fetchFields()
+        {
+            if (isset($this->_resultset)) {
+                $columns = array();
+                for ($i = 0; $i < $this->_resultset->columnCount(); $i++)
+                {
+                    $col = $this->_resultset->getColumnMeta($i);
+                    $columns[] = $col;
+                }
+                if (sizeof($columns) > 0) {
+                    return $columns;
+                }
+            }
+            return false;
+        }
+
+        /**
+         * This method returns whether a field exists or not.
+         *
+         * @param string $fieldName
+         * @param string [$tableName = '']
+         * @return bool
+         * @throws \Exception
+         */
+        public function hasField($fieldName, $tableName = '')
+        {
+            if (!empty($fieldName)) {
+                if ($columns = $this->fetchFields()) {
+                    foreach ($columns as $column)
+                    {
+                        if (isset($column['name'])
+                            && $column['name'] == $fieldName
+                            && (empty($tableName)
+                                || $column['table'] == $tableName)
+                        ) {
+                            return true;
+                        }
+                    }
+                }
+            } else {
+                Throw new \Exception(
+                    self::systemTranslate('Invalid parameters')
+                );
+            }
+            return false;
+        }
+
+        /**
+         * @internal
          * @param mixed $resultset
          * @return bool
          */

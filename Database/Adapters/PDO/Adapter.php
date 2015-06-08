@@ -25,9 +25,28 @@ namespace Aomebo\Database\Adapters\PDO
 {
 
     /**
+     * PDO supports following drivers by PHP:
+     * CUBRID (PDO)
+     * MS SQL Server (PDO)
+     * Firebird (PDO)
+     * IBM (PDO)
+     * Informix (PDO)
+     * MySQL (PDO)
+     * MS SQL Server (PDO)
+     * Oracle (PDO)
+     * ODBC and DB2 (PDO)
+     * PostgreSQL (PDO)
+     * SQLite (PDO)
+     * 4D (PDO)
+     * 
+     * However some functionality is not available from the PDO driver like 
+     * getting table column information in a universal way so we have to implement that 
+     * ourselves.
+     * 
      * @method static \Aomebo\Database\Adapters\PDO\Adapter getInstance()
      */
-    final class Adapter extends \Aomebo\Database\Adapters\Base
+    final class Adapter extends 
+        \Aomebo\Database\Adapters\Base
     {
 
         /**
@@ -233,14 +252,39 @@ namespace Aomebo\Database\Adapters\PDO
         public function unbufferedQuery($sql)
         {
             if ($this->_connected) {
-                
-                $this->_con->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
-                $result = $this->query($sql);
-                $this->_con->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
-                return $result;
-                
+                if ($this->isMySQL()) {
+                    $this->_con->setAttribute(
+                        \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+                    $result = $this->query($sql);
+                    $this->_con->setAttribute(
+                        \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+                    return $result;
+                }                
             }
             return false;
+        }
+
+        /**
+         * @return bool
+         */
+        public function isMySQL() { return $this->_isDriverName('mysql'); }
+
+        /**
+         * @return bool
+         */
+        public function isPostGreSQL() { return $this->_isDriverName('postgresql'); }
+
+        /**
+         * @return bool
+         */
+        public function isSQLlite() { return $this->_isDriverName('sqllite'); }
+
+        /**
+         * @return mixed
+         */
+        public function getDriverName()
+        {
+            return $this->_con->getAttribute(\PDO::ATTR_DRIVER_NAME);
         }
 
         /**
@@ -843,6 +887,101 @@ namespace Aomebo\Database\Adapters\PDO
         }
 
         /**
+         * @param string $tableName
+         * @param string $columnName
+         * @return bool
+         * @throws \Exception
+         */
+        public function tableHasColumn($tableName, $columnName)
+        {
+            if (!empty($tableName)
+                && !empty($columnName)
+            ) {
+                if ($this->isMySQL()) {
+                    if ($columns = $this->getTableColumns($tableName)) {
+                        foreach ($columns as $column)
+                        {
+                            if (!empty($column['Field'])
+                                && $column['Field'] == $columnName
+                            ) {
+                                return true;
+                            }
+                        }
+                    }
+                } else {
+                    
+                    // TODO: Implement more support for drivers here
+                    
+                    Throw new \Exception(
+                        self::systemTranslate('This feature has not been implemented for current driver.')
+                    );
+                }
+            } else {
+                Throw new \Exception(
+                    self::systemTranslate('Invalid parameters')
+                );
+            }
+            return false;
+        }
+
+        /**
+         * @param string $tableName
+         * @return array|bool
+         * @throws \Exception
+         */
+        public function getTableColumns($tableName)
+        {
+            if (!empty($tableName)) {
+                
+                if ($this->isMySQL()) {
+                    if ($resultset = \Aomebo\Database\Adapter::query(
+                        sprintf(
+                            'SHOW COLUMNS FROM `%s`',
+                            $this->escape($tableName)
+                        ))
+                    ) {
+                        return $resultset->fetchAssocAllAndFree();
+                    }
+                } else if ($this->isPostGreSQL()) {
+                    /** @link http://dba.stackexchange.com/questions/22362/how-do-i-list-all-columns-for-a-specified-table */
+                    if ($resultset = \Aomebo\Database\Adapter::query(
+                        sprintf(
+                            'SELECT * FROM information_schema.columns '
+                            . 'WHERE `table_schema` = "%s" '
+                            . 'AND `table_name` = "%s"',
+                            $this->escape($this->getSelectedDatabase()),
+                            $this->escape($tableName)
+                        ))
+                    ) {
+                        return $resultset->fetchAssocAllAndFree();
+                    }
+                } else if ($this->isSQLlite()) {
+                    /** @link http://stackoverflow.com/questions/947215/how-to-get-a-list-of-column-names-on-sqlite3-iphone */
+                    if ($resultset = \Aomebo\Database\Adapter::query(
+                        sprintf(
+                            'PRAGMA table_info(%s)',
+                            $this->escape($tableName)
+                        ))
+                    ) {
+                        return $resultset->fetchAssocAllAndFree();
+                    }
+                } else {
+
+                    // TODO: Implement more support for drivers here
+                    
+                    Throw new \Exception(
+                        self::systemTranslate('This feature has not been implemented for current driver.')
+                    );
+                }
+            } else {
+                Throw new \Exception(
+                    self::systemTranslate('Invalid parameters'));
+            }
+            return false;
+        }
+
+        /**
+         * @internal
          * @param array $where
          * @return string
          * @throws \Exception
@@ -919,6 +1058,7 @@ namespace Aomebo\Database\Adapters\PDO
         }
 
         /**
+         * @internal
          * @param array $groupBy
          * @return string
          * @throws \Exception
@@ -959,6 +1099,7 @@ namespace Aomebo\Database\Adapters\PDO
         }
 
         /**
+         * @internal
          * @param int|string $limit
          * @return string
          * @throws \Exception
@@ -974,6 +1115,7 @@ namespace Aomebo\Database\Adapters\PDO
         }
 
         /**
+         * @internal
          * @param array $orderBy
          * @return string
          * @throws \Exception
@@ -1021,6 +1163,25 @@ namespace Aomebo\Database\Adapters\PDO
             return $sql;
 
         }
-        
+
+        /**
+         * @internal
+         * @param string $driverName
+         * @return bool
+         */
+        private function _isDriverName($driverName)
+        {
+            if ($this->_connected
+                && !empty($driverName)
+            ) {
+                if (stripos($this->getDriverName(),
+                    $driverName) !== false
+                ) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
     }
 }

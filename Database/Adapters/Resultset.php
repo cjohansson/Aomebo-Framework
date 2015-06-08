@@ -62,8 +62,12 @@ namespace Aomebo\Database\Adapters
                 $this->_sql = $sql;
                 parent::__construct();
             } else {
-                Throw new \Exception('Invalid resultset "'
-                    . print_r($resultset, true) . '".');
+                Throw new \Exception(
+                    sprintf(
+                        'Invalid resultset "%s".'
+                    ),
+                    print_r($resultset, true)
+                );
             }
         }
 
@@ -80,6 +84,23 @@ namespace Aomebo\Database\Adapters
          * @return int|bool
          */
         abstract public function numRows();
+
+        /**
+         * This method returns the fields in the resultset.
+         * 
+         * @return array|bool
+         */
+        abstract public function fetchFields();
+
+        /**
+         * This method returns whether a field exists or not.
+         * 
+         * @param string $fieldName
+         * @param string [$tableName = '']
+         * @return bool
+         * @throws \Exception
+         */
+        abstract public function hasField($fieldName, $tableName = '');
 
         /**
          * Return a row from resultset as associative array.

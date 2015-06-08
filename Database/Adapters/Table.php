@@ -200,6 +200,14 @@ namespace Aomebo\Database\Adapters
         /**
          * @return string
          */
+        public function getPrefixedName()
+        {
+            return '{TABLE PREFIX}' . $this->_name;
+        }
+
+        /**
+         * @return string
+         */
         public function getSpecification()
         {
             return $this->_specification;
@@ -214,12 +222,35 @@ namespace Aomebo\Database\Adapters
         }
 
         /**
+         * @return array
+         * @throws \Exception
+         */
+        public function getTableColumns()
+        {
+            return \Aomebo\Database\Adapter::getTableColumns(
+                $this->getPrefixedName()
+            );
+        }
+
+        /**
+         * @param string $columnName
+         * @return bool
+         */
+        public function hasTableColumn($columnName)
+        {
+            return \Aomebo\Database\Adapter::tableHasColumn(
+                $this->getPrefixedName(),
+                $columnName
+            );
+        }
+
+        /**
          * @return string
          */
         public function __toString()
         {
             return \Aomebo\Database\Adapter::backquote(
-                '{TABLE PREFIX}' . $this->_name
+                $this->getPrefixedName()
             );
         }
 
