@@ -1007,11 +1007,10 @@ namespace Aomebo
             ) {
 
                 if ($data = \Aomebo\Cache\System::loadCache(
-                        $cacheParameters,
-                        $cacheKey,
-                        \Aomebo\Cache\System::FORMAT_SERIALIZE,
-                        \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
-                    )
+                    $cacheParameters,
+                    $cacheKey,
+                    \Aomebo\Cache\System::FORMAT_SERIALIZE,
+                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM)
                 ) {
 
                     $loadedCache = true;
@@ -1021,7 +1020,9 @@ namespace Aomebo
 
                         if (!empty($data['runtimes'])) {
                             if ($runtimes = @unserialize($data['runtimes'])) {
+                                
                                 self::$_runtimes = $runtimes;
+                                
                             } else {
                                 $loadedCache = false;
                             }
@@ -1177,6 +1178,8 @@ namespace Aomebo
 
                             /** @var \Aomebo\Runtime $runtime */
                             $runtime = new $foundClassName();
+                            
+                            // TODO: Make sure class is not loading something which conflicts with framework loading here
 
                             if (is_a($runtime, '\Aomebo\Runtime'))
                             {

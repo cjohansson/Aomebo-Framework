@@ -25,9 +25,35 @@ namespace Aomebo\Exceptions
 {
 
     /**
+     *
+     */
+    class TranslatedException extends \Exception
+    {
+
+        /**
+         * @param string [$message = null]
+         * @param array [$stringVariables = array()]
+         * @param \Exception|null [$previous = null]
+         */
+        public function __construct($message = null,
+            $stringVariables = array())
+        {
+            if (!empty($message)) {
+                $message = \Aomebo\Internationalization\System::
+                    systemTranslate($message);
+            }
+            if (sizeof($stringVariables) > 0) {
+                $message = vsprintf($message, $stringVariables);
+            }
+            parent::__construct($message, 0, null);
+        }
+
+    }
+
+    /**
      * 
      */
-    class InvalidParametersException extends \Exception
+    class InvalidParametersException extends TranslatedException
     {
 
         /**
@@ -39,17 +65,9 @@ namespace Aomebo\Exceptions
             $stringVariables = array())
         {
             if (empty($message)) {
-                $message = \Aomebo\Internationalization\System::
-                    systemTranslate('Invalid parameters'
-                );
-            } else {
-                $message = \Aomebo\Internationalization\System::
-                    systemTranslate($message);
+                $message = 'Invalid parameters';
             }
-            if (sizeof($stringVariables) > 0) {
-                $message = vsprintf($message, $stringVariables);
-            }
-            parent::__construct($message, 0, null);
+            parent::__construct($message, $stringVariables);
         }
         
     }

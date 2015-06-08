@@ -660,12 +660,8 @@ namespace Aomebo
                         parent::__construct();
                         self::$_aomebo = \Aomebo::getInstance();
                         self::_flagThisConstructed();
+                        $this->load();
 
-                    }
-                    if ($this->isInitializable()) {
-                        /** @var \Aomebo\Runtime\Initializable $ref */
-                        $ref = & $this;
-                        $ref->initialize();
                     }
                 }
             }
@@ -786,14 +782,6 @@ namespace Aomebo
         public function __construct()
         {
 
-            $this->setExecuting(false);
-            $this->setEnabled(true);
-            $this->resetFields();
-
-            $isPageOrShellRequest =
-                \Aomebo\Dispatcher\System::isPageRequest()
-                || \Aomebo\Dispatcher\System::isShellRequest();
-
             if (!self::_isConstructed()) {
 
                 parent::__construct();
@@ -802,85 +790,18 @@ namespace Aomebo
                 self::_flagThisConstructed();
 
             }
-            
-            
-            $autoInstallSpecificRuntimes = \Aomebo\Configuration::getSetting(
-                'application,auto-install specific runtimes');
-            
-            /**
-             * Installable interface.
-             * 
-             * Only on page or shell requests, if auto-install for all is enabled 
-             * or auto-install for this module specifically.
-             *
-             * @see \Aomebo\Runtime\Installable
-             */
 
-            \Aomebo\Trigger\System::addTrigger(
-                \Aomebo\Trigger\System::TRIGGER_KEY_SYSTEM_AUTOINSTALL,
-                array($this, 'autoInstall')
-            );
+            $isPageOrShellRequest =
+                \Aomebo\Dispatcher\System::isPageRequest()
+                || \Aomebo\Dispatcher\System::isShellRequest();
 
-            \Aomebo\Trigger\System::addTrigger(
-                \Aomebo\Trigger\System::TRIGGER_KEY_SYSTEM_AUTOUNINSTALL,
-                array($this, 'autoUninstall')
-            );
-
-            \Aomebo\Trigger\System::addTrigger(
-                \Aomebo\Trigger\System::TRIGGER_KEY_SYSTEM_AUTOUPDATE,
-                array($this, 'autoUpdate')
-            );
-             
-            if ($isPageOrShellRequest
-                && $this->isInstallable()
-                && (\Aomebo\Configuration::getSetting(
-                    'application,auto-install all runtimes')
-                    || !empty($autoInstallSpecificRuntimes[$this->getField('name')])
-                )
-            ) {
-                $this->autoInstall(); 
-            }
+            $this->setExecuting(false);
+            $this->setEnabled(true);
+            $this->resetFields();
 
             if ($this->isEnabled()) {
 
                 if ($isPageOrShellRequest) {
-
-                    /**
-                     * Pageable interface
-                     * 
-                     * @see \Aomebo\Runtime\Pageable
-                     */
-                    if ($this->isPageable()) {
-
-                        /** @var \Aomebo\Runtime\Pageable $ref */
-                        $ref = & $this;
-
-                        if ($pages = $ref->getPages()) {
-
-                            // Add interpreter page dynamically
-                            \Aomebo\Interpreter\Engine::addPages($pages);
-
-                        }
-                        
-                        if ($pagesToUris = $ref->getPagesToUri()) {
-
-                            // Add uri for page dynamically
-                            \Aomebo\Dispatcher\System::addPagesToUris(
-                                $pagesToUris
-                            );
-                            
-                        }
-
-                        if ($urisToPages = $ref->getUriToPages()) {
-                            
-                            // Add page for uri dynamically
-                            \Aomebo\Dispatcher\System::addUrisToPages(
-                                $urisToPages
-                            );
-
-                        }
-
-                    }
 
                     /**
                      * Routable interface.
@@ -959,6 +880,102 @@ namespace Aomebo
                 }
 
             }
+            
+            $this->load();
+
+        }
+
+        /**
+         * @throws \Exception
+         */
+        public function load()
+        {
+            
+            $isPageOrShellRequest =
+                \Aomebo\Dispatcher\System::isPageRequest()
+                || \Aomebo\Dispatcher\System::isShellRequest();
+
+            $autoInstallSpecificRuntimes = \Aomebo\Configuration::getSetting(
+                'application,auto-install specific runtimes');
+
+            /**
+             * Installable interface.
+             *
+             * Only on page or shell requests, if auto-install for all is enabled
+             * or auto-install for this module specifically.
+             *
+             * @see \Aomebo\Runtime\Installable
+             */
+
+            \Aomebo\Trigger\System::addTrigger(
+                \Aomebo\Trigger\System::TRIGGER_KEY_SYSTEM_AUTOINSTALL,
+                array($this, 'autoInstall')
+            );
+
+            \Aomebo\Trigger\System::addTrigger(
+                \Aomebo\Trigger\System::TRIGGER_KEY_SYSTEM_AUTOUNINSTALL,
+                array($this, 'autoUninstall')
+            );
+
+            \Aomebo\Trigger\System::addTrigger(
+                \Aomebo\Trigger\System::TRIGGER_KEY_SYSTEM_AUTOUPDATE,
+                array($this, 'autoUpdate')
+            );
+
+            if ($isPageOrShellRequest
+                && $this->isInstallable()
+                && (\Aomebo\Configuration::getSetting(
+                        'application,auto-install all runtimes')
+                    || !empty($autoInstallSpecificRuntimes[$this->getField('name')])
+                )
+            ) {
+                $this->autoInstall();
+            }
+
+            if ($this->isEnabled()) {
+
+                if ($isPageOrShellRequest) {
+
+                    /**
+                     * Pageable interface
+                     *
+                     * @see \Aomebo\Runtime\Pageable
+                     */
+                    if ($this->isPageable()) {
+
+                        /** @var \Aomebo\Runtime\Pageable $ref */
+                        $ref = & $this;
+
+                        if ($pages = $ref->getPages()) {
+
+                            // Add interpreter page dynamically
+                            \Aomebo\Interpreter\Engine::addPages($pages);
+
+                        }
+
+                        if ($pagesToUris = $ref->getPagesToUri()) {
+
+                            // Add uri for page dynamically
+                            \Aomebo\Dispatcher\System::addPagesToUris(
+                                $pagesToUris
+                            );
+
+                        }
+
+                        if ($urisToPages = $ref->getUriToPages()) {
+
+                            // Add page for uri dynamically
+                            \Aomebo\Dispatcher\System::addUrisToPages(
+                                $urisToPages
+                            );
+
+                        }
+
+                    }
+                    
+                }
+                
+            }
 
             if ($this->isInitializable()) {
 
@@ -967,7 +984,7 @@ namespace Aomebo
                 $ref->initialize();
 
             }
-
+            
         }
 
         /**
