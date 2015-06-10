@@ -53,6 +53,17 @@ namespace Aomebo
             parent::__construct();
 
             $calledClass = get_called_class();
+            
+            if (\Aomebo\Application::isInhibitedToConstruct(
+                $calledClass)
+            ) {
+                Throw new \Exception(
+                    sprintf(
+                        __('Class %s may not be constructed at this time in the execution chain. Please adjust your runtime configuration.'),
+                        $calledClass
+                    )
+                );
+            }
 
             if (!is_array(self::$_instances)) {
                 self::$_instances = array();

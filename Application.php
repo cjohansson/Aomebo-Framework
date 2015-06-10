@@ -172,6 +172,12 @@ namespace Aomebo
         private static $_writingEnabled = true;
 
         /**
+         * @internal
+         * @var array
+         */
+        private static $_inhibitConstruction = array();
+
+        /**
          * This starts up the framework.
          *
          * @param array|null [$parameters = null]       Contains all site-specific parameters.
@@ -389,7 +395,7 @@ namespace Aomebo
                         // Store setting if autoload should trigger exception
                         $this->setAutoloadFailureTriggersException(
                             \Aomebo\Configuration::getSetting('output,autoload failure triggers exception'));
-
+                            
                         // Load runtimes
                         self::_loadRuntimes();
 
@@ -405,7 +411,7 @@ namespace Aomebo
                         /**
                          * Load dispatcher for analyzing of request
                          *
-                         * Instanciated to variable to prevent garbage collection.
+                         * Instanciated to a variable just to prevent garbage collection.
                          */
                         $dispatcher = new \Aomebo\Dispatcher\System();
 
@@ -438,6 +444,19 @@ namespace Aomebo
                 }
 
             }
+        }
+
+        /**
+         * This is a function which returns whether or not a class construction is allowed or not.
+         * This is to monitor and prevent execution errors.
+         * 
+         * @static
+         * @param string $name
+         * @return bool
+         */
+        public static function isInhibitedToConstruct($name)
+        {
+            return (!empty($name) && !empty(self::$_inhibitConstruction[$name]));
         }
 
         /**
@@ -948,6 +967,12 @@ namespace Aomebo
          */
         private static function _loadRuntimes()
         {
+            
+            // Inhibit construction of these classes
+            self::$_inhibitConstruction['Aomebo\Interpreter\Engine'] = true;
+            self::$_inhibitConstruction['Aomebo\Feedback\Debug'] = true;
+            self::$_inhibitConstruction['Aomebo\Dispatcher\System'] = true;
+            self::$_inhibitConstruction['Aomebo\Response\Handler'] = true;
 
             $roots = array();
             $runtimesLastModificationTime = 0;
@@ -1112,6 +1137,12 @@ namespace Aomebo
                 }
 
             }
+
+            // Remove the inhibition of the  construction of these classes
+            self::$_inhibitConstruction['Aomebo\Interpreter\Engine'] = false;
+            self::$_inhibitConstruction['Aomebo\Feedback\Debug'] = false;
+            self::$_inhibitConstruction['Aomebo\Dispatcher\System'] = false;
+            self::$_inhibitConstruction['Aomebo\Response\Handler'] = false;
 
         }
 

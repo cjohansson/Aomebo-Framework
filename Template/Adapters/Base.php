@@ -51,7 +51,7 @@ namespace Aomebo\Template\Adapters
          *
          * @param string $key
          * @param mixed $value
-         * @throws \Exception
+         * @throws \Aomebo\Exceptions\InvalidParametersException
          * @return bool
          */
         public function attachVariable($key, $value)
@@ -59,9 +59,7 @@ namespace Aomebo\Template\Adapters
             if (!empty($key)) {
                 return $this->_assign($key, $value);
             } else {
-                Throw new \Exception(
-                    'Invalid key in ' . __FUNCTION__
-                        . ' in ' . __FILE__);
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
         }
 
@@ -85,9 +83,7 @@ namespace Aomebo\Template\Adapters
                 }
                 return $accBool;
             } else {
-                Throw new \Exception(
-                    'Invalid parameters for ' . __FUNCTION__
-                        . ' in ' . __FILE__);
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
         }
 
@@ -131,7 +127,10 @@ namespace Aomebo\Template\Adapters
                     }
                 } else {
                     Throw new \Exception(
-                        'Invalid reference object for view template');
+                        self::systemTranslate(
+                            'Invalid reference object for view template'
+                        )
+                    );
                 }
             }
 
