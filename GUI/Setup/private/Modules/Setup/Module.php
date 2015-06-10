@@ -146,7 +146,6 @@ namespace Modules\Setup
             }
 
             $view = \Aomebo\Template\Adapters\Twig\Adapter::getInstance();
-            $view->setFile('views/view.twig');
             // $view = \Aomebo\Template\Adapters\Smarty\Adapter::getInstance();
             // $view->setFile('views/view.tpl');
             $view->attachVariable('tests', $tests);
@@ -154,6 +153,7 @@ namespace Modules\Setup
             $view->attachVariable('locales',
                 \Aomebo\Internationalization\System::getLocalesFromDirectory(
                     dirname(dirname(__DIR__)) . '/Language'));
+            $view->setFile('views/view.twig');
 
             return $view->parse();
 

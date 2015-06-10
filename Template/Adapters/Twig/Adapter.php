@@ -125,7 +125,6 @@ namespace Aomebo\Template\Adapters\Twig
             $this->_twig = new \Twig_Environment($loader, $parameters);
             $this->_directory = $directory;
             $this->_filename = $filename;
-            $this->_context = array();
 
             return true;
 
