@@ -219,7 +219,7 @@ namespace Aomebo
          */
         public static function dngettext($domain, $msgid1, $msgid2, $n)
         {
-            return self::$_aomebo->Internationalization()->System()->ngettext(
+            return self::$_aomebo->Internationalization()->System()->dngettext(
                 $domain, $msgid1, $msgid2, $n
             );
         }
@@ -241,7 +241,7 @@ namespace Aomebo
          */
         public static function dcngettext($domain, $msgid1, $msgid2, $n, $category)
         {
-            return self::$_aomebo->Internationalization()->System()->ngettext(
+            return self::$_aomebo->Internationalization()->System()->dcngettext(
                 $domain, $msgid1, $msgid2, $n, $category
             );
         }
@@ -886,6 +886,9 @@ namespace Aomebo
         }
 
         /**
+         * This method loads the runtime, it is separated from __construct() because
+         * this parts runs on construct and also after a unserialize of the runtime.
+         *
          * @throws \Exception
          */
         public function load()
@@ -1128,11 +1131,12 @@ namespace Aomebo
         /**
          * @static
          * @param string $key
+         * @param mixed|null [$default = null]
          * @return bool
          */
-        protected static function _getPostBoolean($key)
+        protected static function _getPostBoolean($key, $default = null)
         {
-            return self::_getArrayBoolean($_POST, $key);
+            return self::_getArrayBoolean($_POST, $key, $default);
         }
 
         /**
@@ -1171,11 +1175,12 @@ namespace Aomebo
         /**
          * @static
          * @param string $key
+         * @param mixed|null [$default = null]
          * @return bool
          */
-        protected static function _getGetBoolean($key)
+        protected static function _getGetBoolean($key, $default = null)
         {
-            return self::_getArrayBoolean($_GET, $key);
+            return self::_getArrayBoolean($_GET, $key, $default);
         }
 
         /**
@@ -1214,11 +1219,12 @@ namespace Aomebo
         /**
          * @static
          * @param string $key
+         * @param mixed|null [$default = null]
          * @return bool
          */
-        protected static function _getServerBoolean($key)
+        protected static function _getServerBoolean($key, $default = null)
         {
-            return self::_getArrayBoolean($_SERVER, $key);
+            return self::_getArrayBoolean($_SERVER, $key, $default);
         }
 
         /**
@@ -1257,11 +1263,12 @@ namespace Aomebo
         /**
          * @static
          * @param string $key
+         * @param mixed|null [$default = null]
          * @return bool
          */
-        protected static function _getCookieBoolean($key)
+        protected static function _getCookieBoolean($key, $default = null)
         {
-            return self::_getArrayBoolean($_COOKIE, $key);
+            return self::_getArrayBoolean($_COOKIE, $key, $default);
         }
 
         /**
@@ -1333,20 +1340,20 @@ namespace Aomebo
          * @static
          * @param array $array
          * @param string $key
+         * @param mixed|null [$default = null]
          * @return bool
          */
-        protected static function _getArrayBoolean(& $array, $key)
+        protected static function _getArrayBoolean(& $array, $key, $default = null)
         {
             if (isset($array)
                 && !empty($key)
                 && is_array($array)
                 && sizeof($array) > 0
                 && isset($array[$key])
-                && $array[$key] == 1
             ) {
-                return true;
+                return ($array[$key] == true);
             }
-            return false;
+            return $default;
         }
 
         /**
