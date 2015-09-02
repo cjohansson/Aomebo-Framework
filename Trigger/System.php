@@ -244,6 +244,7 @@ namespace Aomebo\Trigger
                 $outputIsNumeric = true;
                 $outputIsBoolean = true;
                 $outputIsArray = true;
+                $outputIsObject = true;
                 $triggerCount = sizeof($triggers);
 
                 // Process arguments
@@ -280,6 +281,7 @@ namespace Aomebo\Trigger
                         $outputIsLiteral = ($outputIsLiteral && is_string($return));
                         $outputIsNumeric = ($outputIsNumeric && is_numeric($return));
                         $outputIsArray = ($outputIsArray && is_array($return));
+                        $outputIsObject = ($outputIsObject && is_object($return));
                         $returns[] = $return;
 
                     } else {
@@ -306,7 +308,9 @@ namespace Aomebo\Trigger
                         $output = $return;
                     }
 
-                } else if ($outputIsArray) {
+                } else if ($outputIsArray
+                    || $outputIsObject
+                ) {
 
                     if (sizeof($returns) > 1) {
                         $output = $returns;

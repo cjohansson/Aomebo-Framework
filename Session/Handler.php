@@ -1175,34 +1175,36 @@ namespace Aomebo\Session
 
                 /** @var \Aomebo\Session\Blocks\Base $blockObject */
 
+                $blockData = null;
+
                 // Load session-block data
-                if ($result = \Aomebo\Database\Adapter::query(
-                    'SELECT * FROM `' . self::getTableSessionsBlocksData() . '` '
-                    . 'WHERE `session_id` = {id} '
-                    . 'AND `session_block_name` = {block_name}',
-                        array(
-                            'id' => array(
-                                'value' => self::$_sessionData['session_id'],
-                                'quoted' => true,
-                            ),
-                            'block_name' => array(
-                                'value' => $blockName,
-                                'quoted' => true,
-                            ),
-                        ))
-                ) {
+                if (!empty(self::$_sessionData['session_id'])) {
+                    if ($result = \Aomebo\Database\Adapter::query(
+                        'SELECT * FROM `' . self::getTableSessionsBlocksData() . '` '
+                        . 'WHERE `session_id` = {id} '
+                        . 'AND `session_block_name` = {block_name}',
+                            array(
+                                'id' => array(
+                                    'value' => self::$_sessionData['session_id'],
+                                    'quoted' => true,
+                                ),
+                                'block_name' => array(
+                                    'value' => $blockName,
+                                    'quoted' => true,
+                                ),
+                            ))
+                    ) {
 
-                    $result = $result->fetchAssocAllAndFree();
-                    $blockData = array();
+                        $result = $result->fetchAssocAllAndFree();
+                        $blockData = array();
 
-                    foreach ($result as $row)
-                    {
-                        $blockData[$row['session_block_data_key']] =
-                            $row['session_block_data_value'];
+                        foreach ($result as $row)
+                        {
+                            $blockData[$row['session_block_data_key']] =
+                                $row['session_block_data_value'];
+                        }
+
                     }
-
-                } else {
-                    $blockData = null;
                 }
 
                 self::$_blockNameToSaveBlockData[$blockName] = false;
