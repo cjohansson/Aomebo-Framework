@@ -989,7 +989,7 @@ namespace Aomebo\Database\Adapters\PDO
         private function _generateWhereSubquery($where)
         {
 
-            $sql = 'WHERE ';
+            $sql = ' WHERE ';
             $dataIndex = 0;
 
             foreach ($where as $columnAndValue)
@@ -1051,8 +1051,6 @@ namespace Aomebo\Database\Adapters\PDO
                 }
             }
 
-            $sql .= ' ';
-
             return $sql;
 
         }
@@ -1066,7 +1064,7 @@ namespace Aomebo\Database\Adapters\PDO
         private function _generateGroupSubquery($groupBy)
         {
 
-            $sql = 'GROUP BY ';
+            $sql = ' GROUP BY ';
             $dataIndex = 0;
 
             foreach ($groupBy as $columnAndValue)
@@ -1092,8 +1090,6 @@ namespace Aomebo\Database\Adapters\PDO
                 }
             }
 
-            $sql .= ' ';
-
             return $sql;
 
         }
@@ -1106,12 +1102,9 @@ namespace Aomebo\Database\Adapters\PDO
          */
         private function _generateLimitSubquery($limit)
         {
-            if (isset($limit)) {
-                return ' LIMIT ' . \Aomebo\Database\Adapter::escape(
-                        $limit
-                ) . ' ';
-            }
-            return '';
+            return (isset($limit) ?
+                ' LIMIT ' . \Aomebo\Database\Adapter::escape(
+                    $limit) : '');
         }
 
         /**
@@ -1123,7 +1116,7 @@ namespace Aomebo\Database\Adapters\PDO
         private function _generateOrderBySubquery($orderBy)
         {
 
-            $sql = 'ORDER BY ';
+            $sql = ' ORDER BY ';
             $dataIndex = 0;
 
             foreach ($orderBy as $columnAndValue)
@@ -1149,16 +1142,14 @@ namespace Aomebo\Database\Adapters\PDO
                     if (!isset($columnAndValue[1])
                         || $columnAndValue[1] == 'ASC'
                     ) {
-                        $sql .= ' ASC ';
+                        $sql .= ' ASC';
                     } else {
-                        $sql .= ' ' . $columnAndValue[1] . ' ';
+                        $sql .= ' ' . $columnAndValue[1];
                     }
 
                     $dataIndex++;
                 }
             }
-
-            $sql .= ' ';
 
             return $sql;
 

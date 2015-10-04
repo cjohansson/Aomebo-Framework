@@ -33,7 +33,6 @@ namespace Aomebo\Session\Blocks
         /**
          * This variable will hold the sessions name.
          *
-         * @internal
          * @var string
          */
         protected $_name;
@@ -41,7 +40,6 @@ namespace Aomebo\Session\Blocks
         /**
          * This variable will hold the sessions configuration.
          *
-         * @internal
          * @var array
          */
         protected $_config;
@@ -49,7 +47,6 @@ namespace Aomebo\Session\Blocks
         /**
          * This array will hold all data related to session.
          *
-         * @internal
          * @var array
          */
         protected $_blockData;
@@ -100,11 +97,17 @@ namespace Aomebo\Session\Blocks
          */
         public function __construct($config = null)
         {
-            $file =
-                $this->getAbsoluteFilename();
-            $this->_name =
-                strtolower(basename(dirname($file)));
-            $this->_config = (isset($config) ? $config : false);
+            if (!self::_isConstructed()) {
+
+                parent::__construct();
+
+                $file =
+                    $this->getAbsoluteFilename();
+                $this->_name =
+                    strtolower(basename(dirname($file)));
+                $this->_config = (isset($config) ? $config : false);
+
+            }
         }
 
         /**
@@ -138,8 +141,6 @@ namespace Aomebo\Session\Blocks
         /**
          * This method will save block data instantly and
          * not wait untill interpret page completely.
-         *
-         * @internal
          */
         protected function _saveInstantBlockData()
         {
@@ -152,8 +153,6 @@ namespace Aomebo\Session\Blocks
         /**
          * When interpretation is finished, all changes between
          * blockdata and old is saved to spare the database connection.
-         *
-         * @internal
          */
         protected function _saveBlockData()
         {
@@ -165,8 +164,6 @@ namespace Aomebo\Session\Blocks
 
         /**
          * This method will generate a new session id.
-         *
-         * @internal
          */
         protected function _refreshSession()
         {
