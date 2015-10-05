@@ -140,7 +140,8 @@ namespace Aomebo
         protected static function _isConstructed($className = null)
         {
             $calledClass = (!empty($className) ? $className : get_called_class());
-            return (!empty(self::$_isConstructed[$calledClass]));
+            return (is_array(self::$_isConstructed)
+                && !empty(self::$_isConstructed[$calledClass]));
         }
 
     }
