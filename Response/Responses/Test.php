@@ -2,7 +2,7 @@
 /**
  * Aomebo - a module-based MVC framework for PHP 5.3 and higher
  *
- * Copyright 2010 - 2014 by Christian Johansson <christian@cvj.se>
+ * Copyright 2010 - 2015 by Christian Johansson <christian@cvj.se>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -27,20 +27,20 @@ namespace Aomebo\Response\Responses
     /**
      *
      */
-    class Test extends \Aomebo\Response\Type
+    class Bootstrap extends \Aomebo\Response\Type
     {
 
         /**
          * @internal
          * @var int
          */
-        protected $_priority = 100;
+        protected $_priority = 110;
 
         /**
          * @internal
          * @var string
          */
-        protected $_name = 'Test';
+        protected $_name = 'Bootstrap';
     
         /**
          * @return bool
@@ -48,7 +48,7 @@ namespace Aomebo\Response\Responses
         public function isValidRequest()
         {
             if (\Aomebo\Application::getParameter(
-                \Aomebo\Application::PARAMETER_TESTING_MODE)
+                \Aomebo\Application::PARAMETER_BOOTSTRAP_MODE)
             ) {
                 return true;
             }
@@ -77,11 +77,6 @@ namespace Aomebo\Response\Responses
             \Aomebo\Session\Handler::getInstance();
 
             new \Aomebo();
-
-            // Present our output
-            $presenter =
-                \Aomebo\Presenter\Engine::getInstance();
-            $presenter->output();
 
         }
 

@@ -954,6 +954,12 @@ $configuration = array(
                     'required' => false,
                     'default' => true,
                 ),
+            'bootstrap' =>
+                array(
+                    'type' => 'boolean',
+                    'required' => false,
+                    'default' => true,
+                ),
         ),
 );
 

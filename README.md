@@ -21,7 +21,17 @@ With optional features such as:
 * Feedback and debug functions (optional)
 * Built-in support for dynamic indexing (optional)
 * Built-in support for different session setups (filesystem, native PHP or database) (optional)
-* **All this super-fast, even with database-support execution-times in a few hundred of miliseconds for large-scale sites**.
+* **All this super-fast, even with database-support execution-times in a few hundred of microseconds for large-scale sites**.
+
+The framework has been successfully used for:
+
+* Internationalized and localized sites.
+* Internationalized and localized communities.
+* Accounting and bookkeeping software.
+* Internationalized and localized e-commerce systems.
+* REST APIs.
+* Blogs.
+* Company homepages.
 
 The framework is licensed by the Open license LGPL version 3.
 

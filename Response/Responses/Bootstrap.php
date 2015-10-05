@@ -27,27 +27,32 @@ namespace Aomebo\Response\Responses
     /**
      *
      */
-    class Favicon extends \Aomebo\Response\Type
+    class Test extends \Aomebo\Response\Type
     {
 
         /**
          * @internal
          * @var int
          */
-        protected $_priority = 70;
+        protected $_priority = 100;
 
         /**
          * @internal
          * @var string
          */
-        protected $_name = 'Favicon';
-
+        protected $_name = 'Test';
+    
         /**
          * @return bool
          */
         public function isValidRequest()
         {
-            return \Aomebo\Dispatcher\System::isFaviconRequest();
+            if (\Aomebo\Application::getParameter(
+                \Aomebo\Application::PARAMETER_TESTING_MODE)
+            ) {
+                return true;
+            }
+            return false;
         }
 
         /**
@@ -56,27 +61,27 @@ namespace Aomebo\Response\Responses
         public function respond()
         {
 
-            $favIconPath =
-                \Aomebo\Dispatcher\System::getResourcesDirInternalPath()
-                . DIRECTORY_SEPARATOR
-                . \Aomebo\Configuration::getSetting('site,shortcut icon');
+            // Load the internationalization system
+            \Aomebo\Internationalization\System::getInstance();
 
-            if (file_exists($favIconPath)) {
+            // Load our database
+            \Aomebo\Database\Adapter::getInstance();
 
-                \Aomebo\Dispatcher\System::setHttpHeaderField(
-                    'Content-Type',
-                    'image/vnd.microsoft.icon; charset=binary'
-                );
-                \Aomebo\Dispatcher\System::setHttpHeaderField(
-                    'Content-Disposition',
-                    'inline; filename="favicon.ico"'
-                );
-                \Aomebo\Dispatcher\System::outputHttpHeaders();
-                readfile($favIconPath);
+            // Load interpreter for parsing of pages
+            \Aomebo\Interpreter\Engine::getInstance();
 
-            } else {
-                Throw new \Exception('Could not find favicon at "' . $favIconPath . '"');
-            }
+            // Load cache system
+            \Aomebo\Cache\System::getInstance();
+
+            // Load our session handler
+            \Aomebo\Session\Handler::getInstance();
+
+            new \Aomebo();
+
+            // Present our output
+            $presenter =
+                \Aomebo\Presenter\Engine::getInstance();
+            $presenter->output();
 
         }
 

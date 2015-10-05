@@ -2,7 +2,7 @@
 /**
  * Aomebo - a module-based MVC framework for PHP 5.3 and higher
  *
- * Copyright 2010 - 2014 by Christian Johansson <christian@cvj.se>
+ * Copyright 2010 - 2015 by Christian Johansson <christian@cvj.se>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -107,6 +107,12 @@ namespace Aomebo
          */
         const PARAMETER_TESTING_MODE =
             'testing';
+
+        /**
+         * @var string
+         */
+        const PARAMETER_BOOTSTRAP_MODE =
+            'bootstrap';
 
         /**
          * @internal
