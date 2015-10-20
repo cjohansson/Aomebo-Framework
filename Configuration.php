@@ -923,10 +923,14 @@ namespace Aomebo
                                 || !isset(self::$_structureKeys[$value[self::STRUCTURE_KEY_TYPE]])
                             ) {
                                 Throw new \Exception(
-                                    'Configuration value for "' . $key . '.' . self::STRUCTURE_KEY_TYPE
-                                    . '" has invalid value "' . (isset($value[self::STRUCTURE_KEY_TYPE]) ? $value[self::STRUCTURE_KEY_TYPE] : 'null') . '" '
-                                    . 'valid values are "' . implode(',', array_keys(self::$_structureKeys)) . '" '
-                                    . 'in structure node: "' . print_r($node, true) . '"');
+                                    sprintf(
+                                        self::systemTranslate('Configuration value for "%s.%s" has invalid value "%s". Valid values are "%s" in structure node "%s".'),
+                                        $key,
+                                        self::STRUCTURE_KEY_TYPE,
+                                        (isset($value[self::STRUCTURE_KEY_TYPE]) ? $value[self::STRUCTURE_KEY_TYPE] : 'null'),
+                                        implode(',', array_keys(self::$_structureKeys)),
+                                        print_r($node, true)
+                                    ));
                             }
                             if (!isset($value[self::STRUCTURE_KEY_REQUIRED])
                                 || ($value[self::STRUCTURE_KEY_REQUIRED] !== true

@@ -230,7 +230,7 @@ namespace Aomebo\Indexing
          *
          * @static
          * @param string $uri
-         * @throws \Exception
+         * @throws \Aomebo\Exceptions\InvalidParametersException
          * @return bool
          */
         public static function removeUri($uri)
@@ -260,7 +260,7 @@ namespace Aomebo\Indexing
                 }
 
             } else {
-                Throw new \Exception('Invalid parameters');
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
             return false;
         }
@@ -436,7 +436,7 @@ namespace Aomebo\Indexing
                     return $row['content_md5'];
                 }
             } else {
-                Throw new \Exception('Invalid parameters');
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
             return false;
         }
@@ -579,7 +579,7 @@ namespace Aomebo\Indexing
          * @param string $uri
          * @param array $row
          * @return bool
-         * @throws \Exception
+         * @throws \Aomebo\Exceptions\InvalidParametersException
          */
         private static function _addUri($uri, $row)
         {
@@ -673,7 +673,7 @@ namespace Aomebo\Indexing
 
                 }
             } else {
-                Throw new \Exception('Invalid parameters');
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
 
             return true;
@@ -781,8 +781,7 @@ namespace Aomebo\Indexing
 
                 }
             } else {
-                Throw new \Exception(
-                    'Invalid parameters for ' . __FUNCTION__);
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
             return false;
         }
@@ -816,7 +815,7 @@ namespace Aomebo\Indexing
                 }
 
             } else {
-                Throw new \Exception('Invalid parameters');
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
 
             return false;
@@ -851,7 +850,7 @@ namespace Aomebo\Indexing
                     return true;
                 }
             } else {
-                Throw new \Exception('Invalid parameters');
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
         }
 
@@ -922,8 +921,7 @@ namespace Aomebo\Indexing
                     return $resultset->fetchAssocAndFree();
                 }
             } else {
-                Throw new \Exception(
-                    'Invalid parameters for ' . __FUNCTION__);
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
             return false;
         }

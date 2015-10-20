@@ -133,9 +133,10 @@ namespace Aomebo\Template\Adapters\Php
                     }
                     @eval('?>' . $viewscript);
                     if (!empty($php_errormsg)) {
-                        Throw new \Exception(
-                            'Error: "' . $php_errormsg
-                            . '", when parsing file "' . $this->_viewfile . '"');
+                        Throw new \Exception(sprintf(
+                            self::systemTranslate('Error: "%s", when parsing file "%s".'),
+                            $php_errormsg,
+                            $this->_viewfile));
                     }
 
                     if ($useOb) {
@@ -145,12 +146,15 @@ namespace Aomebo\Template\Adapters\Php
                         return '';
                     }
                 } catch (\Exception $e) {
-                    Throw new \Exception('Could not open view-script at "'
-                        . $this->_viewfile . '" error: "'
-                        . $e->getMessage() . '"');
+                    Throw new \Exception(sprintf(
+                        self::systemTranslate('Could not open view-script at "%s", error: "%s".'),
+                        $this->_viewfile,
+                        $e->getMessage()
+                    ));
                 }
             } else {
-                Throw new \Exception('Found no viewfile.');
+                Throw new \Exception(
+                    self::systemTranslate('Found no viewfile.'));
             }
         }
 

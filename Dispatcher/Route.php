@@ -319,9 +319,10 @@ namespace Aomebo\Dispatcher
                     ) {
                         $this->_isMatching = false;
                         if ($this->_matches === false) {
-                            Throw new \Exception(
-                                'Invalid regexp "' . $this->regexp . '" '
-                                . 'for route named "' . $this->name . '"');
+                            Throw new \Exception(sprintf(
+                                self::systemTranslate('Invalid regexp "%s" for route named "%s"'),
+                                $this->regexp,
+                                $this->name));
                         }
                     } else if (isset($this->_matches)
                         && (sizeof($this->_matches) - 1) ==
@@ -414,12 +415,11 @@ namespace Aomebo\Dispatcher
                             $this->keyToValues[$keyName] = $value;
                             $this->values[] = $value;
 
-                            // Otherwise - error
+                        // Otherwise - error
                         } else {
-                            Throw new \Exception(
-                                'Could not find match with index "'
-                                . ($keyIndex + 1) . '" for route.'
-                            );
+                            Throw new \Exception(sprintf(
+                                self::systemTranslate('Could not find match with index "%s" for route.'),
+                                ($keyIndex + 1)));
                         }
 
                     }

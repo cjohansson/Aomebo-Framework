@@ -63,8 +63,12 @@ namespace Aomebo\Interpreter\Adapters\Xml
                     $array = $this->_toArray($processed);
                     return $array;
                 } else {
-                    Throw new \Exception('The xml is malformed ('
-                        . print_r(libxml_get_errors(), true) . ').');
+                    Throw new \Exception(sprintf(
+                        self::systemTranslate(
+                            'The xml is malformed (%s).'
+                        ),
+                        print_r(libxml_get_errors(), true)
+                    ));
                 }
             }
             return false;

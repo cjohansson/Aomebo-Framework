@@ -589,7 +589,7 @@ namespace Aomebo\Session
                 return $ackBool;
 
             } else {
-                Throw new \Exception('Invalid parameters for ' . __FUNCTION__);
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
         }
 
@@ -715,10 +715,11 @@ namespace Aomebo\Session
                                 'quoted' => true,
                             )))
                     ) {
-                        Throw new \Exception('Could not update old session. (query: "'
-                            . \Aomebo\Database\Adapter::getLastSql()
-                            . '", error:"'
-                            . \Aomebo\Database\Adapter::getLastError() . '")');
+                        Throw new \Exception(sprintf(
+                            self::systemTranslate('Could not update old session. (query: "%s", error: "%s")'),
+                            \Aomebo\Database\Adapter::getLastSql(),
+                            \Aomebo\Database\Adapter::getLastError()
+                        ));
                     }
 
                 }
@@ -1397,14 +1398,12 @@ namespace Aomebo\Session
 
                     }
                 } else {
-                    Throw new \Exception(
-                        'Aomebo Session Handler only supports MyISAM or InnoDB as storage engines'
-                    );
+                    Throw new \Exception(self::systemTranslate(
+                        'Aomebo Session Handler only supports MyISAM or InnoDB as storage engines'));
                 }
             } else {
-                Throw new \Exception(
-                    'Aomebo Session Handler only supports MySQL or MySQLi as database adapter'
-                );
+                Throw new \Exception(self::systemTranslate(
+                    'Aomebo Session Handler only supports MySQL or MySQLi as database adapter'));
             }
         }
 

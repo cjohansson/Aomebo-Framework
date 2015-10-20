@@ -226,9 +226,9 @@ namespace Aomebo\Feedback
                         echo \Aomebo\Filesystem::getFileContents(
                             $errorPage);
                     } else {
-                        Throw new \Exception(
-                            'Errorpage not found at "'
-                            . $errorPage . '".');
+                        Throw new \Exception(sprintf(
+                            self::systemTranslate('Errorpage not found at "%s".'),
+                            $errorPage));
                     }
 
                 } catch (\Exception $e) {
@@ -391,12 +391,14 @@ namespace Aomebo\Feedback
                     echo \Aomebo\Filesystem::getFileContents(
                         $errorPage);
                 } else {
-                    Throw new \Exception(
-                        'Errorpage not found at "'
-                        . $errorPage . '".');
+                    Throw new \Exception(sprintf(
+                        self::systemTranslate('Errorpage not found at "%s".'),
+                        $errorPage));
                 }
             } catch (\Exception $e) {
-                self::output('Exception: "' . $e->getMessage() . '"');
+                self::output(sprintf(
+                    self::systemTranslate('Exception: "%s".'),
+                    $e->getMessage()));
             }
 
             $dispatcher =

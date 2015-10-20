@@ -75,7 +75,9 @@ namespace Aomebo\Response\Responses
                 readfile($favIconPath);
 
             } else {
-                Throw new \Exception('Could not find favicon at "' . $favIconPath . '"');
+                Throw new \Exception(sprintf(
+                    self::systemTranslate('Could not find favicon at "%s".'),
+                    $favIconPath));
             }
 
         }

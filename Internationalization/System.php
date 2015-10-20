@@ -169,12 +169,10 @@ namespace Aomebo\Internationalization
                                 if (is_dir($domainPath)) {
                                     $textDomains[$domain] = $domainPath;
                                 } else {
-                                    Throw new \Exception(
-                                        'Invalid internationalization "'
-                                        . $path . '", '
-                                        . 'no directory found at "'
-                                        . $domainPath . '".'
-                                    );
+                                    Throw new \Exception(sprintf(
+                                        self::systemTranslate('Invalid internationalization "%s", no directory found at "%s".'),
+                                        $path,
+                                        $domainPath));
                                 }
 
                             }

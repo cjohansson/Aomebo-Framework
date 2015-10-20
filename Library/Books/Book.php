@@ -60,8 +60,7 @@ namespace Aomebo\Library\Books
                     }
                 }
             } else {
-                Throw new \Exception(
-                    'Invalid parameteters for ' . __FILE__);
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
             return false;
         }

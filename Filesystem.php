@@ -672,8 +672,7 @@ namespace Aomebo
                             Throw new \Exception(
                                 sprintf(
                                     self::systemTranslate(
-                                        'Could not set owner groupnamegroup permissions to "%s" '
-                                        . 'for "%s"'
+                                        'Could not set owner group-name permissions to "%s" for "%s"'
                                     ),
                                     $ownerGroupName,
                                     $path

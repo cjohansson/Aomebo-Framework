@@ -339,7 +339,7 @@ namespace Aomebo\Associatives
                         Throw new \Exception(
                             sprintf(
                                 self::systemTranslate('Could not find dependency '
-                                    . '"%s" in "%s" from strong "%s"'),
+                                    . '"%s" in "%s" from "%s"'),
                                 $dependencyCisName,
                                 print_r(self::$_dependencies, true),
                                 $dependent->name

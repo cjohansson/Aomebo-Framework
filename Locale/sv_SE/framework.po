@@ -1,62 +1,215 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Aomebo Framework\n"
-"POT-Creation-Date: 2014-04-08 10:01+0100\n"
-"PO-Revision-Date: 2014-04-08 10:04+0100\n"
-"Last-Translator: \n"
+"POT-Creation-Date: 2015-10-20 13:05+0100\n"
+"PO-Revision-Date: 2015-10-20 13:15+0100\n"
+"Last-Translator: Christian Johansson <christian@cvj.se>\n"
 "Language-Team: \n"
 "Language: sv_SE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.6.4\n"
-"X-Poedit-Basepath: ../\n"
+"X-Generator: Poedit 1.7\n"
+"X-Poedit-Basepath: ../../\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Poedit-KeywordsList: gettext\n"
-"X-Poedit-SearchPath-0: Database\n"
+"X-Poedit-KeywordsList: gettext;systemTranslate;translate;__;_e\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: Template/Adapters/Twig/Twig-1.18.0\n"
 
-#: Database/Adapter.php:162
+#: GUI/Setup/private/Modules/Setup/views/view.tpl:8
+msgid "Configuration"
+msgstr "Inställningar"
+
+#: GUI/Setup/private/Modules/Setup/views/view.tpl:14
+msgid "Localization"
+msgstr "Översättning"
+
+#: GUI/Setup/private/Modules/Setup/views/view.tpl:28
+#: GUI/Setup/private/Modules/Setup/views/view.php:93
+msgid "Database"
+msgstr "Databas"
+
+#: GUI/Setup/private/Modules/Setup/views/view.tpl:58
+msgid "MySQLi"
+msgstr "MySQLi"
+
+#: GUI/Setup/private/Modules/Setup/views/view.tpl:59
+msgid "PDO"
+msgstr "PDO"
+
+#: Application.php:436
+msgid "Failed to load configuration"
+msgstr "Misslyckades med att ladda inställningarna"
+
+#: Application.php:444
 #, php-format
-msgid "Could not install database in %s in %s"
-msgstr "Kunde inte installera databasen %s i %s"
+msgid "Invalid parameters for Aomebo Application. parameters: \"%s\""
+msgstr "Ogiltiga parametrar för Aomebo Applikation. parametrar: \"%s\""
 
-#: Database/Adapter.php:186
+#: Application.php:572 Application.php:595 Application.php:1311
+#: Associatives/Parser.php:143 Associatives/Parser.php:175
+#: Configuration.php:820 Database/Adapter.php:393 Database/Adapter.php:495
+#: Database/Adapter.php:523 Database/Adapter.php:555 Database/Adapter.php:576
+#: Database/Adapter.php:596 Database/Adapter.php:619 Database/Adapter.php:1097
+#: Database/Adapter.php:1120 Database/Adapter.php:1512
+#: Database/Adapters/Mysqli/Adapter.php:105
+#: Database/Adapters/Mysqli/Adapter.php:270
+#: Database/Adapters/Mysqli/Adapter.php:292
+#: Database/Adapters/Mysqli/Adapter.php:347
+#: Database/Adapters/Mysqli/Adapter.php:379
+#: Database/Adapters/Mysqli/Adapter.php:833
+#: Database/Adapters/Mysqli/Adapter.php:857
+#: Database/Adapters/Mysqli/Resultset.php:272
+#: Database/Adapters/Pdo/Adapter.php:146 Database/Adapters/Pdo/Adapter.php:344
+#: Database/Adapters/Pdo/Adapter.php:367 Database/Adapters/Pdo/Adapter.php:422
+#: Database/Adapters/Pdo/Adapter.php:454 Database/Adapters/Pdo/Adapter.php:921
+#: Database/Adapters/Pdo/Adapter.php:978
+#: Database/Adapters/Pdo/Resultset.php:277 Dispatcher/System.php:2457
+#: Dispatcher/System.php:2484 Dispatcher/System.php:2509
+#: Dispatcher/System.php:2535 Filesystem.php:397
+#: GUI/Setup/private/Modules/Setup/views/view.php:69
+#: Interpreter/Engine.php:483 Interpreter/Engine.php:512
+#: Interpreter/Engine.php:1635 Interpreter/Engine.php:1769
+msgid "Invalid parameters"
+msgstr "Ogiltiga parametrar"
+
+#: Application.php:829 Application.php:844 Application.php:859
+#: Application.php:874 Application.php:889 Application.php:904
+#: Application.php:919
 #, php-format
-msgid "Could not select database in %s in %s"
-msgstr "Kunde inte ansluta till databasen %s i %s"
+msgid "Something went wrong when including file \"%s\", error: \"%s\""
+msgstr ""
+"Någonting gick snett när man försökte inkludera filen \"%s\", error: \"%s\""
 
-#: Database/Adapter.php:199
+#: Application.php:932
+#, php-format
+msgid "Couldn't find file \"%s\" at \"%s\", \"%s\", \"%s\" or at \"%s\"."
+msgstr ""
+"Kunde inte hitta filen \"%s\" på \"%s\", \"%s\", \"%s\" eller på \"%s\"."
+
+#: Application.php:1234
+#, php-format
+msgid "Failed to construct runtime \"%s\""
+msgstr "Misslyckades med att skapa runtime \"%s\""
+
+#: Associatives/Engine.php:341
+#, php-format
+msgid "Could not find dependency \"%s\" in \"%s\" from \"%s\""
+msgstr "Kunde inte hitta dependency \"%s\" i \"%s\" från \"%s\""
+
+#: Associatives/Engine.php:555
+#, php-format
+msgid "Invalid session requirement method specified! Could not find %s in %s"
+msgstr "Ogiltigt kvar för session angivet! Kunde inte hitta %s i %s"
+
+#: Associatives/Engine.php:959
+#, php-format
+msgid "Could not parse dependency (\"%s\")"
+msgstr "Kunde inte läsa dependency (\"%s\")"
+
+#: Associatives/Parser.php:138 Associatives/Parser.php:170
+msgid "RegExp was invalid"
+msgstr "RegExp var ogiltigt"
+
+#: Associatives/Parser.php:664
+msgid "Malformed data."
+msgstr "Felformad data."
+
+#: Configuration.php:406 Configuration.php:417
+msgid "Invalid configuration cache, cleared caches."
+msgstr "Ogiltig inställningscache, tömmer cache."
+
+#: Configuration.php:633 Configuration.php:684 Configuration.php:741
+#, php-format
+msgid "Invalid parameters \"%s\""
+msgstr "Ogiltiga parametrar \"%s\""
+
+#: Configuration.php:664 Configuration.php:692 Configuration.php:803
+#, php-format
+msgid "Setting-value for key: \"%s\" not found."
+msgstr "Inställningsvärdet för \"%s\" kunde inte hittas."
+
+#: Configuration.php:751
+#, php-format
+msgid "Failed to save settings. Failed with saving keys: \"%s\""
+msgstr ""
+"Misslyckades med att spara inställningar. Misslyckades med att spara värden: "
+"\"%s\""
+
+#: Configuration.php:756
+msgid "Failed to save settings."
+msgstr "Misslyckades med att spara inställningar."
+
+#: Configuration.php:927
+#, php-format
+msgid ""
+"Configuration value for \"%s.%s\" has invalid value \"%s\". Valid values are "
+"\"%s\" in structure node \"%s\"."
+msgstr ""
+"Inställningen för \"%s.%s\" har ogiltigt värde \"%s\". Giltiga värden är \"%s"
+"\" i strukturnoden \"%s\"."
+
+#: Configuration.php:942
+#, php-format
+msgid ""
+"Configuration value for \"%s\" has invalid value \"%s\" in structure node: "
+"\"%s\""
+msgstr ""
+"Inställningsvärdet för \"%s\" har ogiltigt värde \"%s\" i strukturnoden: \"%s"
+"\""
+
+#: Configuration.php:1045
+#, php-format
+msgid ""
+"No value defined in external or internal configuration for required value "
+"\"%s\" in structure node: \"%s\" and configuration node: \"%s\""
+msgstr ""
+"Inget värde definierat i externa eller interna inställningar för det "
+"obligatoriska värdet \"%s\" i strukturnoden: \"%s\" och inställningsnoden: "
+"\"%s\""
+
+#: Configuration.php:1097
+#, php-format
+msgid "Invalid parameters: \"%s\""
+msgstr "Ogiltiga parametrar: \"%s\""
+
+#: Configuration.php:1224 Configuration.php:1319
+msgid "Failed to load Spyc Library"
+msgstr "Misslyckades att ladda Spyc bibliotek"
+
+#: Database/Adapter.php:205
 #, php-format
 msgid ""
 "Could not connect to database server in %s in %s. Check your configuration."
 msgstr "Kunde inte ansluta med %s i %s. Se över dina inställningar."
 
-#: Database/Adapter.php:260
+#: Database/Adapter.php:318
 #, php-format
 msgid ""
 "Selected database \"%s\" does not match requested database \"%s\" in %s in %s"
 msgstr "Vald databas \"%s\" matchar inte förfrågad databas \"%s\" i %s i %s"
 
-#: Database/Adapter.php:277
+#: Database/Adapter.php:335
 #, php-format
 msgid "Failed to get selected database in %s in %s"
 msgstr "Misslyckades med att välja databas i %s i %s"
 
-#: Database/Adapter.php:328 Database/Adapter.php:619 Database/Adapter.php:642
-msgid "Invalid parameters"
-msgstr "Ogiltiga parametrar"
-
-#: Database/Adapter.php:559
+#: Database/Adapter.php:846 Database/Adapter.php:1038
 #, php-format
 msgid "SQL: \"%s\" evaluated into empty query in %s"
 msgstr "SQL: \"%s\" blev tom förfrågan i %s"
 
-#: Database/Adapter.php:576
+#: Database/Adapter.php:861 Database/Adapter.php:1053
+#: Database/Adapter.php:1296
 #, php-format
-msgid "Can't query \"%s\" when database connection hasn't been established."
-msgstr "Kan inte göra förfrågan \"%s\" då databasen inte är ansluten."
+msgid ""
+"Can't query \"%s\" when database connection hasn't been established. "
+"Database adapter constructed: "
+msgstr ""
+"Kunde inte utföra frågan \"%s\" när databasanslutning saknas. Databasadepter "
+"skapad: "
 
-#: Database/Adapter.php:700 Database/Adapter.php:737
+#: Database/Adapter.php:1241 Database/Adapter.php:1281
 #, php-format
 msgid ""
 "Query:<p>\n"
@@ -71,14 +224,474 @@ msgstr ""
 "<p>\n"
 "%s</p>"
 
-#: Database/Adapter.php:852
+#: Database/Adapter.php:1419
+#, php-format
+msgid "Could not install database in %s in %s"
+msgstr "Kunde inte installera databasen %s i %s"
+
+#: Database/Adapter.php:1450
+#, php-format
+msgid "Could not select database in %s in %s"
+msgstr "Kunde inte ansluta till databasen %s i %s"
+
+#: Database/Adapter.php:1470
 #, php-format
 msgid "Could not connect using: \"%s\""
 msgstr "Kunde inte ansluta med: \"%s\""
 
-#: Database/Adapter.php:861
+#: Database/Adapter.php:1485
 #, php-format
 msgid ""
 "Could not find Database adapter class or database resultset class: %s, %s"
 msgstr ""
 "Kunde inte hitta någon databasadapter klass eller resultset klass: %s, %s"
+
+#: Database/Adapters/Mysqli/Adapter.php:128
+#: Database/Adapters/Pdo/Adapter.php:170
+#, php-format
+msgid "Could not set database handle charset to: \"%s\""
+msgstr "Kunde inte ange teckenkodning för databasadaptern till: \"%s\""
+
+#: Database/Adapters/Mysqli/Adapter.php:173
+#: Database/Adapters/Pdo/Adapter.php:210
+msgid "Failed to perform SQL escape, make sure there is a database connection"
+msgstr ""
+"Misslyckades att utföra SQL escape, kontrollera att det finns en "
+"databasanslutning"
+
+#: Database/Adapters/Mysqli/Adapter.php:182
+#: Database/Adapters/Pdo/Adapter.php:218
+msgid "Can not SQL escape when not connected"
+msgstr "Kan inte utföra SQL escape när det inte finns någon anslutning"
+
+#: Database/Adapters/Pdo/Adapter.php:112
+msgid "Missing database-engine DNS."
+msgstr "Saknas DNS till databasmotorn."
+
+#: Database/Adapters/Pdo/Adapter.php:916 Database/Adapters/Pdo/Adapter.php:973
+msgid "This feature has not been implemented for current driver."
+msgstr ""
+"Denna funktion har inte blivit implementerad för den nuvarande drivrutinen."
+
+#: Dispatcher/Route.php:323
+#, php-format
+msgid "Invalid regexp \"%s\" for route named \"%s\""
+msgstr "Ogiltig regex \"%s\" för rutten med namn \"%s\""
+
+#: Dispatcher/Route.php:421
+#, php-format
+msgid "Could not find match with index \"%s\" for route."
+msgstr "Kunde inte hitta någon träff med index \"%s\" för rutten."
+
+#: Dispatcher/System.php:1548 Dispatcher/System.php:1559
+#, php-format
+msgid "Invalid associatives type for array \"%s\"."
+msgstr "Ogiltig typ för associations i array \"%s\"."
+
+#: Dispatcher/System.php:1588
+#, php-format
+msgid "No resources for associative array \"%s\"."
+msgstr "Ingen resurs för associativa array \"%s\"."
+
+#: Dispatcher/System.php:1641
+#, php-format
+msgid "No uri exists for page \"%s\"."
+msgstr "Ingen uri finns för sidan \"%s\"."
+
+#: Dispatcher/System.php:1773
+#, php-format
+msgid "Invalid page \"%s\" specified."
+msgstr "Ogiltig sida \"%s\" angiven."
+
+#: Dispatcher/System.php:1884
+#, php-format
+msgid "Could not find route for parameters: \"%s\""
+msgstr "Kunde inte hitta någon rutt för parametrarna: \"%s\""
+
+#: Feedback/Debug.php:230 Feedback/Debug.php:395
+#, php-format
+msgid "Errorpage not found at \"%s\"."
+msgstr "Errorsida hittades inte på \"%s\"."
+
+#: Feedback/Debug.php:400
+#, php-format
+msgid "Exception: \"%s\"."
+msgstr "Undantag: \"%s\"."
+
+#: Filesystem.php:333 Filesystem.php:347
+#, php-format
+msgid "Could not make directory: \"%s\""
+msgstr "Kunde inte skapa katalog: \"%s\""
+
+#: Filesystem.php:385
+#, php-format
+msgid "Opening file: \"%s\" returned error: \"%s\""
+msgstr "När filen: \"%s\" öppnas uppstod felet: \"%s\""
+
+#: Filesystem.php:632
+#, php-format
+msgid "Could not set chmod for file \"%s\" to oct: \"%s\", dec: \"%s\""
+msgstr "Kunde inte sätta chmod för filen \"%s\" till oct: \"%s\", dec: \"%s\""
+
+#: Filesystem.php:659
+#, php-format
+msgid "Could not set owner username to \"%s\" for \"%s\""
+msgstr "Kunde inte sätta användarnamn till \"%s\" för \"%s\""
+
+#: Filesystem.php:675
+#, php-format
+msgid "Could not set owner group-name permissions to \"%s\" for \"%s\""
+msgstr "Kunde inte sätta ägare grupp-namn rättigheter till \"%s\" för \"%s\""
+
+#: Filesystem.php:779
+msgid "Invalid default file mode specified in configuration"
+msgstr "Ogiltigt standard file läge angivet i inställningarna"
+
+#: GUI/Setup/private/Modules/Setup/Module.php:182
+#: GUI/Setup/private/Modules/Setup/Module.php:196
+#: GUI/Setup/private/Modules/Setup/Module.php:210
+#, php-format
+msgid "Successfully set locale to %s. "
+msgstr "Lyckades sätta språk till %s."
+
+#: GUI/Setup/private/Modules/Setup/Module.php:188
+#: GUI/Setup/private/Modules/Setup/Module.php:202
+#: GUI/Setup/private/Modules/Setup/Module.php:216
+#, php-format
+msgid "Failed to set locale to %s. "
+msgstr "Misslyckades att sätta språk till %s."
+
+#: GUI/Setup/private/Modules/Setup/Module.php:262
+#, php-format
+msgid "Connected to host `%s`. Selected database `%s`. "
+msgstr "Ansluten till värd `%s`. Valde databasen `%s`. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:284
+msgid "System successfully auto-installed. "
+msgstr "Lyckades auto-installera systemet. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:287
+msgid "System failed to auto-install. "
+msgstr "Misslyckades med att auto-installera systemet. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:294
+msgid "System successfully auto-uninstalled. "
+msgstr "Lyckades att auto-avinstallera systemet. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:297
+msgid "System failed to auto-uninstall. "
+msgstr "Misslyckades med att auto-avinstallera systemet. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:304
+msgid "System successfully auto-updated. "
+msgstr "Lyckades att auto-uppdatera systemet. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:307
+msgid "System failed to auto-update. "
+msgstr "Misslyckades med att auto-uppdatera systemet. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:314
+#, php-format
+msgid "Table `%s` exists. "
+msgstr "Tabellen `%s` finns. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:320
+#: GUI/Setup/private/Modules/Setup/Module.php:377
+#, php-format
+msgid "Found table fields `%s`. "
+msgstr "Hittade tabell fälten `%s`. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:325
+#: GUI/Setup/private/Modules/Setup/Module.php:382
+msgid "Found no table fields. "
+msgstr "Hittade inga fält i tabellen. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:330
+#: GUI/Setup/private/Modules/Setup/Module.php:342
+#: GUI/Setup/private/Modules/Setup/Module.php:387
+#: GUI/Setup/private/Modules/Setup/Module.php:399
+#, php-format
+msgid "Table column \"%s\" exists. "
+msgstr "Tabellkolumnen \"%s\" finns. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:335
+#: GUI/Setup/private/Modules/Setup/Module.php:347
+#: GUI/Setup/private/Modules/Setup/Module.php:392
+#: GUI/Setup/private/Modules/Setup/Module.php:404
+#, php-format
+msgid "Table column \"%s\" does not exist. "
+msgstr "Tabellkolumnen \"%s\" finns inte. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:355
+#, php-format
+msgid "Dropped table `%s`. "
+msgstr "Tog bort tabellen `%s`. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:362
+#, php-format
+msgid "Failed to drop table `%s`. "
+msgstr "Misslyckades med att ta bort tabellen `%s`. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:371
+#, php-format
+msgid "Table `%s` created. "
+msgstr "Tabellen `%s` skapad. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:417
+#, php-format
+msgid "Entry added with assigned id %d. "
+msgstr "Rad skapades med id %d. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:431
+#, php-format
+msgid "Entry updated with id %d. "
+msgstr "Rad uppdaterades med id %d. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:436
+msgid "Failed to update data. "
+msgstr "Misslyckades med att uppdatera data. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:442
+#, php-format
+msgid "Entry with id %d selected. Assoc data: \"%s\". "
+msgstr "Rad med id %d valdes. Associativ data: \"%s\". "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:450
+#: GUI/Setup/private/Modules/Setup/Module.php:462
+msgid "Failed to select data. "
+msgstr "Misslyckades med att välja data. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:456
+#, php-format
+msgid "Entry with id %d selected again. Object data: \"%s\". "
+msgstr "Rad med id %d valdes igen. Objekt data: \"%s\". "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:469
+#, php-format
+msgid "Entry with id %d deleted. "
+msgstr "Rad med id %d togs bort. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:475
+msgid "Failed to add data to table. "
+msgstr "Misslyckades med att lägga till rad i tabell. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:481
+msgid "All entries deleted. "
+msgstr "Alla rader raderade."
+
+#: GUI/Setup/private/Modules/Setup/Module.php:484
+msgid "Failed to create table. "
+msgstr "Misslyckades med att skapa tabell. "
+
+#: GUI/Setup/private/Modules/Setup/Module.php:489
+#, php-format
+msgid "Failed to connect to host `%s` or failed to select database `%s`. "
+msgstr ""
+"Misslyckades med att ansluta till värden `%s` eller misslyckades att välja "
+"databasen `%s`. "
+
+#: GUI/Setup/private/Modules/Setup/views/view.php:75
+msgid "Routes examples:"
+msgstr "Rutt exempel:"
+
+#: GUI/Setup/private/Modules/Setup/views/view.php:78
+msgid "Route 1:"
+msgstr "Rutt 1:"
+
+#: GUI/Setup/private/Modules/Setup/views/view.php:79
+msgid "About"
+msgstr "Om"
+
+#: GUI/Setup/private/Modules/Setup/views/view.php:82
+msgid "Route 2:"
+msgstr "Rutt 2:"
+
+#: GUI/Setup/private/Modules/Setup/views/view.php:83
+msgid "Save settings"
+msgstr "Spara inställningar"
+
+#: GUI/Setup/private/Modules/Setup/views/view.php:86
+msgid "Route 3:"
+msgstr "Rutt 3:"
+
+#: GUI/Setup/private/Modules/Setup/views/view.php:87
+msgid "Confirm save settings"
+msgstr "Bekräfta spara inställningar"
+
+#: GUI/Setup/private/Modules/Setup/views/view.php:95
+msgid "Database tests:"
+msgstr "Databastester:"
+
+#: Indexing/Engine.php:1010
+msgid ""
+"Aomebo Indexing Engine supports only MyISAM or InnoDB as storage engines"
+msgstr ""
+"Aomebo indexeringsmotor stödjer bara MyISAM eller InnoDB som lagringsmotorer."
+
+#: Indexing/Engine.php:1017
+msgid ""
+"Aomebo Indexing Engine supports only MySQL or MySQLi as database adapter"
+msgstr ""
+"Aomebo indexeringsmotor stödjer bara MySQL eller MySQLi som databasadapter"
+
+#: Internationalization/System.php:173 Internationalization/System.php:206
+#, php-format
+msgid "Invalid internationalization \"%s\", no directory found at \"%s\"."
+msgstr "Ogiltig översättning \"%s\", ingen katalog på \"%s\"."
+
+#: Internationalization/System.php:684
+#, php-format
+msgid "Failed to init internationalization adapter \"%s\", error: \"%s\"."
+msgstr "Misslyckades att ladda översättningsadepter \"%s\", error: \"%s\"."
+
+#: Interpreter/Adapters/Xml/Adapter.php:68
+#, php-format
+msgid "The xml is malformed (%s)."
+msgstr "Xml är felformulerat (%s)."
+
+#: Interpreter/Engine.php:304
+msgid "Invalid parameter"
+msgstr "Ogiltiga parametrar"
+
+#: Interpreter/Engine.php:877
+msgid "Invalid interpretation status"
+msgstr "Ogiltig tolkningsstatus"
+
+#: Interpreter/Engine.php:886
+msgid "Couldn't process page."
+msgstr "Kunde inte behandla sida."
+
+#: Interpreter/Engine.php:1108 Interpreter/Engine.php:1212
+#: Interpreter/Engine.php:1310
+#, php-format
+msgid ""
+"\"%s\" is neither a Runtime or a Runtime parameter to \"%s\". Loaded "
+"Runtimes: \"%s\""
+msgstr ""
+"\"%s\" är inte en Runtime eller en parameter till en Runtime på \"%s\". "
+"Laddade Runtimes: \"%s\""
+
+#: Interpreter/Engine.php:1122 Interpreter/Engine.php:1226
+#: Interpreter/Engine.php:1324
+#, php-format
+msgid "Invalid array: \"%s\""
+msgstr "Ogiltig array: \"%s\""
+
+#: Interpreter/Engine.php:1131 Interpreter/Engine.php:1235
+#: Interpreter/Engine.php:1333
+#, php-format
+msgid "\"%s\" is not an array."
+msgstr "\"%s\" är inte en array."
+
+#: Interpreter/Engine.php:1390
+#, php-format
+msgid "\"%s\" is not a valid Runtime for evaluation."
+msgstr "\"%s\" är inte en giltig Runtime för bearbetning."
+
+#: Interpreter/Engine.php:1475
+#, php-format
+msgid "Could not process page from ajax request %s"
+msgstr "Kunde inte behandla sida från ajax förfrågan %s"
+
+#: Interpreter/Engine.php:1498
+#, php-format
+msgid "Found no page to interpret for request GET: %s, POST: %s, SERVER: %s"
+msgstr ""
+"Kunde inte hitta någon sida att tolka för förfrågan GET: %s, POST: %s, "
+"SERVER: %s"
+
+#: Interpreter/Engine.php:1512
+#, php-format
+msgid "Something went wrong when starting interpretation, error: \"%s\""
+msgstr "Något gick fel när tolkningen skulle startas, error: \"%s\""
+
+#: Interpreter/Engine.php:1611
+#, php-format
+msgid "Could not process page at: \"%s\", pageData: \"%s\""
+msgstr "Kunde inte behandla sidan på: \"%s\", pageData: \"%s\""
+
+#: Interpreter/Engine.php:1620
+#, php-format
+msgid "Failed to find page \"%s\" with any adapter"
+msgstr "Misslyckades att hitta sidan \"%s\" med någon adapter"
+
+#: Interpreter/Engine.php:1824
+#, php-format
+msgid "Failed to load default adapter: Error: %s"
+msgstr "Misslyckades med att ladda standard adapter: Error: %s"
+
+#: Response/Handler.php:82
+#, php-format
+msgid "Response \"%s\" returned error \"%s\""
+msgstr "Mottagaren \"%s\" skickade ett fel \"%s\""
+
+#: Response/Handler.php:89
+msgid "No response exists"
+msgstr "Ingen mottagare finns"
+
+#: Response/Responses/Favicon.php:79
+#, php-format
+msgid "Could not find favicon at \"%s\"."
+msgstr "Kunde inte hitta favicon på \"%s\"."
+
+#: Session/Handler.php:214
+msgid "Could not install Session Handler"
+msgstr "Kunde inte installera sessionshanterare"
+
+#: Session/Handler.php:719
+#, php-format
+msgid "Could not update old session. (query: \"%s\", error: \"%s\")"
+msgstr ""
+"Kunde inte uppdatera en gammal session. (förfrågan: \"%s\", error: \"%s\")"
+
+#: Session/Handler.php:1402
+msgid ""
+"Aomebo Session Handler only supports MyISAM or InnoDB as storage engines"
+msgstr ""
+"Aomebo sessionshanterare stödjer bara MyISAM eller InnoDB som lagringsmotor"
+
+#: Session/Handler.php:1406
+msgid ""
+"Aomebo Session Handler only supports MySQL or MySQLi as database adapter"
+msgstr ""
+"Aomebos sessionhanterare stödjer bara MySQL eller MySQLi som databasadapter"
+
+#: Singleton.php:62
+#, php-format
+msgid ""
+"Class %s may not be constructed at this time in the execution chain. Please "
+"adjust your runtime configuration."
+msgstr ""
+"Klassen %s kan inte skapas vid detta skede i utförande-kedjan. Vänliga ändra "
+"dina inställningar."
+
+#: Template/Adapters/Base.php:131
+msgid "Invalid reference object for view template"
+msgstr "Ogiltig referens för template"
+
+#: Template/Adapters/Php/Adapter.php:137
+#, php-format
+msgid "Error: \"%s\", when parsing file \"%s\"."
+msgstr "Error: \"%s\", när man försökte läsa filen \"%s\"."
+
+#: Template/Adapters/Php/Adapter.php:150
+#, php-format
+msgid "Could not open view-script at \"%s\", error: \"%s\"."
+msgstr "Kunde inte öppna templatefilen på \"%s\", error: \"%s\"."
+
+#: Template/Adapters/Php/Adapter.php:157
+msgid "Found no viewfile."
+msgstr "Hittade ingen templatefil."
+
+#: Template/Adapters/Smarty/Adapter.php:105
+#: Template/Adapters/Smarty/Adapter.php:125
+#: Template/Adapters/Smarty/Adapter.php:144
+#, php-format
+msgid "Something went wrong when including file \"%s\", error \"%s\"."
+msgstr "Någonting gick fel när filen \"%s\" inkluderades, error \"%s\"."
+
+#~ msgid "Could not find dependency \"%s\" in \"%s\" from strong \"%s\""
+#~ msgstr "Kunde inte hitta dependency \"%s\" på \"%s\" från \"%s\""
+
+#~ msgid "Can't query \"%s\" when database connection hasn't been established."
+#~ msgstr "Kan inte göra förfrågan \"%s\" då databasen inte är ansluten."

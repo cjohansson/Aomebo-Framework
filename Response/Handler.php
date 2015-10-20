@@ -86,7 +86,7 @@ namespace Aomebo\Response
                     );
                 }
             } else {
-                Throw new \Exception('No response exists');
+                Throw new \Exception(self::systemTranslate('No response exists'));
             }
         }
 
