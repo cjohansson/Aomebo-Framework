@@ -808,6 +808,28 @@ namespace Aomebo\Database\Adapters\Mysqli
         }
 
         /**
+         * @return bool
+         */
+        public function useResult()
+        {
+            if (isset($this->_con)) {
+                return $this->_con->use_result();
+            }
+            return false;
+        }
+
+        /**
+         * @return bool
+         */
+        public function storeResult()
+        {
+            if (isset($this->_con)) {
+                return $this->_con->store_result();
+            }
+            return false;
+        }
+
+        /**
          * @param string $tableName
          * @param string $columnName
          * @return bool

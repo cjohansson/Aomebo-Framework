@@ -110,6 +110,16 @@ namespace Aomebo\Database\Adapters
         abstract public function query($sql);
 
         /**
+         * @return bool
+         */
+        abstract public function useResult();
+
+        /**
+         * @return bool
+         */
+        abstract public function storeResult();
+
+        /**
          * @abstract
          * @param string $sql
          * @throws \Exception
