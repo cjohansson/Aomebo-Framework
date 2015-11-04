@@ -838,6 +838,26 @@ namespace Aomebo\Database\Adapters\PDO
         }
 
         /**
+         * @return bool
+         */
+        public function useResult()
+        {
+            if (isset($this->_con)) {
+            }
+            return false;
+        }
+
+        /**
+         * @return bool
+         */
+        public function storeResult()
+        {
+            if (isset($this->_con)) {
+            }
+            return false;
+        }
+
+        /**
          * @param \Aomebo\Database\Adapters\Transaction $transaction
          * @return \Aomebo\Database\Adapters\Resultset|bool
          */

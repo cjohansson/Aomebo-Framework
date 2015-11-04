@@ -416,6 +416,44 @@ namespace Aomebo\Database
         }
 
         /**
+         * @static
+         * @return bool
+         */
+        public static function useResult()
+        {
+
+            if (!self::_isConstructed()) {
+                self::getInstance();
+            }
+
+            if (isset(self::$_object)) {
+                return self::$_object->useResult();
+            }
+
+            return false;
+
+        }
+
+        /**
+         * @static
+         * @return bool
+         */
+        public static function storeResult()
+        {
+
+            if (!self::_isConstructed()) {
+                self::getInstance();
+            }
+
+            if (isset(self::$_object)) {
+                return self::$_object->storeResult();
+            }
+
+            return false;
+
+        }
+
+        /**
          * This method returns our last insert id.
          *
          * @static
