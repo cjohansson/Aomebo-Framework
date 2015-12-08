@@ -962,11 +962,13 @@ namespace Aomebo\Interpreter
 
             // body script
             if (!isset(self::$_insertPoints[self::INSERTION_POINT_BODY_SCRIPT])) {
-                if ($pos = stripos(self::$_output, '</body>')) {
-                    self::setInsertPoint(
-                        self::INSERTION_POINT_BODY_SCRIPT,
-                        $pos - 1
-                    );
+                if ($pos = stripos(self::$_output, '<body')) {
+                    if ($pos = strpos(self::$_output, '>', $pos)) {
+                        self::setInsertPoint(
+                            self::INSERTION_POINT_BODY_SCRIPT,
+                            $pos + 1
+                        );
+                    }
                 } else  {
                     unset(self::$_insertPoints[
                         self::INSERTION_POINT_BODY_SCRIPT]);
@@ -975,7 +977,7 @@ namespace Aomebo\Interpreter
 
             // body style
             if (!isset(self::$_insertPoints[self::INSERTION_POINT_BODY_STYLE])) {
-                if ($pos = stripos(self::$_output, '<body>')) {
+                if ($pos = stripos(self::$_output, '<body')) {
                     if ($pos = strpos(self::$_output, '>', $pos)) {
                         self::setInsertPoint(
                             self::INSERTION_POINT_BODY_STYLE,
@@ -990,14 +992,16 @@ namespace Aomebo\Interpreter
 
             // body markup
             if (!isset(self::$_insertPoints[self::INSERTION_POINT_BODY_MARKUP])) {
-                if ($pos = stripos(self::$_output, '</body>')) {
-                    self::setInsertPoint(
-                        self::INSERTION_POINT_BODY_MARKUP,
-                        $pos - 1
-                    );
+                if ($pos = stripos(self::$_output, '<body')) {
+                    if ($pos = strpos(self::$_output, '>', $pos)) {
+                        self::setInsertPoint(
+                            self::INSERTION_POINT_BODY_MARKUP,
+                            $pos + 1
+                        );
+                    }
                 } else  {
                     unset(self::$_insertPoints[
-                    self::INSERTION_POINT_BODY_MARKUP]);
+                        self::INSERTION_POINT_BODY_MARKUP]);
                 }
             }
 
