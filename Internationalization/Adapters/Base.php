@@ -94,28 +94,28 @@ namespace Aomebo\Internationalization\Adapters
          * one form for plural messages dependent on the count.
          *
          * @static
-         * @param string $msgid1
-         * @param string $msgid2
-         * @param int $n
+         * @param string $singular
+         * @param string $plural
+         * @param int $count
          * @return string
          * @see ngettext()
          */
-        abstract public function ngettext($msgid1, $msgid2, $n);
+        abstract public function ngettext($singular, $plural, $count);
 
         /**
-         * Overrides the domain for a single lookup.
+         * Overrides the domain for a single contextual lookup.
          *
          * This function allows you to override the current
-         * domain for a single message lookup.
+         * domain for a single contextual message lookup.
          *
          * @static
          * @param string $domain
          * @param string $message
-         * @param int $category
+         * @param string|null [$context = null]
          * @return string
          * @see dcgettext()
          */
-        abstract public function dcgettext($domain, $message, $category);
+        abstract public function dcgettext($domain, $message, $context = null);
 
         /**
          * Plural version of dgettext.
@@ -125,30 +125,30 @@ namespace Aomebo\Internationalization\Adapters
          *
          * @static
          * @param string $domain
-         * @param string $msgid1
-         * @param string $msgid2
+         * @param string $singular
+         * @param string $plural
          * @param int $n
          * @return string
          * @see dngettext()
          */
-        abstract public function dngettext($domain, $msgid1, $msgid2, $n);
+        abstract public function dngettext($domain, $singular, $plural, $count);
 
         /**
          * Plural version of dcgettext.
          *
          * This function allows you to override the current
-         * domain for a single plural message lookup.
+         * domain for a single contextual plural message lookup.
          *
          * @static
          * @param string $domain
-         * @param string $msgid1
-         * @param string $msgid2
-         * @param int $n
-         * @param int $category
+         * @param string $singular
+         * @param string $plural
+         * @param int $count
+         * @param string|null [$context = null]
          * @return string
          * @see dcngettext()
          */
-        abstract public function dcngettext($domain, $msgid1, $msgid2, $n, $category);
+        abstract public function dcngettext($domain, $singular, $plural, $count, $context = null);
 
     }
 

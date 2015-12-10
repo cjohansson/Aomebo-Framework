@@ -1184,6 +1184,30 @@ namespace Aomebo
         /**
          * @static
          * @param string $path
+         * @return mixed
+         */
+        public static function loadPhpData($path)
+        {
+            if (file_exists($path)) {
+                try {
+
+                    $return = require($path);
+
+                    if (isset($return)
+                        && $return !== false
+                    ) {
+                        return $return;
+                    }
+
+                } catch (\Exception $e) {}
+
+            }
+            return array();
+        }
+
+        /**
+         * @static
+         * @param string $path
          * @param string [$variableName = 'configuration']
          * @return array
          */
@@ -1247,6 +1271,39 @@ namespace Aomebo
                 _SITE_ROOT_ . self::$_externalConfigurationFilename . '.php',
                 self::$_settings
             );
+        }
+
+        /**
+         * @static
+         * @param string $file
+         * @param array $data
+         * @return bool
+         */
+        public static function savePhpDataFile($file, $data)
+        {
+
+            if (isset($data)
+                && is_array($data)
+                && sizeof($data) > 0
+            ) {
+
+                $phpData = "<?php \n"
+                    . "\n"
+                    . 'return ' . var_export($data, true)
+                    . ';' . "\n"
+                    . "\n";
+
+                if (\Aomebo\Filesystem::makeFile(
+                    $file,
+                    $phpData)
+                ) {
+                    return true;
+                }
+
+            }
+
+            return false;
+
         }
 
         /**

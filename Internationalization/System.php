@@ -72,7 +72,6 @@ namespace Aomebo\Internationalization
          */
         private static $_defaultSiteTextDomain = null;
 
-
         /**
          * @internal
          * @static
@@ -288,22 +287,23 @@ namespace Aomebo\Internationalization
          * @static
          * @param string $message
          * @param string|null [$domain = null]
+         * @param string|null [$context = null]
          * @return string
          * @see gettext()
          */
-        public static function siteTranslate($message, $domain = null)
+        public static function siteTranslate($message, $domain = null, $context = null)
         {
             if (!isset($domain)) {
                 $domain = self::$_defaultSiteTextDomain;
             }
             if ($triggerMessage = \Aomebo\Trigger\System::processTriggers(
                 \Aomebo\Trigger\System::TRIGGER_KEY_INTERNATIONALIZATION_TRANSLATE,
-                array($message, $domain))
+                array($message, $domain, $context))
             ) {
                 return $triggerMessage;
             }
             if (self::$_adapterClass) {
-                return self::$_adapterClass->dgettext($domain, $message);
+                return self::$_adapterClass->dcgettext($domain, $message, $context);
             }
             return $message;
         }
@@ -312,10 +312,11 @@ namespace Aomebo\Internationalization
          * @static
          * @param string $message
          * @param string|null [$domain = null]
+         * @param string|null [$context = null]
          * @return string
          * @see gettext()
          */
-        public static function systemTranslate($message, $domain = null)
+        public static function systemTranslate($message, $domain = null, $context = null)
         {
             if (!isset($domain)) {
                 $domain = self::$_defaultSystemTextDomain;
@@ -327,7 +328,7 @@ namespace Aomebo\Internationalization
                 return $triggerMessage;
             }
             if (self::$_adapterClass) {
-                return self::$_adapterClass->dgettext($domain, $message);
+                return self::$_adapterClass->dcgettext($domain, $message, $context);
             }
             return $message;
         }
@@ -359,19 +360,19 @@ namespace Aomebo\Internationalization
          * one form for plural messages dependent on the count.
          *
          * @static
-         * @param string $msgid1
-         * @param string $msgid2
-         * @param int $n
+         * @param string $singular
+         * @param string $plural
+         * @param int $count
          * @return string
          * @see ngettext()
          */
-        public static function ngettext($msgid1, $msgid2, $n)
+        public static function ngettext($singular, $plural, $count)
         {
             if (self::$_adapterClass) {
                 return self::$_adapterClass->ngettext(
-                    $msgid1, $msgid2, $n);
+                    $singular, $plural, $count);
             }
-            return ($n > 1 ? $msgid2 : $msgid1);
+            return ($count > 1 ? $plural : $singular);
         }
 
         /**
@@ -383,15 +384,15 @@ namespace Aomebo\Internationalization
          * @static
          * @param string $domain
          * @param string $message
-         * @param int $category
+         * @param string|null [$context = null]
          * @return string
          * @see dcgettext()
          */
-        public static function dcgettext($domain, $message, $category)
+        public static function dcgettext($domain, $message, $context = null)
         {
             if (self::$_adapterClass) {
                 return self::$_adapterClass->dcgettext(
-                    $domain, $message, $category);
+                    $domain, $message, $context);
             }
             return $message;
         }
@@ -404,20 +405,20 @@ namespace Aomebo\Internationalization
          *
          * @static
          * @param string $domain
-         * @param string $msgid1
-         * @param string $msgid2
-         * @param int $n
+         * @param string $singular
+         * @param string $plural
+         * @param int $count
          * @return string
          * @see dngettext()
          */
-        public static function dngettext($domain, $msgid1,
-            $msgid2, $n)
+        public static function dngettext($domain, $singular,
+            $plural, $count)
         {
             if (self::$_adapterClass) {
                 return self::$_adapterClass->dngettext(
-                    $domain, $msgid1, $msgid2, $n);
+                    $domain, $singular, $plural, $count);
             }
-            return ($n > 1 ? $msgid2 : $msgid1);
+            return ($count > 1 ? $plural : $singular);
         }
 
         /**
@@ -428,21 +429,21 @@ namespace Aomebo\Internationalization
          *
          * @static
          * @param string $domain
-         * @param string $msgid1
-         * @param string $msgid2
-         * @param int $n
-         * @param int $category
+         * @param string $singular
+         * @param string $plural
+         * @param int $count
+         * @param string|null [$context = null]
          * @return string
          * @see dcngettext()
          */
-        public static function dcngettext($domain, $msgid1,
-            $msgid2, $n, $category)
+        public static function dcngettext($domain, $singular,
+            $plural, $count, $context)
         {
             if (self::$_adapterClass) {
                 return self::$_adapterClass->dcngettext(
-                    $domain, $msgid1, $msgid2, $n, $category);
+                    $domain, $singular, $plural, $count, $context);
             }
-            return ($n > 1 ? $msgid2 : $msgid1);
+            return ($count > 1 ? $plural : $singular);
         }
 
         /**
@@ -752,14 +753,15 @@ namespace
         /**
          * @param string $message
          * @param string|null [$domain = null]
-         * @param string|null [$category = null]
+         * @param string|null [$context = null]
          * @return string
          */
-        function __($message, $domain = null, $category = null)
+        function __($message, $domain = null, $context = null)
         {
             return \Aomebo\Internationalization\System::siteTranslate(
                 $message,
-                $domain
+                $domain,
+                $context
             );
         }
 
@@ -770,14 +772,15 @@ namespace
         /**
          * @param string $message
          * @param string|null [$domain = null]
-         * @param string|null [$category = null]
+         * @param string|null [$context = null]
          * @return string
          */
-        function translate($message, $domain = null, $category = null)
+        function translate($message, $domain = null, $context = null)
         {
             return \Aomebo\Internationalization\System::siteTranslate(
                 $message,
-                $domain
+                $domain,
+                $context
             );
         }
 
@@ -788,14 +791,15 @@ namespace
         /**
          * @param string $message
          * @param string|null [$domain = null]
-         * @param string|null [$category = null]
+         * @param string|null [$context = null]
          * @return string
          */
-        function t($message, $domain = null, $category = null)
+        function t($message, $domain = null, $context = null)
         {
             return \Aomebo\Internationalization\System::siteTranslate(
                 $message,
-                $domain
+                $domain,
+                $context
             );
         }
 
@@ -806,14 +810,15 @@ namespace
         /**
          * @param string $message
          * @param string|null [$domain = null]
-         * @param string|null [$category = null]
+         * @param string|null [$context = null]
          * @return string
          */
-        function _e($message, $domain = null, $category = null)
+        function _e($message, $domain = null, $context = null)
         {
             echo \Aomebo\Internationalization\System::siteTranslate(
                 $message,
-                $domain
+                $domain,
+                $context
             );
         }
 

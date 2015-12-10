@@ -21,11 +21,11 @@
 /**
  *
  */
-namespace Aomebo\Internationalization\Adapters\Gettext
+namespace Aomebo\Internationalization\Adapters\Php
 {
 
     /**
-     * @method static \Aomebo\Internationalization\Adapters\Gettext\Adapter getInstance()
+     * @method static \Aomebo\Internationalization\Adapters\Php\Adapter getInstance()
      */
     class Adapter extends \Aomebo\Internationalization\Adapters\Base
     {
@@ -33,7 +33,7 @@ namespace Aomebo\Internationalization\Adapters\Gettext
         /**
          * @internal
          * @static
-         * @var null|\Aomebo\Internationalization\Adapters\Gettext\Translations
+         * @var null|array
          */
         private static $_translations = null;
 
@@ -50,10 +50,9 @@ namespace Aomebo\Internationalization\Adapters\Gettext
          * @param string|null [$defaultLocale = null]
          * @return bool
          */
-        public function initLocale($textDomains = null, 
-            $locale = null, $defaultLocale = null)
+        public function initLocale($textDomains = null,
+                                   $locale = null, $defaultLocale = null)
         {
-            
             if (!isset($textDomains)) {
                 $textDomains =
                     \Aomebo\Internationalization\System::getTextDomains();
@@ -73,9 +72,9 @@ namespace Aomebo\Internationalization\Adapters\Gettext
             {
                 $dirtime =
                     \Aomebo\Filesystem::getDirectoryLastModificationTime(
-                        $location, 
-                        true, 
-                        2, 
+                        $location,
+                        true,
+                        2,
                         false
                     );
                 if ($dirtime > $lastModificationTime)
@@ -84,11 +83,11 @@ namespace Aomebo\Internationalization\Adapters\Gettext
                 }
             }
 
-            $cacheParameters = 'Internationalization/Gettext/' . $locale . '/' . $defaultLocale;
+            $cacheParameters = 'Internationalization/Php/' . $locale . '/' . $defaultLocale;
             $cacheKey = $lastModificationTime;
-            
+
             self::$_languageToTranslations[$locale] = array();
-            
+
             if (\Aomebo\Cache\System::cacheExists(
                 $cacheParameters,
                 $cacheKey,
@@ -101,8 +100,8 @@ namespace Aomebo\Internationalization\Adapters\Gettext
                         $cacheKey,
                         \Aomebo\Cache\System::FORMAT_SERIALIZE,
                         \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
-                );
-                
+                    );
+
             } else {
 
                 \Aomebo\Cache\System::clearCache(
@@ -110,6 +109,8 @@ namespace Aomebo\Internationalization\Adapters\Gettext
                     null,
                     \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
                 );
+
+                self::$_languageToTranslations[$locale] = array();
 
                 $this->loadTextDomains($textDomains);
 
@@ -121,6 +122,133 @@ namespace Aomebo\Internationalization\Adapters\Gettext
                     \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
                 );
 
+            }
+        }
+
+        /**
+         * @param array $textDomains
+         * @param string|null [$locale = null]
+         * @param string|null [$defaultLocale = null]
+         * @return bool
+         */
+        public function loadTextDomains($textDomains,
+                                        $locale = null, $defaultLocale = null)
+        {
+            if (!isset($locale)) {
+                $locale =
+                    \Aomebo\Internationalization\System::getLocale();
+            }
+            if (!isset($defaultLocale)) {
+                $defaultLocale =
+                    \Aomebo\Internationalization\System::getDefaultLocale();
+            }
+
+            $accBool = true;
+
+            foreach ($textDomains as $textDomain => $location)
+            {
+                $response = $this->loadTextDomain(
+                    $textDomain,
+                    $location,
+                    $locale,
+                    $defaultLocale
+                );
+                $accBool = ($accBool && $response);
+            }
+
+            return $accBool;
+        }
+
+        /**
+         * @param string $textDomain
+         * @param string $location
+         * @param string|null [$locale = null]
+         * @param string|null [$defaultLocale = null]
+         * @return bool
+         */
+        public function loadTextDomain($textDomain, $location,
+                                       $locale = null,
+                                       $defaultLocale = null)
+        {
+
+            if (!isset($locale)) {
+                $locale =
+                    \Aomebo\Internationalization\System::getLocale();
+            }
+            if (!isset($defaultLocale)) {
+                $defaultLocale =
+                    \Aomebo\Internationalization\System::getDefaultLocale();
+            }
+
+            $accBool = true;
+
+            if (is_dir($location)
+                && file_exists(
+                    $location . '/' . $textDomain . '-' . $locale . '.php')
+            ) {
+                if (!self::_loadEntriesFromFile(
+                    $location . '/' . $textDomain . '-' . $locale . '.php',
+                    $locale,
+                    $textDomain)
+                ) {
+                    $accBool = false;
+                }
+            } else if (is_dir($location . '/' . $locale)
+                && file_exists(
+                    $location . '/' . $locale . '/' . $textDomain . '.php')
+            ) {
+                if (!self::_loadEntriesFromFile(
+                    $location . '/' . $locale . '/' . $textDomain . '.php',
+                    $locale,
+                    $textDomain)
+                ) {
+                    $accBool = false;
+                }
+            } else if (is_dir($location . '/' . $defaultLocale)
+                && file_exists($location . '/' . $defaultLocale . '/' . $textDomain . '.php')
+            ) {
+                if (!self::_loadEntriesFromFile(
+                    $location . '/' . $defaultLocale . '/' . $textDomain . '.php',
+                    $locale,
+                    $textDomain)
+                ) {
+                    $accBool = false;
+                }
+            } else if (is_dir($location)
+                && file_exists($location . '/' . $textDomain . '-' . $defaultLocale . '.php')
+            ) {
+                if (!self::_loadEntriesFromFile(
+                    $location . '/' . $textDomain . '-' . $defaultLocale . '.php',
+                    $locale,
+                    $textDomain)
+                ) {
+                    $accBool = false;
+                }
+            } else {
+                $accBool = false;
+            }
+
+            return $accBool;
+
+        }
+
+        /**
+         * @internal
+         * @param string $path
+         * @param string $locale
+         * @param string $textDomain
+         * @return bool
+         */
+        private static function _loadEntriesFromFile($path, $locale, $textDomain)
+        {
+            if ($entries = \Aomebo\Configuration::loadPhpData($path)) {
+                foreach ($entries as $key => $text)
+                {
+                    self::$_languageToTranslations[$locale][$textDomain][$key] = $text;
+                }
+                return true;
+            } else {
+                return false;
             }
         }
 
@@ -139,153 +267,6 @@ namespace Aomebo\Internationalization\Adapters\Gettext
             }
             self::$_translations = & self::$_languageToTranslations[$locale];
             return true;
-        }
-
-        /**
-         * @param array $textDomains
-         * @param string|null [$locale = null]
-         * @param string|null [$defaultLocale = null]
-         * @return bool
-         */
-        public function loadTextDomains($textDomains, 
-            $locale = null, 
-            $defaultLocale = null)
-        {
-            
-            if (!isset($locale)) {
-                $locale =
-                    \Aomebo\Internationalization\System::getLocale();
-            }
-            if (!isset($defaultLocale)) {
-                $defaultLocale =
-                    \Aomebo\Internationalization\System::getDefaultLocale();
-            }
-
-            $accBool = true;
-            
-            foreach ($textDomains as $textDomain => $location)
-            {
-                $response = $this->loadTextDomain(
-                    $textDomain,
-                    $location,
-                    $locale,
-                    $defaultLocale
-                );
-                $accBool = ($accBool && $response);
-            }
-            
-            return $accBool;
-            
-        }
-
-        /**
-         * @param string $textDomain
-         * @param string $location
-         * @param string|null [$locale = null]
-         * @param string|null [$defaultLocale = null]
-         * @return bool
-         */
-        public function loadTextDomain($textDomain, $location,  
-            $locale = null, 
-            $defaultLocale = null)
-        {
-
-            if (!isset($locale)) {
-                $locale =
-                    \Aomebo\Internationalization\System::getLocale();
-            }
-            if (!isset($defaultLocale)) {
-                $defaultLocale =
-                    \Aomebo\Internationalization\System::getDefaultLocale();
-            }
-
-            if (!isset(self::$_languageToTranslations[$locale][$textDomain])) {
-                self::$_languageToTranslations[$locale][$textDomain] =
-                    new \Aomebo\Internationalization\Adapters\Gettext\Translations();
-            }
-
-            $accBool = true;
-
-            if (is_dir($location)
-                && file_exists(
-                    $location . '/' . $textDomain . '-' . $locale . '.mo')
-            ) {
-                if (!self::_loadEntriesFromFile(
-                    $location . '/' . $textDomain . '-' . $locale . '.mo',
-                    $locale,
-                    $textDomain)
-                ) {
-                    $accBool = false;
-                }
-            } else if (is_dir($location . '/' . $locale)
-                && file_exists(
-                    $location . '/' . $locale . '/' . $textDomain . '.mo')
-            ) {
-                if (!self::_loadEntriesFromFile(
-                    $location . '/' . $locale . '/' . $textDomain . '.mo',
-                    $locale,
-                    $textDomain)
-                ) {
-                    $accBool = false;
-                }
-            } else if (is_dir($location . '/' . $defaultLocale)
-                && file_exists($location . '/' . $defaultLocale . '/' . $textDomain . '.mo')
-            ) {
-                if (!self::_loadEntriesFromFile(
-                    $location . '/' . $defaultLocale . '/' . $textDomain . '.mo',
-                    $locale,
-                    $textDomain)
-                ) {
-                    $accBool = false;
-                }
-            } else if (is_dir($location)
-                && file_exists($location . '/' . $textDomain . '-' . $defaultLocale . '.mo')
-            ) {
-                if (!self::_loadEntriesFromFile(
-                    $location . '/' . $textDomain . '-' . $defaultLocale . '.mo',
-                    $locale,
-                    $textDomain)
-                ) {
-                    $accBool = false;
-                }
-            } else {
-                $accBool = false;
-            }
-            
-            return $accBool;
-            
-        }
-
-        /**
-         * @internal
-         * @param string $path
-         * @param string $locale
-         * @param string $textDomain
-         * @return bool
-         */
-        private static function _loadEntriesFromFile($path, $locale, $textDomain)
-        {
-
-            $mo =
-                new \Aomebo\Internationalization\Adapters\Gettext\MO();
-
-            if ($mo->import_from_file($path)) {
-
-                $ref = & self::$_languageToTranslations[$locale][$textDomain];
-                /** @var \Aomebo\Internationalization\Adapters\Gettext\Translations $ref */
-
-                foreach ($mo->entries as $entry)
-                {
-                    /** @var \Aomebo\Internationalization\Adapters\Gettext\Translation_Entry $entry */
-                    $ref->add_entry($entry);
-                }
-
-                return true;
-
-            } else {
-                return false;
-            }
-
         }
 
         /**
@@ -317,12 +298,10 @@ namespace Aomebo\Internationalization\Adapters\Gettext
          */
         public function dgettext($domain, $message)
         {
-            if (isset(self::$_translations[$domain])) {
-                $ref = & self::$_translations[$domain];
-                /** @var \Aomebo\Internationalization\Adapters\Gettext\Translations $ref */
-                return $ref->translate($message);
-            }
-            return $message;
+            $locale =
+                \Aomebo\Internationalization\System::getLocale();
+            return (isset(self::$_translations[$locale][$domain][$message])
+                ? self::$_translations[$locale][$domain][$message] : $message);
         }
 
         /**
@@ -340,7 +319,8 @@ namespace Aomebo\Internationalization\Adapters\Gettext
          */
         public function ngettext($singular, $plural, $count)
         {
-            return self::$_translations->translate_plural($singular, $plural, $count);
+            return ($count > 1 ? $this->gettext($plural)
+                : $this->gettext($singular));
         }
 
         /**
@@ -358,12 +338,11 @@ namespace Aomebo\Internationalization\Adapters\Gettext
          */
         public function dcgettext($domain, $message, $context = null)
         {
-            if (isset(self::$_translations[$domain])) {
-                $ref = & self::$_translations[$domain];
-                /** @var \Aomebo\Internationalization\Adapters\Gettext\Translations $ref */
-                return $ref->translate($message, $context);
-            }
-            return $message;
+            return $this->dgettext(
+                $domain,
+                (!empty($context) ? $context . '|' . $message
+                : $message)
+            );
         }
 
         /**
@@ -382,12 +361,8 @@ namespace Aomebo\Internationalization\Adapters\Gettext
          */
         public function dngettext($domain, $singular, $plural, $count)
         {
-            if (isset(self::$_translations[$domain])) {
-                $ref = & self::$_translations[$domain];
-                /** @var \Aomebo\Internationalization\Adapters\Gettext\Translations $ref */
-                return $ref->translate_plural($singular, $plural, $count);
-            }
-            return ($count > 1 ? $plural : $singular);
+            return ($count > 1 ? $this->dgettext($domain, $plural)
+                : $this->dgettext($domain, $singular));
         }
 
         /**
@@ -407,12 +382,8 @@ namespace Aomebo\Internationalization\Adapters\Gettext
          */
         public function dcngettext($domain, $singular, $plural, $count, $context = null)
         {
-            if (isset(self::$_translations[$domain])) {
-                $ref = & self::$_translations[$domain];
-                /** @var \Aomebo\Internationalization\Adapters\Gettext\Translations $ref */
-                return $ref->translate_plural($singular, $plural, $count, $context);
-            }
-            return ($count > 1 ? $plural : $singular);
+            return ($count > 1 ? $this->dcgettext($domain, $plural, $context)
+                : $this->dcgettext($domain, $singular, $context));
         }
 
     }
