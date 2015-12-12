@@ -146,7 +146,7 @@ namespace Aomebo
          */
         public static function translate($message, $domain = null, $context = null)
         {
-            return \Aomebo\Internationalization\System::siteSingularTranslate(
+            return \Aomebo\Internationalization\System::siteTranslate(
                 $message, $domain, $context);
         }
 
@@ -159,7 +159,7 @@ namespace Aomebo
          */
         public static function t($message, $domain = null, $context = null)
         {
-            return \Aomebo\Internationalization\System::siteSingularTranslate(
+            return \Aomebo\Internationalization\System::siteTranslate(
                 $message, $domain, $context);
         }
 
@@ -172,7 +172,7 @@ namespace Aomebo
          */
         public static function __($message, $domain = null, $context = null)
         {
-            return \Aomebo\Internationalization\System::siteSingularTranslate(
+            return \Aomebo\Internationalization\System::siteTranslate(
                 $message, $domain, $context);
         }
 
