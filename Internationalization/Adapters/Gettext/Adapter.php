@@ -102,8 +102,15 @@ namespace Aomebo\Internationalization\Adapters\Gettext
                         \Aomebo\Cache\System::FORMAT_SERIALIZE,
                         \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
                 );
+
+                // Is data not an array? (compatability with old caches)
+                if (!is_array(self::$_languageToTranslations[$locale])) {
+                    self::$_languageToTranslations[$locale] = array();
+                }
+
+            }
                 
-            } else {
+            if (sizeof(self::$_languageToTranslations[$locale]) == 0) {
 
                 \Aomebo\Cache\System::clearCache(
                     $cacheParameters,
