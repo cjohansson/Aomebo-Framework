@@ -152,7 +152,7 @@ namespace Modules\Setup
             $view->attachVariable('submit', $submit);
             $view->attachVariable('locales',
                 \Aomebo\Internationalization\System::getLocalesFromDirectory(
-                    dirname(dirname(__DIR__)) . '/Language'));
+                    __DIR__ . '/Locales'));
             $view->setFile('views/view.twig');
 
             return $view->parse();
@@ -171,51 +171,86 @@ namespace Modules\Setup
             $tests = '';
             
             \Aomebo\Internationalization\System::init();
+
             \Aomebo\Internationalization\System::addTextDomain(
                 'site',
                 dirname(dirname(__DIR__)) . '/Language'
+            );
+            \Aomebo\Internationalization\System::addTextDomain(
+                'setup',
+                __DIR__ . '/Locales'
             );
 
             if (\Aomebo\Internationalization\System::setLocale('en_US')) {
 
                 $tests .= sprintf(
-                    __('Successfully set locale to %s. '),
+                    'Gettext: ' . __('Successfully set locale to %s. ', 'site'),
                     'en_US'
                 );
-                    
-            } else {
                 $tests .= sprintf(
-                    __('Failed to set locale to %s. '),
+                    'PHP: ' . __('Successfully set locale to %s. ', 'setup'),
                     'en_US'
                 );
+
+            } else {
+
+                $tests .= sprintf(
+                    'Gettext: ' . __('Failed to set locale to %s. ', 'site'),
+                    'en_US'
+                );
+                $tests .= sprintf(
+                    'PHP: ' . __('Failed to set locale to %s. ', 'setup'),
+                    'en_US'
+                );
+
             }
 
             if (\Aomebo\Internationalization\System::setLocale('sv_SE')) {
 
                 $tests .= sprintf(
-                    __('Successfully set locale to %s. '),
+                    'Gettext: ' . __('Successfully set locale to %s. ', 'site'),
+                    'sv_SE'
+                );
+                $tests .= sprintf(
+                    'PHP: ' . __('Successfully set locale to %s. ', 'setup'),
                     'sv_SE'
                 );
 
             } else {
+
                 $tests .= sprintf(
-                    __('Failed to set locale to %s. '),
+                    'Gettext: ' . __('Failed to set locale to %s. ', 'site'),
                     'sv_SE'
                 );
+                $tests .= sprintf(
+                    'PHP: ' . __('Failed to set locale to %s. ', 'setup'),
+                    'sv_SE'
+                );
+
             }
 
             if (\Aomebo\Internationalization\System::setLocale($locale)) {
-                
+
                 $tests .= sprintf(
-                    __('Successfully set locale to %s. '),
+                    'Gettext: ' . __('Successfully set locale to %s. ', 'site'),
+                    $locale
+                );
+                $tests .= sprintf(
+                    'PHP: ' . __('Successfully set locale to %s. ', 'setup'),
                     $locale
                 );
 
             } else {
+
                 $tests .= sprintf(
-                    __('Failed to set locale to %s. '),
+                    'Gettext: ' . __('Failed to set locale to %s. ', 'site'),
                     $locale
                 );
+                $tests .= sprintf(
+                    'PHP: ' . __('Failed to set locale to %s. ', 'setup'),
+                    $locale
+                );
+
             }
             
             return $tests;
@@ -259,8 +294,7 @@ namespace Modules\Setup
             )  {
 
                 $databaseTests = sprintf(
-                    __('Connected to host `%s`. '
-                    . 'Selected database `%s`. '),
+                    __('Connected to host `%s`. Selected database `%s`. ', 'setup'),
                     $host,
                     $database
                 );
@@ -281,70 +315,70 @@ namespace Modules\Setup
                 if (!empty($autoInstall)) {
                     if (\Aomebo\Application::autoInstall()) {
                         $databaseTests .= 
-                            __('System successfully auto-installed. ');                            
+                            __('System successfully auto-installed. ', 'setup');
                     } else {
                         $databaseTests .=
-                            __('System failed to auto-install. ');
+                            __('System failed to auto-install. ', 'setup');
                     }
                 }
                 
                 if (!empty($autoUninstall)) {
                     if (\Aomebo\Application::autoUninstall()) {
                         $databaseTests .=
-                            __('System successfully auto-uninstalled. ');
+                            __('System successfully auto-uninstalled. ', 'setup');
                     } else {
                         $databaseTests .=
-                            __('System failed to auto-uninstall. ');
+                            __('System failed to auto-uninstall. ', 'setup');
                     }
                 }
 
                 if (!empty($autoUpdate)) {
                     if (\Aomebo\Application::autoUpdate()) {
                         $databaseTests .=
-                            __('System successfully auto-updated. ');
+                            __('System successfully auto-updated. ', 'setup');
                     } else {
                         $databaseTests .=
-                            __('System failed to auto-update. ');
+                            __('System failed to auto-update. ', 'setup');
                     }
                 }
 
                 if ($table->exists()) {
 
                     $databaseTests .= sprintf(
-                        __('Table `%s` exists. '),
+                        __('Table `%s` exists. ', 'setup'),
                         $table->getName()
                     );
 
                     if ($fields = $table->getTableColumns()) {
                         $databaseTests .= sprintf(
-                            __('Found table fields `%s`. '),
+                            __('Found table fields `%s`. ', 'setup'),
                             print_r($fields, true)
                         );
                     } else {
                         $databaseTests .= 
-                            __('Found no table fields. ');
+                            __('Found no table fields. ', 'setup');
                     }
                     
                     if ($table->hasTableColumn('cash')) {
                         $databaseTests .= sprintf(
-                            __('Table column "%s" exists. '),
+                            __('Table column "%s" exists. ', 'setup'),
                             'cash'
                         );
                     } else {
                         $databaseTests .= sprintf(
-                            __('Table column "%s" does not exist. '),
+                            __('Table column "%s" does not exist. ', 'setup'),
                             'cash'
                         );
                     }
 
                     if ($table->hasTableColumn('casher')) {
                         $databaseTests .= sprintf(
-                            __('Table column "%s" exists. '),
+                            __('Table column "%s" exists. ', 'setup'),
                             'casher'
                         );
                     } else {
                         $databaseTests .= sprintf(
-                            __('Table column "%s" does not exist. '),
+                            __('Table column "%s" does not exist. ', 'setup'),
                             'casher'
                         );
                     }
@@ -352,14 +386,14 @@ namespace Modules\Setup
                     if ($table->drop()) {
 
                         $databaseTests .= sprintf(
-                            __('Dropped table `%s`. '),
+                            __('Dropped table `%s`. ', 'setup'),
                             $table->getName()
                         );
 
                     } else {
                         $databaseTests .=
                             sprintf(
-                                __('Failed to drop table `%s`. '),
+                                __('Failed to drop table `%s`. ', 'setup'),
                                 $table->getName()
                             );
                     }
@@ -368,40 +402,40 @@ namespace Modules\Setup
                     if ($table->create()) {
 
                         $databaseTests .= sprintf(
-                            __('Table `%s` created. '),
+                            __('Table `%s` created. ', 'setup'),
                             $table->getName()
                         );
 
                         if ($fields = $table->getTableColumns()) {
                             $databaseTests .= sprintf(
-                                __('Found table fields `%s`. '),
+                                __('Found table fields `%s`. ', 'setup'),
                                 print_r($fields, true)
                             );
                         } else {
                             $databaseTests .=
-                                __('Found no table fields. ');
+                                __('Found no table fields. ', 'setup');
                         }
 
                         if ($table->hasTableColumn('cash')) {
                             $databaseTests .= sprintf(
-                                __('Table column "%s" exists. '),
+                                __('Table column "%s" exists. ', 'setup'),
                                 'cash'
                             );
                         } else {
                             $databaseTests .= sprintf(
-                                __('Table column "%s" does not exist. '),
+                                __('Table column "%s" does not exist. ', 'setup'),
                                 'cash'
                             );
                         }
 
                         if ($table->hasTableColumn('casher')) {
                             $databaseTests .= sprintf(
-                                __('Table column "%s" exists. '),
+                                __('Table column "%s" exists. ', 'setup'),
                                 'casher'
                             );
                         } else {
                             $databaseTests .= sprintf(
-                                __('Table column "%s" does not exist. '),
+                                __('Table column "%s" does not exist. ', 'setup'),
                                 'casher'
                             );
                         }
@@ -414,7 +448,7 @@ namespace Modules\Setup
                         ) {
 
                             $databaseTests .= sprintf(
-                                __('Entry added with assigned id %d. '),
+                                __('Entry added with assigned id %d. ', 'setup'),
                                 $id
                             );
 
@@ -428,18 +462,18 @@ namespace Modules\Setup
                             ) {
 
                                 $databaseTests .= sprintf(
-                                    __('Entry updated with id %d. '),
+                                    __('Entry updated with id %d. ', 'setup'),
                                     $id
                                 );
 
                             } else {
-                                $databaseTests .= __('Failed to update data. ');
+                                $databaseTests .= __('Failed to update data. ', 'setup');
                             }
 
                             if ($result = $table->select()) {
 
                                 $databaseTests .= sprintf(
-                                    __('Entry with id %d selected. Assoc data: "%s". '),
+                                    __('Entry with id %d selected. Assoc data: "%s". ', 'setup'),
                                     $id,
                                     print_r($result->fetchAssoc(), true)
                                 );
@@ -447,46 +481,46 @@ namespace Modules\Setup
                                 $result->free();
 
                             } else {
-                                $databaseTests .= __('Failed to select data. ');
+                                $databaseTests .= __('Failed to select data. ', 'setup');
                             }
 
                             if ($result = $table->select()) {
 
                                 $databaseTests .= sprintf(
-                                    __('Entry with id %d selected again. Object data: "%s". '),
+                                    __('Entry with id %d selected again. Object data: "%s". ', 'setup'),
                                     $id,
                                     print_r($result->fetchObjectAndFree(), true)
                                 );
 
                             } else {
-                                $databaseTests .= __('Failed to select data. ');
+                                $databaseTests .= __('Failed to select data. ', 'setup');
                             }
 
 
                             $table->delete(array(array($table->id, $id)));
 
                             $databaseTests .= sprintf(
-                                __('Entry with id %d deleted. '),
+                                __('Entry with id %d deleted. ', 'setup'),
                                 $id
                             );
 
                         } else {
 
-                            $databaseTests .= __('Failed to add data to table. ');
+                            $databaseTests .= __('Failed to add data to table. ', 'setup');
 
                         }
 
                         $table->delete();
 
-                        $databaseTests .= __('All entries deleted. ');
+                        $databaseTests .= __('All entries deleted. ', 'setup');
 
                     } else {
-                        $databaseTests .= __('Failed to create table. ');
+                        $databaseTests .= __('Failed to create table. ', 'setup');
                     }
                 }
             } else {
                 $databaseTests .= sprintf(
-                    __('Failed to connect to host `%s` or failed to select database `%s`. '),
+                    __('Failed to connect to host `%s` or failed to select database `%s`. ', 'setup'),
                     $host,
                     $database
                 );

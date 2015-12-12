@@ -71,6 +71,7 @@ namespace Aomebo
         private $_collectedSets = array();
 
         /**
+         * @internal
          * @var \Aomebo\Dispatcher\Route|null
          */
         private $_executeRoute;
@@ -97,6 +98,7 @@ namespace Aomebo
         protected $_dependencies = array();
 
         /**
+         * @internal
          * @static
          * @var \Aomebo|null
          */
@@ -112,7 +114,8 @@ namespace Aomebo
          */
         public static function gettext($message)
         {
-            return self::$_aomebo->Internationalization()->System()->gettext($message);
+            return self::$_aomebo->Internationalization()->System()->gettext(
+                $message);
         }
 
         /**
@@ -121,47 +124,72 @@ namespace Aomebo
          * The dgettext() function allows you to override the current
          * domain for a single message lookup.
          *
+         * @static
          * @param string $domain
          * @param string $message
+         * @param null|string [$context = null]
          * @return string
          * @see dgettext()
          */
-        public static function dgettext($domain, $message)
+        public static function dgettext($domain, $message, $context = null)
         {
-            return self::$_aomebo->Internationalization()->System()->dgettext(
-                $domain, $message
-            );
+            return self::$_aomebo->Internationalization()->System()->dcgettext(
+                $domain, $message, $context);
         }
 
         /**
+         * @static
          * @param string $message
          * @param null|string [$domain = null]
+         * @param null|string [$context = null]
          * @return string
          */
-        public static function translate($message, $domain = null)
+        public static function translate($message, $domain = null, $context = null)
         {
-            return \Aomebo\Internationalization\System::siteTranslate($message, $domain);
+            return \Aomebo\Internationalization\System::siteSingularTranslate(
+                $message, $domain, $context);
         }
 
         /**
+         * @static
          * @param string $message
          * @param null|string [$domain = null]
+         * @param null|string [$context = null]
          * @return string
          */
-        public static function t($message, $domain = null)
+        public static function t($message, $domain = null, $context = null)
         {
-            return \Aomebo\Internationalization\System::siteTranslate($message, $domain);
+            return \Aomebo\Internationalization\System::siteSingularTranslate(
+                $message, $domain, $context);
         }
 
         /**
+         * @static
          * @param string $message
          * @param null|string [$domain = null]
+         * @param null|string [$context = null]
          * @return string
          */
-        public static function __($message, $domain = null)
+        public static function __($message, $domain = null, $context = null)
         {
-            return \Aomebo\Internationalization\System::siteTranslate($message, $domain);
+            return \Aomebo\Internationalization\System::siteSingularTranslate(
+                $message, $domain, $context);
         }
+
+        /**
+         * @static
+         * @param string $singular
+         * @param string $plural
+         * @param null|string [$domain = null]
+         * @param null|string [$context = null]
+         * @return string
+         */
+        public static function _n($singular, $plural, $domain = null, $context = null)
+        {
+            return \Aomebo\Internationalization\System::sitePluralTranslate(
+                $singular, $plural, $domain, $context);
+        }
+
 
         /**
          * Plural version of gettext.

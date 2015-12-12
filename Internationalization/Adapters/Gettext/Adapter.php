@@ -415,6 +415,20 @@ namespace Aomebo\Internationalization\Adapters\Gettext
             return ($count > 1 ? $plural : $singular);
         }
 
+        /**
+         * Answers whether adapter has data for a specific text-domain.
+         *
+         * @param string $domain
+         * @return bool
+         */
+        public function hasEntriesForTextDomain($domain)
+        {
+            return (!empty($domain)
+                && isset(self::$_translations[$domain]->entries)
+                && sizeof(self::$_translations[$domain]->entries) > 0
+            );
+        }
+
     }
 
 }

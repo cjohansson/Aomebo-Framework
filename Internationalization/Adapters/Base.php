@@ -49,13 +49,13 @@ namespace Aomebo\Internationalization\Adapters
             $locale = null, $defaultLocale = null);
 
         /**
-         * @param array $textDomains
+         * @param array $textDomain
          * @param string $location
          * @param string|null [$locale = null]
          * @param string|null [$defaultLocale = null]
          * @return bool
          */
-        abstract public function loadTextDomain($textDomains,
+        abstract public function loadTextDomain($textDomain,
             $location, $locale = null, $defaultLocale = null);
 
         /**
@@ -149,6 +149,14 @@ namespace Aomebo\Internationalization\Adapters
          * @see dcngettext()
          */
         abstract public function dcngettext($domain, $singular, $plural, $count, $context = null);
+
+        /**
+         * Answers whether adapter has data for a specific text-domain.
+         *
+         * @param string $domain
+         * @return bool
+         */
+        abstract public function hasEntriesForTextDomain($domain);
 
     }
 

@@ -75,23 +75,9 @@ namespace Aomebo\Internationalization
         /**
          * @internal
          * @static
-         * @var string|null
-         */
-        private static $_adapter = null;
-
-        /**
-         * @internal
-         * @static
          * @var array
          */
         private static $_adapters = array();
-
-        /**
-         * @internal
-         * @static
-         * @var \Aomebo\Internationalization\Adapters\Base|null
-         */
-        private static $_adapterClass = null;
 
         /**
          * @internal
@@ -105,7 +91,14 @@ namespace Aomebo\Internationalization
          * @static
          * @var bool
          */
-        private static $_loadedTextDomains = false;
+        private static $_initialized = false;
+
+        /**
+         * @internal
+         * @static
+         * @var null|string
+         */
+        private static $_defaultAdapter = null;
 
         /**
          * @throws \Exception
@@ -202,8 +195,7 @@ namespace Aomebo\Internationalization
                                 } else {
                                     Throw new \Exception(
                                         sprintf(
-                                            __('Invalid internationalization "%s", '
-                                            . 'no directory found at "%s".'),
+                                            self::systemTranslate('Invalid internationalization "%s", no directory found at "%s".'),
                                             $path,
                                             $domainPath
                                         )
@@ -220,8 +212,8 @@ namespace Aomebo\Internationalization
 
                 }
 
-                if (!isset(self::$_adapter)) {
-                    self::setAdapter(
+                if (!isset(self::$_defaultAdapter)) {
+                    self::setDefaultAdapter(
                         \Aomebo\Configuration::getSetting('internationalization,adapter'));
                 }
 
@@ -239,6 +231,24 @@ namespace Aomebo\Internationalization
         }
 
         /**
+         * @static
+         * @param string $adapter
+         */
+        public static function setDefaultAdapter($adapter)
+        {
+            self::$_defaultAdapter = $adapter;
+        }
+
+        /**
+         * @static
+         * @return bool
+         */
+        public static function isInitialized()
+        {
+            return !empty(self::$_initialized);
+        }
+
+        /**
          * Lookup a message in the current domain.
          *
          * @static
@@ -248,8 +258,22 @@ namespace Aomebo\Internationalization
          */
         public static function gettext($message)
         {
-            if (self::$_adapterClass) {
-                return self::$_adapterClass->gettext($message);
+            if (self::isEnabled()) {
+                // Do we have a default adapter specified?
+                if (!empty(self::$_defaultAdapter)
+                    && isset(self::$_adapters[self::$_defaultAdapter])
+                ) {
+                    $ref = self::$_adapters[self::$_defaultAdapter];
+                    /** @var \Aomebo\Internationalization\Adapters\Base $ref */
+                    return $ref->gettext($message);
+                }
+                foreach (self::$_adapters as $adapter => $classObj)
+                {
+                    if (is_object($classObj)) {
+                        /** @var \Aomebo\Internationalization\Adapters\Base $classObj */
+                        return $classObj->gettext($message);
+                    }
+                }
             }
             return $message;
         }
@@ -302,10 +326,33 @@ namespace Aomebo\Internationalization
             ) {
                 return $triggerMessage;
             }
-            if (self::$_adapterClass) {
-                return self::$_adapterClass->dcgettext($domain, $message, $context);
+            return self::dgettext($domain, $message);
+        }
+
+        /**
+         * @static
+         * @param string $singular
+         * @param string $plural
+         * @param int $count
+         * @param string|null [$domain = null]
+         * @param string|null [$context = null]
+         * @return string
+         * @see gettext()
+         */
+        public static function sitePluralTranslate($singular, $plural, $count,
+            $domain = null, $context = null)
+        {
+            if (!isset($domain)) {
+                $domain = self::$_defaultSiteTextDomain;
             }
-            return $message;
+            if ($triggerMessage = \Aomebo\Trigger\System::processTriggers(
+                \Aomebo\Trigger\System::TRIGGER_KEY_INTERNATIONALIZATION_TRANSLATE,
+                array($singular, $plural, $count, $domain, $context))
+            ) {
+                return $triggerMessage;
+            }
+            return self::dcngettext(
+                $domain, $singular, $plural, $count, $context);
         }
 
         /**
@@ -327,10 +374,33 @@ namespace Aomebo\Internationalization
             ) {
                 return $triggerMessage;
             }
-            if (self::$_adapterClass) {
-                return self::$_adapterClass->dcgettext($domain, $message, $context);
+            return self::dcgettext($domain, $message, $context);
+        }
+
+        /**
+         * @static
+         * @param string $singular
+         * @param string $plural
+         * @param int $count
+         * @param string|null [$domain = null]
+         * @param string|null [$context = null]
+         * @return string
+         * @see gettext()
+         */
+        public static function systemPluralTranslate($singular, $plural, $count,
+                                                   $domain = null, $context = null)
+        {
+            if (!isset($domain)) {
+                $domain = self::$_defaultSystemTextDomain;
             }
-            return $message;
+            if ($triggerMessage = \Aomebo\Trigger\System::processTriggers(
+                \Aomebo\Trigger\System::TRIGGER_KEY_INTERNATIONALIZATION_TRANSLATE,
+                array($singular, $plural, $count, $domain, $context))
+            ) {
+                return $triggerMessage;
+            }
+            return self::dcngettext(
+                $domain, $singular, $plural, $count, $context);
         }
 
         /**
@@ -346,9 +416,17 @@ namespace Aomebo\Internationalization
          */
         public static function dgettext($domain, $message)
         {
-            if (self::$_adapterClass) {
-                return self::$_adapterClass->dgettext(
-                    $domain, $message);
+            if (self::isEnabled()) {
+                foreach (self::$_adapters as $adapter => $classObj)
+                {
+                    if (is_object($classObj)) {
+                        /** @var \Aomebo\Internationalization\Adapters\Base $classObj */
+                        if ($classObj->hasEntriesForTextDomain($domain)) {
+                            return $classObj->dgettext(
+                                $domain, $message);
+                        }
+                    }
+                }
             }
             return $message;
         }
@@ -368,9 +446,24 @@ namespace Aomebo\Internationalization
          */
         public static function ngettext($singular, $plural, $count)
         {
-            if (self::$_adapterClass) {
-                return self::$_adapterClass->ngettext(
-                    $singular, $plural, $count);
+            if (self::isEnabled()) {
+                // Do we have a default adapter specified?
+                if (!empty(self::$_defaultAdapter)
+                    && isset(self::$_adapters[self::$_defaultAdapter])
+                ) {
+                    $ref = self::$_adapters[self::$_defaultAdapter];
+                    /** @var \Aomebo\Internationalization\Adapters\Base $ref */
+                    return $ref->ngettext(
+                        $singular, $plural, $count);
+                }
+                foreach (self::$_adapters as $adapter => $classObj)
+                {
+                    if (is_object($classObj)) {
+                        /** @var \Aomebo\Internationalization\Adapters\Base $classObj */
+                        return $classObj->ngettext(
+                            $singular, $plural, $count);
+                    }
+                }
             }
             return ($count > 1 ? $plural : $singular);
         }
@@ -390,9 +483,17 @@ namespace Aomebo\Internationalization
          */
         public static function dcgettext($domain, $message, $context = null)
         {
-            if (self::$_adapterClass) {
-                return self::$_adapterClass->dcgettext(
-                    $domain, $message, $context);
+            if (self::isEnabled()) {
+                foreach (self::$_adapters as $adapter => $classObj)
+                {
+                    if (is_object($classObj)) {
+                        /** @var \Aomebo\Internationalization\Adapters\Base $classObj */
+                        if ($classObj->hasEntriesForTextDomain($domain)) {
+                            return $classObj->dcgettext(
+                                $domain, $message, $context);
+                        }
+                    }
+                }
             }
             return $message;
         }
@@ -414,9 +515,17 @@ namespace Aomebo\Internationalization
         public static function dngettext($domain, $singular,
             $plural, $count)
         {
-            if (self::$_adapterClass) {
-                return self::$_adapterClass->dngettext(
-                    $domain, $singular, $plural, $count);
+            if (self::isEnabled()) {
+                foreach (self::$_adapters as $adapter => $classObj)
+                {
+                    if (is_object($classObj)) {
+                        /** @var \Aomebo\Internationalization\Adapters\Base $classObj */
+                        if ($classObj->hasEntriesForTextDomain($domain)) {
+                            return $classObj->dngettext(
+                                $domain, $singular, $plural, $count);
+                        }
+                    }
+                }
             }
             return ($count > 1 ? $plural : $singular);
         }
@@ -439,9 +548,17 @@ namespace Aomebo\Internationalization
         public static function dcngettext($domain, $singular,
             $plural, $count, $context)
         {
-            if (self::$_adapterClass) {
-                return self::$_adapterClass->dcngettext(
-                    $domain, $singular, $plural, $count, $context);
+            if (self::isEnabled()) {
+                foreach (self::$_adapters as $adapter => $classObj)
+                {
+                    if (is_object($classObj)) {
+                        /** @var \Aomebo\Internationalization\Adapters\Base $classObj */
+                        if ($classObj->hasEntriesForTextDomain($domain)) {
+                            return $classObj->dcngettext(
+                                $domain, $singular, $plural, $count, $context);
+                        }
+                    }
+                }
             }
             return ($count > 1 ? $plural : $singular);
         }
@@ -471,16 +588,17 @@ namespace Aomebo\Internationalization
          */
         public static function setLocale($locale)
         {
-            
             self::$_locale = $locale;
-            
-            // Are text-domains loaded already?
-            if (self::$_loadedTextDomains) {
-                return self::$_adapterClass->setLocale($locale);
-            } else {
-                return true;
+            if (self::isInitialized()) {
+                foreach (self::$_adapters as $adapter => $classObj)
+                {
+                    if (is_object($classObj)) {
+                        /** @var \Aomebo\Internationalization\Adapters\Base $classObj */
+                        $classObj->setLocale($locale);
+                    }
+                }
             }
-            
+            return true;
         }
 
         /**
@@ -550,17 +668,25 @@ namespace Aomebo\Internationalization
          * @static
          * @param string $domain
          * @param string $location
+         * @param bool [$enable = true]
          */
-        public static function addTextDomain($domain, $location)
+        public static function addTextDomain($domain, $location, $enable = true)
         {
-            
             self::$_textDomains[$domain] = $location;
-            
-            // Are textdomains loaded already?
-            if (self::$_loadedTextDomains) {                
-                self::$_adapterClass->loadTextDomain($domain, $location);
+            if (self::isInitialized()) {
+                foreach (self::$_adapters as $adapter => $classObj)
+                {
+                    if (is_object($classObj)) {
+                        /** @var \Aomebo\Internationalization\Adapters\Base $classObj */
+                        $classObj->loadTextDomain($domain, $location);
+                    }
+                }
             }
-            
+            if (!empty($enable)
+                && !self::isEnabled()
+            ) {
+                self::setEnabled(true);
+            }
         }
 
         /**
@@ -610,24 +736,6 @@ namespace Aomebo\Internationalization
 
         /**
          * @static
-         * @param string $adapter
-         */
-        public static function setAdapter($adapter)
-        {
-            self::$_adapter = strtolower($adapter);
-        }
-
-        /**
-         * @static
-         * @return string
-         */
-        public static function getAdapter()
-        {
-            return self::$_adapter;
-        }
-
-        /**
-         * @static
          * @return array
          */
         public static function getAdapters()
@@ -662,10 +770,11 @@ namespace Aomebo\Internationalization
 
             self::_loadAdapters();
 
-            if (self::adapterExists(self::$_adapter)) {
+            foreach (self::$_adapters as $adapter => $ignore)
+            {
 
                 $className = '\\Aomebo\\Internationalization\\Adapters\\'
-                    . self::$_adapters[self::$_adapter] . '\\Adapter';
+                    . ucfirst($adapter) . '\\Adapter';
 
                 try
                 {
@@ -675,15 +784,15 @@ namespace Aomebo\Internationalization
                     $classObj->initLocale();
                     $classObj->setLocale(self::getLocale());
 
-                    self::$_adapterClass = $classObj;
-                    self::$_loadedTextDomains = true;
+                    self::$_adapters[$adapter] = $classObj;
+                    self::$_initialized = true;
 
                 } catch (\Exception $e) {
 
                     \Aomebo\FeedBack\Debug::output(
                         sprintf(
                             __('Failed to init internationalization adapter "%s", error: "%s".'),
-                            self::$_adapter,
+                            $adapter,
                             $e->getMessage()
                         ),
                         false,
@@ -719,7 +828,7 @@ namespace Aomebo\Internationalization
                             && is_file($adapterPath)
                         ) {
                             $cisName = strtolower($item);
-                            self::$_adapters[$cisName] = $item;
+                            self::$_adapters[$cisName] = false;
                         }
 
                     }
@@ -760,6 +869,27 @@ namespace
         {
             return \Aomebo\Internationalization\System::siteTranslate(
                 $message,
+                $domain,
+                $context
+            );
+        }
+
+    }
+
+    if (!function_exists('_n')) {
+
+        /**
+         * @param string $singular
+         * @param string $plural
+         * @param string|null [$domain = null]
+         * @param string|null [$context = null]
+         * @return string
+         */
+        function _n($singular, $plural, $domain = null, $context = null)
+        {
+            return \Aomebo\Internationalization\System::sitePluralTranslate(
+                $singular,
+                $plural,
                 $domain,
                 $context
             );
@@ -823,5 +953,27 @@ namespace
         }
 
     }
+
+    if (!function_exists('_n')) {
+
+        /**
+         * @param string $singular
+         * @param string $plural
+         * @param string|null [$domain = null]
+         * @param string|null [$context = null]
+         * @return string
+         */
+        function _n($singular, $plural, $domain = null, $context = null)
+        {
+            echo \Aomebo\Internationalization\System::sitePluralTranslate(
+                $singular,
+                $plural,
+                $domain,
+                $context
+            );
+        }
+
+    }
+
 
 }

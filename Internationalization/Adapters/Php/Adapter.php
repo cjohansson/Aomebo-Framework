@@ -298,10 +298,8 @@ namespace Aomebo\Internationalization\Adapters\Php
          */
         public function dgettext($domain, $message)
         {
-            $locale =
-                \Aomebo\Internationalization\System::getLocale();
-            return (isset(self::$_translations[$locale][$domain][$message])
-                ? self::$_translations[$locale][$domain][$message] : $message);
+            return (isset(self::$_translations[$domain][$message])
+                ? self::$_translations[$domain][$message] : $message);
         }
 
         /**
@@ -384,6 +382,20 @@ namespace Aomebo\Internationalization\Adapters\Php
         {
             return ($count > 1 ? $this->dcgettext($domain, $plural, $context)
                 : $this->dcgettext($domain, $singular, $context));
+        }
+
+        /**
+         * Answers whether adapter has data for a specific text-domain.
+         *
+         * @param string $domain
+         * @return bool
+         */
+        public function hasEntriesForTextDomain($domain)
+        {
+            return (!empty($domain)
+                && isset(self::$_translations[$domain])
+                && sizeof(self::$_translations[$domain]) > 0
+            );
         }
 
     }
