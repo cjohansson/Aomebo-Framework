@@ -1275,35 +1275,64 @@ namespace Aomebo
 
         /**
          * @static
+         * @param array $data
+         * @return bool|string
+         */
+        public static function generatePhpData($data)
+        {
+            if (isset($data)
+                && is_array($data)
+                && sizeof($data) > 0
+            ) {
+                return "<?php \n"
+                    . "\n"
+                    . 'return ' . var_export($data, true)
+                    . ';' . "\n"
+                    . "\n";
+            }
+            return false;
+        }
+
+        /**
+         * @static
          * @param string $file
          * @param array $data
          * @return bool
          */
         public static function savePhpDataFile($file, $data)
         {
-
-            if (isset($data)
-                && is_array($data)
-                && sizeof($data) > 0
-            ) {
-
-                $phpData = "<?php \n"
-                    . "\n"
-                    . 'return ' . var_export($data, true)
-                    . ';' . "\n"
-                    . "\n";
-
+            if ($phpData = self::generatePhpData($data)) {
                 if (\Aomebo\Filesystem::makeFile(
                     $file,
                     $phpData)
                 ) {
                     return true;
                 }
-
             }
-
             return false;
+        }
 
+        /**
+         * @param array $data
+         * @param string [$variableName = 'configuration']
+         * @return bool|string
+         */
+        public static function generatePhpConfigurationData($data,
+                $variableName = 'configuration')
+        {
+            if (isset($data)
+                && is_array($data)
+                && sizeof($data) > 0
+            ) {
+                return "<?php \n"
+                    . "\n"
+                    . 'global $' . $variableName . '; ' . "\n"
+                    . "\n"
+                    . '$' . $variableName . ' = ' . var_export($data, true)
+                    . ';' . "\n"
+                    . "\n";
+            }
+            return false;
         }
 
         /**
@@ -1316,45 +1345,17 @@ namespace Aomebo
         public static function savePhpConfigurationFile($file, $data,
             $variableName = 'configuration')
         {
-
-            if (isset($data)
-                && is_array($data)
-                && sizeof($data) > 0
+            if ($phpData = self::generatePhpConfigurationData(
+                $data, $variableName)
             ) {
-
-                $phpData = "<?php \n"
-                    . "\n"
-                    . 'global $' . $variableName . '; ' . "\n"
-                    . "\n"
-                    . '$' . $variableName . ' = ' . var_export($data, true)
-                    . ';' . "\n"
-                    . "\n";
-
                 if (\Aomebo\Filesystem::makeFile(
                     $file,
                     $phpData)
                 ) {
                     return true;
                 }
-
             }
-
             return false;
-
-        }
-
-        /**
-         * @internal
-         * @static
-         * @throws \Exception
-         * @return bool
-         */
-        private static function _saveYmlConfiguration()
-        {
-            return self::saveYmlConfigurationFile(
-                _SITE_ROOT_ . self::$_externalConfigurationFilename . '.yml',
-                self::$_settings
-            );
         }
 
         /**

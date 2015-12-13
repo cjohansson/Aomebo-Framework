@@ -954,26 +954,4 @@ namespace
 
     }
 
-    if (!function_exists('_n')) {
-
-        /**
-         * @param string $singular
-         * @param string $plural
-         * @param string|null [$domain = null]
-         * @param string|null [$context = null]
-         * @return string
-         */
-        function _n($singular, $plural, $domain = null, $context = null)
-        {
-            echo \Aomebo\Internationalization\System::sitePluralTranslate(
-                $singular,
-                $plural,
-                $domain,
-                $context
-            );
-        }
-
-    }
-
-
 }

@@ -127,6 +127,7 @@ namespace Modules\Setup
                 } else if ($submit['action'] == 'Export configuration.php') {
                     
                     // TODO: Export configuration here
+                    // \Aomebo\Configuration::gen()
                     
                 }
 

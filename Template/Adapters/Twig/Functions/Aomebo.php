@@ -54,6 +54,18 @@ namespace Aomebo\Template\Adapters\Twig
                     '__'
                 ),
                 new \Twig_SimpleFunction(
+                    't',
+                    't'
+                ),
+                new \Twig_SimpleFunction(
+                    'translate',
+                    'translate'
+                ),
+                new \Twig_SimpleFunction(
+                    '_n',
+                    '_n'
+                ),
+                new \Twig_SimpleFunction(
                     'sprintf',
                     'sprintf'
                 ),
