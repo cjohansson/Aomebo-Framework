@@ -881,15 +881,17 @@ namespace
         /**
          * @param string $singular
          * @param string $plural
+         * @param int $count
          * @param string|null [$domain = null]
          * @param string|null [$context = null]
          * @return string
          */
-        function _n($singular, $plural, $domain = null, $context = null)
+        function _n($singular, $plural, $count, $domain = null, $context = null)
         {
             return \Aomebo\Internationalization\System::sitePluralTranslate(
                 $singular,
                 $plural,
+                $count,
                 $domain,
                 $context
             );
