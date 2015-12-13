@@ -135,81 +135,77 @@ namespace Aomebo\Internationalization
                         \Aomebo\Configuration::getSetting('internationalization,default site text domain'));
                 }
 
-                if (!isset(self::$_textDomains)) {
+                $textDomains = array();
 
-                    $textDomains = array();
+                if ($systemTextDomains =
+                    \Aomebo\Configuration::getSetting(
+                        'internationalization,system text domains')
+                ) {
+                    foreach ($systemTextDomains as $domain => $path)
+                    {
 
-                    if ($systemTextDomains =
-                        \Aomebo\Configuration::getSetting(
-                            'internationalization,system text domains')
-                    ) {
-                        foreach ($systemTextDomains as $domain => $path)
-                        {
+                        if (is_array($path)
+                            && isset($path[0])
+                        ) {
+                            $path = $path[0];
+                        }
 
-                            if (is_array($path)
-                                && isset($path[0])
-                            ) {
-                                $path = $path[0];
+                        if (isset($path)
+                            && !is_array($path)
+                        ) {
+
+                            $domainPath = _SYSTEM_ROOT_ . $path;
+
+                            if (is_dir($domainPath)) {
+                                $textDomains[$domain] = $domainPath;
+                            } else {
+                                Throw new \Exception(sprintf(
+                                    self::systemTranslate('Invalid internationalization "%s", no directory found at "%s".'),
+                                    $path,
+                                    $domainPath));
                             }
 
-                            if (isset($path)
-                                && !is_array($path)
-                            ) {
+                        }
+                    }
+                }
 
-                                $domainPath = _SYSTEM_ROOT_ . $path;
+                if ($siteTextDomains =
+                    \Aomebo\Configuration::getSetting(
+                        'internationalization,site text domains')
+                ) {
+                    foreach ($siteTextDomains as $domain => $path)
+                    {
 
-                                if (is_dir($domainPath)) {
-                                    $textDomains[$domain] = $domainPath;
-                                } else {
-                                    Throw new \Exception(sprintf(
+                        if (is_array($path)
+                            && isset($path[0])
+                        ) {
+                            $path = $path[0];
+                        }
+
+                        if (isset($path)
+                            && !is_array($path)
+                        ) {
+
+                            $domainPath = _SITE_ROOT_ . $path;
+
+                            if (is_dir($domainPath)) {
+                                $textDomains[$domain] = $domainPath;
+                            } else {
+                                Throw new \Exception(
+                                    sprintf(
                                         self::systemTranslate('Invalid internationalization "%s", no directory found at "%s".'),
                                         $path,
-                                        $domainPath));
-                                }
-
+                                        $domainPath
+                                    )
+                                );
                             }
+
                         }
                     }
+                }
 
-                    if ($siteTextDomains =
-                        \Aomebo\Configuration::getSetting(
-                            'internationalization,site text domains')
-                    ) {
-                        foreach ($siteTextDomains as $domain => $path)
-                        {
-
-                            if (is_array($path)
-                                && isset($path[0])
-                            ) {
-                                $path = $path[0];
-                            }
-
-                            if (isset($path)
-                                && !is_array($path)
-                            ) {
-
-                                $domainPath = _SITE_ROOT_ . $path;
-
-                                if (is_dir($domainPath)) {
-                                    $textDomains[$domain] = $domainPath;
-                                } else {
-                                    Throw new \Exception(
-                                        sprintf(
-                                            self::systemTranslate('Invalid internationalization "%s", no directory found at "%s".'),
-                                            $path,
-                                            $domainPath
-                                        )
-                                    );
-                                }
-
-                            }
-                        }
-                    }
-
-                    if (sizeof($textDomains) > 0) {
-                        self::setTextDomains($textDomains);
-                    }
-
+                if (sizeof($textDomains) > 0) {
+                    self::addTextDomains($textDomains);
                 }
 
                 if (!isset(self::$_defaultAdapter)) {
@@ -693,7 +689,7 @@ namespace Aomebo\Internationalization
          * @static
          * @param array $textDomains
          */
-        public static function setTextDomains($textDomains)
+        public static function addTextDomains($textDomains)
         {
             foreach ($textDomains as $domain => $location)
             {
