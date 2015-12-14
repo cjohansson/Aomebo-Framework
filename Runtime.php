@@ -77,28 +77,24 @@ namespace Aomebo
         private $_executeRoute;
 
         /**
-         * @internal
          * @var array
          * @deprecated
          */
         protected $_parameters = array();
 
         /**
-         * @internal
          * @var array
          * @deprecated
          */
         protected $_routes = array();
 
         /**
-         * @internal
          * @var array
          * @deprecated
          */
         protected $_dependencies = array();
 
         /**
-         * @internal
          * @static
          * @var \Aomebo|null
          */

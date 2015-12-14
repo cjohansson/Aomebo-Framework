@@ -34,7 +34,6 @@ namespace Aomebo\Database\Adapters\Mysqli
         /**
          * Holds the native resultset object.
          *
-         * @internal
          * @var \mysqli_result|null
          */
         protected $_resultset;
@@ -276,7 +275,6 @@ namespace Aomebo\Database\Adapters\Mysqli
         }
 
         /**
-         * @internal
          * @param mixed $resultset
          * @return bool
          */

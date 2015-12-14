@@ -169,7 +169,6 @@ namespace Aomebo\Template\Adapters
         /**
          * Get Template.
          *
-         * @internal
          * @param string $directory
          * @param string $filename
          * @throws \Exception
@@ -180,7 +179,6 @@ namespace Aomebo\Template\Adapters
         /**
          * Assigns a variable.
          *
-         * @internal
          * @param string $key
          * @param mixed $value
          * @return bool
@@ -188,7 +186,6 @@ namespace Aomebo\Template\Adapters
         abstract protected function _assign($key, $value);
 
         /**
-         * @internal
          * @param string $name
          * @param \Closure|string|array $reference
          * @return bool
@@ -197,8 +194,6 @@ namespace Aomebo\Template\Adapters
 
         /**
          * Attach the default functions.
-         *
-         * @internal
          */
         abstract protected function _attachDefaultFunctions();
 

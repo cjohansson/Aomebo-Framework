@@ -31,13 +31,11 @@ namespace Aomebo\Response\Responses
     {
 
         /**
-         * @internal
          * @var int
          */
         protected $_priority = 110;
 
         /**
-         * @internal
          * @var string
          */
         protected $_name = 'Bootstrap';

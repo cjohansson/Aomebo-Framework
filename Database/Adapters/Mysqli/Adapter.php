@@ -32,7 +32,6 @@ namespace Aomebo\Database\Adapters\Mysqli
     {
 
         /**
-         * @internal
          * @var \mysqli
          */
         protected $_con;

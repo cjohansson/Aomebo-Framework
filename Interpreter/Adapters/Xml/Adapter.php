@@ -31,7 +31,6 @@ namespace Aomebo\Interpreter\Adapters\Xml
     {
 
         /**
-         * @internal
          * @var string
          */
         protected $_fileSuffix = '.xml';

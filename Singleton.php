@@ -111,7 +111,6 @@ namespace Aomebo
         }
 
         /**
-         * @internal
          * @static
          * @param string|null [$className = null]
          * @return bool

@@ -159,7 +159,6 @@ namespace Aomebo\Template\Adapters\Php
         }
 
         /**
-         * @internal
          * @param string $directory
          * @param string $filename
          * @throws \Exception
@@ -177,7 +176,6 @@ namespace Aomebo\Template\Adapters\Php
         }
 
         /**
-         * @internal
          * @param string $key
          * @param mixed $value
          * @return bool
@@ -197,7 +195,6 @@ namespace Aomebo\Template\Adapters\Php
         }
 
         /**
-         * @internal
          * @param string $name
          * @param \Closure|string|array $reference
          * @return bool
@@ -208,7 +205,7 @@ namespace Aomebo\Template\Adapters\Php
         }
 
         /**
-         * @internal
+         *
          */
         protected function _attachDefaultFunctions()
         {

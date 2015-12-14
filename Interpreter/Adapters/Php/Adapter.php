@@ -31,7 +31,6 @@ namespace Aomebo\Interpreter\Adapters\Php
     {
 
         /**
-         * @internal
          * @var string
          */
         protected $_fileSuffix = '.php';

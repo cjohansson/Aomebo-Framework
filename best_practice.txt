@@ -26,13 +26,14 @@ Aomebo framework is using phpUnit 3.7+ for automated tests,
 see 'http://www.phpunit.de/' for reference. All tests are placed
 in 'Test' folder with mirrored structure.
 
-Aomebo framework is debugged easily with xdebug,
+Aomebo framework is debugged easily with Xdebug,
 see 'http://xdebug.org' for reference.
 
 Aomebo framework is using 'yEd' for managing flowcharts,
 see 'http://www.yworks.com/' for reference.
 
-Sort methods by scope, from public to private desc
+Sort methods by scope, from public to private desc.
+All protected and private variables and functions should be prefixed with a '_' character.
 
 phpDoc items in the correct order:
 
@@ -49,3 +50,6 @@ phpDoc items in the correct order:
  * @see
  * @deprecated
  */
+
+@internal is only to be used with private variables and functions.
+@static is only to be used with static variables and functions.

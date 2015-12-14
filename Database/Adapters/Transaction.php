@@ -32,7 +32,6 @@ namespace Aomebo\Database\Adapters
     {
 
         /**
-         * @internal
          * @var array
          */
         protected $_queries = array();

@@ -41,7 +41,6 @@ namespace Aomebo\Interpreter\Adapters
         const FIELD_VALUE = 'value';
 
         /**
-         * @internal
          * @var string
          */
         protected $_fileSuffix;

@@ -226,7 +226,6 @@ namespace Aomebo\Template\Adapters\Smarty
         }
 
         /**
-         * @internal
          * @param string $directory
          * @param string $filename
          * @return bool
@@ -255,7 +254,6 @@ namespace Aomebo\Template\Adapters\Smarty
         }
 
         /**
-         * @internal
          * @param string $key
          * @param mixed $value
          * @return bool
@@ -267,7 +265,6 @@ namespace Aomebo\Template\Adapters\Smarty
         }
 
         /**
-         * @internal
          * @param string $name
          * @param \Closure|string|array $reference
          * @see http://www.smarty.net/docs/en/api.register.plugin.tpl
@@ -279,7 +276,7 @@ namespace Aomebo\Template\Adapters\Smarty
         }
 
         /**
-         * @internal
+         *
          */
         protected function _attachDefaultFunctions()
         {

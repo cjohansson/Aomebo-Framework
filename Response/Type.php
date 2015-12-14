@@ -31,13 +31,11 @@ namespace Aomebo\Response
     {
 
         /**
-         * @internal
          * @var int
          */
         protected $_priority = 0;
 
         /**
-         * @internal
          * @var string
          */
         protected $_name = '';

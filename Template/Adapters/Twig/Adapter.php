@@ -102,7 +102,6 @@ namespace Aomebo\Template\Adapters\Twig
         }
 
         /**
-         * @internal
          * @param string $directory
          * @param string $filename
          * @return bool
@@ -131,7 +130,6 @@ namespace Aomebo\Template\Adapters\Twig
         }
 
         /**
-         * @internal
          * @param string $key
          * @param mixed $value
          * @return bool
@@ -143,7 +141,6 @@ namespace Aomebo\Template\Adapters\Twig
         }
 
         /**
-         * @internal
          * @param string $name
          * @param \Closure|string|array $reference
          * @link http://twig.sensiolabs.org/doc/advanced.html
@@ -155,7 +152,7 @@ namespace Aomebo\Template\Adapters\Twig
         }
 
         /**
-         * @internal
+         *
          */
         protected function _attachDefaultFunctions()
         {
