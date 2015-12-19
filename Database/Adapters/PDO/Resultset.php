@@ -34,7 +34,6 @@ namespace Aomebo\Database\Adapters\PDO
         /**
          * Holds the native resultset object.
          *
-         * @internal
          * @var \PDOStatement|null
          */
         protected $_resultset;
@@ -281,7 +280,6 @@ namespace Aomebo\Database\Adapters\PDO
         }
 
         /**
-         * @internal
          * @param mixed $resultset
          * @return bool
          */
