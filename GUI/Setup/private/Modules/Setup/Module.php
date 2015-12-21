@@ -77,7 +77,7 @@ namespace Modules\Setup
         {
 
             $tests = array();
-            
+
             ini_set('display_errors', 1);
             
             $this->_testTriggers();

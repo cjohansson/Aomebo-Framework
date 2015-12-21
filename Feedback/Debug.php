@@ -168,6 +168,10 @@ namespace Aomebo\Feedback
 
             $message = '';
 
+            $lineBreakCharacter =
+                \Aomebo\Configuration::getSetting(
+                    'output,linebreak character');
+
             if (error_reporting() === 0) {
                 return false;
             }
@@ -204,11 +208,13 @@ namespace Aomebo\Feedback
 
                     }
 
-                    $message .= 'Error-backtrace (limit: ' . $backtraceLimit . '): ' . "\n"
-                        . print_r($debugBacktrance, true) . "\n";
+                    $message .= sprintf(
+                        self::systemTranslate(
+                        'Error-backtrace (limit: %d): '),
+                        $backtraceLimit
+                    ) . $lineBreakCharacter . print_r($debugBacktrance, true) . "\n";
 
-                    $message .= 'Free memory at init: "' . \Aomebo\Application::getFreeMemoryAtInit() . '", '
-                        . 'free memory at error: "' . \Aomebo\System\Memory::getSystemFreeMemory() . '"' . "\n";
+                    $message .= self::getMemoryDump() . "\n";
 
                 }
 
@@ -232,7 +238,9 @@ namespace Aomebo\Feedback
                     }
 
                 } catch (\Exception $e) {
-                    self::output('Error: "' . $e->getMessage() . '"');
+                    self::output(sprintf(
+                        self::systemTranslate('Error: "%s"'),
+                        $e->getMessage()));
                 }
 
                 $dispatcher =
@@ -256,24 +264,21 @@ namespace Aomebo\Feedback
         {
             if (!empty($message)) {
 
+                $lineBreakCharacter =
+                    \Aomebo\Configuration::getSetting(
+                        'output,linebreak character');
+
+                $message .= $lineBreakCharacter;
+
                 if (\Aomebo\Configuration::getSetting(
                     'feedback,dump environment variables')
                 ) {
-                    $message .=
-                        \Aomebo\Configuration::getSetting(
-                            'output,linebreak character')
-                        . '$_POST: "' . (isset($_POST) ?
-                            print_r($_POST, true) : 'null') . '",'
-                        . '$_GET: "' . (isset($_GET) ?
-                            print_r($_GET, true) : 'null') . '",'
-                        . '$_SERVER: "' . (isset($_SERVER) ?
-                            print_r($_SERVER, true) : 'null') . '"';
+
+                    $message .= self::getEnvironmentVariablesDump()
+                        . $lineBreakCharacter;
                 }
 
-                $message .= 'Free memory at init: "' . \Aomebo\Application::getFreeMemoryAtInit() . '", '
-                    . 'free memory at error: "' . \Aomebo\System\Memory::getSystemFreeMemory() . '",'
-                    . 'free peak memory: "' . \Aomebo\System\Memory::getSystemFreeMemoryPeak() . '"'
-                    . "\n";
+                $message .= self::getMemoryDump() . $lineBreakCharacter;
 
                 if (!isset($log)) {
                     $log = \Aomebo\Configuration::getSetting(
@@ -290,21 +295,55 @@ namespace Aomebo\Feedback
                 }
 
                 if ($display) {
-
                     if (\Aomebo\Dispatcher\System::isShellRequest()) {
-                        echo $message .
-                            \Aomebo\Configuration::getSetting(
-                                'output,linebreak character');
+                        echo $message . $lineBreakCharacter;
                     } else {
-                        echo '<pre>' . $message .
-                            \Aomebo\Configuration::getSetting(
-                            'output,linebreak character')
-                            . '</pre>';
+                        echo '<pre>' . $message . $lineBreakCharacter . '</pre>';
                     }
-
                 }
 
             }
+        }
+
+        /**
+         * @static
+         * @return string
+         */
+        public static function getMemoryDump()
+        {
+            return sprintf(
+                self::systemTranslate('Free memory at init: "%s", free memory at error: "%s", free peak memory: "%s".'),
+                \Aomebo\Application::getFreeMemoryAtInit(),
+                \Aomebo\System\Memory::getSystemFreeMemory(),
+                \Aomebo\System\Memory::getSystemFreeMemoryPeak()
+            );
+        }
+
+        /**
+         * @static
+         * @return string
+         */
+        public static function getEnvironmentVariablesDump()
+        {
+
+            $sessionData = '';
+
+            if ($sesionBlock = \Aomebo\Session\Handler::getSessionBlock()) {
+                if ($sessionBlockData = $sesionBlock->getBlockData()) {
+                    $sessionData = print_r($sessionBlockData, true);
+                }
+            }
+
+            return sprintf(
+                self::systemTranslate('$_POST: "%s", $_GET: "%s", $_SERVER: "%s", $_SESSION: "%s", $_COOKIE: "%s", SESSION-BLOCK-DATA: "%s"'),
+                (isset($_POST) ? print_r($_POST, true) : 'null'),
+                (isset($_GET) ? print_r($_GET, true) : 'null'),
+                (isset($_SERVER) ? print_r($_SERVER, true) : 'null'),
+                (isset($_SESSION) ? print_r($_SESSION, true) : 'null'),
+                (isset($_COOKIE) ? print_r($_COOKIE, true) : 'null'),
+                $sessionData
+            );
+
         }
 
         /**
@@ -317,6 +356,10 @@ namespace Aomebo\Feedback
         {
 
             $message = '';
+
+            $lineBreakCharacter =
+                \Aomebo\Configuration::getSetting(
+                    'output,linebreak character');
 
             // Backtrace
             if (\Aomebo\Configuration::getSetting(
@@ -343,8 +386,11 @@ namespace Aomebo\Feedback
                 }
 
                 $message .=
-                    'Exception-backtrace (limit:' . $backtraceLimit . '): "'
-                    . print_r($debugBacktrance, true) . '"';
+                    sprintf(
+                        self::systemTranslate('Exception-backtrace (limit: %d): "%s"'),
+                        $backtraceLimit,
+                        print_r($debugBacktrance, true)
+                    );
 
             }
 
@@ -352,29 +398,24 @@ namespace Aomebo\Feedback
                 'feedback,dump environment variables')
             ) {
 
-                $message .= '$_POST: "' . (isset($_POST) ?
-                    print_r($_POST, true) : 'null') . '",'
-                    . '$_GET: "' . (isset($_GET) ?
-                    print_r($_GET, true) : 'null') . '",'
-                    . '$_SERVER: "' . (isset($_SERVER) ?
-                    print_r($_SERVER, true) : 'null') . '"';
+                $message .= self::getEnvironmentVariablesDump();
 
             }
 
-            $message .= 'Free memory at init: "' . \Aomebo\Application::getFreeMemoryAtInit() . '", '
-                . 'free memory at error: "' . \Aomebo\System\Memory::getSystemFreeMemory() . '",'
-                . 'free peak memory: "' . \Aomebo\System\Memory::getSystemFreeMemoryPeak() . '"'
-                . "\n";
+            $message .= self::getMemoryDump() . $lineBreakCharacter;
 
             // Exception message
             if (isset($exception)) {
 
                 /** @var \Exception $exception */
-                $message .= 'Exception-message: "' . $exception->getMessage() . '"';
+                $message .= sprintf(
+                    self::systemTranslate('Exception-message: "%s"'),
+                    $exception->getMessage()
+                );
 
             } else {
 
-                $message .= 'Unspecified exception';
+                $message .= self::systemTranslate('Unspecified exception');
 
             }
 
