@@ -2424,7 +2424,7 @@ namespace Aomebo\Dispatcher
                 && preg_match(
                     self::getPageSyntaxRegexp(),
                     $path,
-                    $matches) === 0
+                    $matches) === 1
             ) {
                 return true;
             }
@@ -2628,10 +2628,14 @@ namespace Aomebo\Dispatcher
 
                         self::setPage($defaultPage);
 
-                    // Otherwise - is rewrite enabled and query string starts with ?
+                    /**
+                     * Otherwise is rewrite enabled and:
+                     * query string stars with ?
+                     * or path isn't valid page syntax
+                     */
                     } else if (self::isRewriteEnabled()
                         && (self::pathStartsWithQuestionMark(self::getRequestUri())
-                        || self::pathIsPageSyntax(self::getRequestUri()))
+                        || !self::pathIsPageSyntax(self::getRequestUri()))
                     ) {
 
                         self::setPage($defaultPage);
