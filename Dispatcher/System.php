@@ -2629,13 +2629,15 @@ namespace Aomebo\Dispatcher
                         self::setPage($defaultPage);
 
                     /**
-                     * Otherwise is rewrite enabled and:
-                     * query string stars with ?
-                     * or path isn't valid page syntax
+                     * Otherwise:
+                     * is rewrite enabled and
+                     * query string stars with ? and
+                     * we should use default page for such requests
                      */
                     } else if (self::isRewriteEnabled()
-                        && (self::pathStartsWithQuestionMark(self::getRequestUri())
-                        || !self::pathIsPageSyntax(self::getRequestUri()))
+                        && self::pathStartsWithQuestionMark(self::getRequestUri())
+                        && \Aomebo\Configuration::getSetting(
+                            'dispatch,use default page for uris starting with question-mark')
                     ) {
 
                         self::setPage($defaultPage);
@@ -2647,24 +2649,37 @@ namespace Aomebo\Dispatcher
 
                         $hit = false;
 
-                        // Iterate through uri routes..
-                        foreach ($uriToPages as $uri => $page)
-                        {
+                        if (self::pathIsPageSyntax(self::getRequestUri())) {
 
-                            // Is rewrite enabled and uri exactly matches this route,
-                            // or is rewrite disabled and GET-page parameter exactly matches route
-                            if ((self::$_rewriteEnabled
-                                && self::$_requestUri === $uri)
-                                || (!self::$_rewriteEnabled
-                                && isset($_GET['_page'])
-                                && $_GET['_page'] === $uri)
-                            ) {
+                            // Iterate through all pages..
+                            foreach ($uriToPages as $uri => $page)
+                            {
 
-                                self::setPage($page);
-                                $hit = true;
-                                break;
+                                // Is rewrite enabled and uri exactly matches this route,
+                                // or is rewrite disabled and GET-page parameter exactly matches route
+                                if ((self::$_rewriteEnabled
+                                    && self::$_requestUri === $uri)
+                                    || (!self::$_rewriteEnabled
+                                    && isset($_GET['_page'])
+                                    && $_GET['_page'] === $uri)
+                                ) {
+
+                                    self::setPage($page);
+                                    $hit = true;
+                                    break;
+
+                                }
 
                             }
+
+                        } else if (\Aomebo\Configuration::getSetting(
+                            'dispatch,use default page for invalid page syntax uris')
+                        ) {
+
+                            self::setPage($defaultPage);
+                            self::setQueryString(self::getFullRequest());
+                            self::setRequestUri('');
+                            $hit = true;
 
                         }
 
@@ -2694,6 +2709,7 @@ namespace Aomebo\Dispatcher
                             // Is it a HTTP request?
                             if (self::isHttpRequest()) {
 
+                                // Iterate through routes for default-page
                                 foreach (self::$_pageRoutes[$defaultPage] as $route)
                                 {
                                     /** @var \Aomebo\Dispatcher\Route $route */

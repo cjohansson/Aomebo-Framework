@@ -693,6 +693,18 @@ $configuration = array(
                     'required' => true,
                     'default' => '/^([a-zA-Z\\_\\-]+)$/',
                 ),
+            'use default page for uris starting with question-mark' =>
+                array(
+                    'type' => 'boolean',
+                    'required' => false,
+                    'default' => false,
+                ),
+            'use default page for invalid page syntax uris' =>
+                array(
+                    'type' => 'boolean',
+                    'required' => false,
+                    'default' => false,
+                ),
         ),
     'site' =>
         array(
