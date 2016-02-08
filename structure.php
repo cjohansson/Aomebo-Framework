@@ -697,7 +697,7 @@ $configuration = array(
                 array(
                     'type' => 'boolean',
                     'required' => false,
-                    'default' => false,
+                    'default' => true,
                 ),
             'use default page for invalid page syntax uris' =>
                 array(
