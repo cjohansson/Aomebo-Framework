@@ -1,2 +1,5 @@
 #!/bin/sh
-su -s /bin/sh root -c 'cd /usr/share/aomebo-framework && /usr/bin/git pull origin master'
+# This script updates aomebo-framework via GIT
+dir="$(dirname $(readlink -f "$0"))"
+command="cd ${dir} && /usr/bin/git pull origin master"
+su -s /bin/sh root -c "${command}"
