@@ -44,6 +44,15 @@ namespace Modules\Setup
         }
 
         /**
+         * @param \Aomebo\Dispatcher\Route $route
+         * @return bool
+         */
+        public function enablingFunction($route)
+        {
+            return true;
+        }
+
+        /**
          * @return array
          */
         public function getRoutes()
@@ -53,7 +62,11 @@ namespace Modules\Setup
                     null,
                     '/^([\w]+)$/',
                     '%s',
-                    array('page')
+                    array('page'),
+                    null,
+                    null,
+                    null,
+                    array(& $this, 'enablingFunction')
                 ),
                 new \Aomebo\Dispatcher\Route(
                     null,

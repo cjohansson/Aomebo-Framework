@@ -104,6 +104,12 @@ namespace Aomebo\Dispatcher
         private $_isMatching = null;
 
         /**
+         * @internal
+         * @var \Closure|string|array|null
+         */
+        private $_enablingFunction = null;
+
+        /**
          * @param string|null [$name = null]
          * @param string|null [$regexp = null]
          * @param string|null [$sprintf = null]
@@ -111,6 +117,7 @@ namespace Aomebo\Dispatcher
          * @param string|null [$method = null]
          * @param \Aomebo\Runtime|null [$reference = null]
          * @param string|null [$page = null]
+         * @param \Closure|string|array|null [$enablingFunction = null]
          */
         public function __construct(
             $name = null,
@@ -119,7 +126,8 @@ namespace Aomebo\Dispatcher
             $keys = null,
             $method = null,
             $reference = null,
-            $page = null)
+            $page = null,
+            $enablingFunction = null)
         {
 
             parent::__construct();
@@ -171,7 +179,12 @@ namespace Aomebo\Dispatcher
                 $this->_hashKey = self::generateRouteHashKey(
                     $this->keys);
             }
-
+            if (isset($enablingFunction)
+                && \Aomebo\Trigger\System::isFunctionReference(
+                    $enablingFunction)
+            ) {
+                $this->_enablingFunction = $enablingFunction;
+            }
         }
 
         /**
@@ -308,27 +321,41 @@ namespace Aomebo\Dispatcher
 
                 if (!isset($this->_isMatching)) {
 
-                    $queryString =
-                        \Aomebo\Dispatcher\System::getQueryString();
+                    $enabled = true;
 
-                    // Doesn't the RegExp match current uri?
-                    if (@preg_match(
-                            $this->regexp,
-                            $queryString,
-                            $this->_matches) === false
-                    ) {
-                        $this->_isMatching = false;
-                        if ($this->_matches === false) {
-                            Throw new \Exception(sprintf(
-                                self::systemTranslate('Invalid regexp "%s" for route named "%s"'),
+                    // Support for function references enabling/disabling route programmatically
+                    if (isset($this->_enablingFunction)) {
+                        $enabled = \Aomebo\Trigger\System::callFunctionReference(
+                            $this->_enablingFunction,
+                            array($this)
+                        );
+                    }
+
+                    if ($enabled) {
+
+                        $queryString =
+                            \Aomebo\Dispatcher\System::getQueryString();
+
+                        // Doesn't the RegExp match current uri?
+                        if (@preg_match(
                                 $this->regexp,
-                                $this->name));
+                                $queryString,
+                                $this->_matches) === false
+                        ) {
+                            $this->_isMatching = false;
+                            if ($this->_matches === false) {
+                                Throw new \Exception(sprintf(
+                                    self::systemTranslate('Invalid regexp "%s" for route named "%s"'),
+                                    $this->regexp,
+                                    $this->name));
+                            }
+                        } else if (isset($this->_matches)
+                            && (sizeof($this->_matches) - 1) ==
+                            sizeof($this->keys)
+                        ) {
+                            $this->_isMatching = true;
                         }
-                    } else if (isset($this->_matches)
-                        && (sizeof($this->_matches) - 1) ==
-                        sizeof($this->keys)
-                    ) {
-                        $this->_isMatching = true;
+
                     }
                 }
 
