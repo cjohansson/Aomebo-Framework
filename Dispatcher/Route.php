@@ -299,12 +299,26 @@ namespace Aomebo\Dispatcher
             if (!empty($url)) {
                 if ($this->isValid()) {
 
-                    // Does the RegExp match URL?
-                    if (preg_match(
-                            $this->regexp,
-                            $url) === 1
-                    ) {
-                        return true;
+                    $enabled = true;
+
+                    // Support for function references enabling/disabling route programmatically
+                    if (isset($this->_enablingFunction)) {
+                        $enabled = \Aomebo\Trigger\System::callFunctionReference(
+                            $this->_enablingFunction,
+                            array($this)
+                        );
+                    }
+
+                    if ($enabled) {
+
+                        // Does the RegExp match URL?
+                        if (preg_match(
+                                $this->regexp,
+                                $url) === 1
+                        ) {
+                            return true;
+                        }
+
                     }
                 }
             }
