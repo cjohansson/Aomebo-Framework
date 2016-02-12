@@ -86,6 +86,11 @@ namespace Aomebo\Dispatcher
         public $page = '';
 
         /**
+         * @var \Closure|string|array|null
+         */
+        public $enablingFunction = null;
+
+        /**
          * @internal
          * @var string|null
          */
@@ -102,12 +107,6 @@ namespace Aomebo\Dispatcher
          * @var bool|null
          */
         private $_isMatching = null;
-
-        /**
-         * @internal
-         * @var \Closure|string|array|null
-         */
-        private $_enablingFunction = null;
 
         /**
          * @param string|null [$name = null]
@@ -183,7 +182,7 @@ namespace Aomebo\Dispatcher
                 && \Aomebo\Trigger\System::isFunctionReference(
                     $enablingFunction)
             ) {
-                $this->_enablingFunction = $enablingFunction;
+                $this->enablingFunction = $enablingFunction;
             }
         }
 
@@ -202,6 +201,7 @@ namespace Aomebo\Dispatcher
                 'sprintf' => $this->sprintf,
                 'values' => $this->values,
                 'method' => $this->method,
+                'enablingFunction' => $this->enablingFunction,
                 '_hashKey' => $this->_hashKey,
             ));
         }
@@ -236,6 +236,9 @@ namespace Aomebo\Dispatcher
                     }
                     if (isset($unserializedData['method'])) {
                         $this->method = $unserializedData['method'];
+                    }
+                    if (isset($unserializedData['enablingFunction'])) {
+                        $this->enablingFunction = $unserializedData['enablingFunction'];
                     }
                     if (isset($unserializedData['_hashKey'])) {
                         $this->_hashKey = $unserializedData['_hashKey'];
@@ -302,9 +305,9 @@ namespace Aomebo\Dispatcher
                     $enabled = true;
 
                     // Support for function references enabling/disabling route programmatically
-                    if (isset($this->_enablingFunction)) {
+                    if (isset($this->enablingFunction)) {
                         $enabled = \Aomebo\Trigger\System::callFunctionReference(
-                            $this->_enablingFunction,
+                            $this->enablingFunction,
                             array($this)
                         );
                     }
@@ -338,9 +341,9 @@ namespace Aomebo\Dispatcher
                     $enabled = true;
 
                     // Support for function references enabling/disabling route programmatically
-                    if (isset($this->_enablingFunction)) {
+                    if (isset($this->enablingFunction)) {
                         $enabled = \Aomebo\Trigger\System::callFunctionReference(
-                            $this->_enablingFunction,
+                            $this->enablingFunction,
                             array($this)
                         );
                     }
