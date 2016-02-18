@@ -381,12 +381,9 @@ namespace Aomebo\Dispatcher
         /**
          * @param array|null [$uriParameters = null]
          * @param string|null [$page = null]
-         * @param bool [$clear = false]
          * @return string
-         * @todo Implement clear parameter
          */
-        public function buildUri($uriParameters = null,
-             $page = null, $clear = true)
+        public function buildUri($uriParameters = null, $page = null)
         {
 
             $uri = \Aomebo\Dispatcher\System::getPageBaseUri();
@@ -420,16 +417,6 @@ namespace Aomebo\Dispatcher
             foreach ($this->keys as $key)
             {
                 $newGetArray[$key] = $uriParameters[$key];
-            }
-
-            if (!$clear
-                && isset($_GET)
-                && is_array($_GET)
-                && sizeof($_GET) > 0
-            ) {
-
-                // TODO: Iterate through existing $_GET values and add them to array if they doesn't exist already
-
             }
 
             $uri .= vsprintf($this->sprintf, $newGetArray);

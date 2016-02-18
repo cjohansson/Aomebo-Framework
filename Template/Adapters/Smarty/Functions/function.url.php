@@ -29,24 +29,27 @@ function smarty_function_url($params)
     }
 
     $page = (!empty($params['_page']) ? $params['_page'] : '');
-    $clear = (!empty($params['_clear']) ? true : false);
+    $clear = (isset($params['_clear']) ?
+        (!empty($params['_clear']) ? true : false)
+        : true);
     $default = (!empty($params['_default']) ? true : false);
     $full = (!empty($params['_full']) ? true : false);
 
-    /** @var \Aomebo\Dispatcher\System $dispatcher  */
-    $dispatcher = \Aomebo\Dispatcher\System::getInstance();
-
     if ($default) {
         if ($full) {
-            return $dispatcher->buildDefaultFullUri();
+            return \Aomebo\Dispatcher\System::
+                buildDefaultFullUri();
         } else {
-            return $dispatcher->buildDefaultUri();
+            return \Aomebo\Dispatcher\System::
+                buildDefaultUri();
         }
     } else {
         if ($full) {
-            return $dispatcher->buildFullUri($getArray, $page, $clear);
+            return \Aomebo\Dispatcher\System::
+                buildFullUri($getArray, $page, $clear);
         } else {
-            return $dispatcher->buildUri($getArray, $page, $clear);
+            return \Aomebo\Dispatcher\System::
+                buildUri($getArray, $page, $clear);
         }
     }
 

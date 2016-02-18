@@ -1800,6 +1800,35 @@ namespace Aomebo\Dispatcher
                 }
             }
 
+            // Should we use existing GET values?
+            if (!$clear
+                && isset($_GET)
+                && is_array($_GET)
+                && sizeof($_GET) > 0
+            ) {
+
+                if (!isset($getArray)
+                    || !is_array($getArray)
+                ) {
+                    $getArray = array();
+                }
+
+                /**
+                 * Iterate through existing GET values and add them to array
+                 * if they doesn't exist already
+                 */
+                foreach ($_GET as $key => $value)
+                {
+                    if (!isset($getArray[$key])
+                        && isset($value)
+                        && !is_array($value)
+                    ) {
+                        $getArray[$key] = $value;
+                    }
+                }
+
+            }
+
             // Is a GET array specified?
             if (isset($getArray)
                 && is_array($getArray)
@@ -1822,20 +1851,10 @@ namespace Aomebo\Dispatcher
                 if (self::$_rewriteEnabled
                     && self::routeExistsByUriParameters($getArray, $implicitPage)
                 ) {
-                    return self::buildRouteUri($getArray, $implicitPage, $clear);
+                    return self::buildRouteUri($getArray, $implicitPage);
                 } else {
 
                     $pairCount = (int) 0;
-
-                    if (!$clear
-                        && isset($_GET)
-                        && is_array($_GET)
-                        && sizeof($_GET) > 0
-                    ) {
-
-                        // TODO: Iterate through existing $_GET values and add them to array if they doesn't exist already
-
-                    }
 
                     // Iterate through get values and make a ordinary HTTP GET query-string
                     foreach ($getArray
@@ -1868,14 +1887,12 @@ namespace Aomebo\Dispatcher
          * @static
          * @param array $uriParameters
          * @param string|null [$page = null]
-         * @param bool [$clear = false]
          * @throws \Exception
          * @return string
          */
         public static function buildRouteUri(
             $uriParameters,
-            $page = null,
-            $clear = false)
+            $page = null)
         {
             if (isset($uriParameters)
                 && is_array($uriParameters)
@@ -1885,7 +1902,7 @@ namespace Aomebo\Dispatcher
                     $uriParameters,
                     $page)
                 ) {
-                    return $route->buildUri($uriParameters, $page, $clear);
+                    return $route->buildUri($uriParameters, $page);
                 }
             }
             Throw new \Exception(

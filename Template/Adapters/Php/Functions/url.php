@@ -3,12 +3,11 @@
 /**
  * @param array|null [$getArray = null]
  * @param string [$page = '']
- * @param bool [$clear = false]
+ * @param bool [$clear = true]
  * @return string
  */
-function url($getArray = null, $page = '', $clear = false)
+function url($getArray = null, $page = '', $clear = true)
 {
-    $dispatcher =
-        \Aomebo\Dispatcher\System::getInstance();
-    return $dispatcher->buildUri($getArray, $page, $clear);
+    return \Aomebo\Dispatcher\System::buildUri(
+        $getArray, $page, $clear);
 }

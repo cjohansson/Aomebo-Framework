@@ -109,21 +109,27 @@ namespace Aomebo\Template\Adapters\Twig
             }
 
             $page = (!empty($params['_page']) ? $params['_page'] : '');
-            $clear = (!empty($params['_clear']) ? true : false);
+            $clear = (isset($params['_clear']) ?
+                (!empty($params['_clear']) ? true : false)
+                : true);
             $default = (!empty($params['_default']) ? true : false);
             $full = (!empty($params['_full']) ? true : false);
 
             if ($default) {
                 if ($full) {
-                    return \Aomebo\Dispatcher\System::buildDefaultFullUri();
+                    return \Aomebo\Dispatcher\System::
+                        buildDefaultFullUri();
                 } else {
-                    return \Aomebo\Dispatcher\System::buildDefaultUri();
+                    return \Aomebo\Dispatcher\System::
+                        buildDefaultUri();
                 }
             } else {
                 if ($full) {
-                    return \Aomebo\Dispatcher\System::buildFullUri($getArray, $page, $clear);
+                    return \Aomebo\Dispatcher\System::
+                        buildFullUri($getArray, $page, $clear);
                 } else {
-                    return \Aomebo\Dispatcher\System::buildUri($getArray, $page, $clear);
+                    return \Aomebo\Dispatcher\System::
+                        buildUri($getArray, $page, $clear);
                 }
             }
         }
