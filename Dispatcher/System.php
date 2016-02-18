@@ -1730,12 +1730,12 @@ namespace Aomebo\Dispatcher
          * @static
          * @param array|null [$getArray = null]
          * @param string|null [$page = null]
-         * @param bool [$clear = false]
+         * @param bool [$clear = true]
          * @throws \Exception
          * @return string
          */
         public static function buildUri($getArray = null,
-            $page = null, $clear = false)
+            $page = null, $clear = true)
         {
 
             $uri = self::$_pageBaseUri;
@@ -1826,6 +1826,16 @@ namespace Aomebo\Dispatcher
                 } else {
 
                     $pairCount = (int) 0;
+
+                    if (!$clear
+                        && isset($_GET)
+                        && is_array($_GET)
+                        && sizeof($_GET) > 0
+                    ) {
+
+                        // TODO: Iterate through existing $_GET values and add them to array if they doesn't exist already
+
+                    }
 
                     // Iterate through get values and make a ordinary HTTP GET query-string
                     foreach ($getArray
@@ -1918,9 +1928,7 @@ namespace Aomebo\Dispatcher
             if ($hashKey = self::generateRouteHashKeyByUrlParameters(
                 $uriParameters)
             ) {
-                if ($route = self::getRouteByHashKey($hashKey, $page)) {
-                    return $route;
-                }
+                return self::getRouteByHashKey($hashKey, $page);
             }
             return false;
         }
@@ -2120,18 +2128,17 @@ namespace Aomebo\Dispatcher
          * This method builds an full assoc uri.
          *
          * @static
-         * @param array|null $getArray
-         * @param string|null $page
-         * @param bool|null $clear
-         * @param object|null $ref
+         * @param array|null [$getArray = null]
+         * @param string|null [$page = null]
+         * @param bool|null [$clear = true]
          * @return string
          */
         public static function buildFullUri($getArray = null,
-            $page = null, $clear = false, & $ref = null)
+            $page = null, $clear = true)
         {
             return
                 self::getServerUri()
-                . self::buildUri($getArray, $page, $clear, $ref);
+                . self::buildUri($getArray, $page, $clear);
         }
 
         /**

@@ -256,6 +256,24 @@ namespace Aomebo\Dispatcher
         }
 
         /**
+         * @return bool
+         */
+        public function isEnabled()
+        {
+            $enabled = true;
+
+            // Support for function references enabling/disabling route programmatically
+            if (isset($this->enablingFunction)) {
+                $enabled = \Aomebo\Trigger\System::callFunctionReference(
+                    $this->enablingFunction,
+                    array($this)
+                );
+            }
+
+            return $enabled;
+        }
+
+        /**
          * @static
          * @param array $getArray       non-associative array containing keys
          * @return string
@@ -302,27 +320,14 @@ namespace Aomebo\Dispatcher
             if (!empty($url)) {
                 if ($this->isValid()) {
 
-                    $enabled = true;
-
-                    // Support for function references enabling/disabling route programmatically
-                    if (isset($this->enablingFunction)) {
-                        $enabled = \Aomebo\Trigger\System::callFunctionReference(
-                            $this->enablingFunction,
-                            array($this)
-                        );
+                    // Does the RegExp match URL?
+                    if (preg_match(
+                            $this->regexp,
+                            $url) === 1
+                    ) {
+                        return true;
                     }
 
-                    if ($enabled) {
-
-                        // Does the RegExp match URL?
-                        if (preg_match(
-                                $this->regexp,
-                                $url) === 1
-                        ) {
-                            return true;
-                        }
-
-                    }
                 }
             }
             return false;
@@ -338,17 +343,9 @@ namespace Aomebo\Dispatcher
 
                 if (!isset($this->_isMatching)) {
 
-                    $enabled = true;
+                    $this->_isMatching = false;
 
-                    // Support for function references enabling/disabling route programmatically
-                    if (isset($this->enablingFunction)) {
-                        $enabled = \Aomebo\Trigger\System::callFunctionReference(
-                            $this->enablingFunction,
-                            array($this)
-                        );
-                    }
-
-                    if ($enabled) {
+                    if ($this->isEnabled()) {
 
                         $queryString =
                             \Aomebo\Dispatcher\System::getQueryString();
@@ -359,7 +356,6 @@ namespace Aomebo\Dispatcher
                                 $queryString,
                                 $this->_matches) === false
                         ) {
-                            $this->_isMatching = false;
                             if ($this->_matches === false) {
                                 Throw new \Exception(sprintf(
                                     self::systemTranslate('Invalid regexp "%s" for route named "%s"'),
@@ -378,9 +374,8 @@ namespace Aomebo\Dispatcher
 
                 return $this->_isMatching;
 
-            } else {
-                return false;
             }
+            return false;
         }
 
         /**
@@ -391,7 +386,7 @@ namespace Aomebo\Dispatcher
          * @todo Implement clear parameter
          */
         public function buildUri($uriParameters = null,
-             $page = null, $clear = false)
+             $page = null, $clear = true)
         {
 
             $uri = \Aomebo\Dispatcher\System::getPageBaseUri();
@@ -427,6 +422,16 @@ namespace Aomebo\Dispatcher
                 $newGetArray[$key] = $uriParameters[$key];
             }
 
+            if (!$clear
+                && isset($_GET)
+                && is_array($_GET)
+                && sizeof($_GET) > 0
+            ) {
+
+                // TODO: Iterate through existing $_GET values and add them to array if they doesn't exist already
+
+            }
+
             $uri .= vsprintf($this->sprintf, $newGetArray);
 
             return $uri;
@@ -439,38 +444,36 @@ namespace Aomebo\Dispatcher
          */
         public function buildGetValues()
         {
-            if ($this->isValid()) {
-                if (!empty($this->_isMatching)) {
+            if ($this->isMatching()) {
 
-                    $this->values = array();
-                    $this->keyToValues = array();
+                $this->values = array();
+                $this->keyToValues = array();
 
-                    // Iterate through GET-keys
-                    foreach ($this->keys as $keyIndex => $keyName)
-                    {
+                // Iterate through GET-keys
+                foreach ($this->keys as $keyIndex => $keyName)
+                {
 
-                        // Does route have this parameter?
-                        if (isset($this->_matches[$keyIndex + 1])) {
+                    // Does route have this parameter?
+                    if (isset($this->_matches[$keyIndex + 1])) {
 
-                            $value = & $this->_matches[$keyIndex + 1];
+                        $value = & $this->_matches[$keyIndex + 1];
 
-                            // Set GET-data
-                            $_GET[$keyName] = $value;
-                            $this->keyToValues[$keyName] = $value;
-                            $this->values[] = $value;
+                        // Set GET-data
+                        $_GET[$keyName] = $value;
+                        $this->keyToValues[$keyName] = $value;
+                        $this->values[] = $value;
 
-                        // Otherwise - error
-                        } else {
-                            Throw new \Exception(sprintf(
-                                self::systemTranslate('Could not find match with index "%s" for route.'),
-                                ($keyIndex + 1)));
-                        }
-
+                    // Otherwise - error
+                    } else {
+                        Throw new \Exception(sprintf(
+                            self::systemTranslate('Could not find match with index "%s" for route.'),
+                            ($keyIndex + 1)));
                     }
 
-                    return true;
-
                 }
+
+                return true;
+
             }
 
             return false;
