@@ -1121,6 +1121,77 @@ namespace Aomebo
 
         /**
          * @static
+         * @param array|null [$getArray = null]
+         * @param string|null [$page = null]
+         * @param bool|true [$clear = true]
+         * @return string
+         */
+        protected static function _buildFullUri($getArray = null,
+            $page = null, $clear = true)
+        {
+            return \Aomebo\Dispatcher\System::buildFullUri(
+                $getArray, $page, $clear);
+        }
+
+        /**
+         * @static
+         * @return string
+         */
+        protected static function _buildDefaultUri()
+        {
+            return \Aomebo\Dispatcher\System::buildDefaultUri();
+        }
+
+        /**
+         * @static
+         * @return string
+         */
+        protected static function _buildDefaultFullUri()
+        {
+            return \Aomebo\Dispatcher\System::buildDefaultFullUri();
+        }
+
+        /**
+         * @static
+         * @param bool [$newInstance = false]
+         * @return Template\Adapters\Smarty\Adapter
+         */
+        protected static function _getSmartyView($newInstance = false)
+        {
+            return (!empty($newInstance) ?
+                new \Aomebo\Template\Adapters\Smarty\Adapter()
+                : \Aomebo\Template\Adapters\Smarty\Adapter::getInstance()
+            );
+        }
+
+        /**
+         * @static
+         * @param bool [$newInstance = false]
+         * @return Template\Adapters\Twig\Adapter
+         */
+        protected static function _getTwigView($newInstance = false)
+        {
+            return (!empty($newInstance) ?
+                new \Aomebo\Template\Adapters\Twig\Adapter()
+                : \Aomebo\Template\Adapters\Twig\Adapter::getInstance()
+            );
+        }
+
+        /**
+         * @static
+         * @param bool [$newInstance = false]
+         * @return Template\Adapters\Php\Adapter
+         */
+        protected static function _getPhpView($newInstance = false)
+        {
+            return (!empty($newInstance) ?
+                new \Aomebo\Template\Adapters\Php\Adapter()
+                : \Aomebo\Template\Adapters\Php\Adapter::getInstance()
+            );
+        }
+
+        /**
+         * @static
          * @param string $key
          * @param mixed|null [$default = null]
          * @return mixed

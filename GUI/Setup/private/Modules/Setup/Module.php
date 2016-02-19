@@ -159,8 +159,8 @@ namespace Modules\Setup
                 );
             }
 
-            $view = \Aomebo\Template\Adapters\Twig\Adapter::getInstance();
-            // $view = \Aomebo\Template\Adapters\Smarty\Adapter::getInstance();
+            $view = self::_getTwigView();
+            // $view = self::_getSmartyView();
             // $view->setFile('views/view.tpl');
             $view->attachVariable('tests', $tests);
             $view->attachVariable('submit', $submit);
