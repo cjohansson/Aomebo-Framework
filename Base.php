@@ -46,13 +46,26 @@ namespace Aomebo
 
         /**
          * @static
+         * @param string $key
+         * @param null|mixed [$default = null]
+         * @return mixed
+         */
+        protected static function _getSetting($key, $default = null)
+        {
+            $value =\Aomebo\Configuration::getSetting($key, false);
+            return ($value !== null ? $value : $default);
+        }
+
+        /**
+         * @static
          * @param string $message
          * @param string|null [$domain = null]
          * @return string
          */
         public static function systemTranslate($message, $domain = null)
         {
-            return \Aomebo\Internationalization\System::systemTranslate($message, $domain);
+            return \Aomebo\Internationalization\System::systemTranslate(
+                $message, $domain);
         }
 
         /**

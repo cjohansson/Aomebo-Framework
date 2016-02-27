@@ -342,6 +342,66 @@ namespace Aomebo\Presenter
                 }
             }
 
+            // Body append script
+            if ($scriptData = $interpreter->getBodyAppendScriptData()) {
+                $scriptDataStrlen =
+                    strlen($scriptData);
+                if ($insertPoint =
+                    $interpreter->getInsertPoint(
+                        $interpreter::INSERTION_POINT_BODY_APPEND_SCRIPT)
+                ) {
+                    $PE['print buffer'] =
+                        substr($PE['print buffer'], 0,
+                            $insertPoint)
+                        . $scriptData
+                        . substr($PE['print buffer'],
+                            $insertPoint);
+                    $interpreter->moveInsertPoint(
+                        $interpreter::INSERTION_POINT_BODY_APPEND_SCRIPT,
+                        $scriptDataStrlen);
+                }
+            }
+
+            // Body append style
+            if ($scriptData = $interpreter->getBodyAppendStyleData()) {
+                $scriptDataStrlen =
+                    strlen($scriptData);
+                if ($insertPoint =
+                    $interpreter->getInsertPoint(
+                        $interpreter::INSERTION_POINT_BODY_APPEND_STYLE)
+                ) {
+                    $PE['print buffer'] =
+                        substr($PE['print buffer'], 0,
+                            $insertPoint)
+                        . $scriptData
+                        . substr($PE['print buffer'],
+                            $insertPoint);
+                    $interpreter->moveInsertPoint(
+                        $interpreter::INSERTION_POINT_BODY_APPEND_STYLE,
+                        $scriptDataStrlen);
+                }
+            }
+
+            // Body append markup
+            if ($scriptData = $interpreter->getBodyAppendMarkupData()) {
+                $scriptDataStrlen =
+                    strlen($scriptData);
+                if ($insertPoint =
+                    $interpreter->getInsertPoint(
+                        $interpreter::INSERTION_POINT_BODY_APPEND_MARKUP)
+                ) {
+                    $PE['print buffer'] =
+                        substr($PE['print buffer'], 0,
+                            $insertPoint)
+                        . $scriptData
+                        . substr($PE['print buffer'],
+                            $insertPoint);
+                    $interpreter->moveInsertPoint(
+                        $interpreter::INSERTION_POINT_BODY_APPEND_MARKUP,
+                        $scriptDataStrlen);
+                }
+            }
+
             // Get length of print buffer
             $PE["length of print buffer"] = strlen($PE["print buffer"]);
 

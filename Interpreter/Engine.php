@@ -51,6 +51,12 @@ namespace Aomebo\Interpreter
         /**
          * @var string
          */
+        const INSERTION_POINT_HEAD_MARKUP =
+            'insertionPointHeadMarkup';
+
+        /**
+         * @var string
+         */
         const INSERTION_POINT_BODY_SCRIPT =
             'insertionPointBodyScript';
 
@@ -63,14 +69,26 @@ namespace Aomebo\Interpreter
         /**
          * @var string
          */
-        const INSERTION_POINT_HEAD_MARKUP =
-            'insertionPointHeadMarkup';
+        const INSERTION_POINT_BODY_MARKUP =
+            'insertionPointBodyMarkup';
 
         /**
          * @var string
          */
-        const INSERTION_POINT_BODY_MARKUP =
-            'insertionPointBodyMarkup';
+        const INSERTION_POINT_BODY_APPEND_SCRIPT =
+            'insertionPointBodyAppendScript';
+
+        /**
+         * @var string
+         */
+        const INSERTION_POINT_BODY_APPEND_STYLE =
+            'insertionPointBodyAppendStyle';
+
+        /**
+         * @var string
+         */
+        const INSERTION_POINT_BODY_APPEND_MARKUP =
+            'insertionPointBodyAppendMarkup';
 
         /**
          * @var int
@@ -169,6 +187,20 @@ namespace Aomebo\Interpreter
          * @static
          * @var string
          */
+        private static $_bodyAppendStyleData = '';
+
+        /**
+         * @internal
+         * @static
+         * @var string
+         */
+        private static $_bodyAppendScriptData = '';
+
+        /**
+         * @internal
+         * @static
+         * @var string
+         */
         private static $_headMarkupData = '';
 
         /**
@@ -177,6 +209,13 @@ namespace Aomebo\Interpreter
          * @var string
          */
         private static $_bodyMarkupData = '';
+
+        /**
+         * @internal
+         * @static
+         * @var string
+         */
+        private static $_bodyAppendMarkupData = '';
 
         /**
          * @internal
@@ -544,6 +583,15 @@ namespace Aomebo\Interpreter
         }
 
         /**
+         * @static
+         * @return string
+         */
+        public static function getBodyAppendMarkupData()
+        {
+            return self::$_bodyAppendMarkupData;
+        }
+
+        /**
          * Alias to addHeadInlineStyleData
          *
          * @static
@@ -580,6 +628,18 @@ namespace Aomebo\Interpreter
         }
 
         /**
+         * Alias.
+         *
+         * @static
+         * @param string $style
+         * @see \Aomebo\Interpreter\Engine::addBodyAppendInlineStyleData()
+         */
+        public static function addBodyAppendStyleData($style)
+        {
+            self::addBodyAppendInlineStyleData($style);
+        }
+
+        /**
          * @static
          * @param string $style
          */
@@ -591,11 +651,31 @@ namespace Aomebo\Interpreter
 
         /**
          * @static
+         * @param string $style
+         */
+        public static function addBodyAppendInlineStyleData($style)
+        {
+            self::$_bodyAppendStyleData .=
+                self::_buildInlineStyleMarkup($style);
+        }
+
+        /**
+         * @static
          * @param string $href
          */
         public static function addBodyExternalStyleData($href)
         {
             self::$_bodyStyleData .=
+                self::_buildExternalStyleMarkup($href);
+        }
+
+        /**
+         * @static
+         * @param string $href
+         */
+        public static function addBodyAppendExternalStyleData($href)
+        {
+            self::$_bodyAppendStyleData .=
                 self::_buildExternalStyleMarkup($href);
         }
 
@@ -693,6 +773,18 @@ namespace Aomebo\Interpreter
         }
 
         /**
+         * Alias.
+         *
+         * @static
+         * @param string $script
+         * @see \Aomebo\Interpreter\Engine::addBodyAppendInlineScriptData()
+         */
+        public static function addBodyAppendScriptData($script)
+        {
+            self::addBodyAppendInlineScriptData($script);
+        }
+
+        /**
          * This method adds javascript data to head.
          *
          * @static
@@ -725,6 +817,16 @@ namespace Aomebo\Interpreter
         }
 
         /**
+         * @static
+         * @param string $markup
+         */
+        public static function addBodyAppendMarkupData($markup)
+        {
+            self::$_bodyAppendMarkupData .=
+                $markup;
+        }
+
+        /**
          * This method adds javascript data to body.
          *
          * @static
@@ -742,9 +844,33 @@ namespace Aomebo\Interpreter
          * @static
          * @param string $source
          */
+        public static function addBodyAppendExternalScriptData($source)
+        {
+            self::$_bodyAppendScriptData .=
+                self::_buildExternalScriptMarkup($source);
+        }
+
+        /**
+         * This method adds javascript data to body.
+         *
+         * @static
+         * @param string $source
+         */
         public static function addBodyInlineScriptData($source)
         {
             self::$_bodyScriptData .=
+                self::_buildInlineScriptMarkup($source);
+        }
+
+        /**
+         * This method adds javascript data to body.
+         *
+         * @static
+         * @param string $source
+         */
+        public static function addBodyAppendInlineScriptData($source)
+        {
+            self::$_bodyAppendScriptData .=
                 self::_buildInlineScriptMarkup($source);
         }
 
@@ -775,6 +901,24 @@ namespace Aomebo\Interpreter
         public static function getBodyStyleData()
         {
             return self::$_bodyStyleData;
+        }
+
+        /**
+         * @static
+         * @return string
+         */
+        public static function getBodyAppendScriptData()
+        {
+            return self::$_bodyAppendScriptData;
+        }
+
+        /**
+         * @static
+         * @return string
+         */
+        public static function getBodyAppendStyleData()
+        {
+            return self::$_bodyAppendStyleData;
         }
 
         /**
@@ -947,7 +1091,7 @@ namespace Aomebo\Interpreter
 
             // head markup
             if (!isset(self::$_insertPoints[
-            self::INSERTION_POINT_HEAD_MARKUP])
+                self::INSERTION_POINT_HEAD_MARKUP])
             ) {
                 if ($pos = stripos(self::$_output, '</title>')) {
                     self::setInsertPoint(
@@ -960,8 +1104,10 @@ namespace Aomebo\Interpreter
                 }
             }
 
-            // body script
-            if (!isset(self::$_insertPoints[self::INSERTION_POINT_BODY_SCRIPT])) {
+            // body prepend script
+            if (!isset(self::$_insertPoints[
+                self::INSERTION_POINT_BODY_SCRIPT])
+            ) {
                 if ($pos = stripos(self::$_output, '<body')) {
                     if ($pos = strpos(self::$_output, '>', $pos)) {
                         self::setInsertPoint(
@@ -975,8 +1121,10 @@ namespace Aomebo\Interpreter
                 }
             }
 
-            // body style
-            if (!isset(self::$_insertPoints[self::INSERTION_POINT_BODY_STYLE])) {
+            // body prepend style
+            if (!isset(self::$_insertPoints[
+                self::INSERTION_POINT_BODY_STYLE])
+            ) {
                 if ($pos = stripos(self::$_output, '<body')) {
                     if ($pos = strpos(self::$_output, '>', $pos)) {
                         self::setInsertPoint(
@@ -990,8 +1138,10 @@ namespace Aomebo\Interpreter
                 }
             }
 
-            // body markup
-            if (!isset(self::$_insertPoints[self::INSERTION_POINT_BODY_MARKUP])) {
+            // body prepend markup
+            if (!isset(self::$_insertPoints[
+                self::INSERTION_POINT_BODY_MARKUP])
+            ) {
                 if ($pos = stripos(self::$_output, '<body')) {
                     if ($pos = strpos(self::$_output, '>', $pos)) {
                         self::setInsertPoint(
@@ -1002,6 +1152,51 @@ namespace Aomebo\Interpreter
                 } else  {
                     unset(self::$_insertPoints[
                         self::INSERTION_POINT_BODY_MARKUP]);
+                }
+            }
+
+            // body append script
+            if (!isset(self::$_insertPoints[
+                self::INSERTION_POINT_BODY_APPEND_SCRIPT])
+            ) {
+                if ($pos = stripos(self::$_output, '</body>')) {
+                    self::setInsertPoint(
+                        self::INSERTION_POINT_BODY_APPEND_SCRIPT,
+                        $pos - 1
+                    );
+                } else  {
+                    unset(self::$_insertPoints[
+                        self::INSERTION_POINT_BODY_APPEND_SCRIPT]);
+                }
+            }
+
+            // body append style
+            if (!isset(self::$_insertPoints[
+                self::INSERTION_POINT_BODY_APPEND_STYLE])
+            ) {
+                if ($pos = stripos(self::$_output, '</body>')) {
+                    self::setInsertPoint(
+                        self::INSERTION_POINT_BODY_APPEND_STYLE,
+                        $pos - 1
+                    );
+                } else  {
+                    unset(self::$_insertPoints[
+                        self::INSERTION_POINT_BODY_APPEND_STYLE]);
+                }
+            }
+
+            // body append markup
+            if (!isset(self::$_insertPoints[
+                self::INSERTION_POINT_BODY_APPEND_MARKUP])
+            ) {
+                if ($pos = stripos(self::$_output, '</body>')) {
+                    self::setInsertPoint(
+                        self::INSERTION_POINT_BODY_APPEND_MARKUP,
+                        $pos - 1
+                    );
+                } else  {
+                    unset(self::$_insertPoints[
+                        self::INSERTION_POINT_BODY_APPEND_MARKUP]);
                 }
             }
 
