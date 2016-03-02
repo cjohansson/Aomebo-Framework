@@ -66,6 +66,13 @@ namespace Aomebo
         private static $_recDiremTimes = array();
 
         /**
+         * @internal
+         * @static
+         * @var array
+         */
+        private static $_filemtimesCache = array();
+
+        /**
          * @static
          * @param string $path
          * @return bool
@@ -180,15 +187,18 @@ namespace Aomebo
          */
         public static function getFileLastModificationTime($filename, $validate = true)
         {
-            if (!$validate
-                || (!\Aomebo\Configuration::isLoaded()
-                    || self::isPathInBasedir($filename))
-            ) {
-                if ($filemtime = @filemtime($filename)) {
-                    return $filemtime;
+            if (!isset(self::$_filemtimesCache[$filename])) {
+                self::$_filemtimesCache[$filename] = false;
+                if (!$validate
+                    || (!\Aomebo\Configuration::isLoaded()
+                        || self::isPathInBasedir($filename))
+                ) {
+                    if ($filemtime = @filemtime($filename)) {
+                        self::$_filemtimesCache[$filename] = $filemtime;
+                    }
                 }
             }
-            return false;
+            return self::$_filemtimesCache[$filename];
         }
 
         /**
