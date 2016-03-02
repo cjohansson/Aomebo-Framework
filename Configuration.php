@@ -168,6 +168,13 @@ namespace Aomebo
         private static $_hasSiteConfiguration = false;
 
         /**
+         * @internal
+         * @static
+         * @var array
+         */
+        private static $_keyToValueCache = array();
+
+        /**
          *
          */
         public function __construct()
@@ -650,34 +657,53 @@ namespace Aomebo
         public static function getSetting($key, $throwException = true)
         {
             if (isset($key)) {
-                $exp = explode(',', $key);
-                $d = & self::$_settings;
-                if (is_array($exp)
-                    && sizeof($exp) > 0
-                ) {
-                    foreach ($exp as $e) {
-                        if (!isset($d[$e])) {
-                            if ($throwException) {
-                                Throw new \Exception(
-                                    sprintf(
-                                        self::systemTranslate(
-                                            'Setting-value for key: "%s" not found.'),
-                                        $key
-                                    )
-                                );
+                if (!isset(self::$_keyToValueCache[$key])) {
+
+                    self::$_keyToValueCache[$key] = false;
+
+                    $exp = explode(',', $key);
+                    $d = & self::$_settings;
+
+                    if (is_array($exp)
+                        && sizeof($exp) > 0
+                    ) {
+
+                        $found = true;
+
+                        foreach ($exp as $e)
+                        {
+                            if (!isset($d[$e])) {
+                                if ($throwException) {
+                                    Throw new \Exception(
+                                        sprintf(
+                                            self::systemTranslate(
+                                                'Setting-value for key: "%s" not found.'),
+                                            $key
+                                        )
+                                    );
+                                } else {
+                                    $found = false;
+                                    break;
+                                }
                             } else {
-                                return null;
+                                $d = & $d[$e];
                             }
-                        } else {
-                            $d = & $d[$e];
+                        }
+
+                        if ($found) {
+                            self::$_keyToValueCache[$key] = $d;
+                        }
+
+                    } else {
+                        if (isset($d[$key])) {
+                            self::$_keyToValueCache[$key] = $d[$key];
                         }
                     }
-                    return $d;
-                } else {
-                    if (isset($d[$key])) {
-                        return $d[$key];
-                    }
+
                 }
+
+                return self::$_keyToValueCache[$key];
+
             } else {
                 Throw new \Exception(
                     sprintf(
