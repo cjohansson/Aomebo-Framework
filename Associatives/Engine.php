@@ -1296,177 +1296,182 @@ namespace Aomebo\Associatives
         private function _getDependencyData($media = null)
         {
 
-            $dispatcher = \Aomebo\Dispatcher\System::getInstance();
-            $parser = \Aomebo\Associatives\Parser::getInstance();
             $return = '';
 
-            // Sort script depdencies by script subdependencies ascending
-            uasort(
-                self::$_selectedDependencies,
-                array(& $this, '_dependencySortScripts'));
+            if (sizeof(self::$_selectedDependencies) > 0) {
 
-            $subdependenciesCount = 0;
-            $lastSubdependenciesCount = 0;
-            $externalScripts = array();
-            $externalStyles = array();
-            $inlineScripts = '';
-            $inlineStyles = '';
-            $inlineMarkups = '';
+                $dispatcher = \Aomebo\Dispatcher\System::getInstance();
+                $parser = \Aomebo\Associatives\Parser::getInstance();
 
-            foreach (self::$_selectedDependencies as $selectedDependency)
-            {
+                // Sort script depdencies by script subdependencies ascending
+                uasort(
+                    self::$_selectedDependencies,
+                    array(& $this, '_dependencySortScripts'));
 
-                $subdependenciesCount = intval($selectedDependency['count_script_subdependencies']);
+                $subdependenciesCount = 0;
+                $lastSubdependenciesCount = 0;
+                $externalScripts = array();
+                $externalStyles = array();
+                $inlineScripts = '';
+                $inlineStyles = '';
+                $inlineMarkups = '';
 
-                if ($subdependenciesCount != $lastSubdependenciesCount) {
+                foreach (self::$_selectedDependencies as $selectedDependency)
+                {
 
-                    if (sizeof($externalScripts) > 0) {
+                    $subdependenciesCount = intval($selectedDependency['count_script_subdependencies']);
 
-                        $return .= '<script src="';
-                        $return .= $dispatcher->buildAssocUri(array(
-                            'at' => 'js',
-                            'ds' => implode(',', $externalScripts)));
-                        $return .= '" type="'
-                              . self::MIME_SCRIPT . '"></script>';
-                    }
+                    if ($subdependenciesCount != $lastSubdependenciesCount) {
 
-                    if (sizeof($externalStyles) > 0) {
-                        $return .= '<link href="';
-                        $return .= $dispatcher->buildAssocUri(array(
-                            'at' => 'css',
-                            'ds' => implode(',', $externalStyles)));
-                        $return .= '" rel="stylesheet" type="'
-                              . self::MIME_STYLE . '" media="'
-                              . (empty($media) ? 'screen' : $media)
-                              . '" />';
-                    }
+                        if (sizeof($externalScripts) > 0) {
 
-                    if (strlen($inlineMarkups) > 0) {
-                        $return .= $inlineMarkups;
-                    }
-
-                    if (strlen($inlineScripts) > 0) {
-                        $return  .= '<script type="' . self::MIME_SCRIPT . '">'
-                            . '/* <![CDATA[ */'
-                            . $inlineScripts
-                            . '/* ]]> */'
-                            . '</script>';
-                    }
-
-                    if (strlen($inlineStyles) > 0) {
-                        $return .= '<style type="' . self::MIME_STYLE . '">'
-                            . $inlineStyles
-                            . '</style>';
-                    }
-
-                    $externalScripts = array();
-                    $externalStyles = array();
-                    $inlineScripts = '';
-                    $inlineStyles = '';
-                    $inlineMarkups = '';
-
-                }
-
-                $lastSubdependenciesCount = $subdependenciesCount;
-
-                if ($selectedDependency['has_markups']) {
-                    if ($selectedDependency['has_inline_markups']) {
-                        foreach ($selectedDependency['inline_markups'] as $inlineMarkup) {
-
-                            $inlineParsedMarkup = $parser->parseDependency(
-                                $inlineMarkup,
-                                $selectedDependency['cis_name'],
-                                $selectedDependency['centralized_path'],
-                                $selectedDependency['modularized_path']);
-                            $inlineMarkups .= $inlineParsedMarkup;
-
+                            $return .= '<script src="';
+                            $return .= $dispatcher->buildAssocUri(array(
+                                'at' => 'js',
+                                'ds' => implode(',', $externalScripts)));
+                            $return .= '" type="'
+                                  . self::MIME_SCRIPT . '"></script>';
                         }
-                    }
-                }
 
-                if ($selectedDependency['has_scripts']) {
-                    if ($selectedDependency['has_inline_scripts']) {
-                        foreach ($selectedDependency['inline_scripts'] as $inlineScript) {
-
-                            $inlineParsedScript = $parser->parseDependency(
-                                $inlineScript,
-                                $selectedDependency['cis_name'],
-                                $selectedDependency['centralized_path'],
-                                $selectedDependency['modularized_path']);
-                            $inlineScripts .= $inlineParsedScript;
-
+                        if (sizeof($externalStyles) > 0) {
+                            $return .= '<link href="';
+                            $return .= $dispatcher->buildAssocUri(array(
+                                'at' => 'css',
+                                'ds' => implode(',', $externalStyles)));
+                            $return .= '" rel="stylesheet" type="'
+                                  . self::MIME_STYLE . '" media="'
+                                  . (empty($media) ? 'screen' : $media)
+                                  . '" />';
                         }
-                    }
 
-                    if ($selectedDependency['has_external_scripts']) {
-                        $externalScripts[] =
-                            $selectedDependency['cis_name'];
-                    }
+                        if (strlen($inlineMarkups) > 0) {
+                            $return .= $inlineMarkups;
+                        }
 
-                }
+                        if (strlen($inlineScripts) > 0) {
+                            $return  .= '<script type="' . self::MIME_SCRIPT . '">'
+                                . '/* <![CDATA[ */'
+                                . $inlineScripts
+                                . '/* ]]> */'
+                                . '</script>';
+                        }
 
-                if ($selectedDependency['has_styles']) {
-                    if ($selectedDependency['has_inline_styles']) {
-                        foreach ($selectedDependency['inline_styles'] as $inlineStyle) {
-
-                            $inlineParsedStyle = $parser->parseDependency(
-                                $inlineStyle,
-                                $selectedDependency['cis_name'],
-                                $selectedDependency['centralized_path'],
-                                $selectedDependency['modularized_path']);
-                            $inlineStyles .= '<style type="' . self::MIME_STYLE . '">'
-                                . $inlineParsedStyle
+                        if (strlen($inlineStyles) > 0) {
+                            $return .= '<style type="' . self::MIME_STYLE . '">'
+                                . $inlineStyles
                                 . '</style>';
+                        }
 
+                        $externalScripts = array();
+                        $externalStyles = array();
+                        $inlineScripts = '';
+                        $inlineStyles = '';
+                        $inlineMarkups = '';
+
+                    }
+
+                    $lastSubdependenciesCount = $subdependenciesCount;
+
+                    if ($selectedDependency['has_markups']) {
+                        if ($selectedDependency['has_inline_markups']) {
+                            foreach ($selectedDependency['inline_markups'] as $inlineMarkup) {
+
+                                $inlineParsedMarkup = $parser->parseDependency(
+                                    $inlineMarkup,
+                                    $selectedDependency['cis_name'],
+                                    $selectedDependency['centralized_path'],
+                                    $selectedDependency['modularized_path']);
+                                $inlineMarkups .= $inlineParsedMarkup;
+
+                            }
                         }
                     }
 
-                    if ($selectedDependency['has_external_styles']) {
-                        $externalStyles[] =
-                            $selectedDependency['cis_name'];
+                    if ($selectedDependency['has_scripts']) {
+                        if ($selectedDependency['has_inline_scripts']) {
+                            foreach ($selectedDependency['inline_scripts'] as $inlineScript) {
+
+                                $inlineParsedScript = $parser->parseDependency(
+                                    $inlineScript,
+                                    $selectedDependency['cis_name'],
+                                    $selectedDependency['centralized_path'],
+                                    $selectedDependency['modularized_path']);
+                                $inlineScripts .= $inlineParsedScript;
+
+                            }
+                        }
+
+                        if ($selectedDependency['has_external_scripts']) {
+                            $externalScripts[] =
+                                $selectedDependency['cis_name'];
+                        }
+
                     }
 
+                    if ($selectedDependency['has_styles']) {
+                        if ($selectedDependency['has_inline_styles']) {
+                            foreach ($selectedDependency['inline_styles'] as $inlineStyle) {
+
+                                $inlineParsedStyle = $parser->parseDependency(
+                                    $inlineStyle,
+                                    $selectedDependency['cis_name'],
+                                    $selectedDependency['centralized_path'],
+                                    $selectedDependency['modularized_path']);
+                                $inlineStyles .= '<style type="' . self::MIME_STYLE . '">'
+                                    . $inlineParsedStyle
+                                    . '</style>';
+
+                            }
+                        }
+
+                        if ($selectedDependency['has_external_styles']) {
+                            $externalStyles[] =
+                                $selectedDependency['cis_name'];
+                        }
+
+                    }
                 }
-            }
 
-            if (sizeof($externalScripts) > 0) {
+                if (sizeof($externalScripts) > 0) {
 
-                $return .= '<script src="';
-                $return .= $dispatcher->buildAssocUri(array(
-                    'at' => 'js',
-                    'ds' => implode(',', $externalScripts)));
-                $return .= '" type="'
-                      . self::MIME_SCRIPT . '"></script>';
+                    $return .= '<script src="';
+                    $return .= $dispatcher->buildAssocUri(array(
+                        'at' => 'js',
+                        'ds' => implode(',', $externalScripts)));
+                    $return .= '" type="'
+                          . self::MIME_SCRIPT . '"></script>';
 
-            }
+                }
 
-            if (sizeof($externalStyles) > 0) {
+                if (sizeof($externalStyles) > 0) {
 
-                $return .= '<link href="';
-                $return .= $dispatcher->buildAssocUri(array(
-                    'at' => 'css',
-                    'ds' => implode(',', $externalStyles)));
-                $return .= '" rel="stylesheet" type="'
-                      . self::MIME_STYLE . '" media="'
-                      . (empty($media) ? 'screen' : $media)
-                      . '" />';
+                    $return .= '<link href="';
+                    $return .= $dispatcher->buildAssocUri(array(
+                        'at' => 'css',
+                        'ds' => implode(',', $externalStyles)));
+                    $return .= '" rel="stylesheet" type="'
+                          . self::MIME_STYLE . '" media="'
+                          . (empty($media) ? 'screen' : $media)
+                          . '" />';
 
-            }
+                }
 
-            if (strlen($inlineMarkups) > 0) {
-                $return .= $inlineMarkups;
-            }
+                if (strlen($inlineMarkups) > 0) {
+                    $return .= $inlineMarkups;
+                }
 
-            if (strlen($inlineScripts) > 0) {
-                $return  .= '<script type="' . self::MIME_SCRIPT . '">'
-                    . $inlineScripts
-                    . '</script>';
-            }
+                if (strlen($inlineScripts) > 0) {
+                    $return  .= '<script type="' . self::MIME_SCRIPT . '">'
+                        . $inlineScripts
+                        . '</script>';
+                }
 
-            if (strlen($inlineStyles) > 0) {
-                $return .= '<style type="' . self::MIME_STYLE . '">'
-                    . $inlineStyles
-                    . '</style>';
+                if (strlen($inlineStyles) > 0) {
+                    $return .= '<style type="' . self::MIME_STYLE . '">'
+                        . $inlineStyles
+                        . '</style>';
+                }
+
             }
 
             return $return;
@@ -1482,103 +1487,109 @@ namespace Aomebo\Associatives
         private function _getAssociativeData($media = null)
         {
 
-            $dispatcher = \Aomebo\Dispatcher\System::getInstance();
-            $parser = \Aomebo\Associatives\Parser::getInstance();
             $return = '';
-            $externalScripts = array();
-            $externalStyles = array();
-            $inlineScripts = '';
-            $inlineStyles = '';
-            $inlineMarkups = '';
 
-            foreach (self::$_selectedAssociatives as $selectedAssociative) {
+            if (sizeof(self::$_selectedAssociatives) > 0) {
 
-                if ($selectedAssociative['has_markups']) {
-                    if ($selectedAssociative['has_inline_markups']) {
-                        foreach ($selectedAssociative['inline_markups'] as $inlineMarkup) {
+                $dispatcher = \Aomebo\Dispatcher\System::getInstance();
+                $parser = \Aomebo\Associatives\Parser::getInstance();
+                $externalScripts = array();
+                $externalStyles = array();
+                $inlineScripts = '';
+                $inlineStyles = '';
+                $inlineMarkups = '';
 
-                            $inlineParsedMarkup = $parser->parseDependency(
-                                $inlineMarkup,
-                                $selectedAssociative['cis_name'],
-                                $selectedAssociative['centralized_path'],
-                                $selectedAssociative['modularized_path']);
-                            $inlineMarkups .= $inlineParsedMarkup;
+                foreach (self::$_selectedAssociatives as $selectedAssociative)
+                {
 
+                    if ($selectedAssociative['has_markups']) {
+                        if ($selectedAssociative['has_inline_markups']) {
+                            foreach ($selectedAssociative['inline_markups'] as $inlineMarkup) {
+
+                                $inlineParsedMarkup = $parser->parseDependency(
+                                    $inlineMarkup,
+                                    $selectedAssociative['cis_name'],
+                                    $selectedAssociative['centralized_path'],
+                                    $selectedAssociative['modularized_path']);
+                                $inlineMarkups .= $inlineParsedMarkup;
+
+                            }
+                        }
+                    }
+                    if ($selectedAssociative['has_scripts']) {
+                        if ($selectedAssociative['has_inline_scripts']) {
+                            foreach ($selectedAssociative['inline_scripts'] as $inlineScript) {
+
+                                $inlineParsedScript = $parser->parseDependency(
+                                    $inlineScript,
+                                    $selectedAssociative['cis_name'],
+                                    $selectedAssociative['centralized_path'],
+                                    $selectedAssociative['modularized_path']);
+                                $inlineScripts .= $inlineParsedScript;
+
+                            }
+                        }
+                        if ($selectedAssociative['has_external_scripts']) {
+                            $externalScripts[] = $selectedAssociative['cis_name'];
+                        }
+                    }
+                    if ($selectedAssociative['has_styles']) {
+                        if ($selectedAssociative['has_inline_styles']) {
+                            foreach ($selectedAssociative['inline_styles'] as $inlineStyle) {
+
+                                $inlineParsedStyle = $parser->parseDependency(
+                                    $inlineStyle,
+                                    $selectedAssociative['cis_name'],
+                                    $selectedAssociative['centralized_path'],
+                                    $selectedAssociative['modularized_path']);
+                                $inlineStyles .= '<style type="' . self::MIME_STYLE . '">'
+                                    . $inlineParsedStyle . '</style>';
+
+                            }
+                        }
+                        if ($selectedAssociative['has_external_styles']) {
+                            $externalStyles[] =
+                                $selectedAssociative['cis_name'];
                         }
                     }
                 }
-                if ($selectedAssociative['has_scripts']) {
-                    if ($selectedAssociative['has_inline_scripts']) {
-                        foreach ($selectedAssociative['inline_scripts'] as $inlineScript) {
 
-                            $inlineParsedScript = $parser->parseDependency(
-                                $inlineScript,
-                                $selectedAssociative['cis_name'],
-                                $selectedAssociative['centralized_path'],
-                                $selectedAssociative['modularized_path']);
-                            $inlineScripts .= $inlineParsedScript;
-
-                        }
-                    }
-                    if ($selectedAssociative['has_external_scripts']) {
-                        $externalScripts[] = $selectedAssociative['cis_name'];
-                    }
+                if (sizeof($externalScripts) > 0) {
+                    $return .= '<script src="';
+                    $return .= $dispatcher->buildAssocUri(array(
+                        'at' => 'js',
+                        'fs' => implode(',', $externalScripts)));
+                    $return .= '" type="'
+                          . self::MIME_SCRIPT . '"></script>';
                 }
-                if ($selectedAssociative['has_styles']) {
-                    if ($selectedAssociative['has_inline_styles']) {
-                        foreach ($selectedAssociative['inline_styles'] as $inlineStyle) {
 
-                            $inlineParsedStyle = $parser->parseDependency(
-                                $inlineStyle,
-                                $selectedAssociative['cis_name'],
-                                $selectedAssociative['centralized_path'],
-                                $selectedAssociative['modularized_path']);
-                            $inlineStyles .= '<style type="' . self::MIME_STYLE . '">'
-                                . $inlineParsedStyle . '</style>';
-
-                        }
-                    }
-                    if ($selectedAssociative['has_external_styles']) {
-                        $externalStyles[] =
-                            $selectedAssociative['cis_name'];
-                    }
+                if (sizeof($externalStyles) > 0) {
+                    $return .= '<link href="';
+                    $return .= $dispatcher->buildAssocUri(array(
+                        'at' => 'css',
+                        'fs' => implode(',', $externalStyles)));
+                    $return .= '" rel="stylesheet" type="'
+                          . self::MIME_STYLE . '" media="'
+                          . (empty($media) ? 'screen' : $media)
+                          . '" />';
                 }
-            }
 
-            if (sizeof($externalScripts) > 0) {
-                $return .= '<script src="';
-                $return .= $dispatcher->buildAssocUri(array(
-                    'at' => 'js',
-                    'fs' => implode(',', $externalScripts)));
-                $return .= '" type="'
-                      . self::MIME_SCRIPT . '"></script>';
-            }
+                if (strlen($inlineMarkups) > 0) {
+                    $return .= $inlineMarkups;
+                }
 
-            if (sizeof($externalStyles) > 0) {
-                $return .= '<link href="';
-                $return .= $dispatcher->buildAssocUri(array(
-                    'at' => 'css',
-                    'fs' => implode(',', $externalStyles)));
-                $return .= '" rel="stylesheet" type="'
-                      . self::MIME_STYLE . '" media="'
-                      . (empty($media) ? 'screen' : $media)
-                      . '" />';
-            }
+                if (strlen($inlineScripts) > 0) {
+                    $return  .= '<script type="' . self::MIME_SCRIPT . '">'
+                        . $inlineScripts
+                        . '</script>';
+                }
 
-            if (strlen($inlineMarkups) > 0) {
-                $return .= $inlineMarkups;
-            }
+                if (strlen($inlineStyles) > 0) {
+                    $return .= '<style type="' . self::MIME_STYLE . '">'
+                        . $inlineStyles
+                        . '</style>';
+                }
 
-            if (strlen($inlineScripts) > 0) {
-                $return  .= '<script type="' . self::MIME_SCRIPT . '">'
-                    . $inlineScripts
-                    . '</script>';
-            }
-
-            if (strlen($inlineStyles) > 0) {
-                $return .= '<style type="' . self::MIME_STYLE . '">'
-                    . $inlineStyles
-                    . '</style>';
             }
 
             return $return;
