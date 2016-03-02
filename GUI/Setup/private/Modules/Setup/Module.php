@@ -16,7 +16,8 @@ namespace Modules\Setup
         \Aomebo\Runtime\Executable,
         \Aomebo\Runtime\Routable,
         \Aomebo\Runtime\Cacheable,
-        \Aomebo\Runtime\Pageable
+        \Aomebo\Runtime\Pageable,
+        \Aomebo\Runtime\Internationalized
     {
 
         /**
@@ -189,10 +190,6 @@ namespace Modules\Setup
             \Aomebo\Internationalization\System::addTextDomain(
                 'site',
                 dirname(dirname(__DIR__)) . '/Language'
-            );
-            \Aomebo\Internationalization\System::addTextDomain(
-                'setup',
-                __DIR__ . '/Locales'
             );
 
             if (\Aomebo\Internationalization\System::setLocale('en_US')) {
@@ -626,6 +623,18 @@ namespace Modules\Setup
                 'setup' => 'installation',
             );
         }
+
+        /**
+         * Should return boolean FALSE or an associative array( $textDomain => $location )
+         * @return bool|array
+         */
+        public function getTextDomains()
+        {
+            return array(
+                'setup' => __DIR__ . '/Locales',
+            );
+        }
+
     }
 
 }

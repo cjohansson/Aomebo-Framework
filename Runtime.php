@@ -273,6 +273,14 @@ namespace Aomebo
         /**
          * @return bool
          */
+        public function isInternationalized()
+        {
+            return (is_a($this, '\Aomebo\Runtime\Internationalized'));
+        }
+
+        /**
+         * @return bool
+         */
         public function isExecutable()
         {
             return (is_a($this, '\Aomebo\Runtime\Executable'));
@@ -962,6 +970,23 @@ namespace Aomebo
             if ($this->isEnabled()) {
 
                 if ($isPageOrShellRequest) {
+
+                    /**
+                     * Internationalized interface
+                     *
+                     * @see \Aomebo\Runtime\Internationalized
+                     */
+                    if ($this->isInternationalized()) {
+
+                        /** @var \Aomebo\Runtime\Internationalized $ref */
+                        $ref = & $this;
+
+                        if ($textDomains = $ref->getTextDomains()) {
+                            \Aomebo\Internationalization\System::
+                                addTextDomains($textDomains);
+                        }
+
+                    }
 
                     /**
                      * Pageable interface
