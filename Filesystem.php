@@ -371,12 +371,11 @@ namespace Aomebo
         /**
          * @param string $absolutePath
          * @param bool [$throwException = true]
-         * @param bool [$lock = true]
          * @return string
          * @throws \Exception
          */
         public static function getFileContents($absolutePath,
-            $throwException = true, $lock = true)
+            $throwException = true)
         {
 
             if (!\Aomebo\Configuration::isLoaded()
@@ -569,6 +568,25 @@ namespace Aomebo
         }
 
         /**
+         *
+         */
+        public function __construct()
+        {
+            if (!$this->_isConstructed()) {
+                parent::__construct();
+                $this->loadCache();
+            }
+        }
+
+        /**
+         *
+         */
+        public function __destruct()
+        {
+            $this->saveCache();
+        }
+
+        /**
          * @static
          * @param string $absolutePath
          * @param bool [$deleteFilesInDirectory = false]
@@ -626,25 +644,48 @@ namespace Aomebo
          * @static
          * @param string $path
          * @param bool [$throwExceptions = true]
+         * @param string|null [$chmod = null]
          * @throws \Exception
          */
-        public static function applyPermissions($path, $throwExceptions = true)
+        public static function applyPermissions($path,
+            $throwExceptions = true, $chmod = null)
         {
             if (\Aomebo\Configuration::isLoaded()
                 && \Aomebo\Application::isWritingnabled()
                 && self::isPathInBasedir($path)
             ) {
-                if (!chmod($path, self::_getChmod())) {
+
+                // Is a custom chmod specified?
+                if (isset($chmod)) {
+                    if (strlen($chmod) == 3) {
+                        $octChmod = octdec('0' . $chmod);
+                    } else if (strlen($chmod) == 4) {
+                        $octChmod = octdec($chmod);
+                    } else {
+                        if ($throwExceptions) {
+                            Throw new \Exception(
+                                sprintf(
+                                    self::systemTranslate('Invalid file mode %s specified.'),
+                                    $chmod
+                                )
+                            );
+                        } else {
+                            $octChmod = self::_getChmod();
+                        }
+                    }
+                } else {
+                    $octChmod = self::_getChmod();
+                }
+
+                if (!chmod($path, $octChmod)) {
                     if ($throwExceptions) {
                         Throw new \Exception(
                             sprintf(
                                 self::systemTranslate(
-                                    'Could not set chmod for file "%s" '
-                                    . 'to oct: "%s", dec: "%s"'
+                                    'Could not set chmod for file "%s" to oct: "%s".'
                                 ),
                                 $path,
-                                self::$_chmodOct,
-                                self::$_chmodDec
+                                $octChmod
                             )
                         );     
                     }
@@ -708,6 +749,55 @@ namespace Aomebo
             return $return;
         }
 
+        /**
+         * @static
+         */
+        public static function loadCache()
+        {
+
+            $cacheParameters = 'Filesystem/Filemtimes';
+
+            // Cache once a day
+            $cacheKey = (int) date('j');
+
+            if (\Aomebo\Cache\System::cacheExists(
+                $cacheParameters)
+            ) {
+                self::$_filemtimesCache =
+                    \Aomebo\Cache\System::loadCache(
+                        $cacheParameters,
+                        $cacheKey,
+                        \Aomebo\Cache\System::FORMAT_JSON_ENCODE
+                    );
+            }
+
+        }
+
+        /**
+         * @static
+         */
+        public static function saveCache()
+        {
+
+            $cacheParameters = 'Filesystem/Filemtimes';
+
+            // Cache once a day
+            $cacheKey = (int) date('j');
+
+            if (\Aomebo\Cache\System::cacheExists(
+                $cacheParameters)
+            ) {
+                \Aomebo\Cache\System::clearCache($cacheParameters);
+            }
+
+            \Aomebo\Cache\System::saveCache(
+                $cacheParameters,
+                $cacheKey,
+                self::$_filemtimesCache,
+                \Aomebo\Cache\System::FORMAT_JSON_ENCODE
+            );
+
+        }
 
         /**
          * @static
@@ -756,7 +846,7 @@ namespace Aomebo
                         fflush($file);
                         flock($file, LOCK_UN);
                         fclose($file);
-                        self::applyPermissions($absolutePath, $throwExceptions);
+                        self::applyPermissions($absolutePath, $throwExceptions, $chmod);
                         return true;
                     }
                     fclose($file);

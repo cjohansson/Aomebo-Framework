@@ -1783,7 +1783,7 @@ namespace Aomebo\Interpreter
                             
                             if (file_exists($path . $adapter->getFileSuffix())) {
                                 $pageData = \Aomebo\Filesystem::getFileContents(
-                                    $path  . $adapter->getFileSuffix());
+                                    $path . $adapter->getFileSuffix());
                                 break;
                             }
                         }

@@ -402,6 +402,9 @@ namespace Aomebo
                         // Store setting if autoload should trigger exception
                         $this->setAutoloadFailureTriggersException(
                             \Aomebo\Configuration::getSetting('output,autoload failure triggers exception'));
+
+                        // Load file-system class
+                        new \Aomebo\Filesystem();
                             
                         // Load runtimes
                         self::_loadRuntimes();

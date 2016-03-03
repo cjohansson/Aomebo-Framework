@@ -491,7 +491,7 @@ namespace Aomebo\Database\Adapters\PDO
 
         /**
          * @param \Aomebo\Database\Adapters\Table $table
-         * @param array $columnsAndValues               array(($column, $value), ... ($column, $value))
+         * @param array $columnsToValues               array(($column, $value), ... ($column, $value))
          * @return int|bool
          * @throws \Exception
          */
