@@ -316,14 +316,13 @@ $configuration = array(
                 array(
                     'type' => 'string',
                     'required' => true,
-                    'default' => '
-',
+                    'default' => "\n",
                 ),
             'tab character' =>
                 array(
                     'type' => 'string',
                     'required' => true,
-                    'default' => '',
+                    'default' => '    ',
                 ),
             'language' =>
                 array(

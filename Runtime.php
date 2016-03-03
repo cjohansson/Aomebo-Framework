@@ -1148,7 +1148,7 @@ namespace Aomebo
          * @static
          * @param array|null [$getArray = null]
          * @param string|null [$page = null]
-         * @param bool|true [$clear = true]
+         * @param bool [$clear = true]
          * @return string
          */
         protected static function _buildFullUri($getArray = null,

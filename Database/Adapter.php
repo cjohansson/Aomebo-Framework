@@ -1029,20 +1029,17 @@ namespace Aomebo\Database
          * @param array|null [$values = null]
          * @param bool [$unbuffered = false]
          * @param bool [$throwExceptionOnFailure = true]
-         * @param bool [$allowMultipleQueries = false]
          * @throws \Exception
          * @return \Aomebo\Database\Adapters\Resultset|bool
          */
         public static function query($sql, $values = null,
-            $unbuffered = false, $throwExceptionOnFailure = true,
-            $allowMultipleQueries = false)
+            $unbuffered = false, $throwExceptionOnFailure = true)
         {
             if (self::isConnected()) {
 
                 $query = self::prepare(
                     $sql,
-                    $values,
-                    $allowMultipleQueries
+                    $values
                 );
 
                 // Do we have any triggers?

@@ -705,23 +705,16 @@ namespace Aomebo
                 return self::$_keyToValueCache[$key];
 
             } else {
-                Throw new \Exception(
-                    sprintf(
-                        self::systemTranslate('Invalid parameters "%s"'),
-                        print_r(func_get_args(), true)
-                    )
-                );
+                if ($throwException) {
+                    Throw new \Exception(
+                        sprintf(
+                            self::systemTranslate('Invalid parameters "%s"'),
+                            print_r(func_get_args(), true)
+                        )
+                    );
+                }
             }
-            if ($throwException) {
-                Throw new \Exception(
-                    sprintf(
-                        self::systemTranslate('Setting-value for key: "%s" not found.'),
-                        $key
-                    )
-                );
-            } else {
-                return null;
-            }
+            return null;
         }
 
         /**

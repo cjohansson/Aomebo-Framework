@@ -354,16 +354,17 @@ namespace Aomebo\Associatives
         }
 
         /**
+         * @static
          * @return null|string
          */
-        public function getAssociativeData()
+        public static function getAssociativeData()
         {
 
             $tmp = '';
 
             if (!self::$_supressOutput) {
-                $tmp .= $this->_getDependencyData(self::$_media);
-                $tmp .= $this->_getAssociativeData(self::$_media);
+                $tmp .= self::_getDependencyData(self::$_media);
+                $tmp .= self::_getAssociativeData(self::$_media);
             }
 
             $tmp .= \Aomebo\Trigger\System::processTriggers(
@@ -1244,11 +1245,12 @@ namespace Aomebo\Associatives
          * This method performs compare between dependencies.
          *
          * @internal
+         * @static
          * @param array $dependencyA
          * @param array $dependencyB
          * @return int
          */
-        private function _dependencySortScripts($dependencyA, $dependencyB)
+        public static function dependencySortScripts($dependencyA, $dependencyB)
         {
             if ($dependencyA['count_script_subdependencies']
                 > $dependencyB['count_script_subdependencies']
@@ -1267,11 +1269,12 @@ namespace Aomebo\Associatives
          * This method sort dependency styles.
          *
          * @internal
+         * @static
          * @param array $dependencyA
          * @param array $dependencyB
          * @return int
          */
-        private function _dependencySortStyles($dependencyA, $dependencyB)
+        public static function dependencySortStyles($dependencyA, $dependencyB)
         {
             if ($dependencyA['count_style_subdependencies']
                 > $dependencyB['count_style_subdependencies']
@@ -1290,23 +1293,27 @@ namespace Aomebo\Associatives
          * This method returns dependency data.
          *
          * @internal
+         * @static
          * @param string|null [$media = null]
          * @return string
          */
-        private function _getDependencyData($media = null)
+        private static function _getDependencyData($media = null)
         {
 
             $return = '';
 
             if (sizeof(self::$_selectedDependencies) > 0) {
 
-                $dispatcher = \Aomebo\Dispatcher\System::getInstance();
-                $parser = \Aomebo\Associatives\Parser::getInstance();
+                $dispatcher =
+                    \Aomebo\Dispatcher\System::getInstance();
+                $parser =
+                    \Aomebo\Associatives\Parser::getInstance();
 
                 // Sort script depdencies by script subdependencies ascending
                 uasort(
                     self::$_selectedDependencies,
-                    array(& $this, '_dependencySortScripts'));
+                    '\Associatives\Engine::dependencySortScripts'
+                );
 
                 $subdependenciesCount = 0;
                 $lastSubdependenciesCount = 0;
@@ -1319,7 +1326,8 @@ namespace Aomebo\Associatives
                 foreach (self::$_selectedDependencies as $selectedDependency)
                 {
 
-                    $subdependenciesCount = intval($selectedDependency['count_script_subdependencies']);
+                    $subdependenciesCount =
+                        (int) $selectedDependency['count_script_subdependencies'];
 
                     if ($subdependenciesCount != $lastSubdependenciesCount) {
 
@@ -1389,7 +1397,8 @@ namespace Aomebo\Associatives
 
                     if ($selectedDependency['has_scripts']) {
                         if ($selectedDependency['has_inline_scripts']) {
-                            foreach ($selectedDependency['inline_scripts'] as $inlineScript) {
+                            foreach ($selectedDependency['inline_scripts'] as $inlineScript)
+                            {
 
                                 $inlineParsedScript = $parser->parseDependency(
                                     $inlineScript,
@@ -1410,7 +1419,8 @@ namespace Aomebo\Associatives
 
                     if ($selectedDependency['has_styles']) {
                         if ($selectedDependency['has_inline_styles']) {
-                            foreach ($selectedDependency['inline_styles'] as $inlineStyle) {
+                            foreach ($selectedDependency['inline_styles'] as $inlineStyle)
+                            {
 
                                 $inlineParsedStyle = $parser->parseDependency(
                                     $inlineStyle,
@@ -1491,8 +1501,10 @@ namespace Aomebo\Associatives
 
             if (sizeof(self::$_selectedAssociatives) > 0) {
 
-                $dispatcher = \Aomebo\Dispatcher\System::getInstance();
-                $parser = \Aomebo\Associatives\Parser::getInstance();
+                $dispatcher =
+                    \Aomebo\Dispatcher\System::getInstance();
+                $parser =
+                    \Aomebo\Associatives\Parser::getInstance();
                 $externalScripts = array();
                 $externalStyles = array();
                 $inlineScripts = '';
@@ -1504,7 +1516,8 @@ namespace Aomebo\Associatives
 
                     if ($selectedAssociative['has_markups']) {
                         if ($selectedAssociative['has_inline_markups']) {
-                            foreach ($selectedAssociative['inline_markups'] as $inlineMarkup) {
+                            foreach ($selectedAssociative['inline_markups'] as $inlineMarkup)
+                            {
 
                                 $inlineParsedMarkup = $parser->parseDependency(
                                     $inlineMarkup,
@@ -1518,7 +1531,8 @@ namespace Aomebo\Associatives
                     }
                     if ($selectedAssociative['has_scripts']) {
                         if ($selectedAssociative['has_inline_scripts']) {
-                            foreach ($selectedAssociative['inline_scripts'] as $inlineScript) {
+                            foreach ($selectedAssociative['inline_scripts'] as $inlineScript)
+                            {
 
                                 $inlineParsedScript = $parser->parseDependency(
                                     $inlineScript,
@@ -1535,7 +1549,8 @@ namespace Aomebo\Associatives
                     }
                     if ($selectedAssociative['has_styles']) {
                         if ($selectedAssociative['has_inline_styles']) {
-                            foreach ($selectedAssociative['inline_styles'] as $inlineStyle) {
+                            foreach ($selectedAssociative['inline_styles'] as $inlineStyle)
+                            {
 
                                 $inlineParsedStyle = $parser->parseDependency(
                                     $inlineStyle,

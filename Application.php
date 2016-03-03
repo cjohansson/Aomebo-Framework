@@ -252,6 +252,7 @@ namespace Aomebo
                     self::setParameters($parameters);
                 }
 
+                parent::__construct();
                 self::_flagThisConstructed();
 
                 // Is configuration set and right keys in it?

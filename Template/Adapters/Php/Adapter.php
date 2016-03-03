@@ -72,6 +72,7 @@ namespace Aomebo\Template\Adapters\Php
         public function __construct()
         {
             if (!self::_isConstructed()) {
+                parent::__construct();
                 self::_flagThisConstructed();
             }
         }

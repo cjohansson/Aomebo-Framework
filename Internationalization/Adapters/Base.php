@@ -127,7 +127,7 @@ namespace Aomebo\Internationalization\Adapters
          * @param string $domain
          * @param string $singular
          * @param string $plural
-         * @param int $n
+         * @param int $count
          * @return string
          * @see dngettext()
          */

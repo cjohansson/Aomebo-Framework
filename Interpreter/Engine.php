@@ -25,7 +25,7 @@ namespace Aomebo\Interpreter
 {
 
     /**
-     * @method static \Aomebo\Interpreter\Engine getInstance()
+     * @method static \Aomebo\Interpreter\Engine getInstance(string)
      */
     class Engine extends \Aomebo\Singleton
     {
@@ -2216,7 +2216,7 @@ namespace Aomebo\Interpreter
         private static function _buildInlineScriptMarkup($code)
         {
             return '<script type="text/javascript">'
-            . $code . '</script>';
+                . $code . '</script>';
         }
 
         /**

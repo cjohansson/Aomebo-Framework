@@ -20,9 +20,11 @@ namespace Modules\Setup\TableColumns
          */
         public function __construct()
         {
-            $this->name = 'id';
-            $this->specification = 'INT(11) UNSIGNED PRIMARY KEY AUTO_INCREMENT';
-            $this->isString = false;
+            parent::__construct(
+                'id',
+                'INT(11) UNSIGNED PRIMARY KEY AUTO_INCREMENT',
+                false
+            );
         }
 
     }
@@ -38,9 +40,11 @@ namespace Modules\Setup\TableColumns
          */
         public function __construct()
         {
-            $this->name = 'name';
-            $this->specification = 'VARCHAR(100) NOT NULL DEFAULT ""';
-            $this->isString = true;
+            parent::__construct(
+                'name',
+                'VARCHAR(100) NOT NULL DEFAULT ""',
+                true
+            );
         }
 
     }
@@ -56,9 +60,11 @@ namespace Modules\Setup\TableColumns
          */
         public function __construct()
         {
-            $this->name = 'cash';
-            $this->specification = 'INT(10) NOT NULL DEFAULT 0';
-            $this->isString = false;
+            parent::__construct(
+                'cash',
+                'INT(10) NOT NULL DEFAULT 0',
+                false
+            );
         }
 
     }

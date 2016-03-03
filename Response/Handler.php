@@ -62,6 +62,7 @@ namespace Aomebo\Response
 
                 self::_load();
                 self::_parseRequest();
+                parent::__construct();
                 self::_flagThisConstructed();
 
             }

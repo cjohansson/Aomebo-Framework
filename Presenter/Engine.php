@@ -125,285 +125,52 @@ namespace Aomebo\Presenter
             \Aomebo\Trigger\System::processTriggers(
                 \Aomebo\Trigger\System::TRIGGER_KEY_BEFORE_PRESENTATION);
 
-            $interpreter =
-                \Aomebo\Interpreter\Engine::getInstance();
-            $associatives =
-                \Aomebo\Associatives\Engine::getInstance();
-
             $tagPresentationData =
-                self::_getTagPresentationData();
+                self::getTagPresentationData();
 
-            $PE_tag_starts = array();
-            $PE_tag_ends = array();
+            $startTags = array();
+            $tagEnds = array();
 
             foreach ($tagPresentationData as
-                     $rawTag => $rawIndentations
+                 $rawTag => $rawIndentations
             ) {
                 $tag = strtolower($rawTag);
                 $indentations = (int) $rawIndentations;
                 $negTag = '/' . $tag;
                 $negIndentations = (-1) * $indentations;
-                $PE_tag_starts[$tag] = $indentations;
-                $PE_tag_ends[$negTag] = $negIndentations;
+                $startTags[$tag] = $indentations;
+                $tagEnds[$negTag] = $negIndentations;
             }
 
-            $PE["buffer"] = "";
+            $buffer = "";
 
-            $PE["chunks"] = array(0 => "");
-            $PE["chunks count"] = 0;
-            $PE["chunk size"] = 0;
-            $PE["chunk size limit"] =
+            $chunks = array(0 => "");
+            $chunksCount = 0;
+            $chunkSize = 0;
+            $chunkSizeLimit =
                 \Aomebo\Configuration::getSetting('output,chunk size');
 
             // Encoding-specific characters
-            $PE["lB"] =
+            $lineBreak =
                 \Aomebo\Configuration::getSetting("output,linebreak character");
-            $PE["lS"] =
+            $lineSeed =
                 \Aomebo\Configuration::getSetting("output,tab character");
 
-            $PE["status"] = 0;
-            $PE["level"] = 0;
-            $PE["tag"] = "";
-            $PE["block"] = "";
+            $status = 0;
+            $level = 0;
+            $tag = "";
+            $block = "";
 
             // Load print buffer from interpreter-engine
-            $PE["print buffer"] = $interpreter->getOutput();
+            $printBuffer =
+                \Aomebo\Interpreter\Engine::getOutput();
 
-            $PE["lastIsTag"] = false;
+            $lastIsTag = false;
 
-            // Head style
-            if ($associativesData =
-                $associatives->getAssociativeData()
-            ) {
-                $associativesDataStrlen =
-                    strlen($associativesData);
-                if ($insertPoint =
-                    $interpreter->getInsertPoint(
-                        $interpreter::INSERTION_POINT_HEAD_STYLE)
-                ) {
-                    $PE['print buffer'] =
-                        substr($PE['print buffer'], 0,
-                            $insertPoint)
-                        . $associativesData
-                        . substr($PE['print buffer'],
-                            $insertPoint);
-                    $interpreter->moveInsertPoint(
-                        $interpreter::INSERTION_POINT_HEAD_STYLE,
-                        $associativesDataStrlen);
-                }
-            }
-
-            // Head meta
-            if ($metaData = $interpreter->getHeadMetaData()) {
-                $metaDataStrlen =
-                    strlen($metaData);
-                $PE['has meta'] = true;
-                if ($insertPoint =
-                    $interpreter->getInsertPoint(
-                        $interpreter::INSERTION_POINT_HEAD_META)
-                ) {
-                    $PE['print buffer'] =
-                        substr($PE['print buffer'], 0,
-                            $insertPoint)
-                        . $metaData
-                        . substr($PE['print buffer'],
-                            $insertPoint);
-                    $interpreter->moveInsertPoint(
-                        $interpreter::INSERTION_POINT_HEAD_META,
-                        $metaDataStrlen);
-                }
-            } else {
-                $PE['has meta'] = false;
-            }
-
-            // Head style
-            if ($styleData = $interpreter->getHeadStyleData()) {
-                $styleDataStrlen =
-                    strlen($styleData);
-                $PE['has style'] = true;
-                if ($insertPoint =
-                    $interpreter->getInsertPoint(
-                        $interpreter::INSERTION_POINT_HEAD_STYLE)
-                ) {
-                    $PE['print buffer'] =
-                        substr($PE['print buffer'], 0,
-                            $insertPoint)
-                        . $styleData
-                        . substr($PE['print buffer'],
-                            $insertPoint);
-                    $interpreter->moveInsertPoint(
-                        $interpreter::INSERTION_POINT_HEAD_STYLE,
-                        $styleDataStrlen);
-                }
-            } else {
-                $PE['has style'] = false;
-            }
-
-            // Head script
-            if ($scriptData = $interpreter->getHeadScriptData()) {
-                $scriptDataStrlen =
-                    strlen($scriptData);
-                $PE['has script'] = true;
-                if ($insertPoint =
-                    $interpreter->getInsertPoint(
-                        $interpreter::INSERTION_POINT_HEAD_SCRIPT)
-                ) {
-                    $PE['print buffer'] =
-                        substr($PE['print buffer'], 0,
-                            $insertPoint)
-                        . $scriptData
-                        . substr($PE['print buffer'],
-                            $insertPoint);
-                    $interpreter->moveInsertPoint(
-                        $interpreter::INSERTION_POINT_HEAD_SCRIPT,
-                        $scriptDataStrlen);
-                }
-            } else {
-                $PE['has script'] = false;
-            }
-
-            // Head markup
-            if ($scriptData = $interpreter->getHeadMarkupData()) {
-                $scriptDataStrlen = strlen($scriptData);
-                $PE['has script'] = true;
-                if ($insertPoint =
-                    $interpreter->getInsertPoint(
-                        $interpreter::INSERTION_POINT_HEAD_MARKUP)
-                ) {
-                    $PE['print buffer'] =
-                        substr($PE['print buffer'], 0,
-                            $insertPoint)
-                        . $scriptData
-                        . substr($PE['print buffer'],
-                            $insertPoint);
-                    $interpreter->moveInsertPoint(
-                        $interpreter::INSERTION_POINT_HEAD_MARKUP,
-                        $scriptDataStrlen);
-                }
-            }
-
-            // Body script
-            if ($scriptData = $interpreter->getBodyScriptData()) {
-                $scriptDataStrlen =
-                    strlen($scriptData);
-                if ($insertPoint =
-                    $interpreter->getInsertPoint(
-                        $interpreter::INSERTION_POINT_BODY_SCRIPT)
-                ) {
-                    $PE['print buffer'] =
-                        substr($PE['print buffer'], 0,
-                            $insertPoint)
-                        . $scriptData
-                        . substr($PE['print buffer'],
-                            $insertPoint);
-                    $interpreter->moveInsertPoint(
-                        $interpreter::INSERTION_POINT_BODY_SCRIPT,
-                        $scriptDataStrlen);
-                }
-            }
-
-            // Body style
-            if ($scriptData = $interpreter->getBodyStyleData()) {
-                $scriptDataStrlen =
-                    strlen($scriptData);
-                if ($insertPoint =
-                    $interpreter->getInsertPoint(
-                        $interpreter::INSERTION_POINT_BODY_STYLE)
-                ) {
-                    $PE['print buffer'] =
-                        substr($PE['print buffer'], 0,
-                            $insertPoint)
-                        . $scriptData
-                        . substr($PE['print buffer'],
-                            $insertPoint);
-                    $interpreter->moveInsertPoint(
-                        $interpreter::INSERTION_POINT_BODY_STYLE,
-                        $scriptDataStrlen);
-                }
-            }
-
-            // Body markup
-            if ($scriptData = $interpreter->getBodyMarkupData()) {
-                $scriptDataStrlen =
-                    strlen($scriptData);
-                if ($insertPoint =
-                    $interpreter->getInsertPoint(
-                        $interpreter::INSERTION_POINT_BODY_MARKUP)
-                ) {
-                    $PE['print buffer'] =
-                        substr($PE['print buffer'], 0,
-                            $insertPoint)
-                        . $scriptData
-                        . substr($PE['print buffer'],
-                            $insertPoint);
-                    $interpreter->moveInsertPoint(
-                        $interpreter::INSERTION_POINT_BODY_MARKUP,
-                        $scriptDataStrlen);
-                }
-            }
-
-            // Body append script
-            if ($scriptData = $interpreter->getBodyAppendScriptData()) {
-                $scriptDataStrlen =
-                    strlen($scriptData);
-                if ($insertPoint =
-                    $interpreter->getInsertPoint(
-                        $interpreter::INSERTION_POINT_BODY_APPEND_SCRIPT)
-                ) {
-                    $PE['print buffer'] =
-                        substr($PE['print buffer'], 0,
-                            $insertPoint)
-                        . $scriptData
-                        . substr($PE['print buffer'],
-                            $insertPoint);
-                    $interpreter->moveInsertPoint(
-                        $interpreter::INSERTION_POINT_BODY_APPEND_SCRIPT,
-                        $scriptDataStrlen);
-                }
-            }
-
-            // Body append style
-            if ($scriptData = $interpreter->getBodyAppendStyleData()) {
-                $scriptDataStrlen =
-                    strlen($scriptData);
-                if ($insertPoint =
-                    $interpreter->getInsertPoint(
-                        $interpreter::INSERTION_POINT_BODY_APPEND_STYLE)
-                ) {
-                    $PE['print buffer'] =
-                        substr($PE['print buffer'], 0,
-                            $insertPoint)
-                        . $scriptData
-                        . substr($PE['print buffer'],
-                            $insertPoint);
-                    $interpreter->moveInsertPoint(
-                        $interpreter::INSERTION_POINT_BODY_APPEND_STYLE,
-                        $scriptDataStrlen);
-                }
-            }
-
-            // Body append markup
-            if ($scriptData = $interpreter->getBodyAppendMarkupData()) {
-                $scriptDataStrlen =
-                    strlen($scriptData);
-                if ($insertPoint =
-                    $interpreter->getInsertPoint(
-                        $interpreter::INSERTION_POINT_BODY_APPEND_MARKUP)
-                ) {
-                    $PE['print buffer'] =
-                        substr($PE['print buffer'], 0,
-                            $insertPoint)
-                        . $scriptData
-                        . substr($PE['print buffer'],
-                            $insertPoint);
-                    $interpreter->moveInsertPoint(
-                        $interpreter::INSERTION_POINT_BODY_APPEND_MARKUP,
-                        $scriptDataStrlen);
-                }
-            }
+            self::applyAdditionalMarkup($printBuffer);
 
             // Get length of print buffer
-            $PE["length of print buffer"] = strlen($PE["print buffer"]);
+            $printBufferLength = strlen($printBuffer);
 
             \Aomebo\Dispatcher\System::setHttpHeaderField(
                 'Content-type',
@@ -414,215 +181,503 @@ namespace Aomebo\Presenter
 
             if (!\Aomebo\Dispatcher\System::isHttpHeadRequest()) {
 
-                if (\Aomebo\Configuration::getSetting('output,format')) {
+                if (\Aomebo\Configuration::getSetting(
+                    'output,format')
+                ) {
 
                     // Start parsing good source presentation
-                    for ($PE["i"] = 0; $PE["i"] < $PE["length of print buffer"]; $PE["i"]++) {
+                    for ($i = 0; $i < $printBufferLength; $i++)
+                    {
 
                         // Get char at this index
-                        $PE["c"] = $PE["print buffer"][$PE["i"]];
+                        $c = $printBuffer[$i];
 
                         // no start tag has been found
-                        if ($PE["status"] == 0) {
+                        if ($status == 0) {
 
-                            if ($PE["c"] == "<") {
-                                $PE["status"] = 1;
-                                $PE["block"] = $PE["c"];
-                                $PE["buffer"] = "";
-                                $PE["tag"] = "";
+                            if ($c == "<") {
+                                
+                                $status = 1;
+                                $block = $c;
+                                $buffer = "";
+                                $tag = "";
+                                
                             } else {
-                                if($PE["lastIsTag"] && $PE["level"] > 0) {
-                                    $PE["chunks"][$PE["chunks count"]] .= $PE["lB"];
-                                    $PE["chunk size"]++;
-                                    for ($PE["j"]=0; $PE["j"] < $PE["level"]; $PE["j"]++) {
-                                        $PE["chunks"][$PE["chunks count"]] .= $PE["lS"];
-                                        $PE["chunk size"]++;
-                                    }
-                                }
-                                $PE["chunks"][$PE["chunks count"]] .= $PE["c"];
-                                $PE["chunk size"]++;
-                                $PE["lastIsTag"] = false;
-                            }
-
-                            // A start tag has been found, get the tag
-                        } else if($PE["status"] == 1) {
-                            $PE["block"] .= $PE["c"];
-                            if ($PE["c"] == " " && $PE["tag"] == "") {
-                                if (isset($PE_tag_starts[$PE["buffer"]])
-                                    || isset($PE_tag_ends[$PE["buffer"]])
+                                
+                                if ($lastIsTag
+                                    && $c != ' '
+                                    && $c != "\n"
+                                    && $c != "\t"
+                                    && $c != "\r"
                                 ) {
-                                    $PE["tag"] = $PE["buffer"];
-                                } else {
-                                    if ($PE["lastIsTag"] && $PE["level"] > 0) {
-                                        $PE["chunks"][$PE["chunks count"]] .= $PE["lB"];
-                                        $PE["chunk size"]++;
-                                        for ($PE["j"]=0; $PE["j"] < $PE["level"]; $PE["j"]++) {
-                                            $PE["chunks"][$PE["chunks count"]] .= $PE["lS"];
-                                            $PE["chunk size"]++;
+                                    
+                                    $chunks[$chunksCount] .= $lineBreak;
+                                    $chunkSize++;
+
+                                    if ($level > 0) {
+                                        for ($j=0; $j < $level; $j++)
+                                        {
+                                            $chunks[$chunksCount] .= $lineSeed;
+                                            $chunkSize++;
                                         }
                                     }
-                                    $PE["status"] = 0;
-                                    $PE["chunks"][$PE["chunks count"]] .= $PE["block"];
-                                    $PE["chunk size"] += strlen($PE["block"]);
-                                    $PE["buffer"] = "";
-                                    $PE["lastIsTag"] = false;
+
+                                    $lastIsTag = false;
+                                    
                                 }
-                            } else if ($PE["c"] == ">") {
-                                if ($PE["tag"] == "") {
-                                    $PE["tag"] = $PE["buffer"];
+                                
+                                $chunks[$chunksCount] .= $c;
+                                $chunkSize++;
+                                
+                            }
+
+                        // A start tag has been found, get the tag
+                        } else if ($status == 1) {
+
+                            if ($c == ' '
+                                || $c == "\n"
+                                || $c == "\r"
+                                || $c == "\t"
+                            ) {
+                                $c = ' ';
+                            }
+                            
+                            $block .= $c;
+                            
+                            if ($c == ' '
+                                && $tag == ""
+                            ) {
+                                if (isset($startTags[$buffer])
+                                    || isset($tagEnds[$buffer])
+                                ) {
+                                    $tag = $buffer;
+                                } else {
+                                    if ($lastIsTag 
+                                        && $level > 0
+                                    ) {
+                                        
+                                        // $chunks[$chunksCount] .= $lineBreak;
+                                        // $chunkSize++;
+
+                                        for ($j=0; $j < $level; $j++)
+                                        {
+                                            $chunks[$chunksCount] .= $lineSeed;
+                                            $chunkSize++;
+                                        }
+                                        
+                                    }
+                                    
+                                    $status = 0;
+                                    $chunks[$chunksCount] .= $block;
+                                    $chunkSize += strlen($block);
+                                    $buffer = "";
+                                    $lastIsTag = false;
+                                    
+                                }
+                            } else if ($c == ">") {
+                                
+                                if ($tag == "") {
+                                    $tag = $buffer;
                                 }
 
                                 // The tag is marked as a start-tag to handle
-                                if (isset($PE_tag_starts[$PE["tag"]])) {
+                                if (isset($startTags[$tag])) {
 
                                     // reset status
-                                    $PE["status"] = 0;
+                                    $status = 0;
 
                                     // add linebreak before tag start
-                                    $PE["chunks"][$PE["chunks count"]] .= $PE["lB"];
-                                    $PE["chunk size"]++;
+                                    $chunks[$chunksCount] .= $lineBreak;
+                                    $chunkSize++;
 
                                     // make code for current shift level
-                                    if ($PE["level"] > 0) {
-                                        for ($PE["j"]=0; $PE["j"] < $PE["level"]; $PE["j"]++) {
-                                            $PE["chunks"][$PE["chunks count"]] .= $PE["lS"];
-                                            $PE["chunk size"]++;
+                                    if ($level > 0) {
+                                        for ($j=0; $j < $level; $j++)
+                                        {
+                                            $chunks[$chunksCount] .= $lineSeed;
+                                            $chunkSize++;
                                         }
                                     }
 
                                     // concat strings
-                                    $PE["chunks"][$PE["chunks count"]] .= $PE["block"];
-                                    $PE["chunk size"]+= strlen($PE["block"]);
+                                    $chunks[$chunksCount] .= $block;
+                                    $chunkSize+= strlen($block);
 
                                     // get current shift level
-                                    $PE["level"] += $PE_tag_starts[$PE["tag"]];
+                                    $level += $startTags[$tag];
 
-                                    $PE["lastIsTag"] = true;
+                                    $lastIsTag = true;
 
-                                    // the tag is marked as a end-tag to handle
-                                } else if (isset($PE_tag_ends[$PE["tag"]])) {
+                                // the tag is marked as a end-tag to handle
+                                } else if (isset($tagEnds[$tag])) {
 
                                     // reset status
-                                    $PE["status"] = 0;
+                                    $status = 0;
 
                                     // add linebreak before tag start
-                                    $PE["chunks"][$PE["chunks count"]] .= $PE["lB"];
-                                    $PE["chunk size"]++;
+                                    $chunks[$chunksCount] .= $lineBreak;
+                                    $chunkSize++;
 
                                     // get current shift level
-                                    $PE["level"] += $PE_tag_ends[$PE["tag"]];
+                                    $level += $tagEnds[$tag];
 
                                     // make code for current shift level
-                                    if ($PE["level"] > 0) {
-                                        for ($PE["j"]=0; $PE["j"] < $PE["level"]; $PE["j"]++) {
-                                            $PE["chunks"][$PE["chunks count"]] .= $PE["lS"];
-                                            $PE["chunk size"]++;
+                                    if ($level > 0) {
+                                        for ($j=0; $j < $level; $j++)
+                                        {
+                                            $chunks[$chunksCount] .= $lineSeed;
+                                            $chunkSize++;
                                         }
                                     }
 
                                     // concat strings
-                                    $PE["chunks"][$PE["chunks count"]] .= $PE["block"];
-                                    $PE["chunk size"] += strlen($PE["block"]);
-                                    $PE["lastIsTag"] = true;
+                                    $chunks[$chunksCount] .= $block;
+                                    $chunkSize += strlen($block);
+                                    $lastIsTag = true;
 
                                 } else {
 
                                     // make code for current shift level
-                                    if ($PE["lastIsTag"] && $PE["level"] > 0) {
-                                        $PE["chunks"][$PE["chunks count"]] .= $PE["lB"];
-                                        $PE["chunk size"]++;
-                                        for ($PE["j"]=0; $PE["j"] < $PE["level"]; $PE["j"]++) {
-                                            $PE["chunks"][$PE["chunks count"]] .= $PE["lS"];
-                                            $PE["chunk size"]++;
+                                    if ($lastIsTag 
+                                        && $level > 0
+                                    ) {
+                                        
+                                        $chunks[$chunksCount] .= $lineBreak;
+                                        $chunkSize++;
+                                        
+                                        for ($j=0; $j < $level; $j++)
+                                        {
+                                            $chunks[$chunksCount] .= $lineSeed;
+                                            $chunkSize++;
                                         }
+                                        
                                     }
 
-                                    $PE["status"] = 0;
-                                    $PE["chunks"][$PE["chunks count"]] .= $PE["block"];
-                                    $PE["chunk size"] += strlen($PE["block"]);
-                                    $PE["buffer"] = "";
-                                    $PE["lastIsTag"] = false;
+                                    $status = 0;
+                                    $chunks[$chunksCount] .= $block;
+                                    $chunkSize += strlen($block);
+                                    $buffer = "";
+                                    $lastIsTag = false;
+                                    
                                 }
                             } else {
-                                $PE["buffer"] .= $PE["c"];
+                                $buffer .= $c;
                             }
                         }
 
                         // Print chunk
-                        if ($PE["chunk size"] > $PE["chunk size limit"]) {
-                            echo $PE["chunks"][$PE["chunks count"]];
-                            $PE["chunk size"] = 0;
-                            $PE["chunks"][$PE["chunks count"]] = "";
+                        if ($chunkSize > $chunkSizeLimit) {
+                            
+                            echo $chunks[$chunksCount];
+                            flush();
+                            $chunkSize = 0;
+                            $chunks[$chunksCount] = "";
+                            
                         }
                     }
 
-                    $PE["chunks"][$PE["chunks count"]] .= $PE["lB"];
-                    $PE["chunk size"]++;
-                    $PE["chunks count"]++;
-                    $PE["chunks"][$PE["chunks count"]] = "";
+                    $chunks[$chunksCount] .= $lineBreak;
+                    $chunksCount++;
+                    $chunks[$chunksCount] = "";
 
                 } else {
 
                     // Just chunk it out according to chunk size
-                    for ($PE["i"] = 0; $PE["i"] < $PE["length of print buffer"]; $PE["i"]++) {
+                    for ($i = 0; $i < $printBufferLength; $i++)
+                    {
 
                         // Get char at this index
-                        $PE["c"] = $PE["print buffer"][$PE["i"]];
+                        $c = $printBuffer[$i];
 
                         // Add to chunks
-                        $PE["chunks"][$PE["chunks count"]] .= $PE["c"];
-                        $PE["chunk size"]++;
+                        $chunks[$chunksCount] .= $c;
+                        $chunkSize++;
 
                         // Print chunk
-                        if ($PE["chunk size"] > $PE["chunk size limit"]) {
-                            echo $PE["chunks"][$PE["chunks count"]];
-                            $PE["chunk size"] = 0;
-                            $PE["chunks"][$PE["chunks count"]] = "";
+                        if ($chunkSize > $chunkSizeLimit) {
+                            
+                            echo $chunks[$chunksCount];
+                            flush();
+                            $chunkSize = 0;
+                            $chunks[$chunksCount] = "";
+                            
                         }
                     }
                 }
 
                 // If we are loading a page
-                if (true == true) {
+                if (\Aomebo\Dispatcher\System::isPageRequest()) {
+                    
                     // Show credits?
-                    if (\Aomebo\Configuration::getSetting('framework,show credits')) {
-                        $PE["chunks"][$PE["chunks count"]] .=
-                            $PE["lB"] . "<!-- CREDITS" . $PE["lB"]
-                            . $PE["lS"] . \Aomebo\Configuration::getSetting('framework,version') . $PE["lB"]
-                            . $PE["lS"] . \Aomebo\Configuration::getSetting('framework,website') . $PE["lB"]
-                            . "-->".$PE["lB"];
+                    if (\Aomebo\Configuration::getSetting(  
+                        'framework,show credits')
+                    ) {
+                        
+                        $chunks[$chunksCount] .=
+                            $lineBreak . "<!-- CREDITS" . $lineBreak
+                            . $lineSeed . \Aomebo\Configuration::getSetting('framework,version') . $lineBreak
+                            . $lineSeed . \Aomebo\Configuration::getSetting('framework,website') . $lineBreak
+                            . "-->" . $lineBreak;
                     }
 
 
                     // Show credits?
-                    if (\Aomebo\Configuration::getSetting('framework,show statistics')) {
+                    if (\Aomebo\Configuration::getSetting(
+                        'framework,show statistics')
+                    ) {
 
-                        $PE["chunks"][$PE["chunks count"]] .=  $PE["lB"]
-                            . "<!-- STATISTICS" . $PE["lB"];
+                        $chunks[$chunksCount] .=  $lineBreak
+                            . "<!-- STATISTICS" . $lineBreak;
 
                         // Print elapsed time
-                        $PE["now"] = microtime(true);
-                        $PE["elapsed total"] = round($PE["now"] - _SYSTEM_START_TIME_, 4);
-                        $PE["present elapsed"] = round($PE["elapsed total"], 2);
-                        $PE["chunks"][$PE["chunks count"]] .= $PE["lS"]
-                            . "Total elapsed time: '" . $PE["present elapsed"]
-                            . "' seconds." . $PE["lB"];
+                        $now = microtime(true);
+                        $elapsedTotal = round($now - _SYSTEM_START_TIME_, 4);
+                        $formattedElapsed = round($elapsedTotal, 2);
+                        $chunks[$chunksCount] .= $lineSeed
+                            . "Total elapsed time: '" . $formattedElapsed
+                            . "' seconds." . $lineBreak;
 
-                        $PE["chunks"][$PE["chunks count"]] .= "-->".$PE["lB"];
+                        $chunks[$chunksCount] .= "-->" . $lineBreak;
                     }
                 }
 
                 // Print all chunks
-                for ($PE["i"] = 0; $PE["i"] <= $PE["chunks count"]; $PE["i"]++) {
-                    echo $PE["chunks"][$PE["i"]];
+                for ($i = 0; $i <= $chunksCount; $i++)
+                {
+                    echo $chunks[$i];
+                    flush();
                 }
-
-                // Clean up locally used variables
-                unset($PE, $tagPresentationData, $PE_tag_ends, $PE_tag_starts, $PE_time);
 
                 \Aomebo\Trigger\System::processTriggers(
                     \Aomebo\Trigger\System::TRIGGER_KEY_AFTER_PRESENTATION);
 
+            }
+        }
+
+        /**
+         * @static
+         * @param string $printBuffer
+         */
+        public static function applyAdditionalMarkup(& $printBuffer)
+        {
+
+            // Head style
+            if ($associativesData =
+                \Aomebo\Associatives\Engine::getAssociativeData()
+            ) {
+                $associativesDataStrlen =
+                    strlen($associativesData);
+                if ($insertPoint =
+                    \Aomebo\Interpreter\Engine::getInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_HEAD_STYLE)
+                ) {
+                    $printBuffer =
+                        substr($printBuffer, 0, $insertPoint)
+                        . $associativesData
+                        . substr($printBuffer, $insertPoint);
+                    \Aomebo\Interpreter\Engine::moveInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_HEAD_STYLE,
+                        $associativesDataStrlen);
+                }
+            }
+
+            // Head meta
+            if ($metaData =
+                \Aomebo\Interpreter\Engine::getHeadMetaData()
+            ) {
+                $metaDataStrlen =
+                    strlen($metaData);
+                if ($insertPoint =
+                    \Aomebo\Interpreter\Engine::getInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_HEAD_META)
+                ) {
+                    $printBuffer =
+                        substr($printBuffer, 0, $insertPoint)
+                        . $metaData
+                        . substr($printBuffer, $insertPoint);
+                    \Aomebo\Interpreter\Engine::moveInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_HEAD_META,
+                        $metaDataStrlen);
+                }
+            }
+
+            // Head style
+            if ($styleData =
+                \Aomebo\Interpreter\Engine::getHeadStyleData()
+            ) {
+                $styleDataStrlen =
+                    strlen($styleData);
+                if ($insertPoint =
+                    \Aomebo\Interpreter\Engine::getInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_HEAD_STYLE)
+                ) {
+                    $printBuffer =
+                        substr($printBuffer, 0, $insertPoint)
+                        . $styleData
+                        . substr($printBuffer, $insertPoint);
+                    \Aomebo\Interpreter\Engine::moveInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_HEAD_STYLE,
+                        $styleDataStrlen);
+                }
+            }
+
+            // Head script
+            if ($scriptData =
+                \Aomebo\Interpreter\Engine::getHeadScriptData()
+            ) {
+                $scriptDataStrlen =
+                    strlen($scriptData);
+                if ($insertPoint =
+                    \Aomebo\Interpreter\Engine::getInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_HEAD_SCRIPT)
+                ) {
+                    $printBuffer =
+                        substr($printBuffer, 0, $insertPoint)
+                        . $scriptData
+                        . substr($printBuffer, $insertPoint);
+                    \Aomebo\Interpreter\Engine::moveInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_HEAD_SCRIPT,
+                        $scriptDataStrlen);
+                }
+            }
+
+            // Head markup
+            if ($scriptData =
+                \Aomebo\Interpreter\Engine::getHeadMarkupData()
+            ) {
+                $scriptDataStrlen = strlen($scriptData);
+                if ($insertPoint =
+                    \Aomebo\Interpreter\Engine::getInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_HEAD_MARKUP)
+                ) {
+                    $printBuffer =
+                        substr($printBuffer, 0, $insertPoint)
+                        . $scriptData
+                        . substr($printBuffer, $insertPoint);
+                    \Aomebo\Interpreter\Engine::moveInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_HEAD_MARKUP,
+                        $scriptDataStrlen);
+                }
+            }
+
+            // Body script
+            if ($scriptData =
+                \Aomebo\Interpreter\Engine::getBodyScriptData()
+            ) {
+                $scriptDataStrlen =
+                    strlen($scriptData);
+                if ($insertPoint =
+                    \Aomebo\Interpreter\Engine::getInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_BODY_SCRIPT)
+                ) {
+                    $printBuffer =
+                        substr($printBuffer, 0, $insertPoint)
+                        . $scriptData
+                        . substr($printBuffer, $insertPoint);
+                    \Aomebo\Interpreter\Engine::moveInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_BODY_SCRIPT,
+                        $scriptDataStrlen);
+                }
+            }
+
+            // Body style
+            if ($scriptData =
+                \Aomebo\Interpreter\Engine::getBodyStyleData()
+            ) {
+                $scriptDataStrlen =
+                    strlen($scriptData);
+                if ($insertPoint =
+                    \Aomebo\Interpreter\Engine::getInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_BODY_STYLE)
+                ) {
+                    $printBuffer =
+                        substr($printBuffer, 0, $insertPoint)
+                        . $scriptData
+                        . substr($printBuffer, $insertPoint);
+                    \Aomebo\Interpreter\Engine::moveInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_BODY_STYLE,
+                        $scriptDataStrlen);
+                }
+            }
+
+            // Body markup
+            if ($scriptData =
+                \Aomebo\Interpreter\Engine::getBodyMarkupData()
+            ) {
+                $scriptDataStrlen =
+                    strlen($scriptData);
+                if ($insertPoint =
+                    \Aomebo\Interpreter\Engine::getInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_BODY_MARKUP)
+                ) {
+                    $printBuffer =
+                        substr($printBuffer, 0, $insertPoint)
+                        . $scriptData
+                        . substr($printBuffer, $insertPoint);
+                    \Aomebo\Interpreter\Engine::moveInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_BODY_MARKUP,
+                        $scriptDataStrlen);
+                }
+            }
+
+            // Body append script
+            if ($scriptData =
+                \Aomebo\Interpreter\Engine::getBodyAppendScriptData()
+            ) {
+                $scriptDataStrlen =
+                    strlen($scriptData);
+                if ($insertPoint =
+                    \Aomebo\Interpreter\Engine::getInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_BODY_APPEND_SCRIPT)
+                ) {
+                    $printBuffer =
+                        substr($printBuffer, 0, $insertPoint)
+                        . $scriptData
+                        . substr($printBuffer, $insertPoint);
+                    \Aomebo\Interpreter\Engine::moveInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_BODY_APPEND_SCRIPT,
+                        $scriptDataStrlen);
+                }
+            }
+
+            // Body append style
+            if ($scriptData =
+                \Aomebo\Interpreter\Engine::getBodyAppendStyleData()
+            ) {
+                $scriptDataStrlen =
+                    strlen($scriptData);
+                if ($insertPoint =
+                    \Aomebo\Interpreter\Engine::getInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_BODY_APPEND_STYLE)
+                ) {
+                    $printBuffer =
+                        substr($printBuffer, 0, $insertPoint)
+                        . $scriptData
+                        . substr($printBuffer, $insertPoint);
+                    \Aomebo\Interpreter\Engine::moveInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_BODY_APPEND_STYLE,
+                        $scriptDataStrlen);
+                }
+            }
+
+            // Body append markup
+            if ($scriptData =
+                \Aomebo\Interpreter\Engine::getBodyAppendMarkupData()
+            ) {
+                $scriptDataStrlen =
+                    strlen($scriptData);
+                if ($insertPoint =
+                    \Aomebo\Interpreter\Engine::getInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_BODY_APPEND_MARKUP)
+                ) {
+                    $printBuffer =
+                        substr($printBuffer, 0, $insertPoint)
+                        . $scriptData
+                        . substr($printBuffer, $insertPoint);
+                    \Aomebo\Interpreter\Engine::moveInsertPoint(
+                        \Aomebo\Interpreter\Engine::INSERTION_POINT_BODY_APPEND_MARKUP,
+                        $scriptDataStrlen);
+                }
             }
         }
 
@@ -634,7 +689,7 @@ namespace Aomebo\Presenter
          * @static
          * @return array
          */
-        private static function _getTagPresentationData()
+        public static function getTagPresentationData()
         {
             return array(
                 'html' => 0,
@@ -643,16 +698,27 @@ namespace Aomebo\Presenter
                 'title' => 1,
                 'body' => 0,
                 'div' => 1,
+                'section' => 1,
+                'article' => 1,
                 'table' => 1,
                 'tr' => 1,
                 'td' => 1,
                 'br' => 0,
                 'p' => 1,
                 'form' => 1,
-                'label' => 0,
-                'h1' => 0,
+                'fieldset' => 1,
+                'label' => 1,
+                'h1' => 1,
+                'h2' => 1,
+                'h3' => 1,
+                'h4' => 1,
+                'h5' => 1,
+                'h6' => 1,
+                'header' => 1,
                 'script' => 0,
                 'link' => 0,
+                'select' => 1,
+                'option' => 0,
             );
         }
 
