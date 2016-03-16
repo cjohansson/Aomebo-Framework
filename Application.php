@@ -418,12 +418,8 @@ namespace Aomebo
                         // Load interpreter engine
                         new \Aomebo\Interpreter\Engine();
 
-                        /**
-                         * Load dispatcher for analyzing of request
-                         *
-                         * Instanciated to a variable just to prevent garbage collection.
-                         */
-                        $dispatcher = new \Aomebo\Dispatcher\System();
+                        // Load dispatcher for analyzing of request
+                        new \Aomebo\Dispatcher\System();
 
                         // Load the response handler
                         new \Aomebo\Response\Handler();
@@ -437,7 +433,7 @@ namespace Aomebo
                     } else {
                         Throw new \Exception(
                             self::systemTranslate(
-                                'Failed to load configuration'
+                                'Failed to load configuration.'
                             )
                         );
                     }
@@ -445,8 +441,7 @@ namespace Aomebo
                     Throw new \Exception(
                         sprintf(
                             self::systemTranslate(
-                                'Invalid parameters for Aomebo Application. '
-                                . 'parameters: "%s"'
+                                'Invalid parameters for Aomebo Application. Parameters: "%s".'
                             ),
                             print_r(self::$_parameters, true)
                         )
@@ -830,8 +825,7 @@ namespace Aomebo
                     Throw new \Exception(
                         sprintf(
                             self::systemTranslate(
-                                'Something went wrong when including '
-                                . 'file "%s", error: "%s"'
+                                'Something went wrong when including file "%s", error: "%s".'
                             ),
                             $pathSystem,
                             $e->getMessage()
@@ -845,8 +839,7 @@ namespace Aomebo
                     Throw new \Exception(
                         sprintf(
                             self::systemTranslate(
-                                'Something went wrong when including '
-                                . 'file "%s", error: "%s"'
+                                'Something went wrong when including file "%s", error: "%s".'
                             ),
                             $pathPrivate,
                             $e->getMessage()
@@ -860,8 +853,7 @@ namespace Aomebo
                     Throw new \Exception(
                         sprintf(
                             self::systemTranslate(
-                                'Something went wrong when including '
-                                . 'file "%s", error: "%s"'
+                                'Something went wrong when including file "%s", error: "%s".'
                             ),
                             $pathPublic,
                             $e->getMessage()
@@ -875,8 +867,7 @@ namespace Aomebo
                     Throw new \Exception(
                         sprintf(
                             self::systemTranslate(
-                                'Something went wrong when including '
-                                . 'file "%s", error: "%s"'
+                                'Something went wrong when including file "%s", error: "%s".'
                             ),
                             $pathSite,
                             $e->getMessage()
@@ -890,8 +881,7 @@ namespace Aomebo
                     Throw new \Exception(
                         sprintf(
                             self::systemTranslate(
-                                'Something went wrong when including '
-                                . 'file "%s", error: "%s"'
+                                'Something went wrong when including file "%s", error: "%s".'
                             ),
                             $pathPrivateAlternate,
                             $e->getMessage()
@@ -905,8 +895,7 @@ namespace Aomebo
                     Throw new \Exception(
                         sprintf(
                             self::systemTranslate(
-                                'Something went wrong when including '
-                                . 'file "%s", error: "%s"'
+                                'Something went wrong when including file "%s", error: "%s".'
                             ),
                             $pathPublicAlternate,
                             $e->getMessage()
@@ -920,8 +909,7 @@ namespace Aomebo
                     Throw new \Exception(
                         sprintf(
                             self::systemTranslate(
-                                'Something went wrong when including '
-                                . 'file "%s", error: "%s"'
+                                'Something went wrong when including file "%s", error: "%s".'
                             ),
                             $pathSiteAlternate,
                             $e->getMessage()
@@ -933,8 +921,7 @@ namespace Aomebo
                     Throw new \Exception(
                         sprintf(
                             self::systemTranslate(
-                                'Couldn\'t find file "%s" at "%s", '
-                                . '"%s", "%s" or at "%s".'
+                                'Couldn\'t find file "%s" at "%s", "%s", "%s" or at "%s".'
                             ),
                             $name,
                             $pathSystem,
@@ -1219,8 +1206,6 @@ namespace Aomebo
 
                             /** @var \Aomebo\Runtime $runtime */
                             $runtime = new $foundClassName();
-                            
-                            // TODO: Make sure class is not loading something which conflicts with framework loading here
 
                             if (is_a($runtime, '\Aomebo\Runtime'))
                             {
@@ -1235,7 +1220,7 @@ namespace Aomebo
                                 Throw new \Exception(
                                     sprintf(
                                         self::systemTranslate(
-                                            'Failed to construct runtime "%s"'
+                                            'Failed to construct runtime "%s".'
                                         ),
                                         $foundClassName
                                     )
@@ -1312,7 +1297,7 @@ namespace Aomebo
             } else {
                 Throw new \Exception(
                     self::systemTranslate(
-                        'Invalid parameters'
+                        'Invalid parameters.'
                     )
                 );
             }
@@ -1326,7 +1311,7 @@ namespace Aomebo
         private static function _getSetupSitePath()
         {
             return __DIR__ . DIRECTORY_SEPARATOR . 'GUI' . DIRECTORY_SEPARATOR
-            . 'Setup' . DIRECTORY_SEPARATOR . 'private';
+                . 'Setup' . DIRECTORY_SEPARATOR . 'private';
         }
 
         /**
@@ -1337,7 +1322,7 @@ namespace Aomebo
         private static function _getConfigurationSitePath()
         {
             return __DIR__ . DIRECTORY_SEPARATOR . 'Configuration' . DIRECTORY_SEPARATOR
-            . 'Setup' . DIRECTORY_SEPARATOR . 'private';
+                . 'Setup' . DIRECTORY_SEPARATOR . 'private';
         }
 
         /**
