@@ -977,8 +977,19 @@ $configuration = array(
                     'required' => false,
                     'default' => true,
                 ),
+            'file' =>
+                array(
+                    'type' => 'boolean',
+                    'required' => false,
+                    'default' => true,
+                ),
         ),
         'php_responses' => array(
+            'type' => 'array',
+            'required' => false,
+            'default' => array(),
+        ),
+        'file_responses' => array(
             'type' => 'array',
             'required' => false,
             'default' => array(),
