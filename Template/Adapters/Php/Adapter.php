@@ -148,10 +148,9 @@ namespace Aomebo\Template\Adapters\Php
                     }
                 } catch (\Exception $e) {
                     Throw new \Exception(sprintf(
-                        self::systemTranslate('Could not open view-script at "%s", error: "%s", trace: "%s".'),
+                        self::systemTranslate('Could not open view-script at "%s", error: "%s".'),
                         $this->_viewfile,
-                        $e->getMessage(),
-                        $e->getTraceAsString()
+                        $e->getMessage()
                     ));
                 }
             } else {
