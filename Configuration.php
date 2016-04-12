@@ -808,8 +808,10 @@ namespace Aomebo
         private static function _saveSetting($key, $value)
         {
             if (isset($key, $value)) {
+
                 $exp = explode(',', $key);
                 $d = & self::$_settings;
+
                 if (is_array($exp)
                     && sizeof($exp) > 0
                 ) {
@@ -827,11 +829,24 @@ namespace Aomebo
                             $d = & $d[$e];
                         }
                     }
+
+                    self::$_keyToValueCache[$key] = $value;
                     $d = $value;
                     return true;
+
                 } else {
                     if (isset($d[$key])) {
-                        return $d[$key];
+                        $d[$key] = $value;
+                        self::$_keyToValueCache[$key] = $value;
+                        return true;
+                    } else {
+                        Throw new \Exception(
+                            sprintf(
+                                self::systemTranslate(
+                                    'Setting-value for key: "%s" not found.'),
+                                $key
+                            )
+                        );
                     }
                 }
             } else {
@@ -839,7 +854,6 @@ namespace Aomebo
                     self::systemTranslate('Invalid parameters')
                 );
             }
-            return false;
         }
 
         /**
