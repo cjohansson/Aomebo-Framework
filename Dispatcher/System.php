@@ -810,8 +810,12 @@ namespace Aomebo\Dispatcher
         public static function fileNotFound($restartInterpretation = true)
         {
 
-            self::setPage(
-                \Aomebo\Configuration::getSetting('dispatch,file not found page'));
+            if ($page = \Aomebo\Configuration::getSetting(
+                'dispatch,file not found page')
+            ) {
+                self::setPage(
+                    \Aomebo\Configuration::getSetting('dispatch,file not found page'));
+            }
             self::setFileNotFoundFlag(true);
 
             if ($restartInterpretation) {
@@ -824,7 +828,8 @@ namespace Aomebo\Dispatcher
             self::setHttpResponseStatus404NotFound();
 
             // Should we redirect to 404 page?
-            if (\Aomebo\Configuration::getSetting(
+            if ($page
+                && \Aomebo\Configuration::getSetting(
                 'dispatch,redirect to file not found page')
             ) {
                 self::setHttpHeaderField('Location',

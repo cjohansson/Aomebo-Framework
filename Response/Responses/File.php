@@ -99,6 +99,8 @@ namespace Aomebo\Response\Responses {
                     );
                 }
 
+                \Aomebo\Dispatcher\System::setFileNotFoundFlag(false);
+                \Aomebo\Dispatcher\System::setHttpResponseStatus200Ok();
                 \Aomebo\Dispatcher\System::outputHttpHeaders();
 
                 readfile($filePath);

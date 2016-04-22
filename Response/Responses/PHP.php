@@ -73,7 +73,11 @@ namespace Aomebo\Response\Responses
             }
 
             if (file_exists($filePath)) {
+
+                \Aomebo\Dispatcher\System::setFileNotFoundFlag(false);
+                \Aomebo\Dispatcher\System::setHttpResponseStatus200Ok();
                 require_once($filePath);
+
             } else {
                 Throw new \Exception(sprintf(
                     self::systemTranslate('Could not find file at "%s", "%s", "%s", "%s" or "%s".'),

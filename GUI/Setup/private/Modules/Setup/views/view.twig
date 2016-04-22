@@ -9,11 +9,11 @@
     </div>
     <div>
         <p>
-            {{ __('This image is served with a Filesystem response:', 'setup') }}
+            {{ __('This image is served with a Filesystem response and is located outside of public root:', 'setup') }}
         </p>
-        <img width="64" height="64" alt="" src="random" />
+        <a href="{{ url({ _default: true }) }}ran-dom"><img width="64" height="64" alt="" src="{{ url({ _default: true }) }}ran-dom" /></a>
         <p>
-            <a href="{{ url({ _default: true }) }}regularphp">{{ __('Click here to get a PHP-file response', 'setup') }}</a>
+            <a href="{{ url({ _default: true }) }}regular/p-h-p">{{ __('Click here to get a PHP-file response', 'setup') }}</a>
         </p>
     </div>
     <form action="" method="post" enctype="application/x-www-form-urlencoded">

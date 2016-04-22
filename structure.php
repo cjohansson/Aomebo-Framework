@@ -648,7 +648,7 @@ $configuration = array(
                 array(
                     'type' => 'string',
                     'required' => true,
-                    'default' => 'file_not_found',
+                    'default' => '',
                 ),
             'redirect to file not found page' =>
                 array(
@@ -660,7 +660,7 @@ $configuration = array(
                 array(
                     'type' => 'string',
                     'required' => true,
-                    'default' => 'error.html',
+                    'default' => '',
                 ),
             'allow shell requests' =>
                 array(

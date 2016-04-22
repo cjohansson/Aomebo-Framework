@@ -212,7 +212,7 @@ namespace Aomebo\Response
 
             }
 
-            // Sort responses based on priority here.
+            // Sort responses based on priority in descending order here.
             usort(self::$_types, '\Aomebo\Response\Handler::compareResponses');
 
         }
