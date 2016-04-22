@@ -57,20 +57,61 @@ namespace Aomebo\Response\Responses {
                 \Aomebo\Configuration::getSetting('file_responses,'
                     . \Aomebo\Dispatcher\System::getFullRequest());
 
+            if (!file_exists($filePath)) {
+                if (file_exists(_PRIVATE_ROOT_ . $filePath)) {
+                    $filePath = _PRIVATE_ROOT_ . $filePath;
+                } else if (file_exists(_PUBLIC_ROOT_ . $filePath)) {
+                    $filePath = _PUBLIC_ROOT_ . $filePath;
+                } else if (file_exists(_SITE_ROOT_ . $filePath)) {
+                    $filePath = _SITE_ROOT_ . $filePath;
+                } else if (file_exists(_SYSTEM_ROOT_ . $filePath)) {
+                    $filePath = _SYSTEM_ROOT_ . $filePath;
+                }
+            }
+
             if (file_exists($filePath)) {
 
+                \Aomebo\Dispatcher\System::setHttpHeaderField(
+                    'Cache-Control',
+                    'public, max-age=31536000' // 1 year
+                );
+
+                if ($filemtime = \Aomebo\Filesystem::getFileLastModificationTime(
+                    $filePath)
+                ) {
+                    \Aomebo\Dispatcher\System::setHttpHeaderField(
+                        'Last-Modified',
+                        date('D, d M Y H:i:s e', $filemtime)
+                    );
+                }
+
                 if ($type = self::_getMimeType($filePath)) {
-                    header('Content-Type:' . $type);
+                    \Aomebo\Dispatcher\System::setHttpHeaderField(
+                        'Content-Type',
+                        $type
+                    );
                 }
+
                 if ($size = filesize($filePath)) {
-                    header('Content-Length: ' . filesize($size));
+                    \Aomebo\Dispatcher\System::setHttpHeaderField(
+                        'Content-Length',
+                        $size
+                    );
                 }
+
+                \Aomebo\Dispatcher\System::outputHttpHeaders();
+
                 readfile($filePath);
 
             } else {
                 Throw new \Exception(sprintf(
-                    self::systemTranslate('Could not find file at "%s".'),
-                    $filePath));
+                    self::systemTranslate('Could not find file at "%s", "%s", "%s", "%s" or "%s".'),
+                    $filePath,
+                    _PRIVATE_ROOT_ . $filePath,
+                    _PUBLIC_ROOT_ . $filePath,
+                    _SITE_ROOT_ . $filePath,
+                    _SYSTEM_ROOT_ . $filePath
+                ));
             }
 
         }
@@ -94,7 +135,8 @@ namespace Aomebo\Response\Responses {
                 'gif' => 'image/gif', 
                 'png' => 'image/png', 
                 'jpeg' => 'image/jpg', 
-                'jpg' => 'image/jpg', 
+                'jpg' => 'image/jpg',
+                'svg' => 'image/svg+xml',
                 'mp3' => 'audio/mpeg', 
                 'wav' => 'audio/x-wav', 
                 'mpeg' => 'video/mpeg', 

@@ -56,16 +56,33 @@ namespace Aomebo\Response\Responses
         public function respond()
         {
 
-            $phpFilePath =
+            $filePath =
                 \Aomebo\Configuration::getSetting('php_responses,'
                     . \Aomebo\Dispatcher\System::getFullRequest());
 
-            if (file_exists($phpFilePath)) {
-                require_once($phpFilePath);
+            if (!file_exists($filePath)) {
+                if (file_exists(_PRIVATE_ROOT_ . $filePath)) {
+                    $filePath = _PRIVATE_ROOT_ . $filePath;
+                } else if (file_exists(_PUBLIC_ROOT_ . $filePath)) {
+                    $filePath = _PUBLIC_ROOT_ . $filePath;
+                } else if (file_exists(_SITE_ROOT_ . $filePath)) {
+                    $filePath = _SITE_ROOT_ . $filePath;
+                } else if (file_exists(_SYSTEM_ROOT_ . $filePath)) {
+                    $filePath = _SYSTEM_ROOT_ . $filePath;
+                }
+            }
+
+            if (file_exists($filePath)) {
+                require_once($filePath);
             } else {
                 Throw new \Exception(sprintf(
-                    self::systemTranslate('Could not find PHP file at "%s".'),
-                    $phpFilePath));
+                    self::systemTranslate('Could not find file at "%s", "%s", "%s", "%s" or "%s".'),
+                    $filePath,
+                    _PRIVATE_ROOT_ . $filePath,
+                    _PUBLIC_ROOT_ . $filePath,
+                    _SITE_ROOT_ . $filePath,
+                    _SYSTEM_ROOT_ . $filePath
+                ));
             }
 
         }
