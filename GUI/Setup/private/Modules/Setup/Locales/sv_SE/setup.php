@@ -21,4 +21,6 @@ return array(
     'Tests' => 'Testresultat',
     'Setup on static page' => 'Inställningssidan som statisk',
     'Setup on dynamic page' => 'Inställningssidan som dynamisk',
+    'This image is served with a Filesystem response:' => 'Denna bild levereras mha Filesystem response:',
+    'Click here to get a PHP-file response' => 'Klicka här för att få en PHP-file response',
 );
