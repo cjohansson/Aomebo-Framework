@@ -64,7 +64,13 @@ $configuration = array(
                     'type' => 'boolean',
                     'required' => true,
                     'default' => false,
-                ),      
+                ),
+            'fileemtime_expiration' =>
+                array(
+                    'type' => 'integer',
+                    'required' => true,
+                    'default' => 86400,
+                ),
         ),
     'interpreter' => 
         array(

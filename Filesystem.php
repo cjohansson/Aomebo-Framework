@@ -574,7 +574,7 @@ namespace Aomebo
         {
             if (!$this->_isConstructed()) {
                 parent::__construct();
-                $this->loadCache();
+                self::loadCache();
             }
         }
 
@@ -755,20 +755,27 @@ namespace Aomebo
         public static function loadCache()
         {
 
-            $cacheParameters = 'Filesystem/Filemtimes';
+            $cacheExpiration = \Aomebo\Configuration::
+                getSetting('framework,fileemtime_expiration');
 
-            // Cache once a day
-            $cacheKey = (int) date('j');
+            if ($cacheExpiration > 0) {
 
-            if (\Aomebo\Cache\System::cacheExists(
-                $cacheParameters)
-            ) {
-                self::$_filemtimesCache =
-                    \Aomebo\Cache\System::loadCache(
-                        $cacheParameters,
-                        $cacheKey,
-                        \Aomebo\Cache\System::FORMAT_JSON_ENCODE
-                    );
+                $cacheParameters = 'Filesystem/Filemtimes';
+                $cacheKey = $cacheExpiration . '-'
+                    . floor(time() / $cacheExpiration);
+
+                if (\Aomebo\Cache\System::cacheExists(
+                    $cacheParameters,
+                    $cacheKey)
+                ) {
+                    self::$_filemtimesCache =
+                        \Aomebo\Cache\System::loadCache(
+                            $cacheParameters,
+                            $cacheKey,
+                            \Aomebo\Cache\System::FORMAT_JSON_ENCODE
+                        );
+                }
+
             }
 
         }
@@ -779,23 +786,31 @@ namespace Aomebo
         public static function saveCache()
         {
 
-            $cacheParameters = 'Filesystem/Filemtimes';
+            $cacheExpiration = \Aomebo\Configuration::
+                getSetting('framework,fileemtime_expiration');
 
-            // Cache once a day
-            $cacheKey = (int) date('j');
+            if ($cacheExpiration > 0) {
 
-            if (\Aomebo\Cache\System::cacheExists(
-                $cacheParameters)
-            ) {
-                \Aomebo\Cache\System::clearCache($cacheParameters);
+                $cacheParameters = 'Filesystem/Filemtimes';
+                $cacheKey = $cacheExpiration . '-'
+                    . floor(time() / $cacheExpiration);
+
+                if (!\Aomebo\Cache\System::cacheExists(
+                    $cacheParameters,
+                    $cacheKey)
+                ) {
+
+                    \Aomebo\Cache\System::clearCache($cacheParameters);
+                    \Aomebo\Cache\System::saveCache(
+                        $cacheParameters,
+                        $cacheKey,
+                        self::$_filemtimesCache,
+                        \Aomebo\Cache\System::FORMAT_JSON_ENCODE
+                    );
+
+                }
+
             }
-
-            \Aomebo\Cache\System::saveCache(
-                $cacheParameters,
-                $cacheKey,
-                self::$_filemtimesCache,
-                \Aomebo\Cache\System::FORMAT_JSON_ENCODE
-            );
 
         }
 
