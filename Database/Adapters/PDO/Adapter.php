@@ -933,8 +933,9 @@ namespace Aomebo\Database\Adapters\PDO
                     // TODO: Implement more support for drivers here
                     
                     Throw new \Exception(
-                        self::systemTranslate('This feature has not been implemented for current driver.')
+                        self::systemTranslate('This feature has not been implemented for the current database adapter.')
                     );
+
                 }
             } else {
                 Throw new \Exception(
@@ -966,7 +967,7 @@ namespace Aomebo\Database\Adapters\PDO
                     /** @link http://dba.stackexchange.com/questions/22362/how-do-i-list-all-columns-for-a-specified-table */
                     if ($resultset = \Aomebo\Database\Adapter::query(
                         sprintf(
-                            'SELECT * FROM information_schema.columns '
+                            'SELECT * FROM `information_schema`.`columns` '
                             . 'WHERE `table_schema` = "%s" '
                             . 'AND `table_name` = "%s"',
                             $this->escape($this->getSelectedDatabase()),
@@ -985,12 +986,11 @@ namespace Aomebo\Database\Adapters\PDO
                     ) {
                         return $resultset->fetchAssocAllAndFree();
                     }
-                } else {
 
-                    // TODO: Implement more support for drivers here
-                    
+                // TODO: Implement more support for drivers here
+                } else {
                     Throw new \Exception(
-                        self::systemTranslate('This feature has not been implemented for current driver.')
+                        self::systemTranslate('This feature has not been implemented for current driver yet.')
                     );
                 }
             } else {
