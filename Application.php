@@ -965,7 +965,7 @@ namespace Aomebo
         private static function _loadRuntimes()
         {
             
-            // Inhibit construction of these classes
+            // Inhibit premature construction of these classes
             self::$_inhibitConstruction['Aomebo\Interpreter\Engine'] = true;
             self::$_inhibitConstruction['Aomebo\Feedback\Debug'] = true;
             self::$_inhibitConstruction['Aomebo\Dispatcher\System'] = true;

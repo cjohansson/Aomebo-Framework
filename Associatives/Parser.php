@@ -339,6 +339,20 @@ namespace Aomebo\Associatives
             $associativeType = self::TYPE_STYLE;
             $mimeType = self::MIME_STYLE;
 
+            if (!empty($_GET['v'])) {
+
+                \Aomebo\Dispatcher\System::setHttpHeaderField(
+                    'Cache-Control',
+                    'public, max-age=31536000' // 1 year
+                );
+
+                \Aomebo\Dispatcher\System::setHttpHeaderField(
+                    'Last-Modified',
+                    date('D, d M Y H:i:s e', $_GET['v'])
+                );
+
+            }
+
             // Is associative type specified?
             if (!empty($_GET['at'])) {
                 $associativeType = $_GET['at'];

@@ -77,9 +77,8 @@ namespace Aomebo\Response\Responses
             new \Aomebo();
 
             // Present our output
-            $presenter =
-                \Aomebo\Presenter\Engine::getInstance();
-            $presenter->output();
+            \Aomebo\Presenter\Engine::getInstance();
+            \Aomebo\Presenter\Engine::output();
 
         }
 

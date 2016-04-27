@@ -9,4 +9,7 @@ $configuration = array(
     'file_responses' => array(
         'ran-dom' => 'GUI/Setup/private/Modules/Setup/Associatives/1461342759_electronic_clock_0000.svg',
     ),
+    'output' => array(
+        'format' => true,
+    ),
 );

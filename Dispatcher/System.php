@@ -1550,8 +1550,7 @@ namespace Aomebo\Dispatcher
                     Throw new \Exception(
                         sprintf(
                             self::systemTranslate(
-                                'Invalid associatives type for'
-                                . ' array "%s".'
+                                'Invalid associatives type for array "%s".'
                             ),
                             print_r($getArray, true)
                         )
@@ -1561,8 +1560,7 @@ namespace Aomebo\Dispatcher
                 Throw new \Exception(
                     sprintf(
                         self::systemTranslate(
-                            'Invalid associatives type for'
-                            . ' array "%s".'
+                            'Invalid associatives type for array "%s".'
                         ),
                         print_r($getArray, true)
                     )
@@ -1590,12 +1588,14 @@ namespace Aomebo\Dispatcher
                 Throw new \Exception(
                     sprintf(
                         self::systemTranslate(
-                            'No resources for '
-                            . 'associative array "%s".'
+                            'No resources for associative array "%s".'
                         ),
                         print_r($getArray, true)
                     )
                 );
+            }
+            if (isset($getArray['v'])) {
+                $uri .= '&amp;v=' . $getArray['v'];
             }
             if (isset($getArray['cv'])
                 && !empty($getArray['cv'])

@@ -88,7 +88,7 @@ namespace Aomebo\Response\Responses {
                 if ($type = self::_getMimeType($filePath)) {
                     \Aomebo\Dispatcher\System::setHttpHeaderField(
                         'Content-Type',
-                        $type
+                        $type . '; charset=binary'
                     );
                 }
 
@@ -139,6 +139,7 @@ namespace Aomebo\Response\Responses {
                 'jpeg' => 'image/jpg', 
                 'jpg' => 'image/jpg',
                 'svg' => 'image/svg+xml',
+                'ico' => 'image/vnd.microsoft.icon',
                 'mp3' => 'audio/mpeg', 
                 'wav' => 'audio/x-wav', 
                 'mpeg' => 'video/mpeg', 

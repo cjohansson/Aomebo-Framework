@@ -399,7 +399,6 @@ namespace Aomebo\Associatives
             $requestType = ($dispatcher::isAjaxRequest() ?
                 self::REQUEST_TYPE_AJAX : self::REQUEST_TYPE_DEFAULT);
 
-            $extraKey = (isset($_GET['extra']) ? $_GET['extra'] : false);
             self::$_associatives = array();
             self::$_selectedAssociatives = array();
 
@@ -503,12 +502,11 @@ namespace Aomebo\Associatives
 
                                         $fileFullPath = $dir . DIRECTORY_SEPARATOR . $file;
                                         $fileSessionApproved = true;
-                                        $fileExtraKeyApproved = (empty($extraKey));
-                                        $fileHttpAgentApproved = true;
                                         $fileMode = self::MODE_EXTERNAL;
                                         $fileRequestTypeApproved = true;
                                         $fileRequestMethodApproved = true;
-                                        $fileCacheHash = filemtime($fileFullPath);
+                                        $fileemTime = filemtime($fileFullPath);
+                                        $fileCacheHash = $fileemTime;
 
                                         // There exists options specified for file
                                         if (isset($options[$file]))
@@ -547,14 +545,10 @@ namespace Aomebo\Associatives
                                                                 }
                                                             } else {
 
-                                                                $fileSessionApproved = false;
-                                                                $fileCacheHash .= '0';
-
                                                                 Throw new \Exception(
                                                                     sprintf(
                                                                         self::systemTranslate(
-                                                                            'Invalid session requirement method specified! '
-                                                                            . 'Could not find %s in %s'
+                                                                            'Invalid session requirement method specified! Could not find %s in %s'
                                                                         ),
                                                                         $sessionAuthFunctionName,
                                                                         $sessionBlock
@@ -588,20 +582,16 @@ namespace Aomebo\Associatives
                                                     if (in_array($_SERVER['HTTP_USER_AGENT'],
                                                         $options[$file]['http_agent'])
                                                     ) {
-                                                        $fileHttpAgentApproved = true;
                                                         $fileCacheHash .= '1';
                                                     } else {
-                                                        $fileHttpAgentApproved = false;
                                                         $fileCacheHash .= '0';
                                                     }
                                                 } else {
                                                     if ($_SERVER['HTTP_USER_AGENT'] ==
                                                         $options[$file]['http_agent']
                                                     ) {
-                                                        $fileHttpAgentApproved = true;
                                                         $fileCacheHash .= '1';
                                                     } else {
-                                                        $fileHttpAgentApproved = false;
                                                         $fileCacheHash .= '0';
                                                     }
                                                 }
@@ -678,6 +668,7 @@ namespace Aomebo\Associatives
                                                         'inline_styles' => array(),
                                                         'has_inline_markups' => false,
                                                         'inline_markups' => array(),
+                                                        'fileemtime' => $fileemTime,
                                                     );
                                             }
 
@@ -871,8 +862,10 @@ namespace Aomebo\Associatives
                                 && $dir != '..'
                                 && is_dir($root . DIRECTORY_SEPARATOR . $dir)
                             ) {
+
                                 $csName = $dir;
                                 $cisName = strtolower($dir);
+
                                 if (!isset(self::$_dependencies[$cisName])) {
                                     self::$_dependencies[$cisName] =
                                     array(
@@ -907,6 +900,7 @@ namespace Aomebo\Associatives
                                         'has_style_subdependencies' => false,
                                         'count_style_subdependencies' => 0,
                                         'style_subdependencies' => array(),
+                                        'fileemtime' => 0,
                                     );
 
                                     if ($root == _SITE_ROOT_ . 'Dependencies') {
@@ -982,7 +976,13 @@ namespace Aomebo\Associatives
                                         $subfileFullPath = $root
                                             . DIRECTORY_SEPARATOR . $csName
                                             . DIRECTORY_SEPARATOR . $subfileCsName;
-                                        $fileCacheHash = filemtime($subfileFullPath);
+                                        $fileemtime = filemtime($subfileFullPath);
+                                        $fileCacheHash = $fileemtime;
+
+                                        if ($fileemtime > $dependency['fileemtime']) {
+                                            $dependency['fileemtime'] = $fileemtime;
+                                        }
+
                                         if (!empty($dependency['options'][$subfileCisName]['mode'])) {
                                             $subfileMode =
                                                 $dependency['options'][$subfileCisName]['mode'];
@@ -1178,7 +1178,6 @@ namespace Aomebo\Associatives
                                             foreach ($subdependencies as $subdependency
                                             ) {
 
-                                                $subdependencyCsName = $subdependency;
                                                 $subdependencyCisName = strtolower($subdependency);
 
                                                 if (self::$_dependencies[$subdependencyCisName]['has_scripts'])
@@ -1315,10 +1314,11 @@ namespace Aomebo\Associatives
                     '\Associatives\Engine::dependencySortScripts'
                 );
 
-                $subdependenciesCount = 0;
                 $lastSubdependenciesCount = 0;
                 $externalScripts = array();
+                $externalScriptsFileemtime = 0;
                 $externalStyles = array();
+                $externalStylesFileemtime = 0;
                 $inlineScripts = '';
                 $inlineStyles = '';
                 $inlineMarkups = '';
@@ -1332,11 +1332,12 @@ namespace Aomebo\Associatives
                     if ($subdependenciesCount != $lastSubdependenciesCount) {
 
                         if (sizeof($externalScripts) > 0) {
-
                             $return .= '<script src="';
                             $return .= $dispatcher->buildAssocUri(array(
                                 'at' => 'js',
-                                'ds' => implode(',', $externalScripts)));
+                                'ds' => implode(',', $externalScripts),
+                                'v' => $externalScriptsFileemtime,
+                            ));
                             $return .= '" type="'
                                   . self::MIME_SCRIPT . '"></script>';
                         }
@@ -1345,7 +1346,9 @@ namespace Aomebo\Associatives
                             $return .= '<link href="';
                             $return .= $dispatcher->buildAssocUri(array(
                                 'at' => 'css',
-                                'ds' => implode(',', $externalStyles)));
+                                'ds' => implode(',', $externalStyles),
+                                'v' => $externalStylesFileemtime,
+                            ));
                             $return .= '" rel="stylesheet" type="'
                                   . self::MIME_STYLE . '" media="'
                                   . (empty($media) ? 'screen' : $media)
@@ -1382,7 +1385,9 @@ namespace Aomebo\Associatives
 
                     if ($selectedDependency['has_markups']) {
                         if ($selectedDependency['has_inline_markups']) {
-                            foreach ($selectedDependency['inline_markups'] as $inlineMarkup) {
+                            foreach ($selectedDependency['inline_markups']
+                                as $inlineMarkup
+                            ) {
 
                                 $inlineParsedMarkup = $parser->parseDependency(
                                     $inlineMarkup,
@@ -1397,8 +1402,9 @@ namespace Aomebo\Associatives
 
                     if ($selectedDependency['has_scripts']) {
                         if ($selectedDependency['has_inline_scripts']) {
-                            foreach ($selectedDependency['inline_scripts'] as $inlineScript)
-                            {
+                            foreach ($selectedDependency['inline_scripts']
+                                as $inlineScript
+                            ) {
 
                                 $inlineParsedScript = $parser->parseDependency(
                                     $inlineScript,
@@ -1413,14 +1419,21 @@ namespace Aomebo\Associatives
                         if ($selectedDependency['has_external_scripts']) {
                             $externalScripts[] =
                                 $selectedDependency['cis_name'];
+                            if ($selectedDependency['fileemtime']
+                                > $externalScriptsFileemtime
+                            ) {
+                                $externalScriptsFileemtime =
+                                    $selectedDependency['fileemtime'];
+                            }
                         }
 
                     }
 
                     if ($selectedDependency['has_styles']) {
                         if ($selectedDependency['has_inline_styles']) {
-                            foreach ($selectedDependency['inline_styles'] as $inlineStyle)
-                            {
+                            foreach ($selectedDependency['inline_styles']
+                                as $inlineStyle
+                            ) {
 
                                 $inlineParsedStyle = $parser->parseDependency(
                                     $inlineStyle,
@@ -1437,6 +1450,12 @@ namespace Aomebo\Associatives
                         if ($selectedDependency['has_external_styles']) {
                             $externalStyles[] =
                                 $selectedDependency['cis_name'];
+                            if ($selectedDependency['fileemtime']
+                                > $externalStylesFileemtime
+                            ) {
+                                $externalStylesFileemtime =
+                                    $selectedDependency['fileemtime'];
+                            }
                         }
 
                     }
@@ -1447,7 +1466,9 @@ namespace Aomebo\Associatives
                     $return .= '<script src="';
                     $return .= $dispatcher->buildAssocUri(array(
                         'at' => 'js',
-                        'ds' => implode(',', $externalScripts)));
+                        'ds' => implode(',', $externalScripts),
+                        'v' => $externalScriptsFileemtime
+                    ));
                     $return .= '" type="'
                           . self::MIME_SCRIPT . '"></script>';
 
@@ -1458,7 +1479,9 @@ namespace Aomebo\Associatives
                     $return .= '<link href="';
                     $return .= $dispatcher->buildAssocUri(array(
                         'at' => 'css',
-                        'ds' => implode(',', $externalStyles)));
+                        'ds' => implode(',', $externalStyles),
+                        'v' => $externalStylesFileemtime
+                    ));
                     $return .= '" rel="stylesheet" type="'
                           . self::MIME_STYLE . '" media="'
                           . (empty($media) ? 'screen' : $media)
@@ -1506,7 +1529,9 @@ namespace Aomebo\Associatives
                 $parser =
                     \Aomebo\Associatives\Parser::getInstance();
                 $externalScripts = array();
+                $externalScriptsFileemtime = 0;
                 $externalStyles = array();
+                $externalStylesFileemtime = 0;
                 $inlineScripts = '';
                 $inlineStyles = '';
                 $inlineMarkups = '';
@@ -1545,6 +1570,12 @@ namespace Aomebo\Associatives
                         }
                         if ($selectedAssociative['has_external_scripts']) {
                             $externalScripts[] = $selectedAssociative['cis_name'];
+                            if ($selectedAssociative['fileemtime']
+                                > $externalScriptsFileemtime
+                            ) {
+                                $externalScriptsFileemtime =
+                                    $selectedAssociative['fileemtime'];
+                            }
                         }
                     }
                     if ($selectedAssociative['has_styles']) {
@@ -1565,6 +1596,12 @@ namespace Aomebo\Associatives
                         if ($selectedAssociative['has_external_styles']) {
                             $externalStyles[] =
                                 $selectedAssociative['cis_name'];
+                            if ($selectedAssociative['fileemtime']
+                                > $externalStylesFileemtime
+                            ) {
+                                $externalStylesFileemtime =
+                                    $selectedAssociative['fileemtime'];
+                            }
                         }
                     }
                 }
@@ -1573,7 +1610,9 @@ namespace Aomebo\Associatives
                     $return .= '<script src="';
                     $return .= $dispatcher->buildAssocUri(array(
                         'at' => 'js',
-                        'fs' => implode(',', $externalScripts)));
+                        'fs' => implode(',', $externalScripts),
+                        'v' => $externalScriptsFileemtime,
+                    ));
                     $return .= '" type="'
                           . self::MIME_SCRIPT . '"></script>';
                 }
@@ -1582,7 +1621,9 @@ namespace Aomebo\Associatives
                     $return .= '<link href="';
                     $return .= $dispatcher->buildAssocUri(array(
                         'at' => 'css',
-                        'fs' => implode(',', $externalStyles)));
+                        'fs' => implode(',', $externalStyles),
+                        'v' => $externalStylesFileemtime,
+                    ));
                     $return .= '" rel="stylesheet" type="'
                           . self::MIME_STYLE . '" media="'
                           . (empty($media) ? 'screen' : $media)

@@ -59,7 +59,7 @@ namespace Aomebo\Response\Responses
                     || \Aomebo\Dispatcher\System::isHttpHeadRequest())
             ) {
 
-                // Load our database
+                // Load our database - TODO: Remove this
                 \Aomebo\Database\Adapter::getInstance();
 
                 // Load the associatives engine

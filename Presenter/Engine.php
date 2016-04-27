@@ -117,9 +117,9 @@ namespace Aomebo\Presenter
         }
 
         /**
-         *
+         * @static
          */
-        public function output()
+        public static function output()
         {
 
             \Aomebo\Trigger\System::processTriggers(
@@ -152,9 +152,9 @@ namespace Aomebo\Presenter
 
             // Encoding-specific characters
             $lineBreak =
-                \Aomebo\Configuration::getSetting("output,linebreak character");
+                \Aomebo\Configuration::getSetting('output,linebreak character');
             $lineSeed =
-                \Aomebo\Configuration::getSetting("output,tab character");
+                \Aomebo\Configuration::getSetting('output,tab character');
 
             $status = 0;
             $level = 0;
@@ -175,7 +175,8 @@ namespace Aomebo\Presenter
             \Aomebo\Dispatcher\System::setHttpHeaderField(
                 'Content-type',
                 self::getContentTypeMime() . '; charset='
-                . self::getContentTypeCharset());
+                . self::getContentTypeCharset()
+            );
 
             \Aomebo\Dispatcher\System::outputHttpHeaders();
 
@@ -195,7 +196,7 @@ namespace Aomebo\Presenter
                         // no start tag has been found
                         if ($status == 0) {
 
-                            if ($c == "<") {
+                            if ($c == '<') {
                                 
                                 $status = 1;
                                 $block = $c;
@@ -225,10 +226,10 @@ namespace Aomebo\Presenter
                                     $lastIsTag = false;
                                     
                                 }
-                                
+
                                 $chunks[$chunksCount] .= $c;
                                 $chunkSize++;
-                                
+
                             }
 
                         // A start tag has been found, get the tag
@@ -241,11 +242,11 @@ namespace Aomebo\Presenter
                             ) {
                                 $c = ' ';
                             }
-                            
+
                             $block .= $c;
-                            
+
                             if ($c == ' '
-                                && $tag == ""
+                                && $tag == ''
                             ) {
                                 if (isset($startTags[$buffer])
                                     || isset($tagEnds[$buffer])
@@ -256,8 +257,8 @@ namespace Aomebo\Presenter
                                         && $level > 0
                                     ) {
                                         
-                                        // $chunks[$chunksCount] .= $lineBreak;
-                                        // $chunkSize++;
+                                        $chunks[$chunksCount] .= $lineBreak;
+                                        $chunkSize++;
 
                                         for ($j=0; $j < $level; $j++)
                                         {
@@ -274,9 +275,9 @@ namespace Aomebo\Presenter
                                     $lastIsTag = false;
                                     
                                 }
-                            } else if ($c == ">") {
+                            } else if ($c == '>') {
                                 
-                                if ($tag == "") {
+                                if ($tag == '') {
                                     $tag = $buffer;
                                 }
 
@@ -301,7 +302,7 @@ namespace Aomebo\Presenter
 
                                     // concat strings
                                     $chunks[$chunksCount] .= $block;
-                                    $chunkSize+= strlen($block);
+                                    $chunkSize += strlen($block);
 
                                     // get current shift level
                                     $level += $startTags[$tag];
@@ -314,7 +315,7 @@ namespace Aomebo\Presenter
                                     // reset status
                                     $status = 0;
 
-                                    // add linebreak before tag start
+                                    // add linebreak before content start
                                     $chunks[$chunksCount] .= $lineBreak;
                                     $chunkSize++;
 
@@ -371,14 +372,14 @@ namespace Aomebo\Presenter
                             echo $chunks[$chunksCount];
                             flush();
                             $chunkSize = 0;
-                            $chunks[$chunksCount] = "";
+                            $chunks[$chunksCount] = '';
                             
                         }
                     }
 
                     $chunks[$chunksCount] .= $lineBreak;
                     $chunksCount++;
-                    $chunks[$chunksCount] = "";
+                    $chunks[$chunksCount] = '';
 
                 } else {
 
@@ -399,7 +400,7 @@ namespace Aomebo\Presenter
                             echo $chunks[$chunksCount];
                             flush();
                             $chunkSize = 0;
-                            $chunks[$chunksCount] = "";
+                            $chunks[$chunksCount] = '';
                             
                         }
                     }
@@ -414,10 +415,10 @@ namespace Aomebo\Presenter
                     ) {
                         
                         $chunks[$chunksCount] .=
-                            $lineBreak . "<!-- CREDITS" . $lineBreak
+                            $lineBreak . '<!-- ' . self::systemTranslate('CREDITS') . $lineBreak
                             . $lineSeed . \Aomebo\Configuration::getSetting('framework,version') . $lineBreak
                             . $lineSeed . \Aomebo\Configuration::getSetting('framework,website') . $lineBreak
-                            . "-->" . $lineBreak;
+                            . ' -->' . $lineBreak;
                     }
 
 
@@ -427,17 +428,19 @@ namespace Aomebo\Presenter
                     ) {
 
                         $chunks[$chunksCount] .=  $lineBreak
-                            . "<!-- STATISTICS" . $lineBreak;
+                            . '<!-- ' . self::systemTranslate('STATISTICS') . $lineBreak;
 
                         // Print elapsed time
                         $now = microtime(true);
                         $elapsedTotal = round($now - _SYSTEM_START_TIME_, 4);
                         $formattedElapsed = round($elapsedTotal, 2);
                         $chunks[$chunksCount] .= $lineSeed
-                            . "Total elapsed time: '" . $formattedElapsed
-                            . "' seconds." . $lineBreak;
+                            . self::systemTranslate(sprintf(
+                                'Total elapsed time: "%s" seconds.',
+                                $formattedElapsed
+                            )) . $lineBreak;
 
-                        $chunks[$chunksCount] .= "-->" . $lineBreak;
+                        $chunks[$chunksCount] .= ' -->' . $lineBreak;
                     }
                 }
 
@@ -715,7 +718,8 @@ namespace Aomebo\Presenter
                 'h5' => 1,
                 'h6' => 1,
                 'header' => 1,
-                'script' => 0,
+                'footer' => 1,
+                'script' => 1,
                 'link' => 0,
                 'select' => 1,
                 'option' => 0,

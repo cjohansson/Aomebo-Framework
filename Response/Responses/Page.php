@@ -70,7 +70,7 @@ namespace Aomebo\Response\Responses
             \Aomebo\Cache\System::getInstance();
 
             // Load indexing engine
-            $indexing = \Aomebo\Indexing\Engine::getInstance();
+            \Aomebo\Indexing\Engine::getInstance();
 
             new \Aomebo();
 
@@ -78,11 +78,11 @@ namespace Aomebo\Response\Responses
             \Aomebo\Interpreter\Engine::interpret();
 
             // Index our output
-            $indexing->index();
+            \Aomebo\Indexing\Engine::index();
 
             // Present our output
-            $presenter = \Aomebo\Presenter\Engine::getInstance();
-            $presenter->output();
+            \Aomebo\Presenter\Engine::getInstance();
+            \Aomebo\Presenter\Engine::output();
 
         }
 

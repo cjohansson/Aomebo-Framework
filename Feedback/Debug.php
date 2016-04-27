@@ -95,7 +95,11 @@ namespace Aomebo\Feedback
                 } else {
                     \Aomebo\Filesystem::makeFile(
                         $logLocation,
-                        '// Log file created ' . date('Y-m-d H:m:i') . PHP_EOL);
+                        '// ' . sprintf(
+                            self::systemTranslate('Log file created %s'),
+                            date('Y-m-d H:m:i')
+                        ) . PHP_EOL
+                    );
                 }
 
                 ini_set('error_log', $logLocation);

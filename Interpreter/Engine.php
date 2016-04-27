@@ -115,13 +115,6 @@ namespace Aomebo\Interpreter
         /**
          * @internal
          * @static
-         * @var string
-         */
-        private static $_mode = '';
-
-        /**
-         * @internal
-         * @static
          * @var array
          */
         private static $_runtimeNameToData = array();
@@ -288,7 +281,6 @@ namespace Aomebo\Interpreter
             if (!self::_isConstructed()) {
 
                 parent::__construct();
-                self::_checkMode();
                 self::_loadRuntimes();
                 self::_loadAdapters();
                 self::_loadPages();
@@ -392,17 +384,6 @@ namespace Aomebo\Interpreter
             } else {
                 return false;
             }
-        }
-
-        /**
-         * This method returns mode.
-         *
-         * @static
-         * @return string
-         */
-        public static function getMode()
-        {
-            return self::$_mode;
         }
 
         /**
@@ -1973,16 +1954,6 @@ namespace Aomebo\Interpreter
 
             return null;
 
-        }
-
-        /**
-         * This method checks what mode we are in.
-         *
-         * @internal
-         * @static
-         */
-        private static function _checkMode()
-        {
         }
 
         /**

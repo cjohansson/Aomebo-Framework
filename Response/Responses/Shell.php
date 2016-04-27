@@ -79,8 +79,8 @@ namespace Aomebo\Response\Responses
                 \Aomebo\Interpreter\Engine::interpret();
 
                 // Present our output
-                $presenter = \Aomebo\Presenter\Engine::getInstance();
-                $presenter->output();
+                \Aomebo\Presenter\Engine::getInstance();
+                \Aomebo\Presenter\Engine::output();
 
             } else {
                 \Aomebo\Dispatcher\System::setHttpResponseStatus403Forbidden();
