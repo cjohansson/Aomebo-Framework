@@ -65,6 +65,10 @@ namespace Aomebo\Response\Responses
                     'Cache-Control',
                     'public, max-age=31536000' // 1 year
                 );
+                \Aomebo\Dispatcher\System::setHttpHeaderField(
+                    'Expires',
+                    date('D, d M Y H:i:s e', strtotime('+1 year'))
+                );
 
                 if ($filemtime = \Aomebo\Filesystem::getFileLastModificationTime(
                     $filePath)
@@ -73,6 +77,16 @@ namespace Aomebo\Response\Responses
                         'Last-Modified',
                         date('D, d M Y H:i:s e', $filemtime)
                     );
+                    if (!empty(
+                        $_SERVER['HTTP_IF_MODIFIED_SINCE'])
+                    ) {
+                        if (strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'])
+                            <= $filemtime
+                        ) {
+                            \Aomebo\Dispatcher\System::setHttpResponseStatus304NotModified();
+                            return;
+                        }
+                    }
                 }
                 if ($type = self::_getMimeType($filePath)) {
                     \Aomebo\Dispatcher\System::setHttpHeaderField(

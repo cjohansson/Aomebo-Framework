@@ -345,11 +345,25 @@ namespace Aomebo\Associatives
                     'Cache-Control',
                     'public, max-age=31536000' // 1 year
                 );
-
+                \Aomebo\Dispatcher\System::setHttpHeaderField(
+                    'Expires',
+                    date('D, d M Y H:i:s e', strtotime('+1 year'))
+                );
                 \Aomebo\Dispatcher\System::setHttpHeaderField(
                     'Last-Modified',
                     date('D, d M Y H:i:s e', $_GET['v'])
                 );
+
+                if (!empty(
+                    $_SERVER['HTTP_IF_MODIFIED_SINCE'])
+                ) {
+                    if (strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'])
+                        <= $_GET['v']
+                    ) {
+                        \Aomebo\Dispatcher\System::setHttpResponseStatus304NotModified();
+                        return;
+                    }
+                }
 
             }
 
