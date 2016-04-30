@@ -1513,11 +1513,13 @@ namespace Aomebo\Dispatcher
          *
          * @static
          * @param array $getArray
+         * @param bool [$htmlEntities = true]
          * @throws \Exception
          * @return string|bool
          */
-        public static function buildAssocUri($getArray)
+        public static function buildAssocUri($getArray, $htmlEntities = true)
         {
+            $ampersand = ($htmlEntities ? '&amp;' : '&');
             $uri = self::$_baseUri;
             $associativesMode =
                 \Aomebo\Configuration::getSetting('settings,associatives mode');
@@ -1532,7 +1534,7 @@ namespace Aomebo\Dispatcher
                             $uri .= 'bridge.css?';
                         }
                     } else {
-                        $uri .= 'index.php?mode=' . $associativesMode . '&amp;at=css&amp;';
+                        $uri .= 'index.php?mode=' . $associativesMode . $ampersand . 'at=css' . $ampersand;
                     }
                 } else if ($getArray['at'] === 'js') {
                     if (self::$_rewriteEnabled) {
@@ -1544,7 +1546,7 @@ namespace Aomebo\Dispatcher
                             $uri .= $associativesMode . '.js?';
                         }
                     } else {
-                        $uri .= 'index.php?mode=' . $associativesMode . '&amp;at=js&amp;';
+                        $uri .= 'index.php?mode=' . $associativesMode . $ampersand . 'at=js' . $ampersand;
                     }
                 } else {
                     Throw new \Exception(
@@ -1595,12 +1597,12 @@ namespace Aomebo\Dispatcher
                 );
             }
             if (isset($getArray['v'])) {
-                $uri .= '&amp;v=' . $getArray['v'];
+                $uri .= $ampersand . 'v=' . $getArray['v'];
             }
             if (isset($getArray['cv'])
                 && !empty($getArray['cv'])
             ) {
-                $uri .= '&amp;cv=' . $getArray['cv'];
+                $uri .= $ampersand . 'cv=' . $getArray['cv'];
             }
             return $uri;
         }
