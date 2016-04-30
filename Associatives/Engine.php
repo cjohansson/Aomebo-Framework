@@ -241,13 +241,23 @@ namespace Aomebo\Associatives
         }
 
         /**
+         * @static
+         * @param string $csName        case-sensitive module-name
+         * @deprecated
+         */
+        public static function addAssociatives($csName)
+        {
+            self::addAssociate($csName);
+        }
+
+        /**
          * This method adds a module to the queue for
          * parsing of associatives later.
          *
          * @static
          * @param string $csName        case-sensitive module-name
          */
-        public static function addAssociatives($csName)
+        public static function addAssociate($csName)
         {
             $cisName = strtolower($csName);
             if (isset(self::$_associatives[$cisName])
@@ -258,6 +268,7 @@ namespace Aomebo\Associatives
             }
         }
 
+
         /**
          * This method removes a module from the queue for
          * parsing of associatives later.
@@ -265,7 +276,7 @@ namespace Aomebo\Associatives
          * @static
          * @param string $csName
          */
-        public static function removeAssociatives($csName)
+        public static function removeSelectedAssociate($csName)
         {
             $cisName = strtolower($csName);
             if (isset(self::$_associatives[$cisName])
@@ -296,7 +307,7 @@ namespace Aomebo\Associatives
          * @static
          * @return array|bool
          */
-        public static function getAssociativeByName($name)
+        public static function getAssociateByName($name)
         {
             $cisName = strtolower($name);
             return (isset(self::$_associatives[$cisName]) ?

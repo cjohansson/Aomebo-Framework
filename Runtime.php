@@ -431,15 +431,13 @@ namespace Aomebo
                             $dispatcher->buildGetValues($this);
                     }
 
-                    $associatives =
-                        \Aomebo\Associatives\Engine::getInstance();
                     $functionName = $this->getField('name');
                     $this->setField('function_call_index',
                         $functionCallIndex);
 
                     if (!$dispatcher::isAjaxRequest()) {
 
-                        $associatives->addAssociatives($functionName);
+                        \Aomebo\Associatives\Engine::addAssociate($functionName);
 
                         // Convert old way of specifying dependencies to new way
                         if (isset($this->_dependencies)
@@ -451,7 +449,7 @@ namespace Aomebo
                                 $dependencyObject = new \Aomebo\Associatives\Dependent(
                                     $dependency
                                 );
-                                $associatives->addDependencies(
+                                \Aomebo\Associatives\Engine::addDependencies(
                                     $dependencyObject);
                             }
                         }
@@ -462,7 +460,7 @@ namespace Aomebo
                             $ref = & $this;
 
                             if ($ref->getDependencies()) {
-                                $associatives->addDependencies(
+                                \Aomebo\Associatives\Engine::addDependencies(
                                     $ref->getDependencies());
                             }
 
