@@ -259,6 +259,40 @@ namespace Aomebo\Associatives
         }
 
         /**
+         * This method removes a module from the queue for
+         * parsing of associatives later.
+         *
+         * @static
+         * @param string $csName
+         */
+        public static function removeAssociatives($csName)
+        {
+            $cisName = strtolower($csName);
+            if (isset(self::$_associatives[$cisName])
+                && isset(self::$_selectedAssociatives[$cisName])
+            ) {
+                unset(self::$_selectedAssociatives[$cisName]);
+            }
+        }
+
+        /**
+         * This method removes a dependency from the queue for
+         * parsing of associatives later.
+         *
+         * @static
+         * @param string $csName
+         */
+        public static function removeDependency($csName)
+        {
+            $cisName = strtolower($csName);
+            if (isset(self::$_dependencies[$cisName])
+                && isset(self::$_selectedDependencies[$cisName])
+            ) {
+                unset(self::$_selectedDependencies[$cisName]);
+            }
+        }
+
+        /**
          * @static
          * @return array
          */
