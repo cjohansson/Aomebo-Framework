@@ -294,6 +294,28 @@ namespace Aomebo\Associatives
 
         /**
          * @static
+         * @return array|bool
+         */
+        public static function getAssociativeByName($name)
+        {
+            $cisName = strtolower($name);
+            return (isset(self::$_associatives[$cisName]) ?
+                self::$_associatives[$cisName] : false);
+        }
+
+        /**
+         * @static
+         * @return array|bool
+         */
+        public static function getDependencyByName($name)
+        {
+            $cisName = strtolower($name);
+            return (isset(self::$_dependencies[$cisName]) ?
+                self::$_dependencies[$cisName] : false);
+        }
+
+        /**
+         * @static
          * @return array
          */
         public static function getAssociatives()
@@ -311,10 +333,11 @@ namespace Aomebo\Associatives
         }
 
         /**
+         * @static
          * @param array|\Aomebo\Associatives\Dependent $dependencies     Array or single \Aomebo\Associatives\Depedent
          * @throws \Exception
          */
-        public function addDependencies($dependencies)
+        public static function addDependencies($dependencies)
         {
             if (is_array($dependencies)
                 && sizeof($dependencies) > 0
@@ -326,7 +349,7 @@ namespace Aomebo\Associatives
                         && is_a($dependency, '\Aomebo\Associatives\Dependent')
                     ) {
                         /** @var \Aomebo\Associatives\Dependent $dependency */
-                        $this->_addDependency($dependency);
+                        self::addDependency($dependency);
                     }
                 }
 
@@ -334,17 +357,17 @@ namespace Aomebo\Associatives
                 && is_a($dependencies, '\Aomebo\Associatives\Dependent')
             ) {
                 /** @var \Aomebo\Associatives\Dependent $dependencies */
-                $this->_addDependency($dependencies);
+                self::addDependency($dependencies);
             }
         }
 
         /**
-         * @internal
+         * @static
          * @param \Aomebo\Associatives\Dependent $dependent
          * @throws \Exception
          * @return bool
          */
-        private function _addDependency($dependent)
+        public static function addDependency($dependent)
         {
             if ($dependent->isValid()) {
                 $dependencyCisName = strtolower($dependent->name);
@@ -359,12 +382,13 @@ namespace Aomebo\Associatives
                         $dependency = & self::$_dependencies[$dependencyCisName];
 
                         if ($dependency['has_script_subdependencies']) {
-                            $this->addDependencies(
+                            self::addDependencies(
                                 $dependency['script_subdependencies']);
                         }
                         if ($dependency['has_style_subdependencies']) {
-                            $this->addDependencies(
-                                $dependency['style_subdependencies']);
+                            self::addDependencies(
+                                $dependency['style_subdependencies']
+                            );
                         }
 
                         return true;
@@ -372,8 +396,7 @@ namespace Aomebo\Associatives
                     } else {
                         Throw new \Exception(
                             sprintf(
-                                self::systemTranslate('Could not find dependency '
-                                    . '"%s" in "%s" from "%s"'),
+                                self::systemTranslate('Could not find dependency "%s" in "%s" from "%s"'),
                                 $dependencyCisName,
                                 print_r(self::$_dependencies, true),
                                 $dependent->name
