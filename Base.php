@@ -64,8 +64,15 @@ namespace Aomebo
          */
         public static function systemTranslate($message, $domain = null)
         {
-            return \Aomebo\Internationalization\System::systemTranslate(
-                $message, $domain);
+            if (class_exists(
+                '\\Aomebo\\Internationalization\\System',
+                false)
+            ) {
+                return \Aomebo\Internationalization\System::systemTranslate(
+                    $message, $domain);
+            } else {
+                return $message;
+            }
         }
 
         /**
