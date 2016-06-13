@@ -87,11 +87,9 @@ namespace Aomebo\Database\Adapters\PDO
                     );
                     
                     if (isset($this->_con)) {
-    
                         $this->_connected = true;
                         $this->_selectedDatabase = true;
                         return true;
-                        
                     }
                     
                 } catch (\Exception $e) {
@@ -109,7 +107,7 @@ namespace Aomebo\Database\Adapters\PDO
                 return false;
                 
             } else {
-                Throw new \Exception(__('Missing database-engine DNS.'));
+              Throw new \Exception(self::systemTranslate('Missing database-engine DSN.'));
             }
 
         }
@@ -124,7 +122,8 @@ namespace Aomebo\Database\Adapters\PDO
             if (isset($tableName)) {
                 if ($resultset = \Aomebo\Database\Adapter::query(
                     'SELECT `AUTO_INCREMENT` FROM `information_schema`.`TABLES` '
-                    . 'WHERE `table_schema` = {database} AND `table_name` = {table}',
+                    . 'WHERE `table_schema` = {database} '
+                    . 'AND `table_name` = {table}',
                     array(
                         'database' => array(
                             'value' => \Aomebo\Database\Adapter::
@@ -132,24 +131,22 @@ namespace Aomebo\Database\Adapters\PDO
                             'quoted' => true,
                         ),
                         'table' => array(
-                            'value' => $tableName,
+                          'value' => (string) $tableName,
                             'quoted' => true,
                         ),
                     ))
                 ) {
                     $row = $resultset->fetchAssoc();
-                    return $row['AUTO_INCREMENT'];
+                    if (isset($row['AUTO_INCREMENT'])) {
+                      return $row['AUTO_INCREMENT'];
+                    }
                 }
             } else {
                 Throw new \Exception(
-                    self::systemTranslate(
-                        'Invalid parameters'
-                    )
+                    self::systemTranslate('Invalid parameters')
                 );
             }
-
             return false;
-
         }
 
         /**
@@ -207,8 +204,7 @@ namespace Aomebo\Database\Adapters\PDO
                 } else {
                     Throw new \Exception(
                         self::systemTranslate(
-                            'Failed to perform SQL escape, make sure '
-                            . 'there is a database connection'
+                            'Failed to perform SQL escape, make sure there is a database connection'
                         )
                     );
                 }
@@ -243,7 +239,7 @@ namespace Aomebo\Database\Adapters\PDO
         }
 
         /**
-         * Performs an unbuffered query.
+         * Performs an unbuffered query, only available for the MySQL DSN.
          *
          * @param string $sql
          * @return Resultset|bool
@@ -292,10 +288,12 @@ namespace Aomebo\Database\Adapters\PDO
          */
         public function hasError()
         {
-            if ($this->_connected) {
-                return ($this->_con->errorInfo() ? true : false);
+          if ($this->_connected) {
+            if ($error = $this->_con->errorInfo()) {
+              return isset($error[1], $error[2]);
             }
-            return false;
+          }
+          return false;
         }
 
         /**
@@ -304,7 +302,7 @@ namespace Aomebo\Database\Adapters\PDO
         public function getError()
         {
             if ($this->_connected) {
-                return $this->_con->errorCode();
+              return print_r($this->_con->errorInfo(), true);
             } else {
                 return '';
             }
@@ -331,8 +329,8 @@ namespace Aomebo\Database\Adapters\PDO
                     . ' WHERE `SCHEMA_NAME` = {name}',
                     array(
                         'name' => array(
-                            'value' => $databaseName,
-                            'quoted' => true
+                          'value' => (string) $databaseName,
+                          'quoted' => true
                         ),
                     ))
                 ) {
@@ -340,9 +338,7 @@ namespace Aomebo\Database\Adapters\PDO
                 }
             } else {
                 Throw new \Exception(
-                    self::systemTranslate(
-                        'Invalid parameters'
-                    )
+                    self::systemTranslate('Invalid parameters')
                 );
             }
             return false;
@@ -357,15 +353,19 @@ namespace Aomebo\Database\Adapters\PDO
         {
             if (!empty($databaseName)) {
                 if ($this->_con->query(
-                    'USE ' . self::escape($databaseName) . '')
+                  'USE {database}',
+                  array(
+                    'database' => array(
+                      'value' => (string) $databaseName,
+                      'quoted' => true,
+                    ),
+                  ))
                 ) {
                     return true;
                 }
             } else {
                 Throw new \Exception(
-                    self::systemTranslate(
-                        'Invalid parameters'
-                    )
+                    self::systemTranslate('Invalid parameters')
                 );
             }
             return false;
@@ -406,7 +406,7 @@ namespace Aomebo\Database\Adapters\PDO
                             'quoted' => true,
                         ),
                         'table' => array(
-                            'value' => $tableName,
+                          'value' => (string) $tableName,
                             'quoted' => true,
                         ),
                     ))
@@ -418,9 +418,7 @@ namespace Aomebo\Database\Adapters\PDO
                 }
             } else {
                 Throw new \Exception(
-                    self::systemTranslate(
-                        'Invalid parameters'
-                    )
+                    self::systemTranslate('Invalid parameters')
                 );
             }
             return false;
@@ -441,7 +439,7 @@ namespace Aomebo\Database\Adapters\PDO
                     . 'DEFAULT COLLATE="{COLLATE CHARSET}"',
                     array(
                         'database' => array(
-                            'value' => $databaseName,
+                          'value' => (string) $databaseName,
                             'quoted' => false,
                         ),
                     ))
@@ -450,9 +448,7 @@ namespace Aomebo\Database\Adapters\PDO
                 }
             } else {
                 Throw new \Exception(
-                    self::systemTranslate(
-                        'Invalid parameters'
-                    )
+                    self::systemTranslate('Invalid parameters')
                 );
             }
             return false;
@@ -563,9 +559,7 @@ namespace Aomebo\Database\Adapters\PDO
             ) {
                 return \Aomebo\Database\Adapter::getLastInsertId();
             }
-
             return false;
-
         }
 
         /**
@@ -930,7 +924,7 @@ namespace Aomebo\Database\Adapters\PDO
                     }
                 } else {
                     
-                    // TODO: Implement more support for drivers here
+                    // TODO: Implement more support for other DSN drivers here
                     
                     Throw new \Exception(
                         self::systemTranslate('This feature has not been implemented for the current database adapter.')
