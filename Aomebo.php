@@ -63,8 +63,7 @@ final class Aomebo extends \Aomebo\Singleton
         return
             \Aomebo\Configuration::getInstance();
     }
-
-
+  
     /**
      * @static
      * @return \Aomebo\Pointers\Database
@@ -154,8 +153,7 @@ final class Aomebo extends \Aomebo\Singleton
         return
             \Aomebo\Pointers\Response::getInstance();
     }
-
-
+  
     /**
      * @static
      * @return \Aomebo\Pointers\Session
@@ -195,7 +193,6 @@ final class Aomebo extends \Aomebo\Singleton
         return
             \Aomebo\Pointers\Template::getInstance();
     }
-
 
 }
 
