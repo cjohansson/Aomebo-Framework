@@ -63,6 +63,7 @@ namespace Aomebo\Database\Adapters\PDO
          * @throws \Exception
          * @return bool
          * @link http://php.net/manual/en/pdo.construct.php
+         * @link http://php.net/manual/en/pdo.connections.php
          */
         public function connect($host, $user, $password,
             $database, $options)
@@ -75,6 +76,11 @@ namespace Aomebo\Database\Adapters\PDO
                 $dbOptions = array();
                 if (isset($options['options'])) {
                     $dbOptions = $options['options'];
+                }
+                if (isset($options['persistent'])
+                    && !isset($options[\PDO::ATTR_PERSISTENT])
+                ) {
+                    $options[\PDO::ATTR_PERSISTENT] = (!empty($options['persistent']));
                 }
                 
                 try {
@@ -92,16 +98,7 @@ namespace Aomebo\Database\Adapters\PDO
                         return true;
                     }
                     
-                } catch (\Exception $e) {
-                    /*
-                    Throw new \Exception(
-                        sprintf(
-                            __('Failed to construct database connection. Error: "%s"'),
-                            $e->getMessage()
-                        )
-                    );
-                    */
-                }
+                } catch (\Exception $e) {}
 
                 $this->_connected = false;
                 return false;

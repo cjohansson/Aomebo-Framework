@@ -16,7 +16,7 @@
  *
  * @license LGPL version 3
  * @see http://www.aomebo.org/ or https://github.com/cjohansson/Aomebo-Framework
-*/
+ */
 
 /**
  *
