@@ -115,6 +115,18 @@ namespace Aomebo
             'bootstrap';
 
         /**
+         * @var string
+         */
+        const PARAMETER_PASS_EXECUTION_GUARDS =
+                                              'pass_execution_guards';
+
+        /**
+         * @var string
+         */
+        const PARAMETER_RESPOND =
+                                'respond';
+
+        /**
          * @internal
          * @static
          * @var array
@@ -199,7 +211,11 @@ namespace Aomebo
                 /** @define _SYSTEM_START_TIME_     Startup time for system */
                 define('_SYSTEM_START_TIME_', microtime(true));
 
-                // Log errors by default
+                /**
+                 * Default error settings
+                 *
+                 * These settings will later be overridden by site settings
+                 */
                 ini_set('display_errors', false);
                 ini_set('log_errors', true);
                 ini_set('error_reporting', E_ALL);
@@ -208,13 +224,13 @@ namespace Aomebo
                  * Set default time-zone
                  *
                  * This is to prevent PHP for generating any warnings.
-                 * This timezone is soon overridden.
+                 * This time-zone is soon overridden.
                  */
                 date_default_timezone_set('UTC');
 
                 self::$_pid = posix_getpid();
 
-                // Set public internal path
+                // Set public internal path based on back-trace
                 $backtrace = self::getDebugBacktrace(2);
 
                 if (isset($backtrace[1]['file'])) {
@@ -223,7 +239,11 @@ namespace Aomebo
                         dirname($backtrace[1]['file']));
                 }
 
-                // Set public external path
+                /**
+                 * Set public external path
+                 *
+                 * Only possible for requests from web-server (not PHP-client)
+                 */
                 if (isset($_SERVER['PHP_SELF'])
                     && substr($_SERVER['PHP_SELF'], 0, 1) == '/'
                 ) {
@@ -245,6 +265,18 @@ namespace Aomebo
                         self::PARAMETER_SHOW_CONFIGURATION, false);
                 }
 
+                // Pass execution guards by default
+                if (!self::hasParameter(self::PARAMETER_PASS_EXECUTION_GUARDS)) {
+                    self::setParameter(
+                        self::PARAMETER_PASS_EXECUTION_GUARDS, true);
+                }
+
+                // Respond by default
+                if (!self::hasParameter(self::PARAMETER_RESPOND)) {
+                    self::setParameter(
+                        self::PARAMETER_RESPOND, true);
+                }
+                
                 // Any parameters specified?
                 if (isset($parameters)
                     && is_array($parameters)
@@ -255,7 +287,7 @@ namespace Aomebo
                 parent::__construct();
                 self::_flagThisConstructed();
 
-                // Is configuration set and right keys in it?
+                // Do we have a internal and external path specification?
                 if (self::hasParameter(self::PARAMETER_PUBLIC_INTERNAL_PATH)
                     && self::hasParameter(self::PARAMETER_PUBLIC_EXTERNAL_PATH)
                 ) {
@@ -264,7 +296,7 @@ namespace Aomebo
                     if (!self::hasParameter(self::PARAMETER_SITE_PATH)
                         || self::getParameter(self::PARAMETER_SHOW_SETUP)
                     ) {
-
+                        
                         self::setParameter(
                             self::PARAMETER_SITE_PATH,
                             self::_getSetupSitePath()
@@ -273,13 +305,13 @@ namespace Aomebo
 
                     // Otherwise - should configuration be presented?
                     } else if (self::getParameter(self::PARAMETER_SHOW_CONFIGURATION)) {
-
+                        
                         self::setParameter(
                             self::PARAMETER_SITE_PATH,
                             self::_getConfigurationSitePath()
                         );
                         self::$_writingEnabled = false;
-
+                        
                     }
 
                     $parameters = & self::$_parameters;
@@ -304,137 +336,33 @@ namespace Aomebo
                         $parameters[self::PARAMETER_STRUCTURE_EXTERNAL_FILENAME] = '';
                     }
 
-                    // Define system constants
-                    self::_defineConstants($parameters);
+                    self::defineConstantsFromParameters($parameters);
+                    self::applyAutoLoader();
+                    $configuration = \Aomebo\Configuration::getInstance();                    
+                    self::loadApplicationData();
 
-                    // Apply framework default auto-loader
-                    spl_autoload_register(__NAMESPACE__
-                        . '\\Application::autoLoad', true, false);
-
-                    // Get the configuration
-                    $configuration = \Aomebo\Configuration::getInstance();
-
-                    // Load application-data
-                    self::_loadApplicationData();
-
-                    // Try to load configuration
+                    // Can we load configuration?
                     if ($configuration::load(
                         self::getParameter(self::PARAMETER_CONFIGURATION_INTERNAL_FILENAME),
                         self::getParameter(self::PARAMETER_CONFIGURATION_EXTERNAL_FILENAME),
                         self::getParameter(self::PARAMETER_STRUCTURE_INTERNAL_FILENAME),
                         self::getParameter(self::PARAMETER_STRUCTURE_EXTERNAL_FILENAME))
                     ) {
-
-                        self::$_freeMemoryAtInit =
-                            \Aomebo\System\Memory::getSystemFreeMemory();
-
-                        // Update processes
-                        if ($requests = self::getApplicationData('requests')) {
-
-                            $maximumConcurrentRequests =
-                                \Aomebo\Configuration::getSetting('application,maximum concurrent requests');
-                            $maximumConcurrentRequestsPeriod =
-                                \Aomebo\Configuration::getSetting('application,maximum concurrent requests period');
-
-                            if (!is_array($requests)) {
-                                $requests = array();
-                            }
-
-                            // Add current request to list
-                            $requests[self::$_pid] = _SYSTEM_START_TIME_;
-                            $requestTimeout = _SYSTEM_START_TIME_ - $maximumConcurrentRequestsPeriod;
-
-                            do
-                            {
-
-                                // Remove processes which have timed out
-                                foreach ($requests as $pid => $time)
-                                {
-                                    if ($time < $requestTimeout) {
-                                        unset($requests[$pid]);
-                                    }
-                                }
-
-                                if ($maximumConcurrentRequests > 0
-                                    && sizeof($requests) > $maximumConcurrentRequests
-                                ) {
-
-                                    self::setApplicationData(
-                                        'requests',
-                                        $requests,
-                                        true
-                                    );
-
-                                    sleep(1);
-
-                                    $requests = self::getApplicationData('requests', true);
-
-                                }
-
-                            } while($maximumConcurrentRequests > 0
-                                && sizeof($requests) > $maximumConcurrentRequests
-                            );
-
-                            self::setApplicationData(
-                                'requests',
-                                $requests,
-                                true
-                            );
-
-                        } else {
-
-                            self::setApplicationData(
-                                'requests',
-                                array(self::$_pid => _SYSTEM_START_TIME_),
-                                true
-                            );
-
-                        }
-
-                        // Wait until server has enough memory
-                        if (!\Aomebo\System\Memory::systemHasEnoughMemory()) {
-                            while (!\Aomebo\System\Memory::systemHasEnoughMemory())
-                            {
-                                sleep(1);
-                            }
-                        }
-
-                        // Store setting if autoload should trigger exception
-                        $this->setAutoloadFailureTriggersException(
+                        
+                        self::setAutoloadFailureTriggersException(
                             \Aomebo\Configuration::getSetting('output,autoload failure triggers exception'));
 
-                        // Load file-system class
-                        new \Aomebo\Filesystem();
-                            
-                        // Load runtimes
-                        self::_loadRuntimes();
-
-                        // Load site class (if any)
-                        self::_loadSiteClass();
-
-                        // Load feedback engine
-                        new \Aomebo\Feedback\Debug();
-
-                        // Load interpreter engine
-                        new \Aomebo\Interpreter\Engine();
-
-                        // Load dispatcher for analyzing of request
-                        new \Aomebo\Dispatcher\System();
-
-                        // Load the response handler
-                        new \Aomebo\Response\Handler();
-
-                        if (\Aomebo\Response\Handler::hasResponse()) {
-                            \Aomebo\Response\Handler::respond();
-                        } else {
-                            \Aomebo\Dispatcher\System::setHttpResponseStatus400BadRequest();
+                        if (!empty(self::getParameter(self::PARAMETER_PASS_EXECUTION_GUARDS))) {
+                            self::passExecutionGuards();
                         }
 
+                        if (!empty(self::getParameter(self::PARAMETER_RESPOND))) {
+                            self::respond();
+                        }
+                        
                     } else {
                         Throw new \Exception(
-                            self::systemTranslate(
-                                'Failed to load configuration.'
-                            )
+                            self::systemTranslate('Failed to load configuration.')
                         );
                     }
                 } else {
@@ -449,6 +377,126 @@ namespace Aomebo
                 }
 
             }
+        }
+
+        /**
+         * Guards the number of allow concurrent requests
+         * and also awaits enough free memory.
+         *
+         * @static
+         */
+        public static function passExecutionGuards()
+        {
+            
+            self::$_freeMemoryAtInit =
+                                     \Aomebo\System\Memory::getSystemFreeMemory();
+
+            // Do we have a list of concurrent requests?
+            if ($requests = self::getApplicationData('requests')) {
+
+                $maximumConcurrentRequests =
+                                           \Aomebo\Configuration::getSetting('application,maximum concurrent requests');
+                $maximumConcurrentRequestsPeriod =
+                                                 \Aomebo\Configuration::getSetting('application,maximum concurrent requests period');
+
+                if (!is_array($requests)) {
+                    $requests = array();
+                }
+
+                // Add current request to list
+                $requests[self::$_pid] = _SYSTEM_START_TIME_;
+                $requestTimeout = _SYSTEM_START_TIME_ - $maximumConcurrentRequestsPeriod;
+
+                do
+                {
+                    // Remove processes which have timed out
+                    foreach ($requests as $pid => $time)
+                    {
+                        if ($time < $requestTimeout) {
+                            unset($requests[$pid]);
+                        }
+                    }
+                    if ($maximumConcurrentRequests > 0
+                        && sizeof($requests) > $maximumConcurrentRequests
+                    ) {
+                        self::setApplicationData(
+                            'requests',
+                            $requests,
+                            true
+                        );
+                        sleep(1);
+                        $requests = self::getApplicationData('requests', true);
+                    }
+                } while($maximumConcurrentRequests > 0
+                        && sizeof($requests) > $maximumConcurrentRequests
+                );
+
+                self::setApplicationData(
+                    'requests',
+                    $requests,
+                    true
+                );
+
+            } else {
+                self::setApplicationData(
+                    'requests',
+                    array(self::$_pid => _SYSTEM_START_TIME_),
+                    true
+                );
+            }
+
+            // Wait until server has enough memory
+            if (!\Aomebo\System\Memory::systemHasEnoughMemory()) {
+                while (!\Aomebo\System\Memory::systemHasEnoughMemory())
+                {
+                    sleep(1);
+                }
+            }
+            
+        }
+
+        /**
+         * @static
+         */
+        public static function respond()
+        {
+            
+            // Load file-system class
+            new \Aomebo\Filesystem();
+                            
+            // Load run-times
+            self::_loadRuntimes();
+
+            // Load site class (if any)
+            self::_loadSiteClass();
+
+            // Load feedback engine
+            new \Aomebo\Feedback\Debug();
+
+            // Load interpreter engine
+            new \Aomebo\Interpreter\Engine();
+
+            // Load dispatcher for analyzing of request
+            new \Aomebo\Dispatcher\System();
+
+            // Load the response handler
+            new \Aomebo\Response\Handler();
+
+            if (\Aomebo\Response\Handler::hasResponse()) {
+                \Aomebo\Response\Handler::respond();
+            } else {
+                \Aomebo\Dispatcher\System::setHttpResponseStatus400BadRequest();
+            }
+
+        }
+
+        /**
+         * @static
+         */
+        public static function applyAutoLoader()
+        {
+            spl_autoload_register(__NAMESPACE__
+                                  . '\\Application::autoLoad', true, false);
         }
 
         /**
@@ -733,7 +781,7 @@ namespace Aomebo
         {
             if (!empty($key)) {
                 if (!empty($reloadFromFilesystem)) {
-                    self::_loadApplicationData();
+                    self::loadApplicationData();
                 }
                 if (isset(self::$_applicationData[$key])) {
                     return self::$_applicationData[$key];
@@ -1219,9 +1267,7 @@ namespace Aomebo
                             ) {
                                 Throw new \Exception(
                                     sprintf(
-                                        self::systemTranslate(
-                                            'Failed to construct runtime "%s".'
-                                        ),
+                                        self::systemTranslate('Failed to construct runtime "%s".'),
                                         $foundClassName
                                     )
                                 );
@@ -1236,12 +1282,29 @@ namespace Aomebo
         }
 
         /**
-         * @internal
+         * @static
+         */
+        public static function loadApplicationData()
+        {
+            if (file_exists(self::_getApplicationDataPath())) {
+                if ($fileData = file_get_contents(
+                    self::_getApplicationDataPath())
+                ) {
+                    try {
+                        if ($jsonData = json_decode($fileData, true)) {
+                            self::$_applicationData = $jsonData;
+                        }
+                    } catch (\Exception $e) {}
+                }
+            }
+        }
+        
+        /**
          * @static
          * @param array $parameters
          * @throws \Exception
          */
-        private static function _defineConstants($parameters)
+        public static function defineConstantsFromParameters($parameters)
         {
             if (isset($parameters)
                 && is_array($parameters)
@@ -1296,9 +1359,7 @@ namespace Aomebo
                 }
             } else {
                 Throw new \Exception(
-                    self::systemTranslate(
-                        'Invalid parameters.'
-                    )
+                    self::systemTranslate('Invalid parameters.')
                 );
             }
         }
@@ -1323,25 +1384,6 @@ namespace Aomebo
         {
             return __DIR__ . DIRECTORY_SEPARATOR . 'Configuration' . DIRECTORY_SEPARATOR
                 . 'Setup' . DIRECTORY_SEPARATOR . 'private';
-        }
-
-        /**
-         * @internal
-         * @static
-         */
-        private static function _loadApplicationData()
-        {
-            if (file_exists(self::_getApplicationDataPath())) {
-                if ($fileData = file_get_contents(
-                    self::_getApplicationDataPath())
-                ) {
-                    try {
-                        if ($jsonData = json_decode($fileData, true)) {
-                            self::$_applicationData = $jsonData;
-                        }
-                    } catch (\Exception $e) {}
-                }
-            }
         }
 
         /**
