@@ -171,17 +171,13 @@ namespace Aomebo\Database
         public function __construct()
         {
             if (!self::_isConstructed()) {
-
                 parent::__construct();
-
                 $databaseConfiguration =
                     \Aomebo\Configuration::getSetting('database');
-
                 if (!empty($databaseConfiguration['host'])
                     && !empty($databaseConfiguration['username'])
                     && !empty($databaseConfiguration['database'])
                 ) {
-
                     if (self::connect(
                         $databaseConfiguration['host'],
                         $databaseConfiguration['username'],
@@ -189,33 +185,23 @@ namespace Aomebo\Database
                         $databaseConfiguration['database'],
                         (isset($databaseConfiguration['options']) ? $databaseConfiguration['options'] : null))
                     ) {
-
                         self::_flagThisConstructed();
-
                     } else {
-
                         self::_flagThisConstructed();
-
                         \Aomebo\Trigger\System::processTriggers(
                             \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_CONNECTION_FAIL);
-
                         Throw new \Exception(
                             sprintf(
                                 self::systemTranslate(
-                                    'Could not connect to database server in '
-                                    . '%s in %s. Check your configuration.'
+                                    'Could not connect to database server in "%s" in "%s". Check your configuration.'
                                 ),
                                 __METHOD__,
                                 __FILE__
                             )
                         );
-
                     }
-
                 } else {
-
                     self::_flagThisConstructed();
-
                 }
             }
         }
@@ -226,8 +212,8 @@ namespace Aomebo\Database
          */
         public static function getDatabase()
         {
-            return (!empty(self::$_database) ? 
-                self::$_database : false);
+            self::_instanciate();
+            return (!empty(self::$_database) ? self::$_database : false);
         }
 
         /**
@@ -236,6 +222,7 @@ namespace Aomebo\Database
          */
         public static function getQueryCount()
         {
+            self::_instanciate();
             return self::$_queryCount;
         }
 
@@ -245,6 +232,7 @@ namespace Aomebo\Database
          */
         public static function getQueries()
         {
+            self::_instanciate();
             return self::$_queries;
         }
 
@@ -264,10 +252,8 @@ namespace Aomebo\Database
          */
         public static function useDatabase()
         {
-
             self::_instanciate();
             return !empty(self::$_useDatabase);
-
         }
 
         /**
@@ -276,11 +262,11 @@ namespace Aomebo\Database
          */
         public static function useDatabaseAndIsConnected()
         {
-
+            self::_instanciate();
             return (
-                self::useDatabase() && self::isConnected()
+                self::useDatabase()
+                && self::isConnected()
             );
-
         }
 
         /**
@@ -290,8 +276,7 @@ namespace Aomebo\Database
         public static function getNativeAdapter()
         {
             self::_instanciate();            
-            return (isset(self::$_object) ? 
-                self::$_object->getNativeObject() : null);
+            return (isset(self::$_object) ? self::$_object->getNativeObject() : null);
         }
 
         /**
@@ -303,21 +288,16 @@ namespace Aomebo\Database
          */
         public static function selectDatabase($databaseName)
         {
-
             self::_instanciate();
-
             if (self::$_object->selectDatabase($databaseName)) {
                 if ($selectedDatabase = self::getSelectedDatabase()) {
                     if ($selectedDatabase == $databaseName) {
                         return true;
                     } else {
-
                         Throw new \Exception(
                             sprintf(
                                 self::systemTranslate(
-                                    'Selected database "%s" '
-                                    . 'does not match requested database '
-                                    . '"%s" in %s in %s'
+                                    'Selected database "%s" does not match requested database "%s" in "%s" in "%s"'
                                 ),
                                 $selectedDatabase,
                                 $databaseName,
@@ -325,25 +305,20 @@ namespace Aomebo\Database
                                 __FILE__
                             )
                         );
-
                     }
                 } else {
-
                     Throw new \Exception(
                         sprintf(
                             self::systemTranslate(
-                                'Failed to get selected database in %s in %s'
+                                'Failed to get selected database in "%s" in "%s"'
                             ),
                             __METHOD__,
                             __FILE__
                         )
                     );
-
                 }
             }
-
             return false;
-
         }
 
         /**
@@ -352,48 +327,40 @@ namespace Aomebo\Database
          */
         public static function getSelectedDatabase()
         {
-            return
-                (self::isConnected() ? self::$_object->getSelectedDatabase() : false);
+            self::_instanciate();
+            return (self::isConnected() ? self::$_object->getSelectedDatabase() : false);
         }
 
         /**
          * This method returns whether we are connected
          * to database or not.
          *
-         * @internal
          * @static
          * @return bool
          */
         public static function isConnected()
         {
-
             self::_instanciate();
             return (!empty(self::$_connected) ? true : false);
-
         }
 
         /**
          * @static
          * @param mixed $value
-         * @throws \Exception
+         * @throws \Aomebo\Exceptions\InvalidParametersException
          * @return mixed
          */
         public static function escape($value)
         {
-
             self::_instanciate();
-
             if (isset($value)
                 && !is_array($value)
                 && self::isConnected()
             ) {
                 return self::$_object->escape($value);
             } else {
-                Throw new \Exception(
-                    self::systemTranslate('Invalid parameters')
-                );
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
-
         }
 
         /**
@@ -404,15 +371,11 @@ namespace Aomebo\Database
          */
         public static function getLastSql()
         {
-
             self::_instanciate();
-
             if (!empty(self::$_lastSql)) {
                 return self::$_lastSql;
             }
-
             return false;
-
         }
 
         /**
@@ -421,17 +384,11 @@ namespace Aomebo\Database
          */
         public static function useResult()
         {
-
-            if (!self::_isConstructed()) {
-                self::getInstance();
-            }
-
+            self::_instanciate();
             if (isset(self::$_object)) {
                 return self::$_object->useResult();
             }
-
             return false;
-
         }
 
         /**
@@ -440,17 +397,11 @@ namespace Aomebo\Database
          */
         public static function storeResult()
         {
-
-            if (!self::_isConstructed()) {
-                self::getInstance();
-            }
-
+            self::_instanciate();
             if (isset(self::$_object)) {
                 return self::$_object->storeResult();
             }
-
             return false;
-
         }
 
         /**
@@ -461,17 +412,11 @@ namespace Aomebo\Database
          */
         public static function getLastInsertId()
         {
-
-            if (!self::_isConstructed()) {
-                self::getInstance();
-            }
-
+            self::_instanciate();
             if (isset(self::$_object)) {
                 return self::$_object->getLastInsertId();
             }
-
             return false;
-
         }
 
         /**
@@ -480,8 +425,8 @@ namespace Aomebo\Database
          */
         public static function getLastError()
         {
-            return
-                (!empty(self::$_lastError) ? self::$_lastError : false);
+            self::_instanciate();
+            return (!empty(self::$_lastError) ? self::$_lastError : false);
         }
 
         /**
@@ -492,6 +437,7 @@ namespace Aomebo\Database
          */
         public static function quote($value, $escape = true)
         {
+            self::_instanciate();
             return self::$_quoteChar
                 . (!empty($escape) ? self::escape((string) $value) : (string) $value)
                 . self::$_quoteChar;
@@ -505,8 +451,8 @@ namespace Aomebo\Database
          */
         public static function backquote($value, $escape = true)
         {
-            return
-                self::$_backQuoteChar
+            self::_instanciate();
+            return self::$_backQuoteChar
                 . (!empty($escape) ? self::escape((string) $value) : (string) $value)
                 . self::$_backQuoteChar;
         }
@@ -516,10 +462,11 @@ namespace Aomebo\Database
          * @param \Aomebo\Database\Adapters\Table $table
          * @param array $columnsAndValues
          * @return int|bool
-         * @throws \Exception
+         * @throws \Aomebo\Exceptions\InvalidParametersException
          */
         public static function tableAdd($table, $columnsAndValues)
         {
+            self::_instanciate();
             if (isset($table, $columnsAndValues)
                 && is_array($columnsAndValues)
                 && sizeof($columnsAndValues) > 0
@@ -529,9 +476,7 @@ namespace Aomebo\Database
                     $columnsAndValues
                 );
             } else {
-                Throw new \Exception(
-                    self::systemTranslate('Invalid parameters')
-                );
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
         }
 
@@ -542,10 +487,11 @@ namespace Aomebo\Database
          * @param array|null [$where = null]
          * @param int|null [$limit = 1]
          * @return bool
-         * @throws \Exception
+         * @throws \Aomebo\Exceptions\InvalidParametersException
          */
         public static function tableUpdate($table, $set, $where = null, $limit = 1)
         {
+            self::_instanciate();
             if (isset($table, $set)
                 && is_array($set)
                 && sizeof($set) > 0
@@ -557,9 +503,7 @@ namespace Aomebo\Database
                     $limit
                 );
             } else {
-                Throw new \Exception(
-                    self::systemTranslate('Invalid parameters')
-                );
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
         }
 
@@ -572,14 +516,14 @@ namespace Aomebo\Database
          * @param array|null [$orderBy = null]
          * @param int|null [$limit = null]
          * @return \Aomebo\Database\Adapters\Resultset|bool
-         * @throws \Exception
+         * @throws \Aomebo\Exceptions\InvalidParametersException
          */
         public static function tableSelect($table, $columns = null,
             $where = null, $groupBy = null, $orderBy = null,
             $limit = null)
         {
-            if (isset($table)
-            ) {
+            self::_instanciate();
+            if (isset($table)) {
                 return self::$_object->tableSelect(
                     $table,
                     $columns,
@@ -589,9 +533,7 @@ namespace Aomebo\Database
                     $limit
                 );
             } else {
-                Throw new \Exception(
-                    self::systemTranslate('Invalid parameters')
-                );
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
         }
 
@@ -600,19 +542,17 @@ namespace Aomebo\Database
          * @static
          * @param \Aomebo\Database\Adapters\Table $table
          * @return bool
-         * @throws \Exception
+         * @throws \Aomebo\Exceptions\InvalidParametersException
          */
         public static function tableCreate($table)
         {
-            if (isset($table)
-            ) {
+            self::_instanciate();
+            if (isset($table)) {
                 return self::$_object->tableCreate(
                     $table
                 );
             } else {
-                Throw new \Exception(
-                    self::systemTranslate('Invalid parameters')
-                );
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
         }
 
@@ -620,19 +560,17 @@ namespace Aomebo\Database
          * @static
          * @param \Aomebo\Database\Adapters\Table $table
          * @return bool
-         * @throws \Exception
+         * @throws \Aomebo\Exceptions\InvalidParametersException
          */
         public static function tableDrop($table)
         {
-            if (isset($table)
-            ) {
+            self::_instanciate();
+            if (isset($table)) {
                 return self::$_object->tableDrop(
                     $table
                 );
             } else {
-                Throw new \Exception(
-                    self::systemTranslate('Invalid parameters')
-                );
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
         }
 
@@ -642,10 +580,11 @@ namespace Aomebo\Database
          * @param array|null [$where = null]
          * @param int|null [$limit = 1]
          * @return bool
-         * @throws \Exception
+         * @throws \Aomebo\Exceptions\InvalidParametersException
          */
         public static function tableDelete($table, $where = null, $limit = 1)
         {
+            self::_instanciate();
             if (isset($table)) {
                 return self::$_object->tableDelete(
                     $table,
@@ -653,9 +592,7 @@ namespace Aomebo\Database
                     $limit
                 );
             } else {
-                Throw new \Exception(
-                    self::systemTranslate('Invalid parameters')
-                );
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
         }
 
@@ -668,9 +605,7 @@ namespace Aomebo\Database
          */
         public static function tableExists($rawTableName)
         {
-
             self::_instanciate();
-
             if (self::isConnected()) {
 
                 if (is_a($rawTableName,
@@ -705,9 +640,7 @@ namespace Aomebo\Database
          */
         public static function getNextInsertId($rawTableName)
         {
-
             self::_instanciate();
-
             if (self::isConnected()) {
 
                 if (is_a($rawTableName,
@@ -729,9 +662,7 @@ namespace Aomebo\Database
                 }
 
             }
-
             return false;
-
         }
 
         /**
@@ -746,6 +677,7 @@ namespace Aomebo\Database
             $quotation = false,
             $escaped = true)
         {
+            self::_instanciate();
             $queryValue = array(
                 'value' => $value,
             );
@@ -783,6 +715,7 @@ namespace Aomebo\Database
          */
         public static function preparef($sql, $values = null)
         {
+            self::_instanciate();
             if (self::isConnected()) {
 
                 $newValues = array();
@@ -847,6 +780,7 @@ namespace Aomebo\Database
              $unbuffered = false, $throwExceptionOnFailure = true,
              $allowMultipleQueries = false)
         {
+            self::_instanciate();
             if (self::isConnected()) {
 
                 $query = self::preparef(
@@ -896,10 +830,9 @@ namespace Aomebo\Database
             } else {
                 Throw new \Exception(
                     sprintf(
-                        self::systemTranslate('Can\'t query "%s" when database '
-                            . 'connection hasn\'t been established. '
-                            . 'Database adapter constructed: ' .
-                            (self::_isConstructed() ? 'YES' : 'NO')),
+                        self::systemTranslate(
+                            "Can't query '%s' when database connection hasn't been established."
+                        ),
                         $sql
                     )
                 );
@@ -921,6 +854,7 @@ namespace Aomebo\Database
          */
         public static function prepare($sql, $values = null)
         {
+            self::_instanciate();
             if (self::isConnected()) {
 
                 if (isset($values)
@@ -1035,6 +969,7 @@ namespace Aomebo\Database
         public static function query($sql, $values = null,
             $unbuffered = false, $throwExceptionOnFailure = true)
         {
+            self::_instanciate();
             if (self::isConnected()) {
 
                 $query = self::prepare(
@@ -1066,7 +1001,6 @@ namespace Aomebo\Database
 
                 } else {
                     if (!empty($sql)) {
-
                         Throw new \Exception(
                             sprintf(
                                 self::systemTranslate(
@@ -1076,7 +1010,6 @@ namespace Aomebo\Database
                                 __FUNCTION__
                             )
                         );
-
                     }
                 }
 
@@ -1085,10 +1018,9 @@ namespace Aomebo\Database
             } else {
                 Throw new \Exception(
                     sprintf(
-                        self::systemTranslate('Can\'t query "%s" when database '
-                        . 'connection hasn\'t been established. '
-                        . 'Database adapter constructed: ' .
-                        (self::_isConstructed() ? 'YES' : 'NO')),
+                        self::systemTranslate(
+                            "Can't query '%s' when database connection hasn't been established."
+                        ),
                         $sql
                     )
                 );
@@ -1098,12 +1030,12 @@ namespace Aomebo\Database
         /**
          * This method closes database connection.
          *
-         * @internal
          * @static
          * @return bool
          */
         public static function disconnect()
         {
+            self::_instanciate();
             if (self::isConnected()) {
                 if (self::$_object->disconnect()) {
                     return true;
@@ -1116,44 +1048,39 @@ namespace Aomebo\Database
          * @static
          * @param mixed $key
          * @param bool [$escape = true]
-         * @throws \Exception
+         * @throws \Aomebo\Exceptions\InvalidParametersException
          * @return string
          */
         public static function formatQueryReplaceKey($key,
             $escape = true)
         {
+            self::_instanciate();
             if (!empty($key)) {
                 return '{' . strtolower(
-                    (!empty($escape) ? self::escape((string) $key)
-                    : (string) $key))
+                    (!empty($escape) ? self::escape((string) $key) : (string) $key))
                     . '}';
             } else {
-                Throw new \Exception(
-                    self::systemTranslate('Invalid parameters')
-                );
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
         }
 
         /**
-         * @internal
          * @static
          * @param mixed $key
          * @param bool [$escape = true]
-         * @throws \Exception
+         * @throws \Aomebo\Exceptions\InvalidParametersException
          * @return string
          */
         public static function formatQuerySystemReplaceKey($key,
             $escape = true)
         {
+            self::_instanciate();
             if (!empty($key)) {
                 return '{' . strtoupper(
-                    (!empty($escape) ? self::escape((string) $key)
-                        : (string) $key))
+                    (!empty($escape) ? self::escape((string) $key) : (string) $key))
                 . '}';
             } else {
-                Throw new \Exception(
-                    self::systemTranslate('Invalid parameters')
-                );
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
         }
 
@@ -1163,6 +1090,7 @@ namespace Aomebo\Database
          */
         public static function beginTransaction()
         {
+            self::_instanciate();
             if (self::isConnected()) {
                 return self::$_object->beginTransaction();
             }
@@ -1175,6 +1103,7 @@ namespace Aomebo\Database
          */
         public static function commitTransaction()
         {
+            self::_instanciate();
             if (self::isConnected()) {
                 return self::$_object->commitTransaction();
             }
@@ -1187,6 +1116,7 @@ namespace Aomebo\Database
          */
         public static function rollbackTransaction()
         {
+            self::_instanciate();
             if (self::isConnected()) {
                 return self::$_object->rollbackTransaction();
             }
@@ -1200,6 +1130,7 @@ namespace Aomebo\Database
          */
         public static function executeTransaction($transaction)
         {
+            self::_instanciate();
             if (self::isConnected()) {
                 if (isset($transaction)
                     && is_a($transaction,
@@ -1212,11 +1143,11 @@ namespace Aomebo\Database
         }
 
         /**
-         * Execute SQL query.
+         * Execute a SQL query.
          *
          * @internal
          * @static
-         * @param string $sql                   WARNING! No escaping is done on SQL
+         * @param string $sql                   WARNING! No escaping is done on this SQL
          * @param bool [$unbuffered = false]
          * @param string [$sqlKey = '']
          * @param int [$queryCount = 1]
@@ -1229,6 +1160,7 @@ namespace Aomebo\Database
             $sqlKey = '', $queryCount = 1,
             $throwExceptionOnFailure = true)
         {
+            self::_instanciate();
             if (self::isConnected()) {
                 
                 self::$_queries[] = $sql;
@@ -1270,16 +1202,15 @@ namespace Aomebo\Database
                             self::$_lastError = self::$_object->getError();
 
                             if ($throwExceptionOnFailure) {
-
                                 Throw new \Exception(
                                     sprintf(
-                                        self::systemTranslate('Query:' . "<p>\n%s</p>\n returned error:<p>\n"
-                                            . "<p>\n%s</p>"),
+                                        self::systemTranslate(
+                                            'Query: "%s" returned error: "%s"'
+                                        ),
                                         $sql,
                                         self::$_object->getError()
                                     )
                                 );
-
                             }
                         }
 
@@ -1310,16 +1241,15 @@ namespace Aomebo\Database
                                 self::$_object->getError();
 
                             if ($throwExceptionOnFailure) {
-
                                 Throw new \Exception(
                                     sprintf(
-                                        self::systemTranslate('Query:' . "<p>\n%s</p>\n returned error:<p>\n"
-                                            . "<p>\n%s</p>"),
+                                        self::systemTranslate(
+                                            'Query: "%s" returned error: "%s"'
+                                        ),
                                         $sql,
                                         self::$_object->getError()
                                     )
                                 );
-
                             }
                         }
 
@@ -1328,17 +1258,14 @@ namespace Aomebo\Database
             } else {
                 Throw new \Exception(
                     sprintf(
-                        self::systemTranslate('Can\'t query "%s" when database '
-                            . 'connection hasn\'t been established. '
-                            . 'Database adapter constructed: ' .
-                            (self::_isConstructed() ? 'YES' : 'NO')),
+                        self::systemTranslate(
+                            "Can't query '%s' when database connection hasn't been established."
+                        ),
                         $sql
                     )
                 );
             }
-
             return false;
-
         }
 
         /**
@@ -1359,7 +1286,7 @@ namespace Aomebo\Database
             $password, $database, $options = null, 
             $select = true, $throwExceptionOnFailure = true)
         {
-
+            self::_instanciate();
             self::$_connected = false;
             self::$_useDatabase = false;
             self::$_database = false;
@@ -1517,8 +1444,8 @@ namespace Aomebo\Database
                     Throw new \Exception(
                         sprintf(
                             self::systemTranslate(
-                                'Could not find Database adapter class or database resultset class: '
-                                . '%s, %s'),
+                                'Could not find Database adapter class or database resultset class: %s, %s'
+                            ),
                             $dbClass,
                             $resultsetClass
                         )
@@ -1534,18 +1461,17 @@ namespace Aomebo\Database
          * @static
          * @param string $tableName
          * @return array
-         * @throws \Exception
+         * @throws \Aomebo\Exceptions\InvalidParametersException
          */
         public static function getTableColumns($tableName)
         {
+            self::_instanciate();
             if (!empty($tableName)) {
                 if (self::isConnected()) {
                     return self::$_object->getTableColumns($tableName);
                 }
             } else {
-                Throw new \Exception(
-                    self::systemTranslate('Invalid parameters')
-                );
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
             return false;
         }
@@ -1559,6 +1485,7 @@ namespace Aomebo\Database
          */
         public static function tableHasColumn($tableName, $columnName)
         {
+            self::_instanciate();
             if (!empty($tableName)
                 && !empty($columnName)
             ) {
@@ -1582,30 +1509,24 @@ namespace Aomebo\Database
          */
         public static function addReplaceKey($key, $value)
         {
+            self::_instanciate();
             if (!empty($key)
                 && !empty($value)
             ) {
-
                 $replaceKey = self::formatQueryReplaceKey(
                     $key,
                     false
                 );
-
                 if (!isset(self::$_replaceKeysList[$replaceKey])) {
-
                     self::$_replaceKeys[] =
                         $replaceKey;
                     self::$_replaceValues[] =
                         $value;
                     self::$_replaceKeysList[$replaceKey] =
                         $value;
-
                 }
-
             }
-
             return false;
-
         }
 
         /**
@@ -1617,6 +1538,7 @@ namespace Aomebo\Database
          */
         public static function addSystemReplaceKey($key, $value)
         {
+            self::_instanciate();
             if (!empty($key)
                 && !empty($value)
             ) {
@@ -1677,6 +1599,7 @@ namespace Aomebo\Database
          */
         private static function _isInstalled($database)
         {
+            self::_instanciate();
             if (self::isConnected()) {
                 if (self::$_object->databaseExists($database)) {
                     return true;
@@ -1693,8 +1616,8 @@ namespace Aomebo\Database
          */
         private static function _install($database)
         {
+            self::_instanciate();
             if (self::isConnected()) {
-
                 if (\Aomebo\Configuration::getSetting(
                     'database,create database')
                 ) {
@@ -1704,7 +1627,6 @@ namespace Aomebo\Database
                 } else {
                     return true;
                 }
-
             }
             return false;
         }
