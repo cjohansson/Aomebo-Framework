@@ -352,11 +352,11 @@ namespace Aomebo
                         self::setAutoloadFailureTriggersException(
                             \Aomebo\Configuration::getSetting('output,autoload failure triggers exception'));
 
-                        if (!empty(self::getParameter(self::PARAMETER_PASS_EXECUTION_GUARDS))) {
+                        if (self::getParameter(self::PARAMETER_PASS_EXECUTION_GUARDS)) {
                             self::passExecutionGuards();
                         }
 
-                        if (!empty(self::getParameter(self::PARAMETER_RESPOND))) {
+                        if (self::getParameter(self::PARAMETER_RESPOND)) {
                             self::respond();
                         }
                         
