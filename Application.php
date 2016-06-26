@@ -981,16 +981,13 @@ namespace Aomebo
                 $cacheKey,
                 \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM)
             ) {
-
                 if ($data = \Aomebo\Cache\System::loadCache(
                     $cacheParameters,
                     $cacheKey,
                     \Aomebo\Cache\System::FORMAT_SERIALIZE,
                     \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM)
                 ) {
-
                     $loadedCache = true;
-
                     try
                     {
                         if (!empty($data['runtimes'])) {
@@ -1025,14 +1022,17 @@ namespace Aomebo
                                 $loadedCache = false;
                             }
                         }
-                    } catch (\Exception $e) {}
-
+                    } catch (\Exception $e) {
+                        \Aomebo\Feedback\Debug::output(sprintf(
+                            self::systemTranslate('Loading run-times and routes cache returned error "%s"'),
+                            $e->getMessage()
+                        ));
+                        $loadedCache = false;
+                    }
                 }
-
             }
 
             if (!$loadedCache) {
-
                 if ($useRuntimeCache) {
                     \Aomebo\Cache\System::clearCache(
                         $cacheParameters,
