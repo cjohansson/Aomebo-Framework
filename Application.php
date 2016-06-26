@@ -842,6 +842,7 @@ namespace Aomebo
                 foreach ($trySubPaths as $trySubPath)
                 {
                     $tryPath = $autoLoadPath . $trySubPath;
+                    $triedPaths[] = $tryPath;
                     if (file_exists($tryPath)) {
                         try {
                             require_once($tryPath);
@@ -857,8 +858,6 @@ namespace Aomebo
                                 )
                             );
                         }
-                    } else {
-                        $triedPaths[] = $tryPath;
                     }
                     if ($foundFile) {
                         break;
