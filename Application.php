@@ -494,9 +494,9 @@ namespace Aomebo
         public static function respond()
         {
             new \Aomebo\Filesystem();
+            new \Aomebo\Feedback\Debug();
             self::loadRuntimes();
             self::loadSiteClass();
-            new \Aomebo\Feedback\Debug();
             new \Aomebo\Interpreter\Engine();
             new \Aomebo\Dispatcher\System();
             new \Aomebo\Response\Handler();
@@ -995,16 +995,32 @@ namespace Aomebo
                     {
                         if (!empty($data['runtimes'])) {
                             if ($runtimes = @unserialize($data['runtimes'])) {
-                                self::$_runtimes = $runtimes;
+                                if (is_array($runtimes)
+                                    && sizeof($runtimes) > 0
+                                ) {
+                                    self::$_runtimes = $runtimes;
+                                } else {
+                                    \Aomebo\Feedback\Debug::output(self::systemTranslate(
+                                        'Run-times cache returned zero run-times. Cleaning.'
+                                    ));
+                                    $loadedCache = false;
+                                }
                             } else {
                                 $loadedCache = false;
                             }
                         }
                         if (!empty($data['routes'])) {
                             if ($routes = @unserialize($data['routes'])) {
-                                \Aomebo\Dispatcher\System::setRoutes(
-                                    $routes
-                                );
+                                if (is_array($routes)
+                                    && sizeof($routes) > 0
+                                ) {
+                                    \Aomebo\Dispatcher\System::setRoutes($routes);
+                                } else {
+                                    \Aomebo\Feedback\Debug::output(self::systemTranslate(
+                                        'Routes cache returned zero routes. Cleaning.'
+                                    ));
+                                    $loadedCache = false;
+                                }
                             } else {
                                 $loadedCache = false;
                             }

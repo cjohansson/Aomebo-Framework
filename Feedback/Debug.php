@@ -54,7 +54,7 @@ namespace Aomebo\Feedback
                     \Aomebo\Configuration::getSetting('feedback,display startup errors'));
                 ini_set('log_errors',
                     \Aomebo\Configuration::getSetting('feedback,log errors'));
-                
+
                 if (\Aomebo\Application::isWritingnabled()) {
                     $logLocation = _SITE_ROOT_
                         . \Aomebo\Configuration::getSetting('feedback,error log');
