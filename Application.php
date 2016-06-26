@@ -808,30 +808,39 @@ namespace Aomebo
         }
 
         /**
-         * @todo Optimize this function
          * @static
          * @param string $name
          * @throws \Exception
          */
         public static function autoLoad($name)
         {
+            $trySubPaths = array();
 
-            $path = str_replace('\\', DIRECTORY_SEPARATOR, $name) . _PHP_EX_;
+            if ($explodes = explode('\\', $name)) {
 
-            // Remove starting slash
-            if (substr($path, 0, 1) == DIRECTORY_SEPARATOR) {
-                $path = substr($path, 1);
-            }
+                $path = implode(DIRECTORY_SEPARATOR, $explodes) . _PHP_EX_;
 
-            $trySubPaths = array($path);
+                $trySubPaths[] = $path;
 
-            // Does path start with framework namespace ?
-            if (strlen($path) >= 7) {
-                if (substr($path, 0, 7) ==
-                    'Aomebo'  . DIRECTORY_SEPARATOR
-                ) {
-                    $trySubPaths[] = substr($path, 7);
+                // Support framework files from this directory
+                if (strlen($path) >= 7) {
+                    if (substr($path, 0, 7) ==
+                        'Aomebo'  . DIRECTORY_SEPARATOR
+                    ) {
+                        $trySubPaths[] = substr($path, 7);
+                    }
                 }
+
+                $sizeof = sizeof($explodes);
+
+                // Support files like "\Modules\Cron\Cron" when calling "\Modules\Cron\Module"
+                if ($sizeof > 2) {
+                    $explodes[$sizeof - 1] = $explodes[$sizeof - 2];
+                    $trySubPaths[] = implode(DIRECTORY_SEPARATOR, $explodes) . _PHP_EX_;
+                }
+
+            } else {
+                $trySubPaths[] = $name . _PHP_EX_;
             }
 
             $triedPaths = array();
