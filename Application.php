@@ -24,16 +24,16 @@
 namespace Aomebo
 {
 
-    // This line is required in order to be able to use Aomebo\Exceptions
+    // This line is required in order to be able to use \Aomebo\Exceptions
     require_once(__DIR__ . DIRECTORY_SEPARATOR . 'Exceptions.php');
 
-    // This line is required in order to be able to extend Aomebo Base class.
+    // This line is required in order to be able to extend the \Aomebo\Base class.
     require_once(__DIR__ . DIRECTORY_SEPARATOR . 'Base.php');
 
-    // This line is required in order to be able to extend Aomebo Singleton class.
+    // This line is required in order to be able to extend the \Aomebo\Singleton class.
     require_once(__DIR__ . DIRECTORY_SEPARATOR . 'Singleton.php');
 
-    // This line is required in order to be able to extend Aomebo Singleton class.
+    // This line is required in order to be able to keep references to frameworks objects
     require_once(__DIR__ . DIRECTORY_SEPARATOR . 'Aomebo.php');
 
     /**
@@ -138,7 +138,7 @@ namespace Aomebo
          * @static
          * @var bool
          */
-        private static $_autoloadFailureTriggersException = false;
+        private static $_autoloadFailureTriggersException = true;
 
         /**
          * @internal
@@ -196,9 +196,15 @@ namespace Aomebo
         private static $_inhibitConstruction = array();
 
         /**
+         * @internal
+         * @var array
+         */
+        private static $_autoLoadPaths = array();
+
+        /**
          * This starts up the framework.
          *
-         * @param array|null [$parameters = null]       Contains all site-specific parameters.
+         * @param array|null [$parameters = null] Contains all site-specific parameters.
          * @throws \Exception
          */
         public function __construct($parameters = null)
@@ -276,7 +282,7 @@ namespace Aomebo
                     self::setParameter(
                         self::PARAMETER_RESPOND, true);
                 }
-                
+
                 // Any parameters specified?
                 if (isset($parameters)
                     && is_array($parameters)
@@ -296,7 +302,7 @@ namespace Aomebo
                     if (!self::hasParameter(self::PARAMETER_SITE_PATH)
                         || self::getParameter(self::PARAMETER_SHOW_SETUP)
                     ) {
-                        
+
                         self::setParameter(
                             self::PARAMETER_SITE_PATH,
                             self::_getSetupSitePath()
@@ -305,13 +311,13 @@ namespace Aomebo
 
                     // Otherwise - should configuration be presented?
                     } else if (self::getParameter(self::PARAMETER_SHOW_CONFIGURATION)) {
-                        
+
                         self::setParameter(
                             self::PARAMETER_SITE_PATH,
                             self::_getConfigurationSitePath()
                         );
                         self::$_writingEnabled = false;
-                        
+
                     }
 
                     $parameters = & self::$_parameters;
@@ -338,7 +344,7 @@ namespace Aomebo
 
                     self::defineConstantsFromParameters($parameters);
                     self::applyAutoLoader();
-                    $configuration = \Aomebo\Configuration::getInstance();                    
+                    $configuration = \Aomebo\Configuration::getInstance();
                     self::loadApplicationData();
 
                     // Can we load configuration?
@@ -348,18 +354,16 @@ namespace Aomebo
                         self::getParameter(self::PARAMETER_STRUCTURE_INTERNAL_FILENAME),
                         self::getParameter(self::PARAMETER_STRUCTURE_EXTERNAL_FILENAME))
                     ) {
-                        
+
                         self::setAutoloadFailureTriggersException(
                             \Aomebo\Configuration::getSetting('output,autoload failure triggers exception'));
-
                         if (self::getParameter(self::PARAMETER_PASS_EXECUTION_GUARDS)) {
                             self::passExecutionGuards();
                         }
-
                         if (self::getParameter(self::PARAMETER_RESPOND)) {
                             self::respond();
                         }
-                        
+
                     } else {
                         Throw new \Exception(
                             self::systemTranslate('Failed to load configuration.')
@@ -380,6 +384,36 @@ namespace Aomebo
         }
 
         /**
+         * @static
+         * @param string $path
+         * @throws \Aomebo\Exceptions\InvalidParametersException
+         */
+        public static function addAutoLoadPath($path)
+        {
+            if (!empty($path)) {
+                self::$_autoLoadPaths[] = $path;
+            } else {
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
+            }
+        }
+
+        /**
+         * @static
+         * @param array $paths
+         * @throws \Aomebo\Exceptions\InvalidParametersException
+         */
+        public static function addAutoLoadPaths($paths)
+        {
+            if (is_array($paths) && sizeof($paths) > 0) {
+                foreach ($paths as $path) {
+                    self::addAutoLoadPath($path);
+                }
+            } else {
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
+            }
+        }
+
+        /**
          * Guards the number of allow concurrent requests
          * and also awaits enough free memory.
          *
@@ -387,7 +421,6 @@ namespace Aomebo
          */
         public static function passExecutionGuards()
         {
-            
             self::$_freeMemoryAtInit =
                                      \Aomebo\System\Memory::getSystemFreeMemory();
 
@@ -452,7 +485,7 @@ namespace Aomebo
                     sleep(1);
                 }
             }
-            
+
         }
 
         /**
@@ -460,34 +493,18 @@ namespace Aomebo
          */
         public static function respond()
         {
-            
-            // Load file-system class
             new \Aomebo\Filesystem();
-                            
-            // Load run-times
-            self::_loadRuntimes();
-
-            // Load site class (if any)
-            self::_loadSiteClass();
-
-            // Load feedback engine
+            self::loadRuntimes();
+            self::loadSiteClass();
             new \Aomebo\Feedback\Debug();
-
-            // Load interpreter engine
             new \Aomebo\Interpreter\Engine();
-
-            // Load dispatcher for analyzing of request
             new \Aomebo\Dispatcher\System();
-
-            // Load the response handler
             new \Aomebo\Response\Handler();
-
             if (\Aomebo\Response\Handler::hasResponse()) {
                 \Aomebo\Response\Handler::respond();
             } else {
                 \Aomebo\Dispatcher\System::setHttpResponseStatus400BadRequest();
             }
-
         }
 
         /**
@@ -495,14 +512,19 @@ namespace Aomebo
          */
         public static function applyAutoLoader()
         {
-            spl_autoload_register(__NAMESPACE__
-                                  . '\\Application::autoLoad', true, false);
+            spl_autoload_register('Aomebo\\Application::autoLoad', true, false);
+            self::addAutoLoadPaths(array(
+                _SYSTEM_ROOT_,
+                _PRIVATE_ROOT_,
+                _PUBLIC_ROOT_,
+                _SITE_ROOT_
+            ));
         }
 
         /**
          * This is a function which returns whether or not a class construction is allowed or not.
          * This is to monitor and prevent execution errors.
-         * 
+         *
          * @static
          * @param string $name
          * @return bool
@@ -522,36 +544,26 @@ namespace Aomebo
         }
 
         /**
-         *
+         * Decrease number of concurrent requests by one.
          */
         public function __destruct()
         {
-
-            // Decrement number of concurrent requests by one
             if ($requests = self::getApplicationData('requests', true)) {
-
                 if (isset($requests[self::$_pid])) {
-
                     unset($requests[self::$_pid]);
-
                     self::setApplicationData(
                         'requests',
                         $requests,
                         true
                     );
-
                 }
-
             } else {
-
                 self::setApplicationData(
                     'requests',
                     array(),
                     true
                 );
-
             }
-
         }
 
         /**
@@ -588,7 +600,8 @@ namespace Aomebo
          */
         public static function clearCache()
         {
-            return \Aomebo\Filesystem::deleteFilesInDirectory(self::getCacheDir());
+            return \Aomebo\Filesystem::deleteFilesInDirectory(
+                self::getCacheDir());
         }
 
         /**
@@ -608,23 +621,21 @@ namespace Aomebo
          * @static
          * @param string $key
          * @param mixed $value
-         * @throws \Exception
+         * @throws \Aomebo\Exceptions\InvalidParametersException
          */
         public static function setParameter($key, $value)
         {
             if (isset($key, $value)) {
                 self::$_parameters[$key] = $value;
             } else {
-                Throw new \Exception(
-                    self::systemTranslate('Invalid parameters')
-                );
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
         }
 
         /**
          * @static
-         * @param array $array                  associative array
-         * @throws \Exception
+         * @param array $array associative array
+         * @throws \Aomebo\Exceptions\InvalidParametersException
          */
         public static function setParameters($array)
         {
@@ -638,9 +649,7 @@ namespace Aomebo
                     }
                 }
             } else {
-                Throw new \Exception(
-                    self::systemTranslate('Invalid parameters')
-                );
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
         }
 
@@ -694,11 +703,9 @@ namespace Aomebo
          */
         public static function getDebugBacktrace($limit = 0)
         {
-
             if (!empty($limit)
                 && $limit > 0
             ) {
-
                 /**
                  * @see http://www.php.net/function.debug-backtrace
                  */
@@ -708,23 +715,16 @@ namespace Aomebo
                 } else {
                     $debugBacktrance = debug_backtrace(true);
                 }
-
             } else {
-
-                /**
-                 * @see http://www.php.net/function.debug-backtrace
-                 */
+                /** @see http://www.php.net/function.debug-backtrace */
                 if (phpversion() >= '5.3.6') {
                     $debugBacktrance = debug_backtrace(
                         DEBUG_BACKTRACE_PROVIDE_OBJECT);
                 } else {
                     $debugBacktrance = debug_backtrace(true);
                 }
-
             }
-
             return $debugBacktrance;
-
         }
 
         /**
@@ -745,7 +745,7 @@ namespace Aomebo
          */
         public static function hasParameter($key)
         {
-            return (isset($key) 
+            return (isset($key)
                 && isset(self::$_parameters[$key]));
         }
 
@@ -799,194 +799,95 @@ namespace Aomebo
         public static function setApplicationData($key, $value, $flush = true)
         {
             if (!empty($key)) {
-
                 self::$_applicationData[$key] = $value;
                 self::$_flushedApplicationData = false;
-
                 if (!empty($flush)) {
-                    self::_flushApplicationData();
+                    self::flushApplicationData();
                 }
-
             }
         }
 
         /**
+         * @todo Optimize this function
          * @static
          * @param string $name
          * @throws \Exception
          */
         public static function autoLoad($name)
         {
-            $pathSystem = _SYSTEM_ROOT_;
-            $pathSystemLevels = 0;
-            $pathPrivate = _PRIVATE_ROOT_;
-            $pathPrivateAlternate = _PRIVATE_ROOT_;
-            $pathPublic = _PUBLIC_ROOT_;
-            $pathPublicAlternate = _PUBLIC_ROOT_;
-            $pathSite = _SITE_ROOT_;
-            $pathSiteAlternate = _SITE_ROOT_;
-            $namespaces = explode('\\', $name);
-            $sizeof = sizeof($namespaces);
-            for ($i = 0; $i < $sizeof; $i++) {
-                if ($namespaces[$i] != 'Aomebo') {
-                    if ($pathSystemLevels > 0) {
-                        $pathSystem .= DIRECTORY_SEPARATOR;
-                    }
-                    $pathSystem .= $namespaces[$i];
-                    $pathSystemLevels++;
-                }
-                if ($i > 0) {
-                    $pathPrivate .= DIRECTORY_SEPARATOR;
-                    $pathPublic .= DIRECTORY_SEPARATOR;
-                    $pathSite .= DIRECTORY_SEPARATOR;
-                    $pathPrivateAlternate .= DIRECTORY_SEPARATOR;
-                    $pathPublicAlternate .= DIRECTORY_SEPARATOR;
-                    $pathSiteAlternate .= DIRECTORY_SEPARATOR;
-                }
-                $pathPrivate .= $namespaces[$i];
-                $pathPublic .= $namespaces[$i];
-                $pathSite .= $namespaces[$i];
-                if ($i < ($sizeof - 1)
-                    || !isset($namespaces[$i - 1])
-                ) {
-                    $pathPrivateAlternate .= $namespaces[$i];
-                    $pathPublicAlternate .= $namespaces[$i];
-                    $pathSiteAlternate .= $namespaces[$i];
-                } else {
-                    $pathPrivateAlternate .= $namespaces[$i - 1];
-                    $pathPublicAlternate .= $namespaces[$i - 1];
-                    $pathSiteAlternate .= $namespaces[$i - 1];
-                }
 
+            $path = str_replace('\\', DIRECTORY_SEPARATOR, $name) . _PHP_EX_;
+
+            // Remove starting slash
+            if (substr($path, 0, 1) == DIRECTORY_SEPARATOR) {
+                $path = substr($path, 1);
             }
-            $pathPrivate .= _PHP_EX_;
-            $pathPublic .= _PHP_EX_;
-            $pathSystem .= _PHP_EX_;
-            $pathSite .= _PHP_EX_;
-            $pathPrivateAlternate .= _PHP_EX_;
-            $pathPublicAlternate .= _PHP_EX_;
-            $pathSiteAlternate .= _PHP_EX_;
-            if (file_exists($pathSystem)) {
-                try {
-                    require_once($pathSystem);
-                } catch (\Exception $e) {
-                    Throw new \Exception(
-                        sprintf(
-                            self::systemTranslate(
-                                'Something went wrong when including file "%s", error: "%s".'
-                            ),
-                            $pathSystem,
-                            $e->getMessage()
-                        )
-                    );
-                }
-            } else if (file_exists($pathPrivate)) {
-                try {
-                    require_once($pathPrivate);
-                } catch (\Exception $e) {
-                    Throw new \Exception(
-                        sprintf(
-                            self::systemTranslate(
-                                'Something went wrong when including file "%s", error: "%s".'
-                            ),
-                            $pathPrivate,
-                            $e->getMessage()
-                        )
-                    );
-                }
-            } else if (file_exists($pathPublic)) {
-                try {
-                    require_once($pathPublic);
-                } catch (\Exception $e) {
-                    Throw new \Exception(
-                        sprintf(
-                            self::systemTranslate(
-                                'Something went wrong when including file "%s", error: "%s".'
-                            ),
-                            $pathPublic,
-                            $e->getMessage()
-                        )
-                    );
-                }
-            } else if (file_exists($pathSite)) {
-                try {
-                    require_once($pathSite);
-                } catch (\Exception $e) {
-                    Throw new \Exception(
-                        sprintf(
-                            self::systemTranslate(
-                                'Something went wrong when including file "%s", error: "%s".'
-                            ),
-                            $pathSite,
-                            $e->getMessage()
-                        )
-                    );
-                }
-            } else if (file_exists($pathPrivateAlternate)) {
-                try {
-                    require_once($pathPrivateAlternate);
-                } catch (\Exception $e) {
-                    Throw new \Exception(
-                        sprintf(
-                            self::systemTranslate(
-                                'Something went wrong when including file "%s", error: "%s".'
-                            ),
-                            $pathPrivateAlternate,
-                            $e->getMessage()
-                        )
-                    );
-                }
-            } else if (file_exists($pathPublicAlternate)) {
-                try {
-                    require_once($pathPublicAlternate);
-                } catch (\Exception $e) {
-                    Throw new \Exception(
-                        sprintf(
-                            self::systemTranslate(
-                                'Something went wrong when including file "%s", error: "%s".'
-                            ),
-                            $pathPublicAlternate,
-                            $e->getMessage()
-                        )
-                    );
-                }
-            } else if (file_exists($pathSiteAlternate)) {
-                try {
-                    require_once($pathSiteAlternate);
-                } catch (\Exception $e) {
-                    Throw new \Exception(
-                        sprintf(
-                            self::systemTranslate(
-                                'Something went wrong when including file "%s", error: "%s".'
-                            ),
-                            $pathSiteAlternate,
-                            $e->getMessage()
-                        )
-                    );
-                }
-            } else {
-                if (self::$_autoloadFailureTriggersException) {
-                    Throw new \Exception(
-                        sprintf(
-                            self::systemTranslate(
-                                'Couldn\'t find file "%s" at "%s", "%s", "%s" or at "%s".'
-                            ),
-                            $name,
-                            $pathSystem,
-                            $pathPrivate,
-                            $pathPublic,
-                            $pathSite
-                        )
-                    );
+
+            $trySubPaths = array($path);
+
+            // Does path start with framework namespace ?
+            if (strlen($path) >= 7) {
+                if (substr($path, 0, 7) ==
+                    'Aomebo'  . DIRECTORY_SEPARATOR
+                ) {
+                    $trySubPaths[] = substr($path, 7);
                 }
             }
+
+            $triedPaths = array();
+            $foundFile = false;
+
+            foreach (self::$_autoLoadPaths as $autoLoadPath)
+            {
+                foreach ($trySubPaths as $trySubPath)
+                {
+                    $tryPath = $autoLoadPath . $trySubPath;
+                    if (file_exists($tryPath)) {
+                        try {
+                            require_once($tryPath);
+                            $foundFile = true;
+                        } catch (\Exception $e) {
+                            Throw new \Exception(
+                                sprintf(
+                                    self::systemTranslate(
+                                        'Something went wrong when including file "%s", error: "%s".'
+                                    ),
+                                    $tryPath,
+                                    $e->getMessage()
+                                )
+                            );
+                        }
+                    } else {
+                        $triedPaths[] = $tryPath;
+                    }
+                    if ($foundFile) {
+                        break;
+                    }
+                }
+                if ($foundFile) {
+                    break;
+                }
+            }
+
+            if (!$foundFile && self::$_autoloadFailureTriggersException) {
+                Throw new \Exception(
+                    sprintf(
+                        self::systemTranslate(
+                            "Couldn't find file '%s' at '%s'."
+                        ),
+                        $name,
+                        implode("','", $triedPaths)
+                    )
+                );
+            }
+
         }
 
         /**
-         * @internal
          * @static
+         * @throws \Exception
          */
-        private static function _loadSiteClass()
+        public static function loadSiteClass()
         {
             $classPath =
                 \Aomebo\Configuration::getSetting('site,class path');
@@ -998,21 +899,27 @@ namespace Aomebo
                 $classPath = _SITE_ROOT_ . $classPath;
             }
             if (file_exists($classPath)) {
-                require_once($classPath);
+                try {
+                    require_once($classPath);
+                } catch (\Exception $e) {
+                    Throw new \Exception(sprintf(self::systemTranslate(
+                        'Loading site-class "%s" spawned error "%s"',
+                        $e->getMessage()
+                    )));
+                }
             }
         }
 
         /**
          * This method starts the scanning of filesystem
-         * for Runtimes.
+         * for Run-times.
          *
-         * @internal
          * @static
          * @throws \Exception
          */
-        private static function _loadRuntimes()
+        public static function loadRuntimes()
         {
-            
+
             // Inhibit premature construction of these classes
             self::$_inhibitConstruction['Aomebo\Interpreter\Engine'] = true;
             self::$_inhibitConstruction['Aomebo\Feedback\Debug'] = true;
@@ -1087,17 +994,13 @@ namespace Aomebo
 
                     try
                     {
-
                         if (!empty($data['runtimes'])) {
                             if ($runtimes = @unserialize($data['runtimes'])) {
-                                
                                 self::$_runtimes = $runtimes;
-                                
                             } else {
                                 $loadedCache = false;
                             }
                         }
-
                         if (!empty($data['routes'])) {
                             if ($routes = @unserialize($data['routes'])) {
                                 \Aomebo\Dispatcher\System::setRoutes(
@@ -1107,7 +1010,6 @@ namespace Aomebo
                                 $loadedCache = false;
                             }
                         }
-
                     } catch (\Exception $e) {}
 
                 }
@@ -1117,13 +1019,11 @@ namespace Aomebo
             if (!$loadedCache) {
 
                 if ($useRuntimeCache) {
-
                     \Aomebo\Cache\System::clearCache(
                         $cacheParameters,
                         null,
                         \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
                     );
-
                 }
 
                 // Iterate through all roots
@@ -1222,7 +1122,7 @@ namespace Aomebo
                     $foundFile = true;
                 }
 
-                // Can we find a runtime file?
+                // Can we find a run-time file?
                 if ($foundFile) {
 
                     /** @var string $foundFileName */
@@ -1274,10 +1174,8 @@ namespace Aomebo
                             }
 
                         }
-
                     }
                 }
-
             }
         }
 
@@ -1286,9 +1184,9 @@ namespace Aomebo
          */
         public static function loadApplicationData()
         {
-            if (file_exists(self::_getApplicationDataPath())) {
+            if (file_exists(self::getApplicationDataPath())) {
                 if ($fileData = file_get_contents(
-                    self::_getApplicationDataPath())
+                    self::getApplicationDataPath())
                 ) {
                     try {
                         if ($jsonData = json_decode($fileData, true)) {
@@ -1298,11 +1196,11 @@ namespace Aomebo
                 }
             }
         }
-        
+
         /**
          * @static
          * @param array $parameters
-         * @throws \Exception
+         * @throws \Aomebo\Exceptions\InvalidParametersException
          */
         public static function defineConstantsFromParameters($parameters)
         {
@@ -1358,10 +1256,34 @@ namespace Aomebo
                     }
                 }
             } else {
-                Throw new \Exception(
-                    self::systemTranslate('Invalid parameters.')
-                );
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
+        }
+
+        /**
+         * @static
+         */
+        public static function flushApplicationData()
+        {
+            if (!self::$_flushedApplicationData
+                && self::isWritingnabled()
+            ) {
+                try {
+                    if ($jsonData = json_encode(self::$_applicationData)) {
+                        file_put_contents(self::getApplicationDataPath(), $jsonData);
+                    }
+                    self::$_flushedApplicationData = true;
+                } catch (\Exception $e) {}
+            }
+        }
+
+        /**
+         * @static
+         * @return string
+         */
+        public static function getApplicationDataPath()
+        {
+            return _SITE_ROOT_ . '.application-data';
         }
 
         /**
@@ -1384,34 +1306,6 @@ namespace Aomebo
         {
             return __DIR__ . DIRECTORY_SEPARATOR . 'Configuration' . DIRECTORY_SEPARATOR
                 . 'Setup' . DIRECTORY_SEPARATOR . 'private';
-        }
-
-        /**
-         * @internal
-         * @static
-         */
-        private static function _flushApplicationData()
-        {
-            if (!self::$_flushedApplicationData
-                && self::isWritingnabled()
-            ) {
-                try {
-                    if ($jsonData = json_encode(self::$_applicationData)) {
-                        file_put_contents(self::_getApplicationDataPath(), $jsonData);
-                    }
-                    self::$_flushedApplicationData = true;
-                } catch (\Exception $e) {}
-            }
-        }
-
-        /**
-         * @internal
-         * @static
-         * @return string
-         */
-        private static function _getApplicationDataPath()
-        {
-            return _SITE_ROOT_ . '.application-data';
         }
 
     }
