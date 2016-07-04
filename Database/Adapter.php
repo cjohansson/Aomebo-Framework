@@ -1066,6 +1066,7 @@ namespace Aomebo\Database
             self::_instanciate();
             if (self::isConnected()) {
                 if (self::$_object->disconnect()) {
+                    self::$_connected = false;
                     return true;
                 }
             }
@@ -1180,6 +1181,7 @@ namespace Aomebo\Database
                 if (self::execute('SELECT 1', false, '', 1, false, false)) {
                     return false;
                 } else {
+                    self::$_database = '';
                     return true;
                 }
             }
@@ -1393,10 +1395,11 @@ namespace Aomebo\Database
             $password, $database, $options = null,
             $select = true, $throwExceptionOnFailure = true)
         {
+
             self::_instanciate();
             self::$_connected = false;
             self::$_useDatabase = false;
-            self::$_database = false;
+            self::$_database = '';
             self::$_replaceKeys = array();
             self::$_replaceValues = array();
             self::$_replaceKeysList = array();

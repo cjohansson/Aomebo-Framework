@@ -304,7 +304,17 @@ namespace Modules\Setup
                 false)
             )  {
 
-                $databaseTests = sprintf(
+                $databaseTests = '';
+
+                if (\Aomebo\Database\Adapter::lostConnection()) {
+                    $databaseTests .=
+                                   __('ERROR. Returned lost connection. ', 'setup');
+                } else {
+                    $databaseTests .=
+                                   __('Have not lost connection. ', 'setup');
+                }
+
+                $databaseTests .= sprintf(
                     __('Connected to host `%s`. Selected database `%s`. ', 'setup'),
                     $host,
                     $database
@@ -313,16 +323,22 @@ namespace Modules\Setup
                 $rawSql = 'SELECT * FROM WHERE `user` = {user}';
 
                 $preparedSql = \Aomebo\Database\Adapter::prepare(
-                    $rawSql, array('user' => '1 OR 1=1'));
+                    $rawSql, array('user' => "'1' OR 1=1"));
 
                 $rawSql2 = 'SELECT * FROM WHERE `user` = %s';
 
                 $preparedSql2 = \Aomebo\Database\Adapter::preparef($rawSql2, "'1' OR 1=1");
-                
+
+                if ($preparedSql == $preparedSql2) {
+                    $databaseTests .= sprintf(__('Escaping methods produced identical "%s". ', 'setup'), $preparedSql);
+                } else {
+                    $databaseTests .= sprintf(__('Escaping methods produced different "%s" and "%s". ', 'setup'), $preparedSql, $preparedSql2);
+                }
+
                 // TODO: Should verify escaping here
 
                 $table = \Modules\Setup\Table::getInstance();
-                
+
                 if (!empty($autoInstall)) {
                     if (\Aomebo\Application::autoInstall()) {
                         $databaseTests .= 
@@ -366,10 +382,10 @@ namespace Modules\Setup
                             print_r($fields, true)
                         );
                     } else {
-                        $databaseTests .= 
+                        $databaseTests .=
                             __('Found no table fields. ', 'setup');
                     }
-                    
+
                     if ($table->hasTableColumn('cash')) {
                         $databaseTests .= sprintf(
                             __('Table column "%s" exists. ', 'setup'),
@@ -450,7 +466,7 @@ namespace Modules\Setup
                                 'casher'
                             );
                         }
-                        
+
                         if ($id = $table->add(
                             array(
                                 array($table->name, 'Göran Svensson'),
@@ -529,6 +545,27 @@ namespace Modules\Setup
                         $databaseTests .= __('Failed to create table. ', 'setup');
                     }
                 }
+
+                if (\Aomebo\Database\Adapter::disconnect()) {
+                    $databaseTests .= __('Successfully disconnected from host. ', 'setup');
+                } else {
+                    $databaseTests .= __('ERROR. Failed to disconnect from host. ', 'setup');
+                }
+
+                if (\Aomebo\Database\Adapter::reconnect()) {
+                    $databaseTests .= __('Successfully reconnected to host. ', 'setup');
+                } else {
+                    $databaseTests .= __('ERROR. Failed to reconnect from host. ', 'setup');
+                }
+
+                if (\Aomebo\Database\Adapter::lostConnection()) {
+                    $databaseTests .=
+                                   __('ERROR. Returned lost connection. ', 'setup');
+                } else {
+                    $databaseTests .=
+                                   __('Have not lost connection. ', 'setup');
+                }
+
             } else {
                 $databaseTests .= sprintf(
                     __('Failed to connect to host `%s` or failed to select database `%s`. ', 'setup'),
@@ -542,7 +579,7 @@ namespace Modules\Setup
         }
 
         /**
-         * 
+         *
          */
         private function _testTriggers()
         {
