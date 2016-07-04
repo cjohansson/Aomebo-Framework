@@ -281,15 +281,15 @@ namespace Modules\Setup
          * @throws \Exception
          * @return string
          */
-        private function _testDatabase($host, $database, $username, 
+        private function _testDatabase($host, $database, $username,
             $password = '', $type, $dsn = '', $autoInstall = false,
             $autoUninstall = false, $autoUpdate = false)
         {
 
             $databaseTests = '';
-            
+
             \Aomebo\Configuration::saveSetting('database,adapter', $type);
-            
+
             $options = array(
                 'dsn' => $dsn,
             );
@@ -306,6 +306,12 @@ namespace Modules\Setup
 
                 $databaseTests = '';
 
+                $databaseTests .= sprintf(
+                    __('Connected to host `%s`. Selected database `%s`. ', 'setup'),
+                    $host,
+                    $database
+                );
+
                 if (\Aomebo\Database\Adapter::lostConnection()) {
                     $databaseTests .=
                                    __('ERROR. Returned lost connection. ', 'setup');
@@ -314,25 +320,46 @@ namespace Modules\Setup
                                    __('Have not lost connection. ', 'setup');
                 }
 
-                $databaseTests .= sprintf(
-                    __('Connected to host `%s`. Selected database `%s`. ', 'setup'),
-                    $host,
-                    $database
-                );
+                /** @see http://php.net/manual/en/function.mysql-real-escape-string.php */
 
-                $rawSql = 'SELECT * FROM WHERE `user` = {user}';
+                $rawSql = 'SELECT * FROM users WHERE user={user} AND password={password}';
 
                 $preparedSql = \Aomebo\Database\Adapter::prepare(
-                    $rawSql, array('user' => "'1' OR 1=1"));
+                    $rawSql, array(
+                        'user' => array(
+                            'value' => 'aidan',
+                            'quoted' => true,
+                        ),
+                        'password' => array(
+                            'value' => "' OR ''='",
+                            'quoted' => true,
+                        )
+                    ));
 
-                $rawSql2 = 'SELECT * FROM WHERE `user` = %s';
+                $rawSql2 = 'SELECT * FROM users WHERE user="%s" AND password="%s"';
 
-                $preparedSql2 = \Aomebo\Database\Adapter::preparef($rawSql2, "'1' OR 1=1");
+                $preparedSql2 = \Aomebo\Database\Adapter::preparef(
+                    $rawSql2,
+                    'aidan',
+                    "' OR ''='"
+                );
+
+                if ($preparedSql == "SELECT * FROM users WHERE user=\"aidan\" AND password=\"\' OR \'\'=\'\"") {
+                    $databaseTests .= __('Escaping of values for SQL escaping method 1 was valid. ', 'setup');
+                } else {
+                    $databaseTests .= __('ERROR: Escaping of values for SQL escaping method 1 was invalid. ', 'setup');
+                }
+
+                if ($preparedSql2 == "SELECT * FROM users WHERE user=\"aidan\" AND password=\"\' OR \'\'=\'\"") {
+                    $databaseTests .= __('Escaping of values for SQL escaping method 2 was valid. ', 'setup');
+                } else {
+                    $databaseTests .= __('ERROR: Escaping of values for SQL escaping method 2 was invalid. ', 'setup');
+                }
 
                 if ($preparedSql == $preparedSql2) {
-                    $databaseTests .= sprintf(__('Escaping methods produced identical "%s". ', 'setup'), $preparedSql);
+                    $databaseTests .= sprintf(__('SQL escaping methods produced identical escaped SQL: "%s". ', 'setup'), $preparedSql);
                 } else {
-                    $databaseTests .= sprintf(__('Escaping methods produced different "%s" and "%s". ', 'setup'), $preparedSql, $preparedSql2);
+                    $databaseTests .= sprintf(__('ERROR: SQL escaping methods produced different escaped SQL "%s" and "%s". ', 'setup'), $preparedSql, $preparedSql2);
                 }
 
                 // TODO: Should verify escaping here
