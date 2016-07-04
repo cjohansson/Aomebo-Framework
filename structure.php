@@ -72,9 +72,9 @@ $configuration = array(
                     'default' => 86400,
                 ),
         ),
-    'interpreter' => 
+    'interpreter' =>
         array(
-            'convert_xml_pages_to_php' => 
+            'convert_xml_pages_to_php' =>
                 array(
                     'type' => 'boolean',
                     'required' => true,
@@ -145,7 +145,13 @@ $configuration = array(
                     'type' => 'array',
                     'required' => true,
                     'default' => array(),
-                ),            
+                ),
+            'socket timeout' =>
+            array(
+                'type' => 'integer',
+                'required' => false,
+                'default' => -1,
+            ),
         ),
     'paths' =>
         array(
@@ -904,6 +910,12 @@ $configuration = array(
                     'type' => 'string',
                     'required' => true,
                     'default' => 'utf8',
+                ),
+            'reconnect' =>
+                array(
+                    'type' => 'boolean',
+                    'required' => true,
+                    'default' => true,
                 ),
         ),
     'cache' =>

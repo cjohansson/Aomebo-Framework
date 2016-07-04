@@ -68,41 +68,41 @@ namespace Aomebo\Database\Adapters\PDO
         public function connect($host, $user, $password,
             $database, $options)
         {
-            
+
             if (isset($options['dsn'])) {
 
                 $this->_options = $options;
-                
-                $dbOptions = array();
+
+                $dbOptions = array(
+                    \PDO::ATTR_ERRMODE => true,
+                    \PDO::ERRMODE_EXCEPTION => true,
+                );
                 if (isset($options['options'])) {
                     $dbOptions = $options['options'];
                 }
                 if (isset($options['persistent'])
                     && !isset($options[\PDO::ATTR_PERSISTENT])
                 ) {
-                    $options[\PDO::ATTR_PERSISTENT] = (!empty($options['persistent']));
+                    $dbOptions[\PDO::ATTR_PERSISTENT] = (!empty($options['persistent']));
                 }
-                
+
                 try {
-                
                     $this->_con = new \PDO(
                         $options['dsn'],
                         $user,
                         $password,
                         $dbOptions
                     );
-                    
                     if (isset($this->_con)) {
                         $this->_connected = true;
                         $this->_selectedDatabase = true;
                         return true;
                     }
-                    
                 } catch (\Exception $e) {}
 
                 $this->_connected = false;
                 return false;
-                
+
             } else {
               Throw new \Exception(self::systemTranslate('Missing database-engine DSN.'));
             }

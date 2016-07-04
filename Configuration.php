@@ -443,11 +443,9 @@ namespace Aomebo
 
                 // Does internal structure-file exists?
                 if (file_exists($internalStructureFilename . '.php')) {
-                    
                     $internalStructure = self::loadPhpConfiguration(
                         $internalStructureFilename . '.php'
                     );
-                    
                 } else if (file_exists($internalStructureFilename . '.yml')) {
 
                     $internalStructure = self::loadYmlConfiguration(
@@ -473,11 +471,9 @@ namespace Aomebo
 
                 // Does internal configuration-file exists?
                 if (file_exists($internalConfigurationFilename . '.php')) {
-                    
                     $internalConfiguration = self::loadPhpConfiguration(
                         $internalConfigurationFilename . '.php'
                     );
-                    
                 } else if (file_exists($internalConfigurationFilename . '.yml')) {
 
                     $internalConfiguration = self::loadYmlConfiguration(
@@ -503,11 +499,9 @@ namespace Aomebo
 
                 // Does external structure-file exists?
                 if (file_exists($externalStructureFilename . '.php')) {
-                    
                     $externalStructure = self::loadPhpConfiguration(
                         $externalStructureFilename . '.php'
                     );
-                    
                 } else if (file_exists($externalStructureFilename . '.yml')) {
 
                     $externalStructure = self::loadYmlConfiguration(
@@ -533,11 +527,9 @@ namespace Aomebo
 
                 // Does external config-file exists?
                 if (file_exists($externalConfigurationFilename . '.php')) {
-                    
                     $externalConfiguration = self::loadPhpConfiguration(
                         $externalConfigurationFilename . '.php'
                     );
-                    
                 } else if (file_exists($externalConfigurationFilename . '.yml')) {
 
                     $externalConfiguration = self::loadYmlConfiguration(
@@ -879,24 +871,16 @@ namespace Aomebo
          */
         private static function _validate()
         {
-
-            // Does structure validate?
             if (self::_validateStructure()) {
-
-                // Does configuration validate based on structure?
                 if (self::_validateConfiguration()) {
-
-                    // Set default time-zone
                     date_default_timezone_set(
                         self::getSetting('site,default time-zone'));
-
+                    ini_set('default_socket_timeout',
+                            self::getSetting('application,socket timeout'));
                     return true;
-
                 }
             }
-
             return false;
-
         }
 
         /**

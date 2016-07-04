@@ -35,7 +35,35 @@ namespace Aomebo\Database
          * @static
          * @var string
          */
+        private static $_host = '';
+
+        /**
+         * @internal
+         * @static
+         * @var string
+         */
+        private static $_username = '';
+
+        /**
+         * @internal
+         * @static
+         * @var string
+         */
+        private static $_password = '';
+
+        /**
+         * @internal
+         * @static
+         * @var string
+         */
         private static $_database = '';
+
+        /**
+         * @internal
+         * @static
+         * @var array
+         */
+        private static $_options = array();
 
         /**
          * This flag indicates whether we are connected to database.
@@ -1143,6 +1171,40 @@ namespace Aomebo\Database
         }
 
         /**
+         * @static
+         * @return bool
+         */
+        public static function lostConnection()
+        {
+            if (self::isConnected()) {
+                if (self::execute('SELECT 1', false, '', 1, false, false)) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /**
+         * Reconnects connection
+         * @static
+         * @return bool
+         */
+        public static function reconnect()
+        {
+            try {
+                if (self::connect(self::$_host, self::$_username,
+                                  self::$_password, self::$_database,
+                                  self::$_options, true, true)
+                ) {
+                    return true;
+                }
+            } catch (\Exception $e) {}
+            return false;
+        }
+
+        /**
          * Execute a SQL query.
          *
          * @internal
@@ -1152,20 +1214,22 @@ namespace Aomebo\Database
          * @param string [$sqlKey = '']
          * @param int [$queryCount = 1]
          * @param bool [$throwExceptionOnFailure = true]
+         * @param null|bool [$reconnect = null]
          * @throws \Exception
          * @return Adapters\Resultset|bool
          */
         public static function execute($sql,
             $unbuffered = false,
             $sqlKey = '', $queryCount = 1,
-            $throwExceptionOnFailure = true)
+                                       $throwExceptionOnFailure = true,
+                                       $reconnect = null)
         {
             self::_instanciate();
             if (self::isConnected()) {
-                
+
                 self::$_queries[] = $sql;
                 self::$_queryCount++;
-                
+
                 if ($queryCount === 1) {
 
                     if ($unbuffered) {
@@ -1198,10 +1262,32 @@ namespace Aomebo\Database
                     } else {
 
                         if (self::$_object->hasError()) {
-
                             self::$_lastError = self::$_object->getError();
 
-                            if ($throwExceptionOnFailure) {
+                            if (\Aomebo\Configuration::getSetting('database,reconnect')
+                                && self::lostConnection()
+                                && (!isset($reconnect) || !empty($reconnect))
+                            ) {
+                                \Aomebo\Feedback\Debug(
+                                    sprintf(
+                                        self::systemTranslate(
+                                            'Query: "%s" returned error: "%s". Reconnecting..'
+                                        ),
+                                        $sql,
+                                        self::$_object->getError()
+                                    )
+                                );
+                                if (self::reconnect()) {
+                                    return self::execute(
+                                        $sql, $unbuffered, $sqlKey, $queryCount,
+                                        $throwExceptionOnFailure, $reconnect);
+                                } else if ($throwExceptionOnFailure) {
+                                    Throw new \Exception(self::systemTranslate(
+                                        'Failed to reconnect database connection.'
+                                    ));
+                                }
+
+                            } else if ($throwExceptionOnFailure) {
                                 Throw new \Exception(
                                     sprintf(
                                         self::systemTranslate(
@@ -1231,16 +1317,37 @@ namespace Aomebo\Database
                                 $sql
                             );
                             $resultset->free();
-
                         }
                     } else {
 
                         if (self::$_object->hasError()) {
-
                             self::$_lastError =
                                 self::$_object->getError();
 
-                            if ($throwExceptionOnFailure) {
+                            if (\Aomebo\Configuration::getSetting('database,reconnect')
+                                && self::lostConnection()
+                                && (!isset($reconnect) || !empty($reconnect))
+                            ) {
+                                \Aomebo\Feedback\Debug(
+                                    sprintf(
+                                        self::systemTranslate(
+                                            'Query: "%s" returned error: "%s". Reconnecting..'
+                                        ),
+                                        $sql,
+                                        self::$_object->getError()
+                                    )
+                                );
+                                if (self::reconnect()) {
+                                    return self::execute(
+                                        $sql, $unbuffered, $sqlKey, $queryCount,
+                                        $throwExceptionOnFailure, $reconnect);
+                                } else if ($throwExceptionOnFailure) {
+                                    Throw new \Exception(self::systemTranslate(
+                                        'Failed to reconnect database connection.'
+                                    ));
+                                }
+
+                            } else if ($throwExceptionOnFailure) {
                                 Throw new \Exception(
                                     sprintf(
                                         self::systemTranslate(
@@ -1283,7 +1390,7 @@ namespace Aomebo\Database
          * @return bool
          */
         public static function connect($host, $username,
-            $password, $database, $options = null, 
+            $password, $database, $options = null,
             $select = true, $throwExceptionOnFailure = true)
         {
             self::_instanciate();
@@ -1322,6 +1429,12 @@ namespace Aomebo\Database
                     $database,
                     $options)
                 ) {
+
+                    // Save configuration if we need to reconnect
+                    self::$_host = $host;
+                    self::$_username = $username;
+                    self::$_password = $password;
+                    self::$_options = $options;
 
                     // Add system prefixes
                     self::addSystemReplaceKey(
@@ -1370,11 +1483,10 @@ namespace Aomebo\Database
 
                     \Aomebo\Trigger\System::processTriggers(
                         \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_CONNECTION_SUCCESS);
-                        
+
                     if (\Aomebo\Configuration::getSetting('database,create database')) {
                         if (!self::_isInstalled($database)) {
                             if (!self::_install($database)) {
-                                
                                 if ($throwExceptionOnFailure) {
                                     Throw new \Exception(
                                         sprintf(
@@ -1384,28 +1496,22 @@ namespace Aomebo\Database
                                         )
                                     );
                                 }
-                                
                                 return false;
-                                
                             }
                         }
                     }
-                    
+
                     // Should select and database is not selected already?
                     if (!empty($select)
                         && !$dbObject->hasSelectedDatabase()
                     ) {
                         if (self::selectDatabase($database)) {
-                            
                             self::$_database = $database;
                             \Aomebo\Trigger\System::processTriggers(
                                 \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_SELECTED_SUCCESS);
-
                         } else {
-
                             \Aomebo\Trigger\System::processTriggers(
                                 \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_SELECTED_FAIL);
-
                             if ($throwExceptionOnFailure) {
                                 Throw new \Exception(
                                     sprintf(
@@ -1414,14 +1520,11 @@ namespace Aomebo\Database
                                         __FILE__)
                                 );
                             }
-                            
                             return false;
-                            
                         }
                     } else if ($dbObject->hasSelectedDatabase()) {
                         self::$_database = $dbObject->getSelectedDatabase();
                     }
-
                     return true;
 
                 } else {
@@ -1434,12 +1537,12 @@ namespace Aomebo\Database
                             )
                         );
                     }
-                    
+
                     return false;
-                    
+
                 }
             } else {
-                
+
                 if ($throwExceptionOnFailure) {
                     Throw new \Exception(
                         sprintf(
@@ -1451,9 +1554,9 @@ namespace Aomebo\Database
                         )
                     );
                 }
-                
+
                 return false;
-                
+
             }
         }
 
