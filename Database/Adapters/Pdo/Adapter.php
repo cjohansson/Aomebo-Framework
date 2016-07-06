@@ -223,7 +223,9 @@ namespace Aomebo\Database\Adapters\PDO
         public function query($sql)
         {
             if ($this->_connected) {
-                return $this->_con->query($sql);
+                try {
+                    return $this->_con->query($sql);
+                } catch (\Exception $e) {}
             }
             return false;
         }

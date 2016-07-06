@@ -1267,8 +1267,8 @@ namespace Aomebo\Database
                             self::$_lastError = self::$_object->getError();
 
                             if (\Aomebo\Configuration::getSetting('database,reconnect')
-                                && self::lostConnection()
                                 && (!isset($reconnect) || !empty($reconnect))
+                                && self::lostConnection()
                             ) {
                                 \Aomebo\Feedback\Debug(
                                     sprintf(
@@ -1327,8 +1327,8 @@ namespace Aomebo\Database
                                 self::$_object->getError();
 
                             if (\Aomebo\Configuration::getSetting('database,reconnect')
-                                && self::lostConnection()
                                 && (!isset($reconnect) || !empty($reconnect))
+                                && self::lostConnection()
                             ) {
                                 \Aomebo\Feedback\Debug(
                                     sprintf(
