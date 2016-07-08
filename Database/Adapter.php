@@ -1270,7 +1270,7 @@ namespace Aomebo\Database
                                 && (!isset($reconnect) || !empty($reconnect))
                                 && self::lostConnection()
                             ) {
-                                \Aomebo\Feedback\Debug(
+                                \Aomebo\Feedback\Debug::output(
                                     sprintf(
                                         self::systemTranslate(
                                             'Query: "%s" returned error: "%s". Reconnecting..'
@@ -1330,7 +1330,7 @@ namespace Aomebo\Database
                                 && (!isset($reconnect) || !empty($reconnect))
                                 && self::lostConnection()
                             ) {
-                                \Aomebo\Feedback\Debug(
+                                \Aomebo\Feedback\Debug::output(
                                     sprintf(
                                         self::systemTranslate(
                                             'Query: "%s" returned error: "%s". Reconnecting..'
