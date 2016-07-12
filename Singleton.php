@@ -53,13 +53,13 @@ namespace Aomebo
             parent::__construct();
 
             $calledClass = get_called_class();
-            
+
             if (\Aomebo\Application::isInhibitedToConstruct(
                 $calledClass)
             ) {
                 Throw new \Exception(
                     sprintf(
-                        __('Class %s may not be constructed at this time in the execution chain. Please adjust your runtime configuration.'),
+                        self::systemTranslate('Class %s may not be constructed at this time in the execution chain. Please adjust your runtime configuration.'),
                         $calledClass
                     )
                 );

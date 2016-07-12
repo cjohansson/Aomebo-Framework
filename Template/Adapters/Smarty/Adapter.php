@@ -102,8 +102,7 @@ namespace Aomebo\Template\Adapters\Smarty
                 } catch (\Exception $e) {
                     Throw new \Exception(
                         sprintf(
-                            __('Something went wrong when including '
-                            . 'file "%s", error "%s".'),
+                            self::systemTranslate('Something went wrong when including file "%s", error "%s".'),
                             $syspluginPath,
                             $e->getMessage()
                         )
@@ -122,8 +121,7 @@ namespace Aomebo\Template\Adapters\Smarty
                             } catch (\Exception $e) {
                                 Throw new \Exception(
                                     sprintf(
-                                        __('Something went wrong when including '
-                                            . 'file "%s", error "%s".'),
+                                        self::systemTranslate('Something went wrong when including file "%s", error "%s".'),
                                         $syspluginPath,
                                         $e->getMessage()
                                     )
@@ -141,8 +139,7 @@ namespace Aomebo\Template\Adapters\Smarty
                         } catch (\Exception $e) {
                             Throw new \Exception(
                                 sprintf(
-                                    __('Something went wrong when including '
-                                        . 'file "%s", error "%s".'),
+                                    self::systemTranslate('Something went wrong when including file "%s", error "%s".'),
                                     $syspluginPath,
                                     $e->getMessage()
                                 )

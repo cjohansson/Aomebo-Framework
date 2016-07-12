@@ -263,7 +263,7 @@ namespace Modules\Setup
                 );
 
             }
-            
+ 
             return $tests;
 
         }
@@ -362,20 +362,18 @@ namespace Modules\Setup
                     $databaseTests .= sprintf(__('ERROR: SQL escaping methods produced different escaped SQL "%s" and "%s". ', 'setup'), $preparedSql, $preparedSql2);
                 }
 
-                // TODO: Should verify escaping here
-
                 $table = \Modules\Setup\Table::getInstance();
 
                 if (!empty($autoInstall)) {
                     if (\Aomebo\Application::autoInstall()) {
-                        $databaseTests .= 
+                        $databaseTests .=
                             __('System successfully auto-installed. ', 'setup');
                     } else {
                         $databaseTests .=
                             __('System failed to auto-install. ', 'setup');
                     }
                 }
-                
+
                 if (!empty($autoUninstall)) {
                     if (\Aomebo\Application::autoUninstall()) {
                         $databaseTests .=
@@ -591,6 +589,31 @@ namespace Modules\Setup
                 } else {
                     $databaseTests .=
                                    __('Have not lost connection. ', 'setup');
+                }
+
+                if ($table->create()) {
+                    $databaseTests .= sprintf(
+                        __('Table `%s` created again. ', 'setup'),
+                        $table->getName()
+                    );
+                } else {
+                    $databaseTests .= sprintf(
+                        __('ERROR. Failed to create table `%s` again. ', 'setup'),
+                        $table->getName()
+                    );
+                }
+
+                if ($table->drop()) {
+                    $databaseTests .= sprintf(
+                        __('Dropped table `%s` again. ', 'setup'),
+                        $table->getName()
+                    );
+                } else {
+                    $databaseTests .=
+                                   sprintf(
+                                       __('Failed to drop table `%s` again. ', 'setup'),
+                                       $table->getName()
+                                   );
                 }
 
             } else {

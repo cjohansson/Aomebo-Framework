@@ -787,7 +787,7 @@ namespace Aomebo\Internationalization
 
                     \Aomebo\FeedBack\Debug::output(
                         sprintf(
-                            __('Failed to init internationalization adapter "%s", error: "%s".'),
+                            self::systemTranslate('Failed to init internationalization adapter "%s", error: "%s".'),
                             $adapter,
                             $e->getMessage()
                         ),

@@ -80,7 +80,7 @@ namespace Aomebo\Response
                 } catch (\Exception $e) {
                     Throw new \Exception(
                         sprintf(
-                            __('Response "%s" returned error "%s"'),
+                            self::systemTranslate('Response "%s" returned error "%s"'),
                             self::$_response->getName(),
                             $e->getMessage()
                         )
