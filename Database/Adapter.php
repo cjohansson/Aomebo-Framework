@@ -1535,8 +1535,9 @@ namespace Aomebo\Database
                     if ($throwExceptionOnFailure) {
                         Throw new \Exception(
                             sprintf(
-                                self::systemTranslate('Could not connect using: "%s"'),
-                                print_r(\Aomebo\Configuration::getSetting('database'), true)
+                                self::systemTranslate('Could not connect using: "%s", error: "%s"'),
+                                print_r(\Aomebo\Configuration::getSetting('database'), true),
+                                $dbObject->getError()
                             )
                         );
                     }

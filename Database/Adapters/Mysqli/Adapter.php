@@ -27,11 +27,12 @@ namespace Aomebo\Database\Adapters\Mysqli
     /**
      * @method static \Aomebo\Database\Adapters\Mysqli\Adapter getInstance()
      */
-    final class Adapter extends 
+    final class Adapter extends
         \Aomebo\Database\Adapters\Base
     {
 
         /**
+         * @internal
          * @var \mysqli
          */
         protected $_con;
@@ -48,10 +49,8 @@ namespace Aomebo\Database\Adapters\Mysqli
         public function connect($host, $user, $password,
             $database, $options)
         {
-
             $this->_options = $options;
             $this->_con = new \mysqli($host, $user, $password);
-
             if ($this->_con->connect_error
                 || mysqli_connect_errno()
             ) {
@@ -61,7 +60,6 @@ namespace Aomebo\Database\Adapters\Mysqli
                 $this->_connected = true;
                 return true;
             }
-
         }
 
         /**
@@ -225,10 +223,7 @@ namespace Aomebo\Database\Adapters\Mysqli
          */
         public function hasError()
         {
-            if ($this->_connected) {
-                return !empty($this->_con->error);
-            }
-            return false;
+            return !empty($this->_con->error);
         }
 
         /**
@@ -236,11 +231,7 @@ namespace Aomebo\Database\Adapters\Mysqli
          */
         public function getError()
         {
-            if ($this->_connected) {
-                return $this->_con->error;
-            } else {
-                return '';
-            }
+            return (!empty($this->_con->error) ? $this->_con->error : '');
         }
 
         /**

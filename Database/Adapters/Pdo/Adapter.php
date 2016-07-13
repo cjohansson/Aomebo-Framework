@@ -21,7 +21,7 @@
 /**
  *
  */
-namespace Aomebo\Database\Adapters\PDO
+namespace Aomebo\Database\Adapters\Pdo
 {
 
     /**
@@ -38,21 +38,29 @@ namespace Aomebo\Database\Adapters\PDO
      * PostgreSQL (PDO)
      * SQLite (PDO)
      * 4D (PDO)
-     * 
-     * However some functionality is not available from the PDO driver like 
-     * getting table column information in a universal way so we have to implement that 
+     *
+     * However some functionality is not available from the PDO driver like
+     * getting table column information in a universal way so we have to implement that
      * ourselves.
-     * 
+     *
      * @method static \Aomebo\Database\Adapters\PDO\Adapter getInstance()
      */
-    final class Adapter extends 
+    final class Adapter extends
         \Aomebo\Database\Adapters\Base
     {
 
         /**
+         * @internal
          * @var \PDO
          */
         protected $_con;
+
+        /**
+         * @internal
+         * @static
+         * @var string
+         */
+        protected static $_lastErrorMessage = '';
 
         /**
          * @param string $host
@@ -96,9 +104,12 @@ namespace Aomebo\Database\Adapters\PDO
                     if (isset($this->_con)) {
                         $this->_connected = true;
                         $this->_selectedDatabase = true;
+                        self::$_lastErrorMessage = '';
                         return true;
                     }
-                } catch (\Exception $e) {}
+                } catch (\PDOException $e) {
+                    self::$_lastErrorMessage = $e->getMessage();
+                }
 
                 $this->_connected = false;
                 return false;
@@ -231,7 +242,7 @@ namespace Aomebo\Database\Adapters\PDO
         }
 
         /**
-         * 
+         *
          */
         public function getPrivilegies()
         {
@@ -254,7 +265,7 @@ namespace Aomebo\Database\Adapters\PDO
                     $this->_con->setAttribute(
                         \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
                     return $result;
-                }                
+                }
             }
             return false;
         }
@@ -302,6 +313,8 @@ namespace Aomebo\Database\Adapters\PDO
         {
             if ($this->_connected) {
               return print_r($this->_con->errorInfo(), true);
+            } else if (!empty(self::$_lastErrorMessage)) {
+                return self::$_lastErrorMessage;
             } else {
                 return '';
             }
