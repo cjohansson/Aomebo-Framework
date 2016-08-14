@@ -50,7 +50,7 @@ namespace Aomebo\Template\Adapters\Twig
                     array( & $this, 'url')
                 ),
                 new \Twig_SimpleFunction(
-                    '__', 
+                    '__',
                     '__'
                 ),
                 new \Twig_SimpleFunction(
@@ -146,9 +146,9 @@ namespace Aomebo\Template\Adapters\Twig
             $env, $string, $toLowerCase = true, $replaceWith = '_')
         {
             return \Aomebo\Dispatcher\System::formatUriComponent(
-                $string, 
-                $toLowerCase, 
-                $replaceWith, 
+                $string,
+                $toLowerCase,
+                $replaceWith,
                 $env->getCharset()
             );
         }
@@ -165,13 +165,13 @@ namespace Aomebo\Template\Adapters\Twig
             $env, $string, $toLowerCase = true, $replaceWith = '-')
         {
             return \Aomebo\Dispatcher\System::formatUriComponent(
-                $string, 
-                $toLowerCase, 
-                $replaceWith, 
+                $string,
+                $toLowerCase,
+                $replaceWith,
                 $env->getCharset()
             );
         }
-        
+
     }
-    
+
 }

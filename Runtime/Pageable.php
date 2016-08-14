@@ -32,14 +32,14 @@ namespace Aomebo\Runtime
 
         /**
          * Should return an associative array containing page => page data or boolean false.
-         * 
+         *
          * @return array|bool
          */
         public function getPages();
 
         /**
          * Should return an associative array with uri => page or boolean false.
-         * 
+         *
          * @return array|bool
          */
         public function getUriToPages();

@@ -1501,7 +1501,9 @@ namespace Aomebo\Dispatcher
                 preg_replace('/(\\' . $replaceWith . ')+/', $replaceWith, $convert);
 
             if ($toLowerCase) {
-                $convert = mb_strtolower($convert, $charset);
+                $convert = (function_exists('mb_strtolower')
+                            ? mb_strtolower($convert, $charset)
+                            : strtolower($convert));
             }
 
             return $convert;
