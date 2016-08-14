@@ -955,9 +955,10 @@ namespace Aomebo\Indexing
                 strtolower(\Aomebo\Configuration::getSetting(
                     'database,adapter'));
 
-            // Aomebo Indexing Engine only supports mysql or mysqli
+            // Aomebo Indexing Engine only supports mysql, mysqli or pdo
             if ($databaseAdapter == 'mysqli'
                 || $databaseAdapter == 'mysql'
+                || $databaseAdapter == 'pdo'
             ) {
 
                 $storageEngine =
@@ -1014,7 +1015,7 @@ namespace Aomebo\Indexing
             } else {
                 Throw new \Exception(
                     self::systemTranslate(
-                        'Aomebo Indexing Engine supports only MySQL or MySQLi as database adapter'
+                        'Aomebo Indexing Engine supports only MySQL, MySQLi or PDO as database adapter'
                     )
                 );
             }
