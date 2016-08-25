@@ -82,8 +82,7 @@ namespace Aomebo\Database\Adapters\Pdo
                 $this->_options = $options;
 
                 $dbOptions = array(
-                    \PDO::ATTR_ERRMODE => true,
-                    \PDO::ERRMODE_EXCEPTION => true,
+                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
                 );
                 if (isset($options['options'])) {
                     $dbOptions = $options['options'];
@@ -234,9 +233,12 @@ namespace Aomebo\Database\Adapters\Pdo
         public function query($sql)
         {
             if ($this->_connected) {
+                self::$_lastErrorMessage = '';
                 try {
                     return $this->_con->query($sql);
-                } catch (\Exception $e) {}
+                } catch (\PDOException $e) {
+                    self::$_lastErrorMessage = $e->getMessage();
+                }
             }
             return false;
         }
@@ -312,7 +314,8 @@ namespace Aomebo\Database\Adapters\Pdo
         public function getError()
         {
             if ($this->_connected) {
-              return print_r($this->_con->errorInfo(), true);
+              return print_r($this->_con->errorInfo(), true)
+                  . self::$_lastErrorMessage;
             } else if (!empty(self::$_lastErrorMessage)) {
                 return self::$_lastErrorMessage;
             } else {
