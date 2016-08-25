@@ -404,7 +404,7 @@ namespace Aomebo
          */
         public static function addAutoLoadPaths($paths)
         {
-            if (is_array($paths) && sizeof($paths) > 0) {
+            if (is_array($paths) && count($paths) > 0) {
                 foreach ($paths as $path) {
                     self::addAutoLoadPath($path);
                 }
@@ -450,7 +450,7 @@ namespace Aomebo
                         }
                     }
                     if ($maximumConcurrentRequests > 0
-                        && sizeof($requests) > $maximumConcurrentRequests
+                        && count($requests) > $maximumConcurrentRequests
                     ) {
                         self::setApplicationData(
                             'requests',
@@ -461,7 +461,7 @@ namespace Aomebo
                         $requests = self::getApplicationData('requests', true);
                     }
                 } while($maximumConcurrentRequests > 0
-                        && sizeof($requests) > $maximumConcurrentRequests
+                        && count($requests) > $maximumConcurrentRequests
                 );
 
                 self::setApplicationData(
@@ -581,7 +581,7 @@ namespace Aomebo
          */
         public static function getRuntimes()
         {
-            return (sizeof(self::$_runtimes) > 0 ?
+            return (count(self::$_runtimes) > 0 ?
                 self::$_runtimes : false);
         }
 
@@ -642,7 +642,7 @@ namespace Aomebo
             if (isset($array)
                 && is_array($array)
             ) {
-                if (sizeof($array) > 0) {
+                if (count($array) > 0) {
                     foreach ($array as $key => $value)
                     {
                         self::setParameter($key, $value);
@@ -831,11 +831,11 @@ namespace Aomebo
                     }
                 }
 
-                $sizeof = sizeof($explodes);
+                $count = count($explodes);
 
                 // Support files like "\Modules\Cron\Cron" when calling "\Modules\Cron\Module"
-                if ($sizeof > 2) {
-                    $explodes[$sizeof - 1] = $explodes[$sizeof - 2];
+                if ($count > 2) {
+                    $explodes[$count - 1] = $explodes[$count - 2];
                     $trySubPaths[] = implode(DIRECTORY_SEPARATOR, $explodes) . _PHP_EX_;
                 }
 
@@ -1000,11 +1000,31 @@ namespace Aomebo
                     try
                     {
                         if (!empty($data['runtimes'])) {
-                            if ($runtimes = @unserialize($data['runtimes'])) {
+                            if ($runtimes = unserialize($data['runtimes'])) {
                                 if (is_array($runtimes)
-                                    && sizeof($runtimes) > 0
+                                    && count($runtimes) > 0
                                 ) {
-                                    self::$_runtimes = $runtimes;
+
+                                    // Check that it really is valid run-times
+                                    $allIsRuntime = true;
+                                    foreach ($runtimes as $runtime)
+                                    {
+                                        if (!is_object($runtime)
+                                            || !is_a($runtime, '\Aomebo\Runtime')
+                                        ) {
+                                            $allIsRuntime = false;
+                                            break;
+                                        }
+                                    }
+                                    if ($allIsRuntime) {
+                                        self::$_runtimes = $runtimes;
+                                    } else {
+                                        \Aomebo\Feedback\Debug::log(self::systemTranslate(
+                                            'At least one run-time in cache was of wrong type. Cleaning.'
+                                        ));
+                                        $loadedCache = false;
+                                    }
+
                                 } else {
                                     \Aomebo\Feedback\Debug::output(self::systemTranslate(
                                         'Run-times cache returned zero run-times. Cleaning.'
@@ -1016,11 +1036,31 @@ namespace Aomebo
                             }
                         }
                         if (!empty($data['routes'])) {
-                            if ($routes = @unserialize($data['routes'])) {
+                            if ($routes = unserialize($data['routes'])) {
                                 if (is_array($routes)
-                                    && sizeof($routes) > 0
+                                    && count($routes) > 0
                                 ) {
-                                    \Aomebo\Dispatcher\System::setRoutes($routes);
+
+                                    // Check that it really is routes
+                                    $allIsRoutes = true;
+                                    foreach ($routes as $route)
+                                    {
+                                        if (!is_object($route)
+                                            || !is_a($route, '\Aomebo\Dispatcher\Route')
+                                        ) {
+                                            $allIsRoutes = false;
+                                            break;
+                                        }
+                                    }
+                                    if ($allIsRoutes) {
+                                        \Aomebo\Dispatcher\System::setRoutes($routes);
+                                    } else {
+                                        \Aomebo\Feedback\Debug::log(self::systemTranslate(
+                                            'At least one route in cache was of wrong type. Cleaning.'
+                                        ));
+                                        $loadedCache = false;
+                                    }
+
                                 } else {
                                     \Aomebo\Feedback\Debug::output(self::systemTranslate(
                                         'Routes cache returned zero routes. Cleaning.'
@@ -1062,7 +1102,6 @@ namespace Aomebo
 
                     if (is_dir($root))
                     {
-
                         $dirs = scandir($root);
 
                         // Iterate through all directories
@@ -1074,7 +1113,6 @@ namespace Aomebo
                                 && $dir != '.'
                                 && $dir != '..'
                             ) {
-
                                 $absPath = $root . DIRECTORY_SEPARATOR . $dir;
 
                                 // Is it a valid directory?
@@ -1083,26 +1121,22 @@ namespace Aomebo
                                 }
 
                             }
-
                         }
                     }
+
                 }
 
                 if ($useRuntimeCache) {
-
-                    $data = array(
-                        'runtimes' => serialize(self::$_runtimes),
-                        'routes' => serialize(\Aomebo\Dispatcher\System::getRoutes()),
-                    );
-
                     \Aomebo\Cache\System::saveCache(
                         $cacheParameters,
                         $cacheKey,
-                        $data,
+                        array(
+                            'runtimes' => serialize(self::$_runtimes),
+                            'routes' => serialize(\Aomebo\Dispatcher\System::getRoutes()),
+                        ),
                         \Aomebo\Cache\System::FORMAT_SERIALIZE,
                         \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
                     );
-
                 }
 
             }
@@ -1167,7 +1201,13 @@ namespace Aomebo
                             $foundClass = true;
                         }
 
-                    } catch (\Exception $e) {}
+                    } catch (\Exception $e) {
+                        \Aomebo\Feedback\Debug::log(self::systemTranslate(sprintf(
+                            "Including '%s' caused error '%s'",
+                            $foundFileName,
+                            $e->getMessage()
+                        )));
+                    }
 
                     if ($foundClass) {
 
@@ -1175,17 +1215,15 @@ namespace Aomebo
 
                         try
                         {
-
-                            /** @var \Aomebo\Runtime $runtime */
                             $runtime = new $foundClassName();
+                            if (is_object($runtime)
+                                && is_a($runtime, '\Aomebo\Runtime')
+                            ) {
 
-                            if (is_a($runtime, '\Aomebo\Runtime'))
-                            {
+                                /** @var \Aomebo\Runtime $runtime */
                                 self::$_runtimes[] = $runtime;
                             }
-
                         } catch (\Exception $e) {
-
                             if (\Aomebo\Configuration::getSetting(
                                 'feedback,halt on runtime construct exceptions')
                             ) {
@@ -1196,7 +1234,6 @@ namespace Aomebo
                                     )
                                 );
                             }
-
                         }
                     }
                 }
@@ -1216,7 +1253,13 @@ namespace Aomebo
                         if ($jsonData = json_decode($fileData, true)) {
                             self::$_applicationData = $jsonData;
                         }
-                    } catch (\Exception $e) {}
+                    } catch (\Exception $e) {
+                        \Aomebo\Feedback\Debug::log(self::systemTranslate(sprintf(
+                            "Failed to load application-data from '%s' caused error '%s'",
+                            self::getApplicationDataPath(),
+                            $e->getMessage()
+                        )));
+                    }
                 }
             }
         }
@@ -1232,7 +1275,7 @@ namespace Aomebo
                 && is_array($parameters)
             ) {
 
-                /** @define string _PHP_EX_                 Php extension */
+                /** @define string _PHP_EX_                 PHP file suffix */
                 define('_PHP_EX_', '.php');
 
                 /** @define string _PRIVATE_ROOT_           Absolute root to private */
@@ -1297,7 +1340,13 @@ namespace Aomebo
                         file_put_contents(self::getApplicationDataPath(), $jsonData);
                     }
                     self::$_flushedApplicationData = true;
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                    \Aomebo\Feedback\Debug::log(self::systemTranslate(sprintf(
+                        "Failed to write application-data to '%s', caused error '%s'",
+                        self::getApplicationDataPath(),
+                        $e->getMessage()
+                    )));
+                }
             }
         }
 

@@ -260,6 +260,24 @@ namespace Aomebo\Feedback
 
         /**
          * @static
+         * @param mixed $message
+         */
+        public static function display($message)
+        {
+            self::output($message, false, true);
+        }
+
+        /**
+         * @static
+         * @param mixed $message
+         */
+        public static function log($message)
+        {
+            self::output($message, false, true);
+        }
+
+        /**
+         * @static
          * @param string $message
          * @param bool|null [$display = null]
          * @param bool|null [$log = null]
@@ -267,6 +285,12 @@ namespace Aomebo\Feedback
         public static function output($message, $display = null, $log = null)
         {
             if (!empty($message)) {
+
+                if (is_array($message)
+                    || is_object($message)
+                ) {
+                    $message = print_r($message, true);
+                }
 
                 $lineBreakCharacter =
                     \Aomebo\Configuration::getSetting(

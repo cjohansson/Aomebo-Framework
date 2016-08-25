@@ -523,7 +523,7 @@ namespace Aomebo\Dispatcher
         {
             return (isset($_FILES)
                 && is_array($_FILES)
-                && sizeof($_FILES) > 0);
+                && count($_FILES) > 0);
         }
 
         /**
@@ -659,7 +659,7 @@ namespace Aomebo\Dispatcher
         {
             if (isset($_SERVER['argv'])
                 && is_array($_SERVER['argv'])
-                && sizeof($_SERVER['argv']) > 0
+                && count($_SERVER['argv']) > 0
             ) {
                 return $_SERVER['argv'];
             } else {
@@ -687,7 +687,7 @@ namespace Aomebo\Dispatcher
         {
             if (isset(self::$_httpHeaderFields)
                 && is_array(self::$_httpHeaderFields)
-                && sizeof(self::$_httpHeaderFields) > 0
+                && count(self::$_httpHeaderFields) > 0
             ) {
                 return self::$_httpHeaderFields;
             }
@@ -1289,7 +1289,7 @@ namespace Aomebo\Dispatcher
             return (self::isHttpPostRequest()
                 && isset($_POST)
                 && is_array($_POST)
-                && sizeof($_POST) > 0);
+                && count($_POST) > 0);
         }
 
         /**
@@ -1301,7 +1301,7 @@ namespace Aomebo\Dispatcher
             return (self::isHttpGetRequest()
                 && isset($_GET)
                 && is_array($_GET)
-                && sizeof($_GET) > 0);
+                && count($_GET) > 0);
         }
 
         /**
@@ -1813,7 +1813,7 @@ namespace Aomebo\Dispatcher
             if (!$clear
                 && isset($_GET)
                 && is_array($_GET)
-                && sizeof($_GET) > 0
+                && count($_GET) > 0
             ) {
 
                 if (!isset($getArray)
@@ -1841,7 +1841,7 @@ namespace Aomebo\Dispatcher
             // Is a GET array specified?
             if (isset($getArray)
                 && is_array($getArray)
-                && sizeof($getArray) > 0
+                && count($getArray) > 0
             ) {
 
                 if ($usingPage) {
@@ -1905,7 +1905,7 @@ namespace Aomebo\Dispatcher
         {
             if (isset($uriParameters)
                 && is_array($uriParameters)
-                && sizeof($uriParameters) > 0
+                && count($uriParameters) > 0
             ) {
                 if ($route = self::getRouteByUriParameters(
                     $uriParameters,
@@ -1969,7 +1969,7 @@ namespace Aomebo\Dispatcher
         {
             if (isset($uriParameters)
                 && is_array($uriParameters)
-                && sizeof($uriParameters) > 0
+                && count($uriParameters) > 0
             ) {
                 if ($hashKey = \Aomebo\Dispatcher\Route::generateRouteHashKey(
                     array_keys($uriParameters))
@@ -2097,11 +2097,11 @@ namespace Aomebo\Dispatcher
         {
             if (isset($routes)
                 && is_array($routes)
-                && sizeof($routes) > 0
+                && count($routes) > 0
             ) {
                 if (isset($routes['keys'])
                     && is_array($routes['keys'])
-                    && sizeof($routes['keys']) > 0
+                    && count($routes['keys']) > 0
                     && !empty($routes['regexp'])
                     && !empty($routes['sprintf'])
                 ) {
@@ -2123,7 +2123,7 @@ namespace Aomebo\Dispatcher
                     {
                         if (isset($route['keys'])
                             && is_array($route['keys'])
-                            && sizeof($route['keys']) > 0
+                            && count($route['keys']) > 0
                             && !empty($route['regexp'])
                             && !empty($route['sprintf'])
                         ) {
@@ -2342,10 +2342,9 @@ namespace Aomebo\Dispatcher
             if (\Aomebo\Configuration::getSetting(
                 'paths,resources dir is absolute')
             ) {
-                if (stripos($resPath, 'http://')
-                    || stripos($resPath, 'https://')
+                if (!stripos($resPath, 'http://')
+                    && !stripos($resPath, 'https://')
                 ) {
-                } else {
                     if (self::pathStartsWithDash($resPath)) {
                         $resPath = _PUBLIC_ROOT_ . substr($resPath, 1);
                     } else {
@@ -2393,10 +2392,9 @@ namespace Aomebo\Dispatcher
             if (\Aomebo\Configuration::getSetting(
                 'paths,uploads dir is absolute')
             ) {
-                if (stripos($resPath, 'http://')
-                    || stripos($resPath, 'https://')
+                if (!stripos($resPath, 'http://')
+                    && stripos($resPath, 'https://')
                 ) {
-                } else {
                     if (self::pathStartsWithDash($resPath)) {
                         $resPath = _PUBLIC_ROOT_ . substr($resPath, 1);
                     } else {
@@ -2476,7 +2474,7 @@ namespace Aomebo\Dispatcher
         {
             if (isset($pagesToUris)
                 && is_array($pagesToUris)
-                && sizeof($pagesToUris) > 0
+                && count($pagesToUris) > 0
             ) {
                 $accBool = true;
                 foreach ($pagesToUris as $page => $uri)
@@ -2503,7 +2501,7 @@ namespace Aomebo\Dispatcher
         {
             if (isset($urisToPages)
                 && is_array($urisToPages)
-                && sizeof($urisToPages) > 0
+                && count($urisToPages) > 0
             ) {
                 $accBool = true;
                 foreach ($urisToPages as $uri => $page)
@@ -2577,7 +2575,7 @@ namespace Aomebo\Dispatcher
         public static function getUriToPages()
         {
             if (empty(self::$_loadedUriPagesConfiguration)) {
-                if (sizeof(self::$_uriToPages)) {
+                if (count(self::$_uriToPages)) {
                     $uris = 
                         \Aomebo\Configuration::getSetting('dispatch,uri pages');
                     foreach ($uris as $uri => $page)
@@ -2600,7 +2598,7 @@ namespace Aomebo\Dispatcher
         public static function getPagesToUri()
         {
             if (empty(self::$_loadedPagesUriConfiguration)) {
-                if (sizeof(self::$_pagesToUri)) {
+                if (count(self::$_pagesToUri)) {
                     $pages =
                         \Aomebo\Configuration::getSetting('dispatch,pages uri');
                     foreach ($pages as $page => $uri)
@@ -2644,10 +2642,6 @@ namespace Aomebo\Dispatcher
                 } else {
                     self::setPage($defaultPage);
                 }
-
-            } else if (self::isFaviconRequest()) {
-
-
 
             } else if (self::isPageRequest()) {
 

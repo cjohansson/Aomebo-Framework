@@ -1,15 +1,15 @@
 # Aomebo Framework
 
-Aomebo Framework (AF) is a **open-source object-oriented (OO) PHP MVC framework**. 
+Aomebo Framework (AF) is a **open-source (OS) object-oriented (OO) PHP MVC (Model-View-Controller) framework**.
 
-The framework is built to be compatible with all types of applications (even shell applications) and is fully scaleable. 
+The framework is built to be compatible with all types of applications (even shell applications) and is fully scalable.
 Only loads the stuff **you need** for your project and tries to place as few limits as possible on the developer.
 
 The framework is built with time-, space- and memory-complexity in mind which makes it memory-efficient, CPU-efficient, storage-efficient and fast.
 
 With optional features such as:
 
-* Built-in concurrency-support, supports communication between requests, limit concurrent requests and load-queues (optional) 
+* Built-in concurrency-support, supports communication between requests, limit concurrent requests and load-queues (optional)
 * Advanced and easy-to-use trigger and filter system (Like Wordpress) (optional)
 * Internationalization and localization with adapters and supports multiple simulatenous text-domains (Gettext adapter like Wordpress for .mo and .po files and PHP) (optional)
 * Multiple template adapters (Smarty 3, Twig, PHP) (optional)
@@ -23,7 +23,7 @@ With optional features such as:
 * Feedback and debug functions (optional)
 * Built-in support for dynamic indexing (optional)
 * Built-in support for different session setups (filesystem, native PHP or database) (optional)
-* **All this super-fast, even with database-support execution-times in a few hundred of microseconds for large-scale sites**.
+* **All this super-fast, even with database-support execution-times in a few hundred of miliseconds for large-scale sites**.
 
 The framework has been successfully used for:
 
@@ -37,5 +37,29 @@ The framework has been successfully used for:
 
 The framework is licensed by the Open license LGPL version 3.
 
-Visit the coming community at <http://www.aomebo.org> once it is completed. 
-You can e-mail me at <info@aomebo.org>.
+## Setup
+
+1. Clone framework anywhere on your server `git clone https://github.com/cjohansson/Aomebo-Framework.git /usr/share/aomebo-framework/`
+2. Create a `index.php` in your public root like this and tell Aomebo Framework where your applications private files are located.
+
+``` php
+<?php
+require_once('/usr/share/aomebo-framework/Application.php');
+new \Aomebo\Application(
+    array(
+        \Aomebo\Application::PARAMETER_SITE_PATH =>
+            '/var/www/MyWebSite/private/',
+    )
+);
+
+```
+
+3. Create some modules
+
+4. Create some pages
+
+5. Try it
+
+6. Add database connection
+
+7. Try again
