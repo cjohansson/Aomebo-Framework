@@ -1189,12 +1189,20 @@ namespace Aomebo\Database
         /**
          * Reconnects connection
          * @static
-         * @param int [$iterations = 5]
-         * @param int [$delay = 3]
+         * @param int|null [$iterations = null]
+         * @param int|null [$delay = null]
          * @return bool
          */
-        public static function reconnect($iterations = 5, $delay = 3)
+        public static function reconnect($iterations = null, $delay = null)
         {
+            if (!isset($iterations)) {
+                $iterations = \Aomebo\Configuration::getSetting(
+                    'database,reconnect max retries');
+            }
+            if (!isset($delay)) {
+                $delay = \Aomebo\Configuration::getSetting(
+                    'database,reconnect retry delay');
+            }
             for ($i = 0; $i < $iterations; $i++)
             {
                 sleep($delay);
