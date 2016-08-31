@@ -17,13 +17,11 @@
  * @license LGPL version 3
  * @see http://www.aomebo.org/ or https://github.com/cjohansson/Aomebo-Framework
  */
-
 /**
  *
  */
 namespace Aomebo\Response\Responses
 {
-
     /**
      *
      */
@@ -85,7 +83,5 @@ namespace Aomebo\Response\Responses
             \Aomebo\Presenter\Engine::output();
 
         }
-
     }
-
 }

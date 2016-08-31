@@ -220,7 +220,7 @@ namespace Aomebo
                 /**
                  * Default error settings
                  *
-                 * These settings will later be overridden by site settings
+                 * These settings will later be overridden by site settings.
                  */
                 ini_set('display_errors', false);
                 ini_set('log_errors', true);
@@ -305,7 +305,11 @@ namespace Aomebo
 
                         self::setParameter(
                             self::PARAMETER_SITE_PATH,
-                            self::_getSetupSitePath()
+                            self::_getSetupSitePrivatePath()
+                        );
+                        self::setParameter(
+                            self::PARAMETER_PUBLIC_INTERNAL_PATH,
+                            self::_getSetupSitePublicPath()
                         );
                         self::$_writingEnabled = false;
 
@@ -314,7 +318,11 @@ namespace Aomebo
 
                         self::setParameter(
                             self::PARAMETER_SITE_PATH,
-                            self::_getConfigurationSitePath()
+                            self::_getConfigurationSitePrivatePath()
+                        );
+                        self::setParameter(
+                            self::PARAMETER_PUBLIC_INTERNAL_PATH,
+                            self::_getConfigurationSitePublicPath()
                         );
                         self::$_writingEnabled = false;
 
@@ -730,7 +738,7 @@ namespace Aomebo
         /**
          * @static
          * @param string $key
-         * @return bool
+         * @return mixed
          */
         public static function getParameter($key)
         {
@@ -1138,7 +1146,6 @@ namespace Aomebo
                         \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
                     );
                 }
-
             }
 
             // Remove the inhibition of the  construction of these classes
@@ -1364,7 +1371,7 @@ namespace Aomebo
          * @static
          * @return string
          */
-        private static function _getSetupSitePath()
+        private static function _getSetupSitePrivatePath()
         {
             return __DIR__ . DIRECTORY_SEPARATOR . 'GUI' . DIRECTORY_SEPARATOR
                 . 'Setup' . DIRECTORY_SEPARATOR . 'private';
@@ -1375,10 +1382,32 @@ namespace Aomebo
          * @static
          * @return string
          */
-        private static function _getConfigurationSitePath()
+        private static function _getSetupSitePublicPath()
+        {
+            return __DIR__ . DIRECTORY_SEPARATOR . 'GUI' . DIRECTORY_SEPARATOR
+                . 'Setup' . DIRECTORY_SEPARATOR . 'public';
+        }
+
+        /**
+         * @internal
+         * @static
+         * @return string
+         */
+        private static function _getConfigurationSitePrivatePath()
         {
             return __DIR__ . DIRECTORY_SEPARATOR . 'Configuration' . DIRECTORY_SEPARATOR
                 . 'Setup' . DIRECTORY_SEPARATOR . 'private';
+        }
+
+        /**
+         * @internal
+         * @static
+         * @return string
+         */
+        private static function _getConfigurationSitePublicPath()
+        {
+            return __DIR__ . DIRECTORY_SEPARATOR . 'Configuration' . DIRECTORY_SEPARATOR
+                . 'Setup' . DIRECTORY_SEPARATOR . 'public';
         }
 
     }

@@ -42,7 +42,7 @@ namespace Aomebo\Exceptions
                 $message = \Aomebo\Internationalization\System::
                     systemTranslate($message);
             }
-            if (sizeof($stringVariables) > 0) {
+            if (count($stringVariables) > 0) {
                 $message = vsprintf($message, $stringVariables);
             }
             parent::__construct($message, 0, null);
@@ -51,7 +51,7 @@ namespace Aomebo\Exceptions
     }
 
     /**
-     * 
+     *
      */
     class InvalidParametersException extends TranslatedException
     {
@@ -61,7 +61,7 @@ namespace Aomebo\Exceptions
          * @param array [$stringVariables = array()]
          * @param \Exception|null [$previous = null]
          */
-        public function __construct($message = null, 
+        public function __construct($message = null,
             $stringVariables = array())
         {
             if (empty($message)) {
@@ -69,7 +69,6 @@ namespace Aomebo\Exceptions
             }
             parent::__construct($message, $stringVariables);
         }
-        
+
     }
-    
 }

@@ -442,7 +442,7 @@ namespace Aomebo
                         // Convert old way of specifying dependencies to new way
                         if (isset($this->_dependencies)
                             && is_array($this->_dependencies)
-                            && sizeof($this->_dependencies) > 0
+                            && count($this->_dependencies) > 0
                         ) {
                             foreach ($this->_dependencies as $dependency)
                             {
@@ -477,7 +477,7 @@ namespace Aomebo
                         $this->getParameterFromIndex(0);
 
                     if (is_array($parameters)
-                        && sizeof($parameters) > 0
+                        && count($parameters) > 0
                     ) {
                         foreach ($parameters as $key => $value)
                         {
@@ -589,11 +589,11 @@ namespace Aomebo
         public function setField($field, $value)
         {
             if (is_array($field)
-                && sizeof($field)
+                && count($field)
             ) {
-                $sizeof = sizeof($field);
+                $count = count($field);
                 $fieldPointer = & $this->_fields;
-                for ($i = 0; $i < $sizeof; $i++) {
+                for ($i = 0; $i < $count; $i++) {
                     $field = $field[$i];
                     if (!isset($fieldPointer[$field])) {
                         $fieldPointer[$field] = array();
@@ -619,9 +619,9 @@ namespace Aomebo
         public function getField($field, $default = null)
         {
             if (is_array($field)) {
-                $sizeof = sizeof($field);
+                $count = count($field);
                 $value = $this->_fields;
-                for ($i = 0; $i < $sizeof; $i++) {
+                for ($i = 0; $i < $count; $i++) {
                     $sub = $field[$i];
                     if (empty($value[$sub])) {
                         if (isset($default)) {
@@ -705,7 +705,7 @@ namespace Aomebo
 
             if (isset($routes)) {
                 if (is_array($routes)
-                    && sizeof($routes) > 0
+                    && count($routes) > 0
                 ) {
                     foreach ($routes as $route)
                     {
@@ -830,7 +830,6 @@ namespace Aomebo
             $this->resetFields();
 
             if ($this->isEnabled()) {
-
                 if ($isPageOrShellRequest) {
 
                     /**
@@ -839,10 +838,8 @@ namespace Aomebo
                      * @see \Aomebo\Runtime\Routable
                      */
                     if ($this->isRoutable()) {
-
                         /** @var \Aomebo\Runtime\Routable $ref */
                         $ref = & $this;
-
                         if ($routes = $ref->getRoutes()) {
                             $this->loadRoutes($routes);
                         }
@@ -850,7 +847,7 @@ namespace Aomebo
                     // TODO: This below is deprecated and will be removed in next major version.
                     } else if (isset($this->_routes)
                         && is_array($this->_routes)
-                        && sizeof($this->_routes) > 0
+                        && count($this->_routes) > 0
                     ) {
                         foreach ($this->_routes as $route)
                         {
@@ -872,17 +869,15 @@ namespace Aomebo
                             }
                         }
                     }
-                                       
+
                 }
 
                 if ($this->isExecutionParameters()) {
-
                     /** @var \Aomebo\Runtime\ExecutionParameters $ref */
                     $ref = & $this;
-
                     if ($parameters = $ref->getParameters()) {
                         if (is_array($parameters)
-                            && sizeof($parameters) > 0
+                            && count($parameters) > 0
                         ) {
                             foreach ($parameters as $parameterIndex => $parameterKey)
                             {
@@ -897,22 +892,20 @@ namespace Aomebo
                 // TODO: This below is deprecated and will be removed in next major version.
                 } else if (isset($this->_parameters)
                     && is_array($this->_parameters)
-                    && sizeof($this->_parameters) > 0
+                    && count($this->_parameters) > 0
                 ) {
-                    $sizeof =
-                        sizeof($this->_parameters);
-                    for ($i = 0; $i < $sizeof; $i++)
+                    $count =
+                        count($this->_parameters);
+                    for ($i = 0; $i < $count; $i++)
                     {
                         $parameter = $this->_parameters[$i];
                         $this->_parameterToIndex[$parameter] = $i;
                         $this->_indexToParameter[$i] = $parameter;
                     }
                 }
-
             }
-            
-            $this->load();
 
+            $this->load();
         }
 
         /**
@@ -923,7 +916,7 @@ namespace Aomebo
          */
         public function load()
         {
-            
+
             $isPageOrShellRequest =
                 \Aomebo\Dispatcher\System::isPageRequest()
                 || \Aomebo\Dispatcher\System::isShellRequest();
@@ -997,10 +990,8 @@ namespace Aomebo
                         $ref = & $this;
 
                         if ($pages = $ref->getPages()) {
-
                             // Add interpreter page dynamically
                             \Aomebo\Interpreter\Engine::addPages($pages);
-
                         }
 
                         if ($pagesToUris = $ref->getPagesToUri()) {
@@ -1020,11 +1011,8 @@ namespace Aomebo
                             );
 
                         }
-
                     }
-                    
                 }
-                
             }
 
             if ($this->isInitializable()) {
@@ -1034,29 +1022,24 @@ namespace Aomebo
                 $ref->initialize();
 
             }
-            
+
         }
 
         /**
-         * 
+         *
          */
         public function autoInstall()
         {
-
             if ($this->isInstallable()) {
-            
                 /** @var \Aomebo\Runtime\Installable $ref */
                 $ref = & $this;
-    
                 if (!$ref->isInstalled()) {
                     $ref->install();
                     if (!$ref->isInstalled()) {
                         $this->setEnabled(false);
                     }
                 }
-                
             }
-
         }
 
         /**
@@ -1401,7 +1384,7 @@ namespace Aomebo
             if (isset($array)
                 && !empty($key)
                 && is_array($array)
-                && sizeof($array) > 0
+                && count($array) > 0
                 && isset($array[$key])
             ) {
                 return $array[$key];
@@ -1421,7 +1404,7 @@ namespace Aomebo
             if (isset($array)
                 && !empty($key)
                 && is_array($array)
-                && sizeof($array) > 0
+                && count($array) > 0
                 && isset($array[$key])
                 && $array[$key] != ''
             ) {
@@ -1442,12 +1425,11 @@ namespace Aomebo
             if (isset($array)
                 && !empty($key)
                 && is_array($array)
-                && sizeof($array) > 0
+                && count($array) > 0
                 && isset($array[$key])
                 && preg_match(
                     '/^[\d]+$/',
-                    $array[$key],
-                    $matches) === 1
+                    $array[$key]) === 1
             ) {
                 return (int) $array[$key];
             }
@@ -1466,7 +1448,7 @@ namespace Aomebo
             if (isset($array)
                 && !empty($key)
                 && is_array($array)
-                && sizeof($array) > 0
+                && count($array) > 0
                 && isset($array[$key])
             ) {
                 return ($array[$key] == true);

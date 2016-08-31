@@ -1,8 +1,5 @@
 <?php
-
-global $configuration;
-
-$configuration = array(
+return array(
     'framework' =>
         array(
             'name' =>
@@ -647,8 +644,8 @@ $configuration = array(
             'default page' =>
                 array(
                     'type' => 'string',
-                    'required' => true,
-                    'default' => 'index',
+                    'required' => false,
+                    'default' => '',
                 ),
             'page adapter' =>
                 array(
@@ -1013,4 +1010,3 @@ $configuration = array(
             'default' => array(),
         ),
 );
-

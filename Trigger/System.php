@@ -143,16 +143,6 @@ namespace Aomebo\Trigger
         private static $_sortedTriggers = array();
 
         /**
-         *
-         */
-        public function __construct()
-        {
-            parent::__construct();
-            if (!$this->_isConstructed()) {
-            }
-        }
-
-        /**
          * @static
          * @param string $key
          * @param \Closure|string|array $ref
@@ -163,7 +153,7 @@ namespace Aomebo\Trigger
         {
             if (isset($key, $ref)) {
                 if (self::isFunctionReference($ref)) {
-                    
+
                     if (!isset(self::$_triggers[$key])) {
                         self::$_triggers[$key] = array();
                     }
@@ -178,15 +168,15 @@ namespace Aomebo\Trigger
                             $priority--;
                         }
                     }
-                    
+
                     // Add trigger to list for this key
                     self::$_triggers[$key][$priority] = $ref;
-                    
+
                     // Add flag that this key has not been sorted yet
                     self::$_sortedTriggers[$key] = false;
-                    
+
                     return true;
-                    
+
                 }
             }
             return false;
@@ -214,17 +204,17 @@ namespace Aomebo\Trigger
         {
             if (isset($key, self::$_triggers[$key])
                 && is_array(self::$_triggers[$key])
-                && sizeof(self::$_triggers[$key]) > 0
+                && count(self::$_triggers[$key]) > 0
             ) {
-                
+
                 // Has this key not been sorted yet?
                 if (empty(self::$_sortedTriggers[$key])) {
                     krsort(self::$_triggers[$key]);
                     self::$_sortedTriggers[$key] = true;
                 }
-                
+
                 return self::$_triggers[$key];
-                
+
             }
             return false;
         }
@@ -245,7 +235,7 @@ namespace Aomebo\Trigger
                 $outputIsBoolean = true;
                 $outputIsArray = true;
                 $outputIsObject = true;
-                $triggerCount = sizeof($triggers);
+                $triggerCount = count($triggers);
 
                 // Process arguments
                 if (func_num_args() > 2) {
@@ -312,7 +302,7 @@ namespace Aomebo\Trigger
                     || $outputIsObject
                 ) {
 
-                    if (sizeof($returns) > 1) {
+                    if (count($returns) > 1) {
                         $output = $returns;
                     } else {
                         $output = reset($returns);
@@ -350,7 +340,7 @@ namespace Aomebo\Trigger
                         return true;
                     }
                 } else if (is_array($ref)) {
-                    if (sizeof($ref) == 2) {
+                    if (count($ref) == 2) {
                         if ((is_object($ref[0])
                             || is_string($ref[0]))
                             && is_string($ref[1])
@@ -385,7 +375,7 @@ namespace Aomebo\Trigger
 
                         if (isset($args)
                             && is_array($args)
-                            && sizeof($args) > 0
+                            && count($args) > 0
                         ) {
                             return call_user_func_array($ref, $args);
                         } else {
@@ -394,7 +384,7 @@ namespace Aomebo\Trigger
 
                     }
                 } else if (is_array($ref)) {
-                    if (sizeof($ref) == 2) {
+                    if (count($ref) == 2) {
                         if ((is_object($ref[0])
                             || is_string($ref[0]))
                             && is_string($ref[1])
@@ -402,7 +392,7 @@ namespace Aomebo\Trigger
                             if (method_exists($ref[0], $ref[1])) {
                                 if (isset($args)
                                     && is_array($args)
-                                    && sizeof($args) > 0
+                                    && count($args) > 0
                                 ) {
                                     return call_user_func_array($ref, $args);
                                 } else {
@@ -415,7 +405,7 @@ namespace Aomebo\Trigger
                     if (function_exists($ref)) {
                         if (isset($args)
                             && is_array($args)
-                            && sizeof($args) > 0
+                            && count($args) > 0
                         ) {
                             return call_user_func_array($ref, $args);
                         } else {

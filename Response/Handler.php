@@ -253,19 +253,20 @@ namespace Aomebo\Response
                         ) {
 
                             try {
-
                                 require_once($path);
-
                                 if (class_exists($itemClassName, false)) {
-
                                     self::$_types[] = new $itemClassName();
-
                                 }
 
-                            } catch (\Exception $e) {}
+                            } catch (\Exception $e) {
+                                \Aomebo\Feedback\Debug::output(sprintf(self::systemTranslate(
+                                    'Including file "%s" caused error "%s"',
+                                    $path,
+                                    $e->getMessage()
+                                )));
+                            }
 
                         }
-
                     }
                 }
             }

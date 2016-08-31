@@ -271,14 +271,15 @@ namespace Aomebo
             $internalConfigurationFilename =
                 _SYSTEM_ROOT_ . self::$_internalConfigurationFilename;
 
-            if (file_exists($internalConfigurationFilename . '.php')) {
-
+            if (file_exists($internalConfigurationFilename . '.php')
+                && strtolower($internalConfigurationFilename . '.php') !==
+                strtolower(__FILE__)
+            ) {
                 $cacheString .=
                     '&ICTime=' . filemtime($internalConfigurationFilename . '.php')
                     . '&ICSize=' . filesize($internalConfigurationFilename . '.php');
 
             } else if (file_exists($internalConfigurationFilename . '.yml')) {
-
                 $cacheString .=
                     '&ICTime=' . filemtime($internalConfigurationFilename . '.yml')
                     . '&ICSize=' . filesize($internalConfigurationFilename . '.yml');
@@ -296,18 +297,17 @@ namespace Aomebo
             $externalConfigurationFilename =
                 _SITE_ROOT_ . self::$_externalConfigurationFilename;
 
-            if (file_exists($externalConfigurationFilename . '.php')) {
-
+            if (file_exists($externalConfigurationFilename . '.php')
+                && strtolower($externalConfigurationFilename . '.php') !==
+                strtolower(__FILE__)
+            ) {
                 self::$_hasSiteConfiguration = true;
-
                 $cacheString .=
                     '&ECTime=' . filemtime($externalConfigurationFilename . '.php')
                     . '&ECSize=' . filesize($externalConfigurationFilename . '.php');
 
             } else if (file_exists($externalConfigurationFilename . '.yml')) {
-
                 self::$_hasSiteConfiguration = true;
-
                 $cacheString .=
                     '&ECTime=' . filemtime($externalConfigurationFilename . '.yml')
                     . '&ECSize=' . filesize($externalConfigurationFilename . '.yml');
@@ -326,13 +326,11 @@ namespace Aomebo
                 _SYSTEM_ROOT_ . self::$_internalStructureFilename;
 
             if (file_exists($internalStructureFilename . '.php')) {
-
                 $cacheString .=
                     '&ISTime=' . filemtime($internalStructureFilename . '.php')
                     . '&ISSize=' . filesize($internalStructureFilename . '.php');
 
             } else if (file_exists($internalStructureFilename . '.yml')) {
-
                 $cacheString .=
                     '&ISTime=' . filemtime($internalStructureFilename . '.yml')
                     . '&ISSize=' . filesize($internalStructureFilename . '.yml');
@@ -351,13 +349,11 @@ namespace Aomebo
                 _SITE_ROOT_ . self::$_externalStructureFilename;
 
             if (file_exists($externalStructureFilename . '.php')) {
-
                 $cacheString .=
                     '&ESTime=' . filemtime($externalStructureFilename . '.php')
                     . '&ESSize=' . filesize($externalStructureFilename . '.php');
 
             } else if (file_exists($externalStructureFilename . '.yml')) {
-
                 $cacheString .=
                     '&ESTime=' . filemtime($externalStructureFilename . '.yml')
                     . '&ESSize=' . filesize($externalStructureFilename . '.yml');
@@ -392,10 +388,9 @@ namespace Aomebo
                         && is_array($cacheData['configuration'])
                         && is_array($cacheData['structure'])
                         && is_array($cacheData['settings'])
-                        && sizeof($cacheData['structure']) > 0
-                        && sizeof($cacheData['settings']) > 0
+                        && count($cacheData['structure']) > 0
+                        && count($cacheData['settings']) > 0
                     ) {
-
                         self::$_configuration = $cacheData['configuration'];
                         self::$_structure = $cacheData['structure'];
                         self::$_settings = $cacheData['settings'];
@@ -413,6 +408,7 @@ namespace Aomebo
                                 'Invalid configuration cache, cleared caches.')
                         );
                     }
+
                 } else {
                     \Aomebo\Cache\System::clearCache(
                         $cacheParameters,
@@ -424,8 +420,8 @@ namespace Aomebo
                             'Invalid configuration cache, cleared caches.')
                     );
                 }
-            } else {
 
+            } else {
                 \Aomebo\Cache\System::clearCache(
                     $cacheParameters,
                     null,
@@ -436,9 +432,7 @@ namespace Aomebo
 
                 self::$_structure = array();
                 self::$_configuration = array();
-
                 $internalStructure = array();
-
                 $convertQueue = array();
 
                 // Does internal structure-file exists?
@@ -446,21 +440,19 @@ namespace Aomebo
                     $internalStructure = self::loadPhpConfiguration(
                         $internalStructureFilename . '.php'
                     );
-                } else if (file_exists($internalStructureFilename . '.yml')) {
 
+                } else if (file_exists($internalStructureFilename . '.yml')) {
                     $internalStructure = self::loadYmlConfiguration(
                         $internalStructureFilename . '.yml'
                     );
-
                     // Convert YML to PHP
                     $convertQueue[] = array(
                         $internalStructureFilename . '.php',
                         $internalStructure
                     );
-
                 }
 
-                if (sizeof($internalStructure) > 0) {
+                if (count($internalStructure) > 0) {
                     self::multiDimensionalArrayMerge(
                         self::$_structure,
                         $internalStructure
@@ -470,25 +462,26 @@ namespace Aomebo
                 $internalConfiguration = array();
 
                 // Does internal configuration-file exists?
-                if (file_exists($internalConfigurationFilename . '.php')) {
+                if (file_exists($internalConfigurationFilename . '.php')
+                    && strtolower($internalConfigurationFilename . '.php') !==
+                    strtolower(__FILE__)
+                ) {
                     $internalConfiguration = self::loadPhpConfiguration(
                         $internalConfigurationFilename . '.php'
                     );
-                } else if (file_exists($internalConfigurationFilename . '.yml')) {
 
+                } else if (file_exists($internalConfigurationFilename . '.yml')) {
                     $internalConfiguration = self::loadYmlConfiguration(
                         $internalConfigurationFilename . '.yml'
                     );
-
                     // Convert YML to PHP
                     $convertQueue[] = array(
                         $internalConfigurationFilename . '.php',
                         $internalConfiguration
                     );
-
                 }
 
-                if (sizeof($internalConfiguration) > 0) {
+                if (count($internalConfiguration) > 0) {
                     self::multiDimensionalArrayMerge(
                         self::$_configuration,
                         $internalConfiguration
@@ -502,21 +495,19 @@ namespace Aomebo
                     $externalStructure = self::loadPhpConfiguration(
                         $externalStructureFilename . '.php'
                     );
-                } else if (file_exists($externalStructureFilename . '.yml')) {
 
+                } else if (file_exists($externalStructureFilename . '.yml')) {
                     $externalStructure = self::loadYmlConfiguration(
                         $externalStructureFilename . '.yml'
                     );
-
                     // Convert YML to PHP
                     $convertQueue[] = array(
                         $externalStructureFilename . '.php',
                         $externalStructure
                     );
-
                 }
 
-                if (sizeof($externalStructure) > 0) {
+                if (count($externalStructure) > 0) {
                     self::multiDimensionalArrayMerge(
                         self::$_structure,
                         $externalStructure
@@ -525,26 +516,27 @@ namespace Aomebo
 
                 $externalConfiguration = array();
 
-                // Does external config-file exists?
-                if (file_exists($externalConfigurationFilename . '.php')) {
+                // Does external config-file exists and is not this file?
+                if (file_exists($externalConfigurationFilename . '.php')
+                    && strtolower($externalConfigurationFilename . '.php') !==
+                    strtolower(__FILE__)
+                ) {
                     $externalConfiguration = self::loadPhpConfiguration(
                         $externalConfigurationFilename . '.php'
                     );
-                } else if (file_exists($externalConfigurationFilename . '.yml')) {
 
+                } else if (file_exists($externalConfigurationFilename . '.yml')) {
                     $externalConfiguration = self::loadYmlConfiguration(
                         $externalConfigurationFilename . '.yml'
                     );
-
                     // Convert YML to PHP
                     $convertQueue[] = array(
                         $externalConfigurationFilename . '.php',
                         $externalConfiguration
                     );
-
                 }
 
-                if (sizeof($externalConfiguration) > 0) {
+                if (count($externalConfiguration) > 0) {
                     self::multiDimensionalArrayMerge(
                         self::$_configuration,
                         $externalConfiguration
@@ -572,7 +564,7 @@ namespace Aomebo
 
                     // Are any data in convert-queue?
                     if (\Aomebo\Application::isWritingnabled()
-                        && sizeof($convertQueue) > 0
+                        && count($convertQueue) > 0
                     ) {
                         foreach ($convertQueue as $convertQueueItem)
                         {
@@ -586,14 +578,11 @@ namespace Aomebo
                             }
                         }
                     }
-
                     return true;
-
                 }
             }
 
             return false;
-
         }
 
         /**
@@ -610,7 +599,7 @@ namespace Aomebo
                 $exp = explode(',', $key);
                 $d = & self::$_settings;
                 if (is_array($exp)
-                    && sizeof($exp) > 0
+                    && count($exp) > 0
                 ) {
                     foreach ($exp as $e)
                     {
@@ -657,7 +646,7 @@ namespace Aomebo
                     $d = & self::$_settings;
 
                     if (is_array($exp)
-                        && sizeof($exp) > 0
+                        && count($exp) > 0
                     ) {
 
                         $found = true;
@@ -721,7 +710,7 @@ namespace Aomebo
         {
             if (isset($settings)
                 && is_array($settings)
-                && sizeof($settings) > 0
+                && count($settings) > 0
             ) {
 
                 $failedKeys = array();
@@ -755,7 +744,7 @@ namespace Aomebo
                 );
             }
 
-            if (sizeof($failedKeys) > 0) {
+            if (count($failedKeys) > 0) {
                 Throw new \Exception(
                     sprintf(
                         self::systemTranslate(
@@ -805,7 +794,7 @@ namespace Aomebo
                 $d = & self::$_settings;
 
                 if (is_array($exp)
-                    && sizeof($exp) > 0
+                    && count($exp) > 0
                 ) {
                     foreach ($exp as $e)
                     {
@@ -894,7 +883,7 @@ namespace Aomebo
         {
             if (isset(self::$_structure)
                 && is_array(self::$_structure)
-                && sizeof(self::$_structure) > 0
+                && count(self::$_structure) > 0
             ) {
                 self::$_structureKeys = array(
                     self::STRUCTURE_TYPE_ARRAY => true,
@@ -922,7 +911,7 @@ namespace Aomebo
         {
             if (isset($node)
                 && is_array($node)
-                && sizeof($node) > 0
+                && count($node) > 0
             ) {
                 $status = true;
                 foreach ($node as $key => $value) {
@@ -988,7 +977,7 @@ namespace Aomebo
                 && is_array(self::$_configuration)
                 && isset(self::$_structure)
                 && is_array(self::$_structure)
-                && sizeof(self::$_structure) > 0
+                && count(self::$_structure) > 0
             ) {
                 return self::_validateConfigurationRec(
                     self::$_structure,
@@ -1015,7 +1004,7 @@ namespace Aomebo
         {
             if (isset($structureNode)
                 && is_array($structureNode)
-                && sizeof($structureNode) > 0
+                && count($structureNode) > 0
             ) {
                 $status = true;
                 foreach ($structureNode as $structureKey => $structureValue)
@@ -1030,7 +1019,7 @@ namespace Aomebo
                                 $status = $status
                                     && self::_validateConfigurationRec(
                                         $structureValue,
-                                        $configurationNode[$structureKey] ,
+                                        $configurationNode[$structureKey],
                                         $settingsNode[$structureKey]);
                             } else {
                                 $status = $status
@@ -1207,7 +1196,6 @@ namespace Aomebo
         {
             if (file_exists($path)) {
                 try {
-
                     $return = require($path);
 
                     if (isset($return)
@@ -1216,9 +1204,15 @@ namespace Aomebo
                         return $return;
                     }
 
-                } catch (\Exception $e) {}
-
+                } catch (\Exception $e) {
+                    \Aomebo\Feedback\Debug::output(sprintf(
+                        'Loading php-data at "%s" caused error "%s"',
+                        $path,
+                        $e->getMessage()
+                    ));
+                }
             }
+
             return array();
         }
 
@@ -1229,23 +1223,41 @@ namespace Aomebo
          * @return array
          */
         public static function loadPhpConfiguration($path,
-            $variableName = 'configuration')    
+            $variableName = 'configuration')
         {
             if (file_exists($path)) {
                 try {
-                    
-                    $$variableName = array();
-                    require_once($path);
                     global $$variableName;
+                    $$variableName = array();
+                    $return = require_once($path);
+                    global $$variableName;
+
                     if (isset($$variableName)
                         && is_array($$variableName)
+                        && count($$variableName)
                     ) {
-                        return $$variableName;
+                        // Move configuration to local scope
+                        $localVariableName = $variableName . '_local';
+                        $$localVariableName = $$variableName;
+                        unset($$variableName);
+                        return $$localVariableName;
+
+                    } else if (isset($return)
+                               && is_array($return)
+                               && count($return)
+                    ) {
+                        return $return;
                     }
 
-                } catch (\Exception $e) {}
-
+                } catch (\Exception $e) {
+                    \Aomebo\Feedback\Debug::output(sprintf(
+                        'Loading configuration "%s" caused error "%s"',
+                        $path,
+                        $e->getMessage()
+                    ));
+                }
             }
+
             return array();
         }
 
@@ -1299,7 +1311,7 @@ namespace Aomebo
         {
             if (isset($data)
                 && is_array($data)
-                && sizeof($data) > 0
+                && count($data) > 0
             ) {
                 return "<?php \n"
                     . "\n"
@@ -1339,7 +1351,7 @@ namespace Aomebo
         {
             if (isset($data)
                 && is_array($data)
-                && sizeof($data) > 0
+                && count($data) > 0
             ) {
                 return "<?php \n"
                     . "\n"

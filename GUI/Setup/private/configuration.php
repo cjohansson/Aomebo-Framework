@@ -1,8 +1,5 @@
 <?php
-
-global $configuration;
-
-$configuration = array(
+return array(
     'php_responses' => array(
         'regular/p-h-p' => 'GUI/Setup/private/Modules/Setup/Associatives/phpfile.php',
     ),

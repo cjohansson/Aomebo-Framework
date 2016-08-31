@@ -482,13 +482,13 @@ namespace Aomebo\Interpreter
          * @param array $pages
          * @param bool [$replaceExisting = false]
          * @return bool
-         * @throws \Exception
+         * @throws \Aomebo\Exceptions\InvalidParametersException
          */
         public static function addPages($pages, $replaceExisting = false)
         {
             if (isset($pages)
                 && is_array($pages)
-                && sizeof($pages) > 0
+                && count($pages) > 0
             ) {
                 $accBool = true;
                 foreach ($pages as $name => $data)
@@ -499,8 +499,7 @@ namespace Aomebo\Interpreter
                 }
                 return $accBool;
             } else {
-                Throw new \Exception(self::systemTranslate(
-                    'Invalid parameters'));
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
         }
 
@@ -510,26 +509,23 @@ namespace Aomebo\Interpreter
          * @param array $data
          * @param bool [$replaceExisting = false]
          * @return bool
-         * @throws \Exception
+         * @throws \Aomebo\Exceptions\InvalidParametersException
          */
         public static function addPage($name, $data, $replaceExisting = false)
         {
             if (!empty($name)
                 && isset($data)
                 && is_array($data)
-                && sizeof($data) > 0
+                && count($data) > 0
             ) {
                 if (!isset(self::$_pagesToData[$name])
                     || !empty($replaceExisting)
                 ) {
-                    
-                    self::$_pagesToData[$name] = $data;                        
+                    self::$_pagesToData[$name] = $data;
                     return true;
-                    
                 }
             } else {
-                Throw new \Exception(self::systemTranslate(
-                    'Invalid parameters'));
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
             return false;
         }
@@ -994,10 +990,9 @@ namespace Aomebo\Interpreter
                             self::INTERPRETATION_STATUS_RESTART
                         ) {
                             return self::interpret();
-                        } else if (self::$_interpretationStatus ==
+                        } else if (self::$_interpretationStatus !=
                             self::INTERPRETATION_STATUS_ABORT
                         ) {
-                        } else {
                             Throw new \Exception(
                                 self::systemTranslate('Invalid interpretation status')
                             );
@@ -1632,14 +1627,14 @@ namespace Aomebo\Interpreter
                             $cacheKey,
                             \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
                         );
-                        
+
                         /**
-                         * Only allow Xml page-data to be sent using AJAX because otherwise we would be possible 
+                         * Only allow Xml page-data to be sent using AJAX because otherwise we would be possible
                          * to send php via ajax which would be evaluated.
                          */
-                        
+
                         if ($processed = self::_processPageData(
-                            $pageData, 
+                            $pageData,
                             self::$_adapters['Xml'])
                         ) {
 
@@ -1675,17 +1670,12 @@ namespace Aomebo\Interpreter
                         );
 
                     } else {
-                        Throw new \Exception(
-                            sprintf(
-                                self::systemTranslate(
-                                    'Found no page to interpret for request '
-                                    . 'GET: %s, POST: %s, SERVER: %s'
-                                ),
-                                $_GET,
-                                $_POST,
-                                $_SERVER
-                            )
-                        );
+                        Throw new \Exception(sprintf(
+                            self::systemTranslate(
+                                'Found no page to interpret for request, pages: %s'
+                            ),
+                            print_r(self::$_pagesToData, true)
+                        ));
                     }
                 }
             } catch (\Exception $e) {
@@ -1708,7 +1698,7 @@ namespace Aomebo\Interpreter
          * @return array
          * @throws \Exception
          */
-        private static function _processPage($page, $path, 
+        private static function _processPage($page, $path,
             $returnContents = true)
         {
             if (!empty($page)
@@ -1754,21 +1744,21 @@ namespace Aomebo\Interpreter
                             null,
                             \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM
                         );
-                        
+
                         $pageData = '';
                         $adapter = null;
                         foreach (self::$_adapters as $adapter)
                         {
-                            
+
                             /** @var \Aomebo\Interpreter\Adapters\Base $adapter */
-                            
+
                             if (file_exists($path . $adapter->getFileSuffix())) {
                                 $pageData = \Aomebo\Filesystem::getFileContents(
                                     $path . $adapter->getFileSuffix());
                                 break;
                             }
                         }
-                        
+
                         if (isset($adapter)
                             && !empty($pageData)
                         ) {
@@ -1827,7 +1817,7 @@ namespace Aomebo\Interpreter
          * @param array|null [$contents = null]
          * @throws \Exception
          */
-        private static function _processPageRuntimes($page, $path, 
+        private static function _processPageRuntimes($page, $path,
             $contents = null)
         {
             if (!isset(self::$_pagesToRuntimes[$page])) {
@@ -1869,7 +1859,7 @@ namespace Aomebo\Interpreter
 
                     $runtimes = array();
                     $parent = null;
-                    
+
                     if (!isset($contents)) {
                         $contents = self::_processPage(
                             $page,
@@ -1924,32 +1914,37 @@ namespace Aomebo\Interpreter
          * @param string $pageData
          * @param \Aomebo\Interpreter\Adapters\Base $adapter
          * @return string|null
-         * @throws \Exception
+         * @throws \Aomebo\Exceptions\InvalidParametersException
          */
         private static function _processPageData($pageData, $adapter)
         {
-            
+
             if (isset($adapter)
                 && !empty($pageData)
             ) {
                 try {
-                    
+
                     if (method_exists(
-                        $adapter, 
+                        $adapter,
                         'applyDefaultEncapsulation')
                     ) {
                         $pageData = $adapter->applyDefaultEncapsulation($pageData);
                     }
-    
-                    if ($processed = 
+
+                    if ($processed =
                         $adapter->process($pageData)
                     ) {
-                        return $processed;    
+                        return $processed;
                     }
-    
-                } catch (\Exception $e) {}
+
+                } catch (\Exception $e) {
+                    Throw new \Exception(sprintf(
+                        self::systemTranslate('Processing data "%s" caused error "%s"'),
+                        $e->getMessage()
+                    ));
+                }
             } else {
-                Throw new \Exception(self::systemTranslate('Invalid parameters'));
+                Throw new \Aomebo\Exceptions\InvalidParametersException();
             }
 
             return null;
@@ -1965,9 +1960,9 @@ namespace Aomebo\Interpreter
          */
         private static function _loadAdapters()
         {
-            
+
             self::$_adapters = array();
-            
+
             if ($items = scandir(__DIR__ . '/Adapters/')) {
                 foreach ($items as $item)
                 {
@@ -1985,10 +1980,10 @@ namespace Aomebo\Interpreter
                             $adapterClass = new $className();
 
                             self::$_adapters[$adapter] = $adapterClass;
-                            
+
                             if ($suffix = $adapterClass->getFileSuffix()) {
-                                self::$_pageSuffixToAdapter[$suffix] = 
-                                    & self::$_adapters[$adapter]; 
+                                self::$_pageSuffixToAdapter[$suffix] =
+                                    & self::$_adapters[$adapter];
                             }
 
                         } catch (\Exception $e) {
@@ -2014,15 +2009,15 @@ namespace Aomebo\Interpreter
          */
         private static function _loadPages()
         {
-            
+
             // Is there any pages which hasn't been processed yet and added dynamically?
-            if (sizeof(self::$_pagesToData) > 0) {
+            if (count(self::$_pagesToData) > 0) {
                 foreach (self::$_pagesToData as $page => $data)
                 {
-                    
+
                     $parent = null;
                     $runtimes = array();
-                    
+
                     self::_collectNodeRuntimes(
                         $data,
                         $parent,
@@ -2034,9 +2029,9 @@ namespace Aomebo\Interpreter
                 }
 
             }
-            
+
             $pagesDir = self::_getPagesDirectory();
-            
+
             if ($files = scandir($pagesDir))
             {
                 foreach ($files as $file)
@@ -2045,10 +2040,10 @@ namespace Aomebo\Interpreter
                         && $file != '.'
                         && $file != '..'
                     ) {
-                        
-                        $pageSuffix = 
+
+                        $pageSuffix =
                             strtolower(substr($file, strpos($file, '.')));
-                        
+
                         if (isset(self::$_pageSuffixToAdapter[$pageSuffix])) {
 
                             $page = substr($file, 0, -strlen($pageSuffix));
@@ -2064,22 +2059,22 @@ namespace Aomebo\Interpreter
                                 $pagesDir . $page,
                                 $contents
                             );
-                            
+
                             if ($pageSuffix == '.xml'
                                 && \Aomebo\Configuration::getSetting(
                                     'interpreter,convert_xml_pages_to_php')
                             ) {
                                 if (self::_convertToPhpPage(
-                                    $page, 
+                                    $page,
                                     $pagesDir,
                                     self::$_pagesToData[$page])
                                 ) {
-                                    
+
                                     // Delete XML file here because php pages are faster
                                     \Aomebo\Filesystem::deleteFile(
                                         $pagesDir . $file
                                     );
-                                    
+
                                 }
                             }
 
@@ -2141,7 +2136,7 @@ namespace Aomebo\Interpreter
                         self::$_runtimeNameToObject[$name] =
                             & $runtime;
                         self::$_runtimeNameToData[$name]['parameter_count'] =
-                            sizeof(self::$_runtimeNameToData[$name]['parameters']);
+                            count(self::$_runtimeNameToData[$name]['parameters']);
 
                     }
 

@@ -42,7 +42,9 @@ namespace Aomebo\Feedback
          */
         public function __construct()
         {
-            if (!$this->_isConstructed()) {
+            if (!$this->_isConstructed()
+                && \Aomebo\Configuration::isLoaded()
+            ) {
 
                 parent::__construct();
 
@@ -152,7 +154,7 @@ namespace Aomebo\Feedback
          * @static
          * @return bool
          */
-        public static function getDebugMode()
+        public static function isDebugMode()
         {
             return (!empty(self::$_debugMode));
         }
@@ -173,8 +175,9 @@ namespace Aomebo\Feedback
             $message = '';
 
             $lineBreakCharacter =
-                \Aomebo\Configuration::getSetting(
-                    'output,linebreak character');
+                (\Aomebo\Configuration::isLoaded() ?
+                 \Aomebo\Configuration::getSetting('output,linebreak character')
+                 : "\n");
 
             if (error_reporting() === 0) {
                 return false;
@@ -189,27 +192,25 @@ namespace Aomebo\Feedback
             ) {
 
                 // Backtrace
-                if (\Aomebo\Configuration::getSetting(
+                if (!\Aomebo\Configuration::isLoaded()
+                     || \Aomebo\Configuration::getSetting(
                     'feedback,include backtrace')
                 ) {
 
                     $backtraceLimit =
-                        (int) \Aomebo\Configuration::getSetting(
-                        'feedback,backtrace limit');
+                        (int) (\Aomebo\Configuration::isLoaded() ?
+                               \Aomebo\Configuration::getSetting('feedback,backtrace limit')
+                               : 20);
 
                     if (!empty($backtraceLimit)
                         && $backtraceLimit > 0
                     ) {
-
                         $debugBacktrance =
                             \Aomebo\Application::getDebugBacktrace(
                                 $backtraceLimit);
-
                     } else {
-
                         $debugBacktrance =
                             \Aomebo\Application::getDebugBacktrace();
-
                     }
 
                     $message .= sprintf(
@@ -229,12 +230,12 @@ namespace Aomebo\Feedback
                 {
 
                     $errorPage = _SITE_ROOT_
-                        . \Aomebo\Configuration::getSetting(
-                            'dispatch,error page');
+                        . (\Aomebo\Configuration::isLoaded() ?
+                           \Aomebo\Configuration::getSetting('dispatch,error page')
+                           : 'error.html');
 
                     if (file_exists($errorPage)) {
-                        echo \Aomebo\Filesystem::getFileContents(
-                            $errorPage);
+                        echo \Aomebo\Filesystem::getFileContents($errorPage);
                     } else {
                         Throw new \Exception(sprintf(
                             self::systemTranslate('Errorpage not found at "%s".'),
@@ -264,7 +265,7 @@ namespace Aomebo\Feedback
          */
         public static function display($message)
         {
-            self::output($message, false, true);
+            self::output($message, true, false);
         }
 
         /**
@@ -289,19 +290,18 @@ namespace Aomebo\Feedback
                 if (is_array($message)
                     || is_object($message)
                 ) {
-                    $message = print_r($message, true);
+                    $message = '<pre>' . print_r($message, true) . '</pre>';
                 }
 
-                $lineBreakCharacter =
-                    \Aomebo\Configuration::getSetting(
-                        'output,linebreak character');
-
+                $lineBreakCharacter = (\Aomebo\Configuration::isLoaded() ?
+                    \Aomebo\Configuration::getSetting('output,linebreak character')
+                                       : "\n");
                 $message .= $lineBreakCharacter;
 
-                if (\Aomebo\Configuration::getSetting(
+                if (\Aomebo\Configuration::isLoaded()
+                     && \Aomebo\Configuration::getSetting(
                     'feedback,dump environment variables')
                 ) {
-
                     $message .= self::getEnvironmentVariablesDump()
                         . $lineBreakCharacter;
                 }
@@ -309,8 +309,9 @@ namespace Aomebo\Feedback
                 $message .= self::getMemoryDump() . $lineBreakCharacter;
 
                 if (!isset($log)) {
-                    $log = \Aomebo\Configuration::getSetting(
-                        'feedback,log errors');
+                    $log = (\Aomebo\Configuration::isLoaded() ?
+                            \Aomebo\Configuration::getSetting('feedback,log errors')
+                            : true);
                 }
 
                 if ($log) {
@@ -318,8 +319,9 @@ namespace Aomebo\Feedback
                 }
 
                 if (!isset($display)) {
-                    $display = \Aomebo\Configuration::getSetting(
-                        'feedback,display errors');
+                    $display = (\Aomebo\Configuration::isLoaded() ?
+                                \Aomebo\Configuration::getSetting('feedback,display errors')
+                                : true);
                 }
 
                 if ($display) {
@@ -363,12 +365,13 @@ namespace Aomebo\Feedback
             }
 
             return sprintf(
-                self::systemTranslate('$_POST: "%s", $_GET: "%s", $_SERVER: "%s", $_SESSION: "%s", $_COOKIE: "%s", SESSION-BLOCK-DATA: "%s"'),
+                self::systemTranslate('$_POST: "%s", $_GET: "%s", $_SERVER: "%s", $_SESSION: "%s", $_COOKIE: "%s", $_ENV: "%s", "SESSION-BLOCK-DATA: "%s"'),
                 (isset($_POST) ? print_r($_POST, true) : 'null'),
                 (isset($_GET) ? print_r($_GET, true) : 'null'),
                 (isset($_SERVER) ? print_r($_SERVER, true) : 'null'),
                 (isset($_SESSION) ? print_r($_SESSION, true) : 'null'),
                 (isset($_COOKIE) ? print_r($_COOKIE, true) : 'null'),
+                (isset($_ENV) ? print_r($_ENV, true) : 'null'),
                 $sessionData
             );
 
@@ -385,32 +388,31 @@ namespace Aomebo\Feedback
 
             $message = '';
 
-            $lineBreakCharacter =
-                \Aomebo\Configuration::getSetting(
-                    'output,linebreak character');
+            $lineBreakCharacter = (\Aomebo\Configuration::isLoaded()
+                                   ? \Aomebo\Configuration::getSetting('output,linebreak character')
+                                   : "\n");
 
             // Backtrace
-            if (\Aomebo\Configuration::getSetting(
+            if (!\Aomebo\Configuration::isLoaded()
+                || \Aomebo\Configuration::getSetting(
                 'feedback,include backtrace')
             ) {
 
                 $backtraceLimit =
-                    (int) \Aomebo\Configuration::getSetting(
-                        'feedback,backtrace limit');
+                    (int) (\Aomebo\Configuration::isLoaded() ?
+                           \Aomebo\Configuration::getSetting(
+                               'feedback,backtrace limit')
+                           : 20);
 
                 if (!empty($backtraceLimit)
                     && $backtraceLimit > 0
                 ) {
-
                     $debugBacktrance =
                         \Aomebo\Application::getDebugBacktrace(
                             $backtraceLimit);
-
                 } else {
-
                     $debugBacktrance =
                         \Aomebo\Application::getDebugBacktrace();
-
                 }
 
                 $message .=
@@ -422,12 +424,11 @@ namespace Aomebo\Feedback
 
             }
 
-            if (\Aomebo\Configuration::getSetting(
+            if (!\Aomebo\Configuration::isLoaded()
+                 || \Aomebo\Configuration::getSetting(
                 'feedback,dump environment variables')
             ) {
-
                 $message .= self::getEnvironmentVariablesDump();
-
             }
 
             $message .= self::getMemoryDump() . $lineBreakCharacter;
@@ -442,9 +443,7 @@ namespace Aomebo\Feedback
                 );
 
             } else {
-
                 $message .= self::systemTranslate('Unspecified exception');
-
             }
 
             self::output($message);

@@ -93,7 +93,7 @@ namespace Modules\Setup
             $tests = array();
 
             ini_set('display_errors', 1);
-            
+
             $this->_testTriggers();
 
             if (\Aomebo\Dispatcher\System::isHttpPostRequestWithPostData()) {
@@ -111,14 +111,14 @@ namespace Modules\Setup
                     'database_autouninstall' => self::_getPostBoolean('database_autouninstall'),
                     'database_autoupdate' => self::_getPostBoolean('database_autoupdate'),
                 );
-                
+
                 if ($submit['action'] == 'Test') {
-                    
+
                     // Use locale?
                     if (!empty($submit['locale'])) {
                         $tests[] = $this->_testLocale($submit['locale']);
                     }
-                    
+
                     if (!empty($submit['database_host'])
                         && !empty($submit['database_username'])
                         && !empty($submit['database_type'])
@@ -137,12 +137,12 @@ namespace Modules\Setup
                             $tests[] = $dbTests;
                         }
                     }
-                    
+
                 } else if ($submit['action'] == 'Export configuration.php') {
-                    
+
                     // TODO: Export configuration here
                     // \Aomebo\Configuration::gen()
-                    
+
                 }
 
             } else {
@@ -643,11 +643,7 @@ namespace Modules\Setup
                 array( & $this, 'useCache'),
                 11
             );
-            
             $triggers = \Aomebo\Trigger\System::getTriggers('random');
-            
-            $here = true;
-            
         }
 
         /**
@@ -658,31 +654,26 @@ namespace Modules\Setup
         public function getPages()
         {
             return array(
-                'setup' => array (
-                    0 =>
-                        array (
-                            'key' => 'html',
-                            'value' =>
-                                array (
-                                    0 =>
-                                        array (
-                                            'key' => 'title',
-                                            'value' => 'Another Setup',
-                                        ),
-                                    1 =>
-                                        array (
-                                            'key' => 'body',
-                                            'value' =>
-                                                array (
-                                                    0 =>
-                                                        array (
-                                                            'key' => 'setup',
-                                                            'value' => '',
-                                                        ),
-                                                ),
-                                        ),
+                'setup' => array(
+                    array(
+                        'key' => 'html',
+                        'value' => array(
+                            array(
+                                'key' => 'title',
+                                'value' => 'Another Setup',
+                            ),
+                            array(
+                                'key' => 'body',
+                                'value' =>
+                                array(
+                                    array(
+                                        'key' => 'setup',
+                                        'value' => '',
+                                    ),
                                 ),
+                            ),
                         ),
+                    ),
                 )
             );
         }

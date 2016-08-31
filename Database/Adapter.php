@@ -497,7 +497,7 @@ namespace Aomebo\Database
             self::_instanciate();
             if (isset($table, $columnsAndValues)
                 && is_array($columnsAndValues)
-                && sizeof($columnsAndValues) > 0
+                && count($columnsAndValues) > 0
             ) {
                 return self::$_object->tableAdd(
                     $table,
@@ -522,7 +522,7 @@ namespace Aomebo\Database
             self::_instanciate();
             if (isset($table, $set)
                 && is_array($set)
-                && sizeof($set) > 0
+                && count($set) > 0
             ) {
                 return self::$_object->tableUpdate(
                     $table,
@@ -759,7 +759,7 @@ namespace Aomebo\Database
                         $newValues[] = self::escape($values);
 
                         if ($args = func_get_args()) {
-                            $argsCount = sizeof($args);
+                            $argsCount = count($args);
                             if ($argsCount > 2) {
                                 for ($i = 2; $i < $argsCount; $i++)
                                 {
@@ -773,7 +773,7 @@ namespace Aomebo\Database
 
                 $query = trim($sql);
 
-                if (sizeof($newValues) > 0) {
+                if (count($newValues) > 0) {
                     $query = vsprintf($query, $newValues);
                 }
 
@@ -799,14 +799,12 @@ namespace Aomebo\Database
          * @param array|null [$values = null]
          * @param bool [$unbuffered = false]
          * @param bool [$throwExceptionOnFailure = true]
-         * @param bool [$allowMultipleQueries = false]
          * @throws \Exception
          * @see vsprintf()
          * @return \Aomebo\Database\Adapters\Resultset|bool
          */
         public static function queryf($sql, $values = null,
-             $unbuffered = false, $throwExceptionOnFailure = true,
-             $allowMultipleQueries = false)
+             $unbuffered = false, $throwExceptionOnFailure = true)
         {
             self::_instanciate();
             if (self::isConnected()) {
@@ -888,7 +886,7 @@ namespace Aomebo\Database
                 if (isset($values)
                     && is_array($values)
                 ) {
-                    $valuesCount = sizeof($values);
+                    $valuesCount = count($values);
                 } else {
                     $valuesCount = 0;
                 }
@@ -1191,18 +1189,31 @@ namespace Aomebo\Database
         /**
          * Reconnects connection
          * @static
+         * @param int [$iterations = 5]
+         * @param int [$delay = 3]
          * @return bool
          */
-        public static function reconnect()
+        public static function reconnect($iterations = 5, $delay = 3)
         {
-            try {
-                if (self::connect(self::$_host, self::$_username,
-                                  self::$_password, self::$_database,
-                                  self::$_options, true, true)
-                ) {
-                    return true;
+            for ($i = 0; $i < $iterations; $i++)
+            {
+                sleep($delay);
+                try {
+                    if (self::connect(self::$_host, self::$_username,
+                                      self::$_password, self::$_database,
+                                      self::$_options, true, true)
+                    ) {
+                        return true;
+                    }
+                } catch (\Exception $e) {
+                    \Aomebo\Feedback\Debug::log(sprintf(self::systemTranslate(
+                        'Failed to reconnect in iteration %d of %d, error: "%s"',
+                        ($i + 1),
+                        $iterations,
+                        $e->getMessage()
+                    )));
                 }
-            } catch (\Exception $e) {}
+            }
             return false;
         }
 
@@ -1462,7 +1473,7 @@ namespace Aomebo\Database
                     // Any optional replace-keys specified?
                     if (isset($options)
                         && is_array($options)
-                        && sizeof($options) > 0
+                        && count($options) > 0
                     ) {
 
                         // Iterate through replace-keys

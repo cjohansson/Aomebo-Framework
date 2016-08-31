@@ -80,14 +80,6 @@ namespace Aomebo
         }
 
         /**
-         *
-         */
-        public function __destruct()
-        {
-            parent::__destruct();
-        }
-
-        /**
          * @static
          * @param string|null [$className = null]
          * @return Singleton

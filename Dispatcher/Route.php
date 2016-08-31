@@ -161,7 +161,7 @@ namespace Aomebo\Dispatcher
             }
             if (isset($keys)
                 && is_array($keys)
-                && sizeof($keys) > 0
+                && count($keys) > 0
             ) {
                 $this->keys = $keys;
             }
@@ -293,7 +293,7 @@ namespace Aomebo\Dispatcher
                 && !empty($this->sprintf)
                 && isset($this->keys)
                 && is_array($this->keys)
-                && sizeof($this->keys) > 0);
+                && count($this->keys) > 0);
         }
 
         /**
@@ -363,8 +363,8 @@ namespace Aomebo\Dispatcher
                                     $this->name));
                             }
                         } else if (isset($this->_matches)
-                            && (sizeof($this->_matches) - 1) ==
-                            sizeof($this->keys)
+                            && (count($this->_matches) - 1) ==
+                            count($this->keys)
                         ) {
                             $this->_isMatching = true;
                         }
@@ -474,7 +474,7 @@ namespace Aomebo\Dispatcher
         {
             return (isset($this->values)
                 && is_array($this->values)
-                && sizeof($this->values) > 0);
+                && count($this->values) > 0);
         }
 
         /**

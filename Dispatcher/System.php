@@ -809,13 +809,17 @@ namespace Aomebo\Dispatcher
          */
         public static function fileNotFound($restartInterpretation = true)
         {
-
-            if ($page = \Aomebo\Configuration::getSetting(
+            if (!$page = \Aomebo\Configuration::getSetting(
                 'dispatch,file not found page')
             ) {
-                self::setPage(
-                    \Aomebo\Configuration::getSetting('dispatch,file not found page'));
+                if ($uriToPages = self::getUriToPages()) {
+                    $page = reset($uriToPages);
+                }
             }
+            if ($page) {
+                self::setPage($page);
+            }
+
             self::setFileNotFoundFlag(true);
 
             if ($restartInterpretation) {
@@ -1244,9 +1248,19 @@ namespace Aomebo\Dispatcher
 
         /**
          * @static
+         * @deprecated
          * @return bool
          */
         public static function getFileNotFoundFlag()
+        {
+            return self::hasFileNotFoundFlag();
+        }
+
+        /**
+         * @static
+         * @return bool
+         */
+        public static function hasFileNotFoundFlag()
         {
             return (!empty(self::$_fileNotFoundFlag) ? true : false);
         }
@@ -1438,11 +1452,7 @@ namespace Aomebo\Dispatcher
          */
         public static function buildDefaultUri()
         {
-            if (self::isRewriteEnabled()) {
-                return self::$_pageBaseUri;
-            } else {
-                return self::$_pageBaseUri . 'index.php';
-            }
+            return self::$_pageBaseUri;
         }
 
         /**
@@ -1453,8 +1463,7 @@ namespace Aomebo\Dispatcher
          */
         public static function buildDefaultFullUri()
         {
-            return
-                self::getServerUri() . self::buildDefaultUri();
+            return self::getServerUri() . self::buildDefaultUri();
         }
 
         /**
@@ -2219,7 +2228,9 @@ namespace Aomebo\Dispatcher
                     && substr($_SERVER['REQUEST_URI'], 0, 1) == '/'
                 ) {
                     self::setFullRequest(substr(
-                        $_SERVER['REQUEST_URI'], strlen(self::$_baseUri)));
+                        urldecode($_SERVER['REQUEST_URI']),
+                        strlen(self::$_baseUri)
+                    ));
                 } else if (isset($_SERVER['PHP_SELF'])
                     && substr($_SERVER['PHP_SELF'], 0, 1) == '/'
                 ) {
@@ -2252,6 +2263,18 @@ namespace Aomebo\Dispatcher
                         strtoupper($_SERVER['REQUEST_METHOD']));
                 }
             }
+
+            /*
+            \Aomebo\Feedback\Debug::display(
+                'request-uri: "' . self::getRequestUri() . '"' .
+                'query-string: "' . self::getQueryString() . '"' .
+                'full-request: "' . self::getFullRequest() . '"' .
+                'request-uri: "' . $_SERVER['REQUEST_URI'] . '"' .
+                'php self: "' . $_SERVER['PHP_SELF'] . '"' .
+                'base uri: "' . self::$_baseUri . '"' .
+                'page base uri: "' . self::$_pageBaseUri . '"'
+            );
+            */
 
         }
 
@@ -2454,8 +2477,7 @@ namespace Aomebo\Dispatcher
             if (!empty($path)
                 && preg_match(
                     self::getPageSyntaxRegexp(),
-                    $path,
-                    $matches) === 1
+                    $path) === 1
             ) {
                 return true;
             }
@@ -2583,7 +2605,7 @@ namespace Aomebo\Dispatcher
                         self::$_uriToPages[$uri] = $page;
                     }
                 } else {
-                    self::$_uriToPages = 
+                    self::$_uriToPages =
                         \Aomebo\Configuration::getSetting('dispatch,uri pages');
                 }
                 self::$_loadedUriPagesConfiguration = true;
@@ -2628,6 +2650,12 @@ namespace Aomebo\Dispatcher
             $defaultPage =
                 \Aomebo\Configuration::getSetting('dispatch,default page');
 
+            if (!$defaultPage
+                && count($uriToPages)
+            ) {
+                $defaultPage = reset($uriToPages);
+            }
+
             self::setFileNotFoundFlag(false);
 
             // Is it a shell request?
@@ -2635,7 +2663,6 @@ namespace Aomebo\Dispatcher
 
                 // Can we find any arguments?
                 if ($shellArguments = self::getShellArguments()) {
-
                     self::setPage($shellArguments[1]);
 
                 // Otherwise - use default page as page
@@ -2702,28 +2729,21 @@ namespace Aomebo\Dispatcher
                         } else if (\Aomebo\Configuration::getSetting(
                             'dispatch,use default page for invalid page syntax uris')
                         ) {
-
                             self::setPage($defaultPage);
                             self::setQueryString(self::getFullRequest());
                             self::setRequestUri('');
                             $hit = true;
-
                         }
 
                         // Could we find a matching route for page?
                         if ($hit) {
 
                             if (self::isFileNotFoundPage(self::getPage())) {
-
                                 self::removeCurrentUriFromIndexing();
                                 self::setHttpResponseStatus404NotFound();
 
                             } else if (self::isDefaultPage(self::getPage())) {
-
-                                $newUri =
-                                    self::getPageBaseUri()
-                                    . self::getQueryString();
-
+                                $newUri = self::getPageBaseUri() . self::getQueryString();
                                 self::setHttpResponseStatus301MovedPermanently();
                                 self::setHttpHeaderFieldLocation($newUri);
                                 exit;

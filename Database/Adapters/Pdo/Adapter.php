@@ -275,17 +275,26 @@ namespace Aomebo\Database\Adapters\Pdo
         /**
          * @return bool
          */
-        public function isMySQL() { return $this->_isDriverName('mysql'); }
+        public function isMySQL()
+        {
+            return $this->_isDriverName('mysql');
+        }
 
         /**
          * @return bool
          */
-        public function isPostGreSQL() { return $this->_isDriverName('postgresql'); }
+        public function isPostGreSQL()
+        {
+            return $this->_isDriverName('postgresql');
+        }
 
         /**
          * @return bool
          */
-        public function isSQLlite() { return $this->_isDriverName('sqllite'); }
+        public function isSQLlite()
+        {
+            return $this->_isDriverName('sqllite');
+        }
 
         /**
          * @return mixed
@@ -638,7 +647,7 @@ namespace Aomebo\Database\Adapters\Pdo
 
             if (isset($where)
                 && is_array($where)
-                && sizeof($where) > 0
+                && count($where) > 0
             ) {
                 $sql .= self::_generateWhereSubquery($where);
             }
@@ -671,7 +680,7 @@ namespace Aomebo\Database\Adapters\Pdo
 
             if (isset($where)
                 && is_array($where)
-                && sizeof($where) > 0
+                && count($where) > 0
             ) {
                 $sql .= self::_generateWhereSubquery($where);
             }
@@ -852,6 +861,7 @@ namespace Aomebo\Database\Adapters\Pdo
         public function useResult()
         {
             if (isset($this->_con)) {
+                // TODO: Implement this
             }
             return false;
         }
@@ -862,6 +872,7 @@ namespace Aomebo\Database\Adapters\Pdo
         public function storeResult()
         {
             if (isset($this->_con)) {
+                // TODO: Implement this
             }
             return false;
         }

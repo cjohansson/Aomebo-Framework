@@ -136,33 +136,36 @@ namespace Aomebo\Internationalization
                 }
 
                 $textDomains = array();
-
                 if ($systemTextDomains =
                     \Aomebo\Configuration::getSetting(
                         'internationalization,system text domains')
                 ) {
-                    foreach ($systemTextDomains as $domain => $path)
+                    foreach ($systemTextDomains as $domain => $rawPath)
                     {
-
-                        if (is_array($path)
-                            && isset($path[0])
+                        if (is_array($rawPath)
+                            && isset($rawPath[0])
                         ) {
-                            $path = $path[0];
+                            $path = $rawPath[0];
+                        } else {
+                            $path = $rawPath;
                         }
 
                         if (isset($path)
                             && !is_array($path)
                         ) {
-
                             $domainPath = _SYSTEM_ROOT_ . $path;
 
                             if (is_dir($domainPath)) {
                                 $textDomains[$domain] = $domainPath;
                             } else {
                                 Throw new \Exception(sprintf(
-                                    self::systemTranslate('Invalid internationalization "%s", no directory found at "%s".'),
+                                    self::systemTranslate('Invalid internationalization "%s", no directory found at "%s", domain "%s" and path "%s", domains "%s".'),
                                     $path,
-                                    $domainPath));
+                                    $domainPath,
+                                    $domain,
+                                    $rawPath,
+                                    print_r($systemTextDomains, true)
+                                ));
                             }
 
                         }
@@ -204,7 +207,7 @@ namespace Aomebo\Internationalization
                     }
                 }
 
-                if (sizeof($textDomains) > 0) {
+                if (count($textDomains) > 0) {
                     self::addTextDomains($textDomains);
                 }
 
@@ -263,7 +266,7 @@ namespace Aomebo\Internationalization
                     /** @var \Aomebo\Internationalization\Adapters\Base $ref */
                     return $ref->gettext($message);
                 }
-                foreach (self::$_adapters as $adapter => $classObj)
+                foreach (self::$_adapters as $classObj)
                 {
                     if (is_object($classObj)) {
                         /** @var \Aomebo\Internationalization\Adapters\Base $classObj */
@@ -413,7 +416,7 @@ namespace Aomebo\Internationalization
         public static function dgettext($domain, $message)
         {
             if (self::isEnabled()) {
-                foreach (self::$_adapters as $adapter => $classObj)
+                foreach (self::$_adapters as $classObj)
                 {
                     if (is_object($classObj)) {
                         /** @var \Aomebo\Internationalization\Adapters\Base $classObj */
@@ -452,7 +455,7 @@ namespace Aomebo\Internationalization
                     return $ref->ngettext(
                         $singular, $plural, $count);
                 }
-                foreach (self::$_adapters as $adapter => $classObj)
+                foreach (self::$_adapters as $classObj)
                 {
                     if (is_object($classObj)) {
                         /** @var \Aomebo\Internationalization\Adapters\Base $classObj */
@@ -480,7 +483,7 @@ namespace Aomebo\Internationalization
         public static function dcgettext($domain, $message, $context = null)
         {
             if (self::isEnabled()) {
-                foreach (self::$_adapters as $adapter => $classObj)
+                foreach (self::$_adapters as $classObj)
                 {
                     if (is_object($classObj)) {
                         /** @var \Aomebo\Internationalization\Adapters\Base $classObj */
@@ -512,7 +515,7 @@ namespace Aomebo\Internationalization
             $plural, $count)
         {
             if (self::isEnabled()) {
-                foreach (self::$_adapters as $adapter => $classObj)
+                foreach (self::$_adapters as $classObj)
                 {
                     if (is_object($classObj)) {
                         /** @var \Aomebo\Internationalization\Adapters\Base $classObj */
@@ -545,7 +548,7 @@ namespace Aomebo\Internationalization
             $plural, $count, $context)
         {
             if (self::isEnabled()) {
-                foreach (self::$_adapters as $adapter => $classObj)
+                foreach (self::$_adapters as $classObj)
                 {
                     if (is_object($classObj)) {
                         /** @var \Aomebo\Internationalization\Adapters\Base $classObj */
@@ -586,7 +589,7 @@ namespace Aomebo\Internationalization
         {
             self::$_locale = $locale;
             if (self::isInitialized()) {
-                foreach (self::$_adapters as $adapter => $classObj)
+                foreach (self::$_adapters as $classObj)
                 {
                     if (is_object($classObj)) {
                         /** @var \Aomebo\Internationalization\Adapters\Base $classObj */
@@ -670,7 +673,7 @@ namespace Aomebo\Internationalization
         {
             self::$_textDomains[$domain] = $location;
             if (self::isInitialized()) {
-                foreach (self::$_adapters as $adapter => $classObj)
+                foreach (self::$_adapters as $classObj)
                 {
                     if (is_object($classObj)) {
                         /** @var \Aomebo\Internationalization\Adapters\Base $classObj */
