@@ -914,6 +914,18 @@ return array(
                     'required' => true,
                     'default' => true,
                 ),
+            'reconnect max retries' =>
+            array(
+                'type' => 'integer',
+                'required' => true,
+                'default' => 5,
+            ),
+            'reconnect retry delay' =>
+            array(
+                'type' => 'integer',
+                'required' => true,
+                'default' => 3,
+            ),
         ),
     'cache' =>
         array(
@@ -999,14 +1011,14 @@ return array(
                     'default' => true,
                 ),
         ),
-        'php_responses' => array(
-            'type' => 'array',
-            'required' => false,
-            'default' => array(),
-        ),
-        'file_responses' => array(
-            'type' => 'array',
-            'required' => false,
-            'default' => array(),
-        ),
+    'php_responses' => array(
+        'type' => 'array',
+        'required' => false,
+        'default' => array(),
+    ),
+    'file_responses' => array(
+        'type' => 'array',
+        'required' => false,
+        'default' => array(),
+    ),
 );

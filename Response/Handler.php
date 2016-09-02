@@ -59,12 +59,10 @@ namespace Aomebo\Response
         public function __construct()
         {
             if (!self::_isConstructed()) {
-
                 self::_load();
                 self::_parseRequest();
                 parent::__construct();
                 self::_flagThisConstructed();
-
             }
         }
 
@@ -127,18 +125,14 @@ namespace Aomebo\Response
          */
         private static function _parseRequest()
         {
-
             foreach (self::$_types as & $type)
             {
-
                 /** @var \Aomebo\Response\Type $type */
                 if ($type->isValidRequest()) {
                     self::$_response = $type;
                     return true;
                 }
-
             }
-
             return false;
         }
 

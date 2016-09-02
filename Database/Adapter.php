@@ -1197,11 +1197,17 @@ namespace Aomebo\Database
         {
             if (!isset($iterations)) {
                 $iterations = \Aomebo\Configuration::getSetting(
-                    'database,reconnect max retries');
+                    'database,reconnect max retries', false);
+                if (!$iterations) {
+                    $iterations = 5;
+                }
             }
             if (!isset($delay)) {
                 $delay = \Aomebo\Configuration::getSetting(
-                    'database,reconnect retry delay');
+                    'database,reconnect retry delay', false);
+                if (!$delay) {
+                    $delay = 3;
+                }
             }
             for ($i = 0; $i < $iterations; $i++)
             {

@@ -17,16 +17,16 @@ namespace Modules\Footer
     {
 
         /**
-         * @return bool|mixed|string
+         * @return string
          */
         public function execute()
         {
-            $view = \Aomebo\Template\Adapters\Smarty\Adapter::getInstance();
+            $view = self::_getTwigView();
             $view->setFile('views/view.tpl');
-            $view->attachVariable('website',
-                \Aomebo\Configuration::getSetting('framework,website'));
-            $view->attachVariable('year', date('Y'));
-
+            $view->attachVariables(array(
+                'website' => \Aomebo\Configuration::getSetting('framework,website'),
+                'year' => date('Y'),
+            ));
             return $view->parse();
         }
 

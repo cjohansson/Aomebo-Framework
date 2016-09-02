@@ -809,13 +809,8 @@ namespace Aomebo\Dispatcher
          */
         public static function fileNotFound($restartInterpretation = true)
         {
-            if (!$page = \Aomebo\Configuration::getSetting(
-                'dispatch,file not found page')
-            ) {
-                if ($uriToPages = self::getUriToPages()) {
-                    $page = reset($uriToPages);
-                }
-            }
+            $page = \Aomebo\Configuration::getSetting(
+                'dispatch,file not found page');
             if ($page) {
                 self::setPage($page);
             }
@@ -2598,7 +2593,7 @@ namespace Aomebo\Dispatcher
         {
             if (empty(self::$_loadedUriPagesConfiguration)) {
                 if (count(self::$_uriToPages)) {
-                    $uris = 
+                    $uris =
                         \Aomebo\Configuration::getSetting('dispatch,uri pages');
                     foreach ($uris as $uri => $page)
                     {
@@ -2649,12 +2644,6 @@ namespace Aomebo\Dispatcher
             $uriToPages = self::getUriToPages();
             $defaultPage =
                 \Aomebo\Configuration::getSetting('dispatch,default page');
-
-            if (!$defaultPage
-                && count($uriToPages)
-            ) {
-                $defaultPage = reset($uriToPages);
-            }
 
             self::setFileNotFoundFlag(false);
 

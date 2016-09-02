@@ -99,12 +99,6 @@ namespace Aomebo
         /**
          * @var string
          */
-        const PARAMETER_SHOW_CONFIGURATION =
-            'showConfiguration';
-
-        /**
-         * @var string
-         */
         const PARAMETER_TESTING_MODE =
             'testing';
 
@@ -265,12 +259,6 @@ namespace Aomebo
                         false);
                 }
 
-                // Don't show configuration by default
-                if (!self::hasParameter(self::PARAMETER_SHOW_CONFIGURATION)) {
-                    self::setParameter(
-                        self::PARAMETER_SHOW_CONFIGURATION, false);
-                }
-
                 // Pass execution guards by default
                 if (!self::hasParameter(self::PARAMETER_PASS_EXECUTION_GUARDS)) {
                     self::setParameter(
@@ -302,7 +290,6 @@ namespace Aomebo
                     if (!self::hasParameter(self::PARAMETER_SITE_PATH)
                         || self::getParameter(self::PARAMETER_SHOW_SETUP)
                     ) {
-
                         self::setParameter(
                             self::PARAMETER_SITE_PATH,
                             self::_getSetupSitePrivatePath()
@@ -312,20 +299,6 @@ namespace Aomebo
                             self::_getSetupSitePublicPath()
                         );
                         self::$_writingEnabled = false;
-
-                    // Otherwise - should configuration be presented?
-                    } else if (self::getParameter(self::PARAMETER_SHOW_CONFIGURATION)) {
-
-                        self::setParameter(
-                            self::PARAMETER_SITE_PATH,
-                            self::_getConfigurationSitePrivatePath()
-                        );
-                        self::setParameter(
-                            self::PARAMETER_PUBLIC_INTERNAL_PATH,
-                            self::_getConfigurationSitePublicPath()
-                        );
-                        self::$_writingEnabled = false;
-
                     }
 
                     $parameters = & self::$_parameters;
@@ -435,10 +408,8 @@ namespace Aomebo
             // Do we have a list of concurrent requests?
             if ($requests = self::getApplicationData('requests')) {
 
-                $maximumConcurrentRequests =
-                                           \Aomebo\Configuration::getSetting('application,maximum concurrent requests');
-                $maximumConcurrentRequestsPeriod =
-                                                 \Aomebo\Configuration::getSetting('application,maximum concurrent requests period');
+                $maximumConcurrentRequests = \Aomebo\Configuration::getSetting('application,maximum concurrent requests');
+                $maximumConcurrentRequestsPeriod = \Aomebo\Configuration::getSetting('application,maximum concurrent requests period');
 
                 if (!is_array($requests)) {
                     $requests = array();
@@ -1388,28 +1359,5 @@ namespace Aomebo
                 . 'Setup' . DIRECTORY_SEPARATOR . 'public';
         }
 
-        /**
-         * @internal
-         * @static
-         * @return string
-         */
-        private static function _getConfigurationSitePrivatePath()
-        {
-            return __DIR__ . DIRECTORY_SEPARATOR . 'Configuration' . DIRECTORY_SEPARATOR
-                . 'Setup' . DIRECTORY_SEPARATOR . 'private';
-        }
-
-        /**
-         * @internal
-         * @static
-         * @return string
-         */
-        private static function _getConfigurationSitePublicPath()
-        {
-            return __DIR__ . DIRECTORY_SEPARATOR . 'Configuration' . DIRECTORY_SEPARATOR
-                . 'Setup' . DIRECTORY_SEPARATOR . 'public';
-        }
-
     }
-
 }

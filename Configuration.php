@@ -952,7 +952,7 @@ namespace Aomebo
                                         $value[self::STRUCTURE_KEY_REQUIRED],
                                         print_r($node, true) . '"'
                                     )
-                                );      
+                                );
                             }
                             $status = ($status && $defStatus);
                         }

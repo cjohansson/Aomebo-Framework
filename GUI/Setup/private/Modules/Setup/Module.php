@@ -165,6 +165,8 @@ namespace Modules\Setup
             // $view->setFile('views/view.tpl');
             $view->attachVariable('tests', $tests);
             $view->attachVariable('submit', $submit);
+            $view->attachVariable('title', \Aomebo\Configuration::getSetting('framework,name'));
+            $view->attachVariable('version', \Aomebo\Configuration::getSetting('framework,version'));
             $view->attachVariable('locales',
                 \Aomebo\Internationalization\System::getLocalesFromDirectory(
                     __DIR__ . '/Locales'));
@@ -686,7 +688,7 @@ namespace Modules\Setup
         public function getUriToPages()
         {
             return array(
-                'installation' => 'setup',
+                'setup' => 'setup',
             );
         }
 
@@ -698,7 +700,7 @@ namespace Modules\Setup
         public function getPagesToUri()
         {
             return array(
-                'setup' => 'installation',
+                'setup' => 'setup',
             );
         }
 
