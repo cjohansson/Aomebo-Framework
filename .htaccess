@@ -27,8 +27,9 @@ Options -Indexes
     # Set flag that rewrite is enabled
     SetEnv REWRITE_ENABLED 1
 
-    # set proper URI base
-    RewriteBase /
+    # Set proper URI base
+    # RewriteBase /
+
     # Redirect associatives for scripts
     RewriteCond %{REQUEST_URI} /associatives.js?.*$ [OR]
     RewriteCond %{REQUEST_URI} /dependencies.js?.*$ [OR]
