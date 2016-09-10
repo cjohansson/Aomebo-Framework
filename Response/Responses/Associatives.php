@@ -45,7 +45,14 @@ namespace Aomebo\Response\Responses
          */
         public function isValidRequest()
         {
-            return \Aomebo\Dispatcher\System::isAssociativesRequest();
+	        return (!empty($_GET['mode'])
+	                && $_GET['mode'] ==
+	                \Aomebo\Configuration::getSetting('settings,associatives mode')
+	                && ((!\Aomebo\Configuration::getSetting('dispatch,allow only associatives request with matching referer')
+	                     || \Aomebo\Dispatcher\System::requestRefererMatchesSiteUrl())
+	                    && (\Aomebo\Request::$method == 'GET'
+	                        || \Aomebo\Request::$method == 'POST')
+	                ));
         }
 
         /**
@@ -53,28 +60,10 @@ namespace Aomebo\Response\Responses
          */
         public function respond()
         {
-            if ((!\Aomebo\Configuration::getSetting('dispatch,allow only associatives request with matching referer')
-                    || \Aomebo\Dispatcher\System::requestRefererMatchesSiteUrl())
-                && (\Aomebo\Dispatcher\System::isHttpGetRequest()
-                    || \Aomebo\Dispatcher\System::isHttpHeadRequest())
-            ) {
-
-                // Load our database - TODO: Remove this
-                \Aomebo\Database\Adapter::getInstance();
-
-                // Load the associatives engine
-                \Aomebo\Associatives\Engine::getInstance();
-
-                new \Aomebo();
-
-                // Parse the requests associatives
-                \Aomebo\Associatives\Parser::parseRequest();
-
-            } else {
-                \Aomebo\Dispatcher\System::setHttpResponseStatus403Forbidden();
-            }
+	        \Aomebo\Associatives\Engine::getInstance();
+	        new \Aomebo();
+	        \Aomebo\Associatives\Parser::parseRequest();
         }
 
     }
-
 }

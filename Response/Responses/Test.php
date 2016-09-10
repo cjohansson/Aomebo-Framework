@@ -23,7 +23,6 @@
  */
 namespace Aomebo\Response\Responses
 {
-
     /**
      *
      */
@@ -39,18 +38,14 @@ namespace Aomebo\Response\Responses
          * @var string
          */
         protected $_name = 'Test';
-    
+
         /**
          * @return bool
          */
         public function isValidRequest()
         {
-            if (\Aomebo\Application::getParameter(
-                \Aomebo\Application::PARAMETER_TESTING_MODE)
-            ) {
-                return true;
-            }
-            return false;
+	        return (\Aomebo\Application::getParameter(
+		        \Aomebo\Application::PARAMETER_TESTING_MODE) ? true : false);
         }
 
         /**
@@ -58,30 +53,15 @@ namespace Aomebo\Response\Responses
          */
         public function respond()
         {
-
-            // Load the internationalization system
             \Aomebo\Internationalization\System::getInstance();
-
-            // Load our database
             \Aomebo\Database\Adapter::getInstance();
-
-            // Load interpreter for parsing of pages
             \Aomebo\Interpreter\Engine::getInstance();
-
-            // Load cache system
             \Aomebo\Cache\System::getInstance();
-
-            // Load our session handler
             \Aomebo\Session\Handler::getInstance();
-
             new \Aomebo();
-
-            // Present our output
             \Aomebo\Presenter\Engine::getInstance();
             \Aomebo\Presenter\Engine::output();
-
         }
 
     }
-
 }

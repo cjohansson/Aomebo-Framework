@@ -23,7 +23,6 @@
  */
 namespace Aomebo\Response\Responses
 {
-
     /**
      *
      */
@@ -45,7 +44,9 @@ namespace Aomebo\Response\Responses
          */
         public function isValidRequest()
         {
-            return \Aomebo\Dispatcher\System::isShellRequest();
+            return !empty($_SERVER['SHELL'])
+	            && \Aomebo\Configuration::getSetting(
+		            'dispatch,allow shell requests');
         }
 
         /**
@@ -53,41 +54,17 @@ namespace Aomebo\Response\Responses
          */
         public function respond()
         {
-            // Is shell requests allowed?
-            if (\Aomebo\Configuration::getSetting(
-                'dispatch,allow shell requests')
-            ) {
-
-                // Load the internationalization system
-                \Aomebo\Internationalization\System::getInstance();
-
-                // Load our database
-                \Aomebo\Database\Adapter::getInstance();
-
-                // Load interpreter for parsing of pages
-                \Aomebo\Interpreter\Engine::getInstance();
-
-                // Load cache system
-                \Aomebo\Cache\System::getInstance();
-
-                // Load our session handler
-                \Aomebo\Session\Handler::getInstance();
-
-                new \Aomebo();
-
-                // Interpret page
-                \Aomebo\Interpreter\Engine::interpret();
-
-                // Present our output
-                \Aomebo\Presenter\Engine::getInstance();
-                \Aomebo\Presenter\Engine::output();
-
-            } else {
-                \Aomebo\Dispatcher\System::setHttpResponseStatus403Forbidden();
-            }
-
+	        \Aomebo\Internationalization\System::getInstance();
+	        \Aomebo\Database\Adapter::getInstance();
+	        \Aomebo\Interpreter\Engine::getInstance();
+	        \Aomebo\Cache\System::getInstance();
+	        \Aomebo\Session\Handler::getInstance();
+	        new \Aomebo();
+	        \Aomebo\Dispatcher\System::parsePage();
+	        \Aomebo\Interpreter\Engine::interpret();
+	        \Aomebo\Presenter\Engine::getInstance();
+	        \Aomebo\Presenter\Engine::output();
         }
 
     }
-
 }

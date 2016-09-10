@@ -23,7 +23,6 @@
  */
 namespace Aomebo\Response\Responses
 {
-
     /**
      *
      */
@@ -39,18 +38,14 @@ namespace Aomebo\Response\Responses
          * @var string
          */
         protected $_name = 'Bootstrap';
-    
+
         /**
          * @return bool
          */
         public function isValidRequest()
         {
-            if (\Aomebo\Application::getParameter(
-                \Aomebo\Application::PARAMETER_BOOTSTRAP_MODE)
-            ) {
-                return true;
-            }
-            return false;
+            return (\Aomebo\Application::getParameter(
+	            \Aomebo\Application::PARAMETER_BOOTSTRAP_MODE) ? true : false);
         }
 
         /**
@@ -58,26 +53,13 @@ namespace Aomebo\Response\Responses
          */
         public function respond()
         {
-
-            // Load the internationalization system
             \Aomebo\Internationalization\System::getInstance();
-
-            // Load our database
             \Aomebo\Database\Adapter::getInstance();
-
-            // Load interpreter for parsing of pages
             \Aomebo\Interpreter\Engine::getInstance();
-
-            // Load cache system
             \Aomebo\Cache\System::getInstance();
-
-            // Load our session handler
             \Aomebo\Session\Handler::getInstance();
-
             new \Aomebo();
-
         }
 
     }
-
 }

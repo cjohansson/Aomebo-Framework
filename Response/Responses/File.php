@@ -20,7 +20,6 @@
  *
  */
 namespace Aomebo\Response\Responses {
-
     /**
      *
      */
@@ -42,8 +41,8 @@ namespace Aomebo\Response\Responses {
          */
         public function isValidRequest()
         {
-            return (\Aomebo\Configuration::getSetting('file_responses,'
-                . \Aomebo\Dispatcher\System::getFullRequest(), false) ?
+            return (\Aomebo\Configuration::getSetting(
+	            'file_responses,' . \Aomebo\Request::$uri, false) ?
                 true : false);
         }
 
@@ -52,10 +51,9 @@ namespace Aomebo\Response\Responses {
          */
         public function respond()
         {
-
             $filePath =
-                \Aomebo\Configuration::getSetting('file_responses,'
-                    . \Aomebo\Dispatcher\System::getFullRequest());
+                \Aomebo\Configuration::getSetting(
+	                'file_responses,' . \Aomebo\Request::$uri);
 
             if (!file_exists($filePath)) {
                 if (file_exists(_PRIVATE_ROOT_ . $filePath)) {
@@ -116,7 +114,6 @@ namespace Aomebo\Response\Responses {
                 \Aomebo\Dispatcher\System::setFileNotFoundFlag(false);
                 \Aomebo\Dispatcher\System::setHttpResponseStatus200Ok();
                 \Aomebo\Dispatcher\System::outputHttpHeaders();
-
                 readfile($filePath);
 
             } else {
@@ -129,7 +126,6 @@ namespace Aomebo\Response\Responses {
                     _SYSTEM_ROOT_ . $filePath
                 ));
             }
-
         }
 
         /**
@@ -139,7 +135,6 @@ namespace Aomebo\Response\Responses {
          */
         private function _getMimeType($file)
         {
-
             $mime_types = array(
                 'pdf' => 'application/pdf',
                 'exe' => 'application/octet-stream',
@@ -169,14 +164,10 @@ namespace Aomebo\Response\Responses {
                 'htm' => 'text/html',
                 'html' => 'text/html'
             );
-
             $extension = strtolower(end(explode('.', $file)));
-
             return (isset($mime_types[$extension]) ?
                 $mime_types[$extension] : false);
-
         }
 
     }
-
 }

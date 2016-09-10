@@ -45,7 +45,9 @@ namespace Aomebo\Response\Responses
          */
         public function isValidRequest()
         {
-            return \Aomebo\Dispatcher\System::isFaviconRequest();
+            return \Aomebo\Configuration::getSetting(
+                'output,favicon directs to site shortcut icon')
+                && \Aomebo\Request::$uri == 'favicon.ico';
         }
 
         /**
@@ -53,14 +55,12 @@ namespace Aomebo\Response\Responses
          */
         public function respond()
         {
-
             $filePath =
                 \Aomebo\Dispatcher\System::getResourcesDirInternalPath()
                 . DIRECTORY_SEPARATOR
                 . \Aomebo\Configuration::getSetting('site,shortcut icon');
 
             if (file_exists($filePath)) {
-
                 \Aomebo\Dispatcher\System::setHttpHeaderField(
                     'Cache-Control',
                     'public, max-age=31536000' // 1 year
@@ -94,7 +94,6 @@ namespace Aomebo\Response\Responses
                         $type . '; charset=binary'
                     );
                 }
-
                 \Aomebo\Dispatcher\System::setFileNotFoundFlag(false);
                 \Aomebo\Dispatcher\System::setHttpResponseStatus200Ok();
                 \Aomebo\Dispatcher\System::outputHttpHeaders();
@@ -103,9 +102,9 @@ namespace Aomebo\Response\Responses
             } else {
                 Throw new \Exception(sprintf(
                     self::systemTranslate('Could not find favicon at "%s".'),
-                    $filePath));
+                    $filePath
+                ));
             }
-
         }
 
         /**
@@ -115,7 +114,6 @@ namespace Aomebo\Response\Responses
          */
         private function _getMimeType($file)
         {
-
             $mime_types = array(
                 'pdf' => 'application/pdf',
                 'exe' => 'application/octet-stream',
@@ -145,14 +143,10 @@ namespace Aomebo\Response\Responses
                 'htm' => 'text/html',
                 'html' => 'text/html'
             );
-
             $extension = strtolower(end(explode('.', $file)));
-
             return (isset($mime_types[$extension]) ?
                 $mime_types[$extension] : false);
-
         }
 
     }
-
 }

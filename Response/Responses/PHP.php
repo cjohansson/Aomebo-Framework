@@ -45,8 +45,8 @@ namespace Aomebo\Response\Responses
          */
         public function isValidRequest()
         {
-            return (\Aomebo\Configuration::getSetting('php_responses,'
-                . \Aomebo\Dispatcher\System::getFullRequest(), false) ?
+            return (\Aomebo\Configuration::getSetting(
+	            'php_responses,' . \Aomebo\Request::$uri, false) ?
                 true : false);
         }
 
@@ -55,10 +55,8 @@ namespace Aomebo\Response\Responses
          */
         public function respond()
         {
-
-            $filePath =
-                \Aomebo\Configuration::getSetting('php_responses,'
-                    . \Aomebo\Dispatcher\System::getFullRequest());
+            $filePath = \Aomebo\Configuration::getSetting(
+	            'php_responses,' . \Aomebo\Request::$uri);
 
             if (!file_exists($filePath)) {
                 if (file_exists(_PRIVATE_ROOT_ . $filePath)) {
@@ -73,7 +71,6 @@ namespace Aomebo\Response\Responses
             }
 
             if (file_exists($filePath)) {
-
                 \Aomebo\Dispatcher\System::setFileNotFoundFlag(false);
                 \Aomebo\Dispatcher\System::setHttpResponseStatus200Ok();
                 require_once($filePath);
@@ -88,9 +85,7 @@ namespace Aomebo\Response\Responses
                     _SYSTEM_ROOT_ . $filePath
                 ));
             }
-
         }
 
     }
-
 }

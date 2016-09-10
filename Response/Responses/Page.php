@@ -43,7 +43,17 @@ namespace Aomebo\Response\Responses
          */
         public function isValidRequest()
         {
-            return \Aomebo\Dispatcher\System::isPageRequest();
+	        \Aomebo\Dispatcher\System::getInstance();
+	        return \Aomebo\Request::$requestUri == ''
+                || (!\Aomebo\Dispatcher\System::isRewriteEnabled()
+	                    && \Aomebo\Request::$requestUri == 'index.php')
+		        || (\Aomebo\Dispatcher\System::isRewriteEnabled()
+		            && \Aomebo\Dispatcher\System::pathStartsWithQuestionMark(\Aomebo\Request::$requestUri)
+                        && \Aomebo\Configuration::getSetting(
+	                        'dispatch,use default page for uris starting with question-mark'))
+		        || \Aomebo\Dispatcher\System::pathIsPageSyntax(\Aomebo\Request::$uri)
+		        || \Aomebo\Configuration::getSetting(
+			        'dispatch,use default page for invalid page syntax uris');
         }
 
         /**
@@ -51,37 +61,19 @@ namespace Aomebo\Response\Responses
          */
         public function respond()
         {
-
-            // Load the internationalization system
             \Aomebo\Internationalization\System::getInstance();
-
-            // Load our database
             \Aomebo\Database\Adapter::getInstance();
-
-            // Load the associatives engine
             \Aomebo\Associatives\Engine::getInstance();
-
-            // Load interpreter for parsing of pages
             \Aomebo\Interpreter\Engine::getInstance();
-
-            // Load cache system
             \Aomebo\Cache\System::getInstance();
-
-            // Load indexing engine
             \Aomebo\Indexing\Engine::getInstance();
-
             new \Aomebo();
-
-            // Interpret page
+            \Aomebo\Dispatcher\System::parsePage();
             \Aomebo\Interpreter\Engine::interpret();
-
-            // Index our output
             \Aomebo\Indexing\Engine::index();
-
-            // Present our output
             \Aomebo\Presenter\Engine::getInstance();
             \Aomebo\Presenter\Engine::output();
-
         }
+
     }
 }

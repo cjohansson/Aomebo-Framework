@@ -477,12 +477,13 @@ namespace Aomebo
             self::loadRuntimes();
             self::loadSiteClass();
             new \Aomebo\Interpreter\Engine();
-            new \Aomebo\Dispatcher\System();
+            new \Aomebo\Request();
             new \Aomebo\Response\Handler();
             if (\Aomebo\Response\Handler::hasResponse()) {
                 \Aomebo\Response\Handler::respond();
             } else {
-                \Aomebo\Dispatcher\System::setHttpResponseStatus400BadRequest();
+                $dispatcherSystem = \Aomebo\Dispatcher\System::getInstance();
+                $dispatcherSystem::setHttpResponseStatus400BadRequest();
             }
         }
 

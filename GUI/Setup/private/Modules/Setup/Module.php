@@ -161,8 +161,6 @@ namespace Modules\Setup
             }
 
             $view = self::_getTwigView();
-            // $view = self::_getSmartyView();
-            // $view->setFile('views/view.tpl');
             $view->attachVariable('tests', $tests);
             $view->attachVariable('submit', $submit);
             $view->attachVariable('title', \Aomebo\Configuration::getSetting('framework,name'));

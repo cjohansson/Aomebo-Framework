@@ -91,6 +91,23 @@ namespace Aomebo\Response
 
         /**
          * @static
+         * @param string $name
+         * @return bool
+         */
+        public static function isResponse($name)
+        {
+            if (self::hasResponse()) {
+                if ($responseName = self::$_response->getName()) {
+                    if (strtoupper($name) == strtoupper($responseName)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        /**
+         * @static
          * @return bool
          */
         public static function hasResponse()

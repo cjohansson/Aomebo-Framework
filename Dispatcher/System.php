@@ -333,7 +333,9 @@ namespace Aomebo\Dispatcher
                     self::_parseProtocol();
                 }
 
-                self::_parsePageRoutes();
+                if (\Aomebo\Response\Handler::isResponse('page')) {
+                    self::_parsePageRoutes();
+                }
 
                 if (!isset(self::$_requestUri)
                     || !isset(self::$_fullRequest)
@@ -345,17 +347,16 @@ namespace Aomebo\Dispatcher
                     self::_parseRequest();
                 }
 
-                if (!isset(self::$_page)
+                if (\Aomebo\Response\Handler::isResponse('page')
+                    && !isset(self::$_page)
                     && !self::isAjaxRequest()
                 ) {
-                    self::_parsePage();
+                    self::parsePage();
                 }
 
                 \Aomebo\Trigger\System::processTriggers(
                     \Aomebo\Trigger\System::TRIGGER_KEY_AFTER_DISPATCH);
-
                 $this->_flagThisConstructed();
-
             }
         }
 
@@ -395,7 +396,6 @@ namespace Aomebo\Dispatcher
                 }
 
             }
-            
         }
 
         /**
@@ -800,6 +800,19 @@ namespace Aomebo\Dispatcher
 
         }
 
+	    /**
+         * This method stops interpretating and
+         * changes pages to file-not-found.
+         *
+         * @static
+         * @param bool [$restartInterpretation = true]
+         * @deprecated
+	     */
+	    public static function fileNotFound($restartInterpretation = true)
+	    {
+		    self::setFileNotFound($restartInterpretation);
+	    }
+
         /**
          * This method stops interpretating and
          * changes pages to file-not-found.
@@ -807,14 +820,13 @@ namespace Aomebo\Dispatcher
          * @static
          * @param bool [$restartInterpretation = true]
          */
-        public static function fileNotFound($restartInterpretation = true)
+        public static function setFileNotFound($restartInterpretation = true)
         {
             $page = \Aomebo\Configuration::getSetting(
                 'dispatch,file not found page');
             if ($page) {
                 self::setPage($page);
             }
-
             self::setFileNotFoundFlag(true);
 
             if ($restartInterpretation) {
@@ -822,9 +834,10 @@ namespace Aomebo\Dispatcher
                     \Aomebo\Interpreter\Engine::getInstance();
                 $interpreterEngine->restartInterpretation();
             }
-
             self::removeCurrentUriFromIndexing();
-            self::setHttpResponseStatus404NotFound();
+            if ($page) {
+	            self::setHttpResponseStatus404NotFound();
+            }
 
             // Should we redirect to 404 page?
             if ($page
@@ -834,7 +847,6 @@ namespace Aomebo\Dispatcher
                 self::setHttpHeaderField('Location',
                     self::buildUri(null, self::getPage()));
             }
-
         }
 
         /**
@@ -2204,11 +2216,9 @@ namespace Aomebo\Dispatcher
          */
         private static function _parseRequest()
         {
-
             if (!isset(self::$_baseUri)) {
                 self::setBaseUri(_PUBLIC_EXTERNAL_ROOT_);
             }
-
             if (!isset(self::$_pageBaseUri)) {
                 self::setPageBaseUri(self::$_baseUri);
             }
@@ -2258,19 +2268,6 @@ namespace Aomebo\Dispatcher
                         strtoupper($_SERVER['REQUEST_METHOD']));
                 }
             }
-
-            /*
-            \Aomebo\Feedback\Debug::display(
-                'request-uri: "' . self::getRequestUri() . '"' .
-                'query-string: "' . self::getQueryString() . '"' .
-                'full-request: "' . self::getFullRequest() . '"' .
-                'request-uri: "' . $_SERVER['REQUEST_URI'] . '"' .
-                'php self: "' . $_SERVER['PHP_SELF'] . '"' .
-                'base uri: "' . self::$_baseUri . '"' .
-                'page base uri: "' . self::$_pageBaseUri . '"'
-            );
-            */
-
         }
 
         /**
@@ -2634,17 +2631,19 @@ namespace Aomebo\Dispatcher
         /**
          * This method parses adress to find page.
          *
-         * @internal
          * @static
          * @throws \Exception
          */
-        private static function _parsePage()
+        public static function parsePage()
         {
-
             $uriToPages = self::getUriToPages();
             $defaultPage =
                 \Aomebo\Configuration::getSetting('dispatch,default page');
-
+            if (!$defaultPage
+                && count($uriToPages)
+            ) {
+	            $defaultPage = reset($uriToPages);
+            }
             self::setFileNotFoundFlag(false);
 
             // Is it a shell request?
@@ -2668,7 +2667,6 @@ namespace Aomebo\Dispatcher
                     if (!self::isRewriteEnabled()
                         && self::getRequestUri() == 'index.php'
                     ) {
-
                         self::setPage($defaultPage);
 
                     /**
@@ -2682,16 +2680,13 @@ namespace Aomebo\Dispatcher
                         && \Aomebo\Configuration::getSetting(
                             'dispatch,use default page for uris starting with question-mark')
                     ) {
-
                         self::setPage($defaultPage);
                         self::setQueryString(self::getFullRequest());
                         self::setRequestUri('');
 
                     // Otherwise - parse uri
                     } else {
-
                         $hit = false;
-
                         if (self::pathIsPageSyntax(self::getRequestUri())) {
 
                             // Iterate through all pages..
@@ -2706,13 +2701,11 @@ namespace Aomebo\Dispatcher
                                     && isset($_GET['_page'])
                                     && $_GET['_page'] === $uri)
                                 ) {
-
                                     self::setPage($page);
                                     $hit = true;
                                     break;
 
                                 }
-
                             }
 
                         } else if (\Aomebo\Configuration::getSetting(
@@ -2726,7 +2719,6 @@ namespace Aomebo\Dispatcher
 
                         // Could we find a matching route for page?
                         if ($hit) {
-
                             if (self::isFileNotFoundPage(self::getPage())) {
                                 self::removeCurrentUriFromIndexing();
                                 self::setHttpResponseStatus404NotFound();
@@ -2736,7 +2728,6 @@ namespace Aomebo\Dispatcher
                                 self::setHttpResponseStatus301MovedPermanently();
                                 self::setHttpHeaderFieldLocation($newUri);
                                 exit;
-
                             }
 
                         // Otherwise - file not found
@@ -2759,12 +2750,9 @@ namespace Aomebo\Dispatcher
                                 }
 
                                 if (!$hit) {
-
                                     // Flag that file could not be found and restart interpretation
                                     self::fileNotFound(true);
-
                                 }
-
                             }
                         }
                     }
