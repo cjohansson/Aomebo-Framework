@@ -479,10 +479,10 @@ namespace Aomebo
             new \Aomebo\Interpreter\Engine();
             new \Aomebo\Request();
             new \Aomebo\Response\Handler();
+            $dispatcherSystem = \Aomebo\Dispatcher\System::getInstance();
             if (\Aomebo\Response\Handler::hasResponse()) {
                 \Aomebo\Response\Handler::respond();
             } else {
-                $dispatcherSystem = \Aomebo\Dispatcher\System::getInstance();
                 $dispatcherSystem::setHttpResponseStatus400BadRequest();
             }
         }

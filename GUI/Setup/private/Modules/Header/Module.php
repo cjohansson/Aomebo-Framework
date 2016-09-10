@@ -21,12 +21,12 @@ namespace Modules\Header
          */
         public function execute()
         {
-            $view = \Aomebo\Template\Adapters\Smarty\Adapter::getInstance();
-            $view->setFile('views/view.tpl');
-            $view->attachVariable('title',
-                \Aomebo\Configuration::getSetting('framework,name'));
-            $view->attachVariable('version',
-                \Aomebo\Configuration::getSetting('framework,version'));
+	        $view = self::_getTwigView();
+            $view->setFile('views/view.twig');
+            $view->attachVariables(array(
+	            'title' => \Aomebo\Configuration::getSetting('framework,name'),
+	            'version' => \Aomebo\Configuration::getSetting('framework,version'),
+            ));
             return $view->parse();
         }
 

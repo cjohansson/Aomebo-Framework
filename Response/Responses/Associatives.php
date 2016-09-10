@@ -49,7 +49,8 @@ namespace Aomebo\Response\Responses
 	                && $_GET['mode'] ==
 	                \Aomebo\Configuration::getSetting('settings,associatives mode')
 	                && ((!\Aomebo\Configuration::getSetting('dispatch,allow only associatives request with matching referer')
-	                     || \Aomebo\Dispatcher\System::requestRefererMatchesSiteUrl())
+	                     || (!empty($_SERVER['HTTP_REFERER'])
+	                         && stripos($_SERVER['HTTP_REFERER'], \Aomebo\Configuration::getSetting('site,server name')) !== false))
 	                    && (\Aomebo\Request::$method == 'GET'
 	                        || \Aomebo\Request::$method == 'POST')
 	                ));

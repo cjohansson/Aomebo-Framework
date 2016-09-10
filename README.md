@@ -37,11 +37,13 @@ The framework has been successfully used for:
 
 The framework is licensed by the Open license LGPL version 3.
 
-## Setup
+## A easy example
 
-1. Clone framework anywhere on your server `git clone https://github.com/cjohansson/Aomebo-Framework.git /usr/share/aomebo-framework/`
+1. Let's say we want to have the framework at `/usr/share/aomebo-framework/`
+1. Clone git repository `git clone https://github.com/cjohansson/Aomebo-Framework.git /usr/share/aomebo-framework/`
 2. Create a `index.php` in your public root like this and tell Aomebo Framework where your applications private files are located.
 
+Let's say that this is `/var/www/MyWebSite/public/index.php`
 ``` php
 <?php
 require_once('/usr/share/aomebo-framework/Application.php');
@@ -51,7 +53,6 @@ new \Aomebo\Application(
             '/var/www/MyWebSite/private/',
     )
 );
-
 ```
 
 3. Create some modules
@@ -63,3 +64,5 @@ new \Aomebo\Application(
 6. Add database connection
 
 7. Try again
+
+8. Create some routes

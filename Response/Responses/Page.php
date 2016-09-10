@@ -43,15 +43,18 @@ namespace Aomebo\Response\Responses
          */
         public function isValidRequest()
         {
-	        \Aomebo\Dispatcher\System::getInstance();
+	        $rewriteEnabled = (!empty($_SERVER['SHELL']) ? \Aomebo\Configuration::getSetting('site,mod_rewrite') : getenv(\Aomebo\Dispatcher\System::REWRITE_FLAG));
 	        return \Aomebo\Request::$requestUri == ''
-                || (!\Aomebo\Dispatcher\System::isRewriteEnabled()
-	                    && \Aomebo\Request::$requestUri == 'index.php')
-		        || (\Aomebo\Dispatcher\System::isRewriteEnabled()
-		            && \Aomebo\Dispatcher\System::pathStartsWithQuestionMark(\Aomebo\Request::$requestUri)
-                        && \Aomebo\Configuration::getSetting(
-	                        'dispatch,use default page for uris starting with question-mark'))
-		        || \Aomebo\Dispatcher\System::pathIsPageSyntax(\Aomebo\Request::$uri)
+                || (!$rewriteEnabled
+                    && \Aomebo\Request::$requestUri == 'index.php')
+		        || ($rewriteEnabled
+		            && substr(\Aomebo\Request::$requestUri, 0, 1) == '?'
+		            && \Aomebo\Configuration::getSetting(
+			            'dispatch,use default page for uris starting with question-mark'))
+		        || preg_match(
+                    \Aomebo\Configuration::getSetting(
+                        'dispatch,page syntax regexp'),
+                    \Aomebo\Request::$uri) === 1
 		        || \Aomebo\Configuration::getSetting(
 			        'dispatch,use default page for invalid page syntax uris');
         }
