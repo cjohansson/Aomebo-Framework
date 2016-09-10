@@ -666,10 +666,18 @@ namespace Modules\Setup
                                 'key' => 'body',
                                 'value' =>
                                 array(
+	                                array(
+		                                'key' => 'header',
+		                                'value' => '',
+	                                ),
                                     array(
                                         'key' => 'setup',
                                         'value' => '',
                                     ),
+                                    array(
+	                                    'key' => 'footer',
+	                                    'value' => '',
+                                    )
                                 ),
                             ),
                         ),

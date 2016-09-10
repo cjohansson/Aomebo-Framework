@@ -22,7 +22,7 @@ namespace Modules\Footer
         public function execute()
         {
             $view = self::_getTwigView();
-            $view->setFile('views/view.tpl');
+            $view->setFile('views/view.twig');
             $view->attachVariables(array(
                 'website' => \Aomebo\Configuration::getSetting('framework,website'),
                 'year' => date('Y'),
