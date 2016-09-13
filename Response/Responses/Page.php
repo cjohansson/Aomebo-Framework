@@ -44,7 +44,8 @@ namespace Aomebo\Response\Responses
         public function isValidRequest()
         {
 	        $rewriteEnabled = (!empty($_SERVER['SHELL']) ? \Aomebo\Configuration::getSetting('site,mod_rewrite') : getenv(\Aomebo\Dispatcher\System::REWRITE_FLAG));
-	        return \Aomebo\Request::$requestUri == ''
+	        return \Aomebo\Dispatcher\System::getPage()
+		        || \Aomebo\Request::$requestUri == ''
                 || (!$rewriteEnabled
                     && \Aomebo\Request::$requestUri == 'index.php')
 		        || ($rewriteEnabled
@@ -54,7 +55,7 @@ namespace Aomebo\Response\Responses
 		        || preg_match(
                     \Aomebo\Configuration::getSetting(
                         'dispatch,page syntax regexp'),
-                    \Aomebo\Request::$uri) === 1
+                    \Aomebo\Request::$requestUri) === 1
 		        || \Aomebo\Configuration::getSetting(
 			        'dispatch,use default page for invalid page syntax uris');
         }
