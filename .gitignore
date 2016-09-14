@@ -40,6 +40,8 @@ Thumbs.db
 #####################
 .idea/
 
-# Emacs Directory Variables #
+# Emacs Files #
 #####################
 .dir-locals.el
+.ac-php-conf.json
+.tern-port

@@ -39,9 +39,9 @@ The framework is licensed by the Open license LGPL version 3.
 
 ## A easy example
 
-1. Let's say we want to have the framework at `/usr/share/aomebo-framework/`
-1. Clone git repository `git clone https://github.com/cjohansson/Aomebo-Framework.git /usr/share/aomebo-framework/`
-2. Create a `index.php` in your public root like this and tell Aomebo Framework where your applications private files are located.
+1. Let's say we want to have the framework at `/usr/share/aomebo-framework/` and we have our public root at `/var/www/MyWebSite/public/`, we want our application to be located outside of public root at `/var/www/MyWebSite/private/`
+2. Clone git repository `git clone https://github.com/cjohansson/Aomebo-Framework.git /usr/share/aomebo-framework/`
+3. Create a `index.php` in your public root like this and tell Aomebo Framework where your applications private files are located by passing the `PARAMETER_SITE_PATH` parameter to the Aomebo Application constructor.
 
 Let's say that this is `/var/www/MyWebSite/public/index.php`
 ``` php
@@ -56,6 +56,105 @@ new \Aomebo\Application(
 ```
 
 3. Create some modules
+
+### Html
+`/var/www/MyWebSite/private/Modules/Html/Module.php`
+
+``` php
+<?php
+/**
+ *
+ */
+
+/**
+ *
+ */
+namespace Modules\Html
+{
+
+    /**
+     * @method static \Modules\Html\Module getInstance()
+     */
+    class Module extends \Aomebo\Runtime\Module implements
+        \Aomebo\Runtime\Executable,
+        \Aomebo\Runtime\ExecutionParameters,
+        \Aomebo\Runtime\Dependent
+    {
+
+	    /**
+	     * @static
+	     * @var string
+	     */
+	    private static $_title;
+
+        /**
+         * @return array|bool
+         */
+        public function getDependencies()
+        {
+            return array(
+                new \Aomebo\Associatives\Dependent('jQuery'));
+        }
+
+        /**
+         * @return array|bool
+         */
+        public function getParameters()
+        {
+	        return array('title', 'body');
+        }
+
+        /**
+         * @static
+         * @param string $title
+         */
+        public static function setTitle($title)
+        {
+	        self::$_title = $title;
+        }
+
+        /**
+         * @static
+         * @return string
+         */
+        public static function getTitle()
+        {
+	        return self::$_title;
+        }
+
+        /**
+         * @return bool|mixed|string
+         */
+        public function execute()
+        {
+	        if (empty(self::$_title)) {
+		        self::$_title = $this->getField('title');
+	        }
+	        $view = self::_getTwigView();
+	        $view->setFile('views/view.twig');
+	        $view->attachVariables(array(
+		        'title' => self::$_title,
+		        'body' => $this->getField('body'),
+	        ));
+            return $view->parse();
+        }
+
+    }
+}
+```
+
+`/var/www/MyWebSite/private/Modules/Html/views/view.twig`
+
+``` twig
+<html>
+    <head>
+	<title>{{ title }}</title>
+    </head>
+    <body>
+	{{ body|raw }}
+    </body>
+</html>
+```
 
 4. Create some pages
 

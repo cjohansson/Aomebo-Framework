@@ -18,9 +18,6 @@
  * @see http://www.aomebo.org/ or https://github.com/cjohansson/Aomebo-Framework
  */
 
-define('PO_MAX_LINE_LEN', 79);
-ini_set('auto_detect_line_endings', 1);
-
 /**
  *
  */
