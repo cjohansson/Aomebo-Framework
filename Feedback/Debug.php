@@ -355,9 +355,7 @@ namespace Aomebo\Feedback
          */
         public static function getEnvironmentVariablesDump()
         {
-
             $sessionData = '';
-
             if ($sesionBlock = \Aomebo\Session\Handler::getSessionBlock()) {
                 if ($sessionBlockData = $sesionBlock->getBlockData()) {
                     $sessionData = print_r($sessionBlockData, true);
@@ -365,16 +363,16 @@ namespace Aomebo\Feedback
             }
 
             return sprintf(
-                self::systemTranslate('$_POST: "%s", $_GET: "%s", $_SERVER: "%s", $_SESSION: "%s", $_COOKIE: "%s", $_ENV: "%s", "SESSION-BLOCK-DATA: "%s"'),
+                self::systemTranslate('$_POST: "%s", $_GET: "%s", $_SERVER: "%s", $_SESSION: "%s", $_COOKIE: "%s", $_ENV: "%s", $_FILES: "%s", SESSION-BLOCK-DATA: "%s"'),
                 (isset($_POST) ? print_r($_POST, true) : 'null'),
                 (isset($_GET) ? print_r($_GET, true) : 'null'),
                 (isset($_SERVER) ? print_r($_SERVER, true) : 'null'),
                 (isset($_SESSION) ? print_r($_SESSION, true) : 'null'),
                 (isset($_COOKIE) ? print_r($_COOKIE, true) : 'null'),
                 (isset($_ENV) ? print_r($_ENV, true) : 'null'),
+                (isset($_FILES) ? print_r($_FILES, true) : 'null'),
                 $sessionData
             );
-
         }
 
         /**

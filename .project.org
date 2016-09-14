@@ -1,4 +1,4 @@
 * DONE Allow page requests to have a valid prefix URL and the rest arbitrary
-* TODO Dump $_FILES in debug output as well
-* TODO Finish README.md for one example
+* DONE Dump $_FILES in debug output as well
 * TODO Should connect to database multiple times too, similar to reconnect
+* TODO Finish README.md for one example
