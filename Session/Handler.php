@@ -165,9 +165,7 @@ namespace Aomebo\Session
          */
         public function __construct()
         {
-
             if (!self::_isConstructed()) {
-
                 parent::__construct();
 
                 \Aomebo\Trigger\System::addTrigger(
@@ -175,27 +173,21 @@ namespace Aomebo\Session
                     array($this, 'autoInstall')
                 );
 
-                if (\Aomebo\Database\Adapter::useDatabase()) {
-                    
+                if (\Aomebo\Database\Adapter::useDatabase()
+                    && \Aomebo\Configuration::getSetting('session,handler')
+                ) {
                     if (\Aomebo\Application::shouldAutoInstall()) {
                         self::autoInstall();
                     }
-
                     self::_loadRootSession();
                     self::_loadSessionBlocks();
-
                     if (\Aomebo\Dispatcher\System::isPageRequest()) {
                         self::_sessionGarbageCollect();
                     }
-
                     self::_initSessionEvent();
-
                 }
-
                 self::_flagThisConstructed();
-
             }
-
         }
 
         /**
@@ -261,7 +253,9 @@ namespace Aomebo\Session
         {
 
             if (!\Aomebo\Dispatcher\System::isShellRequest()) {
-                if (\Aomebo\Database\Adapter::useDatabase()) {
+                if (\Aomebo\Database\Adapter::useDatabase()
+                    && \Aomebo\Configuration::getSetting('session,handler')
+                ) {
 
                     // Save root session
                     self::_saveSessionInStorage();

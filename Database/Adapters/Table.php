@@ -54,7 +54,6 @@ namespace Aomebo\Database\Adapters
         public function __construct($name = '', $specification = '',
             $columnSpecification = '')
         {
-
             if (!self::_isConstructed()) {
                 parent::__construct();
                 self::_flagThisConstructed();
@@ -63,7 +62,6 @@ namespace Aomebo\Database\Adapters
             $this->_name = $name;
             $this->_specification = $specification;
             $this->_columnSpecification = $columnSpecification;
-
         }
 
         /**
@@ -145,9 +143,7 @@ namespace Aomebo\Database\Adapters
          */
         public function create()
         {
-            return \Aomebo\Database\Adapter::tableCreate(
-                $this
-            );
+            return \Aomebo\Database\Adapter::tableCreate($this);
         }
 
         /**
@@ -155,9 +151,7 @@ namespace Aomebo\Database\Adapters
          */
         public function drop()
         {
-            return \Aomebo\Database\Adapter::tableDrop(
-                $this
-            );
+            return \Aomebo\Database\Adapter::tableDrop($this);
         }
 
         /**
@@ -173,7 +167,7 @@ namespace Aomebo\Database\Adapters
                     $newFields[$key] = & $value;
                 }
             }
-            if (sizeof($newFields) > 0) {
+            if (count($newFields) > 0) {
                 return $newFields;
             }
             return false;
@@ -184,9 +178,7 @@ namespace Aomebo\Database\Adapters
          */
         public function exists()
         {
-            return \Aomebo\Database\Adapter::tableExists(
-                $this
-            );
+            return \Aomebo\Database\Adapter::tableExists($this);
         }
 
         /**

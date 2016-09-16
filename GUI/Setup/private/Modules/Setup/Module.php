@@ -45,15 +45,6 @@ namespace Modules\Setup
         }
 
         /**
-         * @param \Aomebo\Dispatcher\Route $route
-         * @return bool
-         */
-        public function enablingFunction($route)
-        {
-            return true;
-        }
-
-        /**
          * @return array
          */
         public function getRoutes()
@@ -300,24 +291,32 @@ namespace Modules\Setup
                 $password,
                 $database,
                 $options,
-                true,
-                false)
+                true)
             )  {
-
                 $databaseTests = '';
-
                 $databaseTests .= sprintf(
-                    __('Connected to host `%s`. Selected database `%s`. ', 'setup'),
-                    $host,
-                    $database
+	                __('Connected to host `%s`. ', 'setup'),
+                    $host
                 );
 
-                if (\Aomebo\Database\Adapter::lostConnection()) {
-                    $databaseTests .=
-                                   __('ERROR. Returned lost connection. ', 'setup');
+                $selectedDatabase = \Aomebo\Database\Adapter::getSelectedDatabase();
+                if ($selectedDatabase == $database) {
+	                $databaseTests .= sprintf(
+		                __('Selected correct database `%s`. ', 'setup'),
+		                $selectedDatabase
+	                );
                 } else {
-                    $databaseTests .=
-                                   __('Have not lost connection. ', 'setup');
+	                $databaseTests .= sprintf(
+		                __('ERROR. Failed to select database `%s`, instead selected to `%s`. ', 'setup'),
+		                $database,
+		                $selectedDatabase
+	                );
+                }
+
+                if (\Aomebo\Database\Adapter::lostConnection()) {
+                    $databaseTests .= __('ERROR. Returned lost connection. ', 'setup');
+                } else {
+                    $databaseTests .= __('Have not lost connection. ', 'setup');
                 }
 
                 /** @see http://php.net/manual/en/function.mysql-real-escape-string.php */
@@ -396,11 +395,10 @@ namespace Modules\Setup
 
                 if ($table->exists()) {
 
-                    $databaseTests .= sprintf(
+	                $databaseTests .= sprintf(
                         __('Table `%s` exists. ', 'setup'),
                         $table->getName()
                     );
-
                     if ($fields = $table->getTableColumns()) {
                         $databaseTests .= sprintf(
                             __('Found table fields `%s`. ', 'setup'),
@@ -436,12 +434,10 @@ namespace Modules\Setup
                     }
 
                     if ($table->drop()) {
-
                         $databaseTests .= sprintf(
                             __('Dropped table `%s`. ', 'setup'),
                             $table->getName()
                         );
-
                     } else {
                         $databaseTests .=
                             sprintf(
@@ -451,7 +447,8 @@ namespace Modules\Setup
                     }
 
                 } else {
-                    if ($table->create()) {
+
+	                if ($table->create()) {
 
                         $databaseTests .= sprintf(
                             __('Table `%s` created. ', 'setup'),
@@ -512,58 +509,46 @@ namespace Modules\Setup
                                 ),
                                 5)
                             ) {
-
                                 $databaseTests .= sprintf(
                                     __('Entry updated with id %d. ', 'setup'),
                                     $id
                                 );
-
                             } else {
                                 $databaseTests .= __('Failed to update data. ', 'setup');
                             }
 
                             if ($result = $table->select()) {
-
                                 $databaseTests .= sprintf(
                                     __('Entry with id %d selected. Assoc data: "%s". ', 'setup'),
                                     $id,
                                     print_r($result->fetchAssoc(), true)
                                 );
-
                                 $result->free();
-
                             } else {
                                 $databaseTests .= __('Failed to select data. ', 'setup');
                             }
 
                             if ($result = $table->select()) {
-
                                 $databaseTests .= sprintf(
                                     __('Entry with id %d selected again. Object data: "%s". ', 'setup'),
                                     $id,
                                     print_r($result->fetchObjectAndFree(), true)
                                 );
-
                             } else {
                                 $databaseTests .= __('Failed to select data. ', 'setup');
                             }
 
-
                             $table->delete(array(array($table->id, $id)));
-
                             $databaseTests .= sprintf(
                                 __('Entry with id %d deleted. ', 'setup'),
                                 $id
                             );
 
                         } else {
-
                             $databaseTests .= __('Failed to add data to table. ', 'setup');
-
                         }
 
                         $table->delete();
-
                         $databaseTests .= __('All entries deleted. ', 'setup');
 
                     } else {
@@ -609,11 +594,10 @@ namespace Modules\Setup
                         $table->getName()
                     );
                 } else {
-                    $databaseTests .=
-                                   sprintf(
-                                       __('Failed to drop table `%s` again. ', 'setup'),
-                                       $table->getName()
-                                   );
+                    $databaseTests .= sprintf(
+	                    __('Failed to drop table `%s` again. ', 'setup'),
+	                    $table->getName()
+                    );
                 }
 
             } else {
@@ -644,6 +628,7 @@ namespace Modules\Setup
                 11
             );
             $triggers = \Aomebo\Trigger\System::getTriggers('random');
+            // TODO: Implement this
         }
 
         /**

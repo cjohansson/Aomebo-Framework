@@ -31,5 +31,4 @@ namespace Modules\Header
         }
 
     }
-
 }

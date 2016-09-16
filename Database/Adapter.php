@@ -65,6 +65,27 @@ namespace Aomebo\Database
          */
         private static $_options = array();
 
+	    /**
+	     * @internal
+	     * @static
+	     * @var bool
+	     */
+	    private static $_select = false;
+
+	    /**
+	     * @internal
+	     * @static
+	     * @var int
+	     */
+	    private static $_reconnectIterations = 5;
+
+	    /**
+	     * @internal
+	     * @static
+	     * @var int
+	     */
+	    private static $_reconnectDelay = 3;
+
         /**
          * This flag indicates whether we are connected to database.
          *
@@ -211,8 +232,10 @@ namespace Aomebo\Database
                         $databaseConfiguration['username'],
                         $databaseConfiguration['password'],
                         $databaseConfiguration['database'],
-                        (isset($databaseConfiguration['options']) ? $databaseConfiguration['options'] : null))
-                    ) {
+                        (isset($databaseConfiguration['options']) ? $databaseConfiguration['options'] : null),
+                        $databaseConfiguration['reconnect max retries'],
+                        $databaseConfiguration['reconnect retry delay']
+                    )) {
                         self::_flagThisConstructed();
                     } else {
                         self::_flagThisConstructed();
@@ -635,7 +658,6 @@ namespace Aomebo\Database
         {
             self::_instanciate();
             if (self::isConnected()) {
-
                 if (is_a($rawTableName,
                     '\Aomebo\Database\Adapters\Table')
                 ) {
@@ -652,11 +674,8 @@ namespace Aomebo\Database
                 ) {
                     return true;
                 }
-
             }
-
             return false;
-
         }
 
         /**
@@ -907,28 +926,23 @@ namespace Aomebo\Database
                                 if (isset($valueArray[self::QUERY_VALUE])) {
 
                                     if (!empty($valueArray[self::QUERY_VALUE_QUOTATION_QUOTED])) {
-
                                         $replaceWith = self::quote(
                                             $valueArray[self::QUERY_VALUE],
                                             empty($valueArray[self::QUERY_VALUE_UNESCAPED])
                                         );
 
                                     } else if (!empty($valueArray[self::QUERY_VALUE_QUOTATION_BACKQUOTED])) {
-
                                         $replaceWith = self::backquote(
                                             $valueArray[self::QUERY_VALUE],
                                             empty($valueArray[self::QUERY_VALUE_UNESCAPED])
                                         );
 
                                     } else if (empty($valueArray[self::QUERY_VALUE_UNESCAPED])) {
-
-                                        $replaceWith = 
+                                        $replaceWith =
                                             self::escape($valueArray[self::QUERY_VALUE]);
 
                                     } else {
-
                                         $replaceWith = $valueArray[self::QUERY_VALUE];
-
                                     }
 
                                     $query = str_replace(
@@ -1188,47 +1202,18 @@ namespace Aomebo\Database
 
         /**
          * Reconnects connection
+         *
          * @static
-         * @param int|null [$iterations = null]
-         * @param int|null [$delay = null]
          * @return bool
          */
-        public static function reconnect($iterations = null, $delay = null)
+        public static function reconnect()
         {
-            if (!isset($iterations)) {
-                $iterations = \Aomebo\Configuration::getSetting(
-                    'database,reconnect max retries', false);
-                if (!$iterations) {
-                    $iterations = 5;
-                }
-            }
-            if (!isset($delay)) {
-                $delay = \Aomebo\Configuration::getSetting(
-                    'database,reconnect retry delay', false);
-                if (!$delay) {
-                    $delay = 3;
-                }
-            }
-            for ($i = 0; $i < $iterations; $i++)
-            {
-                sleep($delay);
-                try {
-                    if (self::connect(self::$_host, self::$_username,
-                                      self::$_password, self::$_database,
-                                      self::$_options, true, true)
-                    ) {
-                        return true;
-                    }
-                } catch (\Exception $e) {
-                    \Aomebo\Feedback\Debug::log(sprintf(self::systemTranslate(
-                        'Failed to reconnect in iteration %d of %d, error: "%s"',
-                        ($i + 1),
-                        $iterations,
-                        $e->getMessage()
-                    )));
-                }
-            }
-            return false;
+	        return self::connect(
+		        self::$_host, self::$_username,
+		        self::$_password, self::$_database, self::$_options,
+		        self::$_select, self::$_reconnectIterations,
+		        self::$_reconnectDelay, false
+	        );
         }
 
         /**
@@ -1245,11 +1230,11 @@ namespace Aomebo\Database
          * @throws \Exception
          * @return Adapters\Resultset|bool
          */
-        public static function execute($sql,
-            $unbuffered = false,
+        public static function execute(
+	        $sql, $unbuffered = false,
             $sqlKey = '', $queryCount = 1,
-                                       $throwExceptionOnFailure = true,
-                                       $reconnect = null)
+	        $throwExceptionOnFailure = true,
+	        $reconnect = null)
         {
             self::_instanciate();
             if (self::isConnected()) {
@@ -1287,10 +1272,8 @@ namespace Aomebo\Database
                             }
                         }
                     } else {
-
                         if (self::$_object->hasError()) {
                             self::$_lastError = self::$_object->getError();
-
                             if (\Aomebo\Configuration::getSetting('database,reconnect')
                                 && (!isset($reconnect) || !empty($reconnect))
                                 && self::lostConnection()
@@ -1301,7 +1284,7 @@ namespace Aomebo\Database
                                             'Query: "%s" returned error: "%s". Reconnecting..'
                                         ),
                                         $sql,
-                                        self::$_object->getError()
+                                        self::$_lastError
                                     )
                                 );
                                 if (self::reconnect()) {
@@ -1321,7 +1304,7 @@ namespace Aomebo\Database
                                             'Query: "%s" returned error: "%s"'
                                         ),
                                         $sql,
-                                        self::$_object->getError()
+                                        self::$_lastError
                                     )
                                 );
                             }
@@ -1412,15 +1395,79 @@ namespace Aomebo\Database
          * @param string $database
          * @param array|null [$options = null]
          * @param bool [$select = true]
-         * @param bool [$throwExceptionOnFailure = true]
+         * @param int|null [$iterations = null]
+         * @param int|null [$delay = null]
+         * @param bool [$delayAfterOrBefore = true]
          * @throws \Exception
          * @return bool
          */
-        public static function connect($host, $username,
+        public static function connect(
+	        $host, $username,
             $password, $database, $options = null,
-            $select = true, $throwExceptionOnFailure = true)
+	        $select = true, $iterations = null,
+	        $delay = null, $delayAfterOrBefore = true)
         {
+	        if (!isset($iterations)
+	            || $iterations < 1
+	        ) {
+		        $iterations = 5;
+            }
+            if (!isset($delay)
+                || $delay < 1
+            ) {
+	            $delay = 3;
+            }
 
+            for ($i = 0; $i < $iterations; $i++)
+            {
+	            if (!$delayAfterOrBefore) {
+		            sleep($delay);
+	            }
+                try {
+	                if (self::_connect(
+	                    $host, $username,
+	                    $password, $database,
+	                    $options, $select,
+	                    $iterations, $delay)
+                    ) {
+                        return true;
+	                }
+                } catch (\Exception $e) {
+                    \Aomebo\Feedback\Debug::log(sprintf(self::systemTranslate(
+                        'Failed to connect on iteration %d of %d, error: "%s"',
+                        ($i + 1),
+                        $iterations,
+                        $e->getMessage()
+                    )));
+                }
+                if ($delayAfterOrBefore) {
+	                sleep($delay);
+                }
+            }
+            return false;
+        }
+
+        /**
+         * This method tries to establish a database connection.
+         *
+         * @static
+         * @internal
+         * @param string $host
+         * @param string $username
+         * @param string $password
+         * @param string $database
+         * @param array|null [$options = null]
+         * @param bool [$select = true]
+         * @param int $iterations
+         * @param int $delay
+         * @throws \Exception
+         * @return bool
+         */
+        private static function _connect(
+	        $host, $username,
+            $password, $database, $options = null,
+	        $select = true, $iterations, $delay)
+        {
             self::_instanciate();
             self::$_connected = false;
             self::$_useDatabase = false;
@@ -1463,6 +1510,9 @@ namespace Aomebo\Database
                     self::$_username = $username;
                     self::$_password = $password;
                     self::$_options = $options;
+                    self::$_select = $select;
+                    self::$_reconnectIterations = $iterations;
+                    self::$_reconnectDelay = $delay;
 
                     // Add system prefixes
                     self::addSystemReplaceKey(
@@ -1489,8 +1539,6 @@ namespace Aomebo\Database
                         && is_array($options)
                         && count($options) > 0
                     ) {
-
-                        // Iterate through replace-keys
                         foreach ($options as $key => $value)
                         {
                             if (!empty($key)
@@ -1499,7 +1547,6 @@ namespace Aomebo\Database
                                 self::addReplaceKey($key, $value);
                             }
                         }
-
                     }
 
                     self::$_connected = true;
@@ -1515,22 +1562,20 @@ namespace Aomebo\Database
                     if (\Aomebo\Configuration::getSetting('database,create database')) {
                         if (!self::_isInstalled($database)) {
                             if (!self::_install($database)) {
-                                if ($throwExceptionOnFailure) {
-                                    Throw new \Exception(
-                                        sprintf(
-                                            self::systemTranslate('Could not install database in %s in %s'),
-                                            __METHOD__,
-                                            __FILE__
-                                        )
-                                    );
-                                }
+	                            Throw new \Exception(
+		                            sprintf(
+			                            self::systemTranslate('Could not install database in %s in %s'),
+			                            __METHOD__,
+			                            __FILE__
+		                            )
+	                            );
                                 return false;
                             }
                         }
                     }
 
                     // Should select and database is not selected already?
-                    if (!empty($select)
+                    if ($select
                         && !$dbObject->hasSelectedDatabase()
                     ) {
                         if (self::selectDatabase($database)) {
@@ -1540,52 +1585,43 @@ namespace Aomebo\Database
                         } else {
                             \Aomebo\Trigger\System::processTriggers(
                                 \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_SELECTED_FAIL);
-                            if ($throwExceptionOnFailure) {
-                                Throw new \Exception(
-                                    sprintf(
-                                        self::systemTranslate('Could not select database in %s in %s'),
-                                        __METHOD__,
-                                        __FILE__)
-                                );
-                            }
+                            Throw new \Exception(
+	                            sprintf(
+		                            self::systemTranslate('Could not select database in %s in %s'),
+		                            __METHOD__,
+		                            __FILE__)
+                            );
                             return false;
                         }
                     } else if ($dbObject->hasSelectedDatabase()) {
                         self::$_database = $dbObject->getSelectedDatabase();
+                        \Aomebo\Trigger\System::processTriggers(
+	                        \Aomebo\Trigger\System::TRIGGER_KEY_DATABASE_SELECTED_SUCCESS);
                     }
                     return true;
 
                 } else {
-
-                    if ($throwExceptionOnFailure) {
-                        Throw new \Exception(
-                            sprintf(
-                                self::systemTranslate('Could not connect using: "%s", error: "%s"'),
-                                print_r(\Aomebo\Configuration::getSetting('database'), true),
-                                $dbObject->getError()
-                            )
-                        );
-                    }
-
+	                Throw new \Exception(
+		                sprintf(
+			                self::systemTranslate('Could not connect using: "%s", error: "%s"'),
+			                print_r(\Aomebo\Configuration::getSetting('database'), true),
+			                $dbObject->getError()
+		                )
+	                );
                     return false;
-
                 }
+
             } else {
-
-                if ($throwExceptionOnFailure) {
-                    Throw new \Exception(
-                        sprintf(
-                            self::systemTranslate(
-                                'Could not find Database adapter class or database resultset class: %s, %s'
-                            ),
-                            $dbClass,
-                            $resultsetClass
-                        )
-                    );
-                }
-
+	            Throw new \Exception(
+		            sprintf(
+			            self::systemTranslate(
+				            'Could not find Database adapter class or database resultset class: %s, %s'
+			            ),
+			            $dbClass,
+			            $resultsetClass
+		            )
+	            );
                 return false;
-
             }
         }
 

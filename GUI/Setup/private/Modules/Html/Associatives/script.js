@@ -1,13 +1,10 @@
 /**
- * html
  *
- * @namespace #html
  */
 
 /**
  *
  */
-$(document).ready(function(event)
-{
+$(document).ready(function(event) {
 
 });

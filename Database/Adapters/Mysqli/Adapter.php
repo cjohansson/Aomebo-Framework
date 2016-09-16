@@ -51,6 +51,7 @@ namespace Aomebo\Database\Adapters\Mysqli
         {
             $this->_options = $options;
             $this->_con = new \mysqli($host, $user, $password);
+            $this->_selectedDatabase = false;
             if ($this->_con->connect_error
                 || mysqli_connect_errno()
             ) {
@@ -472,9 +473,7 @@ namespace Aomebo\Database\Adapters\Mysqli
 
             $sql .= ')';
 
-            if ($result = \Aomebo\Database\Adapter::query(
-                $sql)
-            ) {
+            if (\Aomebo\Database\Adapter::query($sql)) {
                 return \Aomebo\Database\Adapter::getLastInsertId();
             }
 
@@ -543,7 +542,7 @@ namespace Aomebo\Database\Adapters\Mysqli
 
             if (isset($where)
                 && is_array($where)
-                && sizeof($where) > 0
+                && count($where) > 0
             ) {
                 $sql .= self::_generateWhereSubquery($where);
             }
@@ -571,12 +570,11 @@ namespace Aomebo\Database\Adapters\Mysqli
          */
         public function tableDelete($table, $where = null, $limit = 1)
         {
-
             $sql = 'DELETE FROM ' . $table;
 
             if (isset($where)
                 && is_array($where)
-                && sizeof($where) > 0
+                && count($where) > 0
             ) {
                 $sql .= self::_generateWhereSubquery($where);
             }
@@ -603,34 +601,26 @@ namespace Aomebo\Database\Adapters\Mysqli
          */
         public function tableCreate($table)
         {
-
             $sql = 'CREATE TABLE IF NOT EXISTS ' . $table;
 
-            if ($columns = $table->getColumns()) {
-
+            if ($table->getColumns()) {
                 $sql .= '(';
                 $dataIndex = 0;
 
                 foreach ($table->getColumns() as $column)
                 {
-
                     /** @var \Aomebo\Database\Adapters\TableColumn $column */
-
                     if ($dataIndex > 0) {
                         $sql .= ', ';
                     }
-
                     $sql .= $column . ' ' . $column->specification;
                     $dataIndex++;
-
                 }
 
                 if ($columnSpecification = $table->getColumnSpecification()) {
                     $sql .= ', ' . $columnSpecification;
                 }
-
                 $sql .= ')';
-
             }
 
             if ($specification = $table->getSpecification()) {
@@ -644,7 +634,6 @@ namespace Aomebo\Database\Adapters\Mysqli
             }
 
             return false;
-
         }
 
         /**

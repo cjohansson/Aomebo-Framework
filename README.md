@@ -57,8 +57,10 @@ new \Aomebo\Application(
 
 3. Create some modules
 
+All paths from now on will be relative to **/var/www/MyWebSite/**.
+
 ### Html
-`/var/www/MyWebSite/private/Modules/Html/Module.php`
+`private/Modules/Html/Module.php`
 
 ``` php
 <?php
@@ -143,7 +145,7 @@ namespace Modules\Html
 }
 ```
 
-`/var/www/MyWebSite/private/Modules/Html/views/view.twig`
+`private/Modules/Html/views/view.twig`
 
 ``` twig
 <html>
@@ -155,6 +157,214 @@ namespace Modules\Html
     </body>
 </html>
 ```
+
+`private/Modules/Html/Associatives/script.js`
+
+``` javascript
+/**
+ *
+ */
+
+/**
+ *
+ */
+$(document).ready(function(event) {
+
+});
+
+```
+
+`private/Modules/Html/Associatives/base.css`
+
+``` css
+/**
+ *
+ */
+body
+{
+    background: white none top left repeat scroll;
+    color: black;
+    text-align: left;
+    line-height: 1.5;
+    position: relative;
+}
+body a,
+body a:visited,
+body a:active
+{
+    color: blue;
+    text-decoration: underline;
+}
+body a:hover
+{
+    color: red;
+    text-decoration: none;
+}
+body,
+body input,
+body textarea
+{
+    font-family: 'Georgia', 'Helvetica', sans-serif;
+    font-size: 12px;
+}
+body label
+{
+    font-weight: bold;
+}
+body h1
+{
+    font-size: 40px;
+    letter-spacing: 3px;
+    color: gray;
+}
+body h1 a,
+body h1 a:visited,
+body h1 a:hover
+{
+    color: gray;
+    text-decoration: none;
+}
+body h2
+{
+    font-size: 25px;
+    margin: 5px 0 0 0;
+    color: gray;
+}
+body h3
+{
+    font-size: 18px;
+    line-height: 2.0;
+    text-transform: lowercase;
+    margin: 0 0 10px 0;
+    color: gray;
+}
+body h3+div,
+body h3+p
+{
+    margin: 0 0 30px 0;
+}
+body h2,
+body h3
+{
+    line-height: 1.5;
+    letter-spacing: 1px;
+}
+body h1,
+body h2,
+body h3
+{
+    font-family: 'Arial', sans-serif;
+}
+```
+
+`private/Modules/Html/Associatives/reset.css`
+
+``` css
+/**
+ *
+ */
+html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, abbr, address, cite, code, del, dfn, em, img, ins, kbd, q, samp, small, strong, sub, sup, var, b, i, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, figcaption, figure, footer, header, menu, nav, section, summary, time, mark, audio, video
+{
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+}
+body
+{
+    line-height: 1;
+}
+article, aside, details, figcaption, figure, footer, header, menu, nav, section
+{
+    display: block;
+}
+nav ul
+{
+    list-style: none;
+}
+blockquote, q
+{
+    quotes: none;
+}
+blockquote:before, blockquote:after, q:before, q:after
+{
+    content: none;
+}
+a
+{
+    margin: 0;
+    padding: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+    background: transparent;
+}
+*
+{
+    padding: 0;
+    margin: 0;
+}
+html
+{
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+body
+{
+    height: auto;
+    width: auto;
+    margin: 0;
+    padding: 0;
+}
+a img
+{
+    border: none;
+}
+```
+
+### Header
+
+`/var/www/MyWebSite/private/Modules/Header/Module.php`
+
+``` php
+<?php
+/**
+ *
+ */
+
+/**
+ *
+ */
+namespace Modules\Header
+{
+
+    /**
+     * @method static \Modules\Header\Module getInstance()
+     */
+    class Module extends \Aomebo\Runtime\Module implements
+        \Aomebo\Runtime\Executable
+    {
+
+        /**
+         * @return bool|mixed|string
+         */
+        public function execute()
+        {
+	        $view = self::_getTwigView();
+            $view->setFile('views/view.twig');
+            $view->attachVariables(array(
+	            'title' => \Aomebo\Configuration::getSetting('framework,name'),
+	            'version' => \Aomebo\Configuration::getSetting('framework,version'),
+            ));
+            return $view->parse();
+        }
+
+    }
+}
+```
+
 
 4. Create some pages
 

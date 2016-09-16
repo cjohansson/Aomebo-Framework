@@ -302,11 +302,7 @@ namespace Aomebo\Database\Adapters
          */
         public function __destruct()
         {
-            unset(
-                $this->_con,
-                $this->_options,
-                $this->_connected
-            );
+            unset($this->_con, $this->_options, $this->_connected);
             unset($this);
         }
 

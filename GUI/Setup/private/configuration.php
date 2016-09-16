@@ -1,5 +1,11 @@
 <?php
 return array(
+	'feedback' => array(
+		'display errors' => true,
+		'log errors' => false,
+		'display runtime exceptions' => true,
+		'log runtime exceptions' => false,
+	),
     'dispatch' => array(
         'default page' => 'setup',
     ),
