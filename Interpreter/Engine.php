@@ -358,16 +358,26 @@ namespace Aomebo\Interpreter
             }
         }
 
-        /**
+	    /**
          * This method returns whether to use
          * output buffering or not.
          *
          * @static
          * @return bool
          */
-        public static function getOutputBufferingFlag()
+        public static function hasOutputBufferingFlag()
         {
             return self::$_useOutputBuffering;
+        }
+
+	    /**
+         * @static
+         * @return bool
+         * @deprecated
+         */
+        public static function getOutputBufferingFlag()
+        {
+	        return self::hasOutputBufferingFlag();
         }
 
         /**
@@ -917,7 +927,7 @@ namespace Aomebo\Interpreter
          *
          * @static
          * @param string $key
-         * @return bool
+         * @return bool|string
          */
         public static function getMetaData($key)
         {
@@ -950,7 +960,6 @@ namespace Aomebo\Interpreter
          */
         public static function interpret()
         {
-
             \Aomebo\Trigger\System::processTriggers(
                 \Aomebo\Trigger\System::TRIGGER_KEY_BEFORE_INTERPRETATION);
 
@@ -973,19 +982,14 @@ namespace Aomebo\Interpreter
                     self::$_output = self::_interpretNode($processed);
 
                     if (self::_hasOKStatus()) {
-
                         \Aomebo\Trigger\System::processTriggers(
                             \Aomebo\Trigger\System::TRIGGER_KEY_AFTER_INTERPRETATION);
-
                         $session = \Aomebo\Session\Handler::getInstance();
                         $session->processEvaluation();
-
                         self::_setInsertionPoints();
-
                         return true;
 
                     } else {
-
                         if (self::$_interpretationStatus ==
                             self::INTERPRETATION_STATUS_RESTART
                         ) {
@@ -997,7 +1001,6 @@ namespace Aomebo\Interpreter
                                 self::systemTranslate('Invalid interpretation status')
                             );
                         }
-
                     }
 
                 } else {
@@ -1010,7 +1013,6 @@ namespace Aomebo\Interpreter
             }
 
             return false;
-
         }
 
         /**
@@ -1587,15 +1589,12 @@ namespace Aomebo\Interpreter
          */
         private static function _process()
         {
-
             $dispatcher =
                 \Aomebo\Dispatcher\System::getInstance();
 
             try
             {
-
                 if ($dispatcher::isAjaxRequest()) {
-
                     $pageData = $dispatcher->getCurrentAjaxPageData();
 
                     /**
@@ -1620,8 +1619,8 @@ namespace Aomebo\Interpreter
                                 $cacheParameters,
                                 $cacheKey,
                                 \Aomebo\Cache\System::FORMAT_JSON_ENCODE);
-                    } else {
 
+                    } else {
                         \Aomebo\Cache\System::clearCache(
                             $cacheParameters,
                             $cacheKey,
@@ -1637,13 +1636,11 @@ namespace Aomebo\Interpreter
                             $pageData,
                             self::$_adapters['Xml'])
                         ) {
-
                             \Aomebo\Cache\System::saveCache(
                                 $cacheParameters,
                                 $cacheKey,
                                 $processed,
                                 \Aomebo\Cache\System::FORMAT_JSON_ENCODE);
-
                             return $processed;
 
                         } else {
@@ -1656,14 +1653,10 @@ namespace Aomebo\Interpreter
                                 )
                             );
                         }
-
                     }
 
                 } else {
-
-                    // Is ordinary page request
                     if ($page = $dispatcher::getPage()) {
-
                         return self::_processPage(
                             $page,
                             self::_getPagesDirectory() . $page
@@ -1896,7 +1889,7 @@ namespace Aomebo\Interpreter
         {
             foreach (self::$_pagesToRuntimes as $page => $runtimes)
             {
-                foreach ($runtimes as $runtime => $ignore)
+	            foreach (array_keys($runtimes) as $runtime)
                 {
                     if (!isset(self::$_runtimesToPages[$runtime])) {
                         self::$_runtimesToPages[$runtime] = array();

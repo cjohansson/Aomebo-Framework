@@ -72,7 +72,11 @@ namespace Aomebo\Response\Responses
             \Aomebo\Cache\System::getInstance();
             \Aomebo\Indexing\Engine::getInstance();
             new \Aomebo();
-            \Aomebo\Dispatcher\System::parsePage();
+            if (!\Aomebo\Dispatcher\System::getPage()
+                && !\Aomebo\Dispatcher\System::isAjaxRequest()
+            ) {
+	            \Aomebo\Dispatcher\System::parsePage();
+            }
             \Aomebo\Interpreter\Engine::interpret();
             \Aomebo\Indexing\Engine::index();
             \Aomebo\Presenter\Engine::getInstance();

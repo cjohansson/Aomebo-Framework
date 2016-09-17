@@ -108,7 +108,7 @@ namespace Aomebo\Template\Adapters\Php
             $interpreterEngine =
                 \Aomebo\Interpreter\Engine::getInstance();
             $useOb =
-                $interpreterEngine->getOutputBufferingFlag();
+                $interpreterEngine->hasOutputBufferingFlag();
 
             if (!empty($this->_viewfile)) {
 

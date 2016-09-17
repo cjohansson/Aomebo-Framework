@@ -1,9 +1,10 @@
 # Aomebo Framework
 
-Aomebo Framework (AF) is a **open-source (OS) object-oriented (OO) PHP MVC (Model-View-Controller) framework**.
+Aomebo Framework (AF) is a **open-source (OS) object-oriented (OO) PHP: Hypertext Preprocessor (PHP) Model-View-Controller (MVC) framework**.
 
 The framework is built to be compatible with all types of applications (even shell applications) and is fully scalable.
-Only loads the stuff **you need** for your project and tries to place as few limits as possible on the developer.
+Only loads the stuff **you need** for your project and tries to place as few limits as possible on the developer. The main idea of the framework is to enable swift development by using easy patterns and supporting a wide variety of programming styles.
+It only requires PHP 5.3 or later with standard modules.
 
 The framework is built with time-, space- and memory-complexity in mind which makes it memory-efficient, CPU-efficient, storage-efficient and fast.
 
@@ -41,7 +42,7 @@ The framework is licensed by the Open license LGPL version 3.
 
 1. Let's say we want to have the framework at `/usr/share/aomebo-framework/` and we have our public root at `/var/www/MyWebSite/public/`, we want our application to be located outside of public root at `/var/www/MyWebSite/private/`
 2. Clone git repository `git clone https://github.com/cjohansson/Aomebo-Framework.git /usr/share/aomebo-framework/`
-3. Create a `index.php` in your public root like this and tell Aomebo Framework where your applications private files are located by passing the `PARAMETER_SITE_PATH` parameter to the Aomebo Application constructor.
+3. Create a `index.php` in your public root like this and tell Aomebo Framework where your applications private files are located by passing the `PARAMETER_SITE_PATH` parameter to the Aomebo Application constructor like this
 
 Let's say that this is `/var/www/MyWebSite/public/index.php`
 ``` php
@@ -57,7 +58,7 @@ new \Aomebo\Application(
 
 3. Create some modules
 
-All paths from now on will be relative to **/var/www/MyWebSite/**.
+We are going to create 4 modules: *Html*, *Footer*, *Header*, *Wrapper* and all paths from now on will be relative to **/var/www/MyWebSite/**.
 
 ### Html
 `private/Modules/Html/Module.php`
@@ -363,6 +364,15 @@ namespace Modules\Header
 
     }
 }
+```
+
+`/var/www/MyWebSite/private/Modules/Header/views/view.twig`
+
+``` twig
+<div id="{{ F }}">
+    &copy; {{ year }}
+    <br /><a href="{{ website }}" target="_blank">{{ website }}</a>
+</div>
 ```
 
 

@@ -1,5 +1,3 @@
-* DONE Allow page requests to have a valid prefix URL and the rest arbitrary
-* DONE Dump $_FILES in debug output as well
-* DONE Should connect to database multiple times too, similar to reconnect
-
-* TODO Finish README.md for one example
+* TODO Finish README.md for one example, use Bootstrap
+* TODO Use PhpUnit for tests in GUI
+* TODO Add lazy loading for database connection, first question connects database
