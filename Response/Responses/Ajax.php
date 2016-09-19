@@ -43,6 +43,7 @@ namespace Aomebo\Response\Responses
          */
         public function isValidRequest()
         {
+	        \Aomebo\Dispatcher\System::getInstance();
 	        return \Aomebo\Dispatcher\System::isAjaxRequest();
         }
 
