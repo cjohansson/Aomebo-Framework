@@ -31,33 +31,19 @@ namespace Aomebo\Response\Responses
         /**
          * @var int
          */
-        protected $_priority = 60;
+        protected $_priority = 70;
 
         /**
          * @var string
          */
-        protected $_name = 'Page';
+        protected $_name = 'Ajax';
 
         /**
          * @return bool
          */
         public function isValidRequest()
         {
-	        $rewriteEnabled = (!empty($_SERVER['SHELL']) ? \Aomebo\Configuration::getSetting('site,mod_rewrite') : getenv(\Aomebo\Dispatcher\System::REWRITE_FLAG));
-	        return \Aomebo\Dispatcher\System::getPage()
-		        || \Aomebo\Request::$requestUri == ''
-                || (!$rewriteEnabled
-                    && \Aomebo\Request::$requestUri == 'index.php')
-		        || ($rewriteEnabled
-		            && substr(\Aomebo\Request::$requestUri, 0, 1) == '?'
-		            && \Aomebo\Configuration::getSetting(
-			            'dispatch,use default page for uris starting with question-mark'))
-		        || preg_match(
-                    \Aomebo\Configuration::getSetting(
-                        'dispatch,page syntax regexp'),
-                    \Aomebo\Request::$requestUri) === 1
-		        || \Aomebo\Configuration::getSetting(
-			        'dispatch,use default page for invalid page syntax uris');
+	        return \Aomebo\Dispatcher\System::isAjaxRequest();
         }
 
         /**
@@ -72,9 +58,6 @@ namespace Aomebo\Response\Responses
             \Aomebo\Cache\System::getInstance();
             \Aomebo\Indexing\Engine::getInstance();
             new \Aomebo();
-            if (!\Aomebo\Dispatcher\System::getPage()) {
-	            \Aomebo\Dispatcher\System::parsePage();
-            }
             \Aomebo\Interpreter\Engine::interpret();
             \Aomebo\Indexing\Engine::index();
             \Aomebo\Presenter\Engine::getInstance();

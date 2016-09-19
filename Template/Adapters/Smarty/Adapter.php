@@ -161,7 +161,7 @@ namespace Aomebo\Template\Adapters\Smarty
         {
 
             $useOb =
-                \Aomebo\Interpreter\Engine::getOutputBufferingFlag();
+                \Aomebo\Interpreter\Engine::hasOutputBufferingFlag();
 
             if ($useOb) {
                 ob_start();
