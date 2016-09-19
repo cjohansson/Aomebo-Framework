@@ -80,6 +80,9 @@ namespace Modules\Setup
          */
         public function execute()
         {
+	        if (\Aomebo\Dispatcher\System::isAjaxRequest()) {
+		        die(__('Ajax request works', 'setup'));
+	        }
 
             $tests = array();
 

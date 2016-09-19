@@ -72,6 +72,8 @@ namespace Modules\Html
 	        $view->attachVariables(array(
 		        'title' => self::$_title,
 		        'body' => $this->getField('body'),
+		        'ajax_uri' => \Aomebo\Dispatcher\System::getAjaxUri(),
+		        'public_uri' => _PUBLIC_EXTERNAL_ROOT_,
 	        ));
             return $view->parse();
         }
