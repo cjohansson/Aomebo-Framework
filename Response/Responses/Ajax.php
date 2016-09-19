@@ -25,7 +25,7 @@ namespace Aomebo\Response\Responses
     /**
      *
      */
-    class Page extends \Aomebo\Response\Type
+    class Ajax extends \Aomebo\Response\Type
     {
 
         /**

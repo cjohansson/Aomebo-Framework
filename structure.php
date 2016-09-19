@@ -980,6 +980,12 @@ return array(
                     'required' => false,
                     'default' => true,
                 ),
+            'ajax' =>
+            array(
+                    'type' => 'boolean',
+                    'required' => false,
+                    'default' => true,
+            ),
             'shell' =>
                 array(
                     'type' => 'boolean',
