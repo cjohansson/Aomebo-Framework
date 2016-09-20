@@ -58,6 +58,7 @@ namespace Aomebo\Response\Responses
             \Aomebo\Interpreter\Engine::getInstance();
             \Aomebo\Cache\System::getInstance();
             \Aomebo\Session\Handler::getInstance();
+
             new \Aomebo();
         }
 

@@ -43,8 +43,29 @@ namespace Aomebo\Response\Responses
          */
         public function isValidRequest()
         {
-	        \Aomebo\Dispatcher\System::getInstance();
-	        return \Aomebo\Dispatcher\System::isAjaxRequest();
+            $allowAjaxPostRequests =
+                \Aomebo\Configuration::getSetting('dispatch,allow ajax post requests');
+            $allowAjaxGetRequests =
+                \Aomebo\Configuration::getSetting('dispatch,allow ajax get requests');
+            $ajaxMode =
+                \Aomebo\Configuration::getSetting('settings,ajax mode');
+            $requestMethod = (!empty($_SERVER['REQUEST_METHOD']) ?
+                           strtoupper($_SERVER['REQUEST_METHOD']) : 'GET');
+            if (isset($_GET['mode'])
+                && $_GET['mode'] == $ajaxMode
+                && (($allowAjaxPostRequests
+                    && $requestMethod == 'POST'
+                    && (!empty($_POST['page']))
+                    || !empty($_POST['_page']))
+                || ($allowAjaxGetRequests
+                    && $requestMethod == 'GET'
+                    && (!empty($_GET['page'])
+                    || !empty($_GET['_page']))))
+            ) {
+                return true;
+            } else {
+                return false;
+            }
         }
 
         /**
@@ -58,10 +79,11 @@ namespace Aomebo\Response\Responses
             \Aomebo\Interpreter\Engine::getInstance();
             \Aomebo\Cache\System::getInstance();
             \Aomebo\Indexing\Engine::getInstance();
+            \Aomebo\Presenter\Engine::getInstance();
+
             new \Aomebo();
             \Aomebo\Interpreter\Engine::interpret();
             \Aomebo\Indexing\Engine::index();
-            \Aomebo\Presenter\Engine::getInstance();
             \Aomebo\Presenter\Engine::output();
         }
 

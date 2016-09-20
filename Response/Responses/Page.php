@@ -71,13 +71,14 @@ namespace Aomebo\Response\Responses
             \Aomebo\Interpreter\Engine::getInstance();
             \Aomebo\Cache\System::getInstance();
             \Aomebo\Indexing\Engine::getInstance();
+            \Aomebo\Presenter\Engine::getInstance();
+
             new \Aomebo();
             if (!\Aomebo\Dispatcher\System::getPage()) {
 	            \Aomebo\Dispatcher\System::parsePage();
             }
             \Aomebo\Interpreter\Engine::interpret();
             \Aomebo\Indexing\Engine::index();
-            \Aomebo\Presenter\Engine::getInstance();
             \Aomebo\Presenter\Engine::output();
         }
 

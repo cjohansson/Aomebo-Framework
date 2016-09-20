@@ -1,4 +1,5 @@
 * TODO Finish README.md for one example, use Bootstrap
 * TODO Use PhpUnit for tests in GUI
 * TODO Add lazy loading for database connection, first question connects database
-* Make Ajax request as a distinct response type
+* DONE Make Ajax request as a distinct response type
+* TODO Check why parameter routes doesn't build correctly

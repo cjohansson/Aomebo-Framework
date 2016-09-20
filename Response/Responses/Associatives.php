@@ -62,6 +62,7 @@ namespace Aomebo\Response\Responses
         public function respond()
         {
 	        \Aomebo\Associatives\Engine::getInstance();
+
 	        new \Aomebo();
 	        \Aomebo\Associatives\Parser::parseRequest();
         }
