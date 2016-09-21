@@ -153,8 +153,7 @@ namespace Aomebo
             if (empty($_SERVER['REQUEST_METHOD'])) {
                 self::$method = 'GET';
             } else {
-                self::$method =
-                    strtoupper($_SERVER['REQUEST_METHOD']);
+                self::$method = strtoupper($_SERVER['REQUEST_METHOD']);
             }
         }
 

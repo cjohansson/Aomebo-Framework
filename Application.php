@@ -464,7 +464,6 @@ namespace Aomebo
                     sleep(1);
                 }
             }
-
         }
 
         /**
@@ -479,11 +478,11 @@ namespace Aomebo
             new \Aomebo\Interpreter\Engine();
             new \Aomebo\Request();
             new \Aomebo\Response\Handler();
-            $dispatcherSystem = \Aomebo\Dispatcher\System::getInstance();
+            new \Aomebo\Dispatcher\System();
             if (\Aomebo\Response\Handler::hasResponse()) {
                 \Aomebo\Response\Handler::respond();
             } else {
-                $dispatcherSystem::setHttpResponseStatus400BadRequest();
+                \Aomebo\Dispatcher\System::setHttpResponseStatus400BadRequest();
             }
         }
 
@@ -1125,7 +1124,6 @@ namespace Aomebo
             self::$_inhibitConstruction['Aomebo\Feedback\Debug'] = false;
             self::$_inhibitConstruction['Aomebo\Dispatcher\System'] = false;
             self::$_inhibitConstruction['Aomebo\Response\Handler'] = false;
-
         }
 
         /**
@@ -1163,18 +1161,12 @@ namespace Aomebo
                 if ($foundFile) {
 
                     /** @var string $foundFileName */
-
-                    $foundClass = false;
-
+	                $foundClass = false;
                     try
                     {
-
                         require_once($foundFileName);
-
-                        // Build class names
                         $className = '\\' . $namespaceName . '\\'
                             . $dir . '\\' . $namespaceClassName;
-
                         if (class_exists($className, false)) {
                             $foundClassName = $className;
                             $foundClass = true;
@@ -1189,7 +1181,6 @@ namespace Aomebo
                     }
 
                     if ($foundClass) {
-
                         /** @var string $foundClassName */
 
                         try

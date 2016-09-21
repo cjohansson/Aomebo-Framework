@@ -15,34 +15,9 @@ namespace Modules\Setup
     class Module extends \Aomebo\Runtime\Module implements
         \Aomebo\Runtime\Executable,
         \Aomebo\Runtime\Routable,
-        \Aomebo\Runtime\Cacheable,
         \Aomebo\Runtime\Pageable,
         \Aomebo\Runtime\Internationalized
     {
-
-        /**
-         * @return bool
-         */
-        public function useCache()
-        {
-            return (!empty($_GET['cache']));
-        }
-
-        /**
-         * @return string
-         */
-        public function getCacheParameters()
-        {
-            return 'Runtime/Modules/Footer';
-        }
-
-        /**
-         * @return string
-         */
-        public function getCacheKey()
-        {
-            return 'logged-in';
-        }
 
         /**
          * @return array
@@ -54,11 +29,7 @@ namespace Modules\Setup
                     null,
                     '/^([\w]+)$/',
                     '%s',
-                    array('page'),
-                    null,
-                    null,
-                    null,
-                    array(& $this, 'enablingFunction')
+                    array('page')
                 ),
                 new \Aomebo\Dispatcher\Route(
                     null,
@@ -75,99 +46,115 @@ namespace Modules\Setup
             );
         }
 
+	    /**
+	     * @return string
+	     */
+	    private function _ajax()
+	    {
+		    $view = self::_getTwigView();
+		    $view->setFile('views/ajax.twig');
+		    $view->attachVariable(array(
+			    'rewriteEnabled' => \Aomebo\Dispatcher\System::isRewriteEnabled(),
+			    'isShellRequest' => \Aomebo\Dispatcher\System::isShellRequest(),
+		    ));
+		    return $view->parse();
+	    }
+
         /**
          * @return string
          */
         public function execute()
         {
 	        if (\Aomebo\Dispatcher\System::isAjaxRequest()) {
-		        die(__('Ajax request works', 'setup'));
+		        return $this->_ajax();
 	        }
-
-            $tests = array();
-
-            ini_set('display_errors', 1);
-
-            $this->_testTriggers();
-
-            if (\Aomebo\Dispatcher\System::isHttpPostRequestWithPostData()) {
-
-                $submit = array(
-                    'database_host' => self::_getPostLiterals('database_host'),
-                    'database_database' => self::_getPostLiterals('database_database'),
-                    'database_username' => self::_getPostLiterals('database_username'),
-                    'database_password' => self::_getPostLiterals('database_password'),
-                    'database_type' => self::_getPostLiterals('database_type'),
-                    'database_dsn' => self::_getPostLiterals('database_dsn'),
-                    'action' => self::_getPostLiterals('action'),
-                    'locale' => self::_getPostLiterals('localization_locale'),
-                    'database_autoinstall' => self::_getPostBoolean('database_autoinstall'),
-                    'database_autouninstall' => self::_getPostBoolean('database_autouninstall'),
-                    'database_autoupdate' => self::_getPostBoolean('database_autoupdate'),
-                );
-
-                if ($submit['action'] == 'Test') {
-
-                    // Use locale?
-                    if (!empty($submit['locale'])) {
-                        $tests[] = $this->_testLocale($submit['locale']);
-                    }
-
-                    if (!empty($submit['database_host'])
-                        && !empty($submit['database_username'])
-                        && !empty($submit['database_type'])
-                    ) {
-                        if ($dbTests = $this->_testDatabase(
-                            $submit['database_host'],
-                            $submit['database_database'],
-                            $submit['database_username'],
-                            $submit['database_password'],
-                            $submit['database_type'],
-                            $submit['database_dsn'],
-                            $submit['database_autoinstall'],
-                            $submit['database_autouninstall'],
-                            $submit['database_autoupdate'])
-                        ) {
-                            $tests[] = $dbTests;
-                        }
-                    }
-
-                } else if ($submit['action'] == 'Export configuration.php') {
-
-                    // TODO: Export configuration here
-                    // \Aomebo\Configuration::gen()
-
-                }
-
-            } else {
-                $submit = array(
-                    'database_host' => '',
-                    'database_database' => '',
-                    'database_username' => '',
-                    'database_password' => '',
-                    'database_type' => '',
-                    'database_dsn' => '',
-                    'locale' => '',
-                    'database_autoinstall' => '',
-                    'database_autouninstall' => '',
-                    'database_autoupdate' => '',
-                );
-            }
-
-            $view = self::_getTwigView();
-            $view->attachVariable('tests', $tests);
-            $view->attachVariable('submit', $submit);
-            $view->attachVariable('title', \Aomebo\Configuration::getSetting('framework,name'));
-            $view->attachVariable('version', \Aomebo\Configuration::getSetting('framework,version'));
-            $view->attachVariable('locales',
-                \Aomebo\Internationalization\System::getLocalesFromDirectory(
-                    __DIR__ . '/Locales'));
-            $view->setFile('views/view.twig');
-
-            return $view->parse();
-
-
+	        return $this->_setup();
         }
+
+	    /**
+	     * @return string
+	     */
+	    private function _setup()
+	    {
+		    $tests = array();
+		    ini_set('display_errors', 1);
+		    $this->_testTriggers();
+
+		    if (\Aomebo\Dispatcher\System::isHttpPostRequestWithPostData()) {
+
+			    $submit = array(
+				    'database_host' => self::_getPostLiterals('database_host'),
+				    'database_database' => self::_getPostLiterals('database_database'),
+				    'database_username' => self::_getPostLiterals('database_username'),
+				    'database_password' => self::_getPostLiterals('database_password'),
+				    'database_type' => self::_getPostLiterals('database_type'),
+				    'database_dsn' => self::_getPostLiterals('database_dsn'),
+				    'action' => self::_getPostLiterals('action'),
+				    'locale' => self::_getPostLiterals('localization_locale'),
+				    'database_autoinstall' => self::_getPostBoolean('database_autoinstall'),
+				    'database_autouninstall' => self::_getPostBoolean('database_autouninstall'),
+				    'database_autoupdate' => self::_getPostBoolean('database_autoupdate'),
+			    );
+
+			    if ($submit['action'] == 'Test') {
+
+				    // Use locale?
+				    if (!empty($submit['locale'])) {
+					    $tests[] = $this->_testLocale($submit['locale']);
+				    }
+
+				    if (!empty($submit['database_host'])
+				        && !empty($submit['database_username'])
+				        && !empty($submit['database_type'])
+				    ) {
+					    if ($dbTests = $this->_testDatabase(
+						    $submit['database_host'],
+						    $submit['database_database'],
+						    $submit['database_username'],
+						    $submit['database_password'],
+						    $submit['database_type'],
+						    $submit['database_dsn'],
+						    $submit['database_autoinstall'],
+						    $submit['database_autouninstall'],
+						    $submit['database_autoupdate'])
+					    ) {
+						    $tests[] = $dbTests;
+					    }
+				    }
+
+			    } else if ($submit['action'] == 'Export configuration.php') {
+				    // TODO: Export configuration here
+				    // \Aomebo\Configuration::gen()
+			    }
+
+		    } else {
+			    $submit = array(
+				    'database_host' => '',
+				    'database_database' => '',
+				    'database_username' => '',
+				    'database_password' => '',
+				    'database_type' => '',
+				    'database_dsn' => '',
+				    'locale' => '',
+				    'database_autoinstall' => '',
+				    'database_autouninstall' => '',
+				    'database_autoupdate' => '',
+			    );
+		    }
+
+		    $view = self::_getTwigView();
+		    $view->attachVariable('tests', $tests);
+		    $view->attachVariable('submit', $submit);
+		    $view->attachVariable('title', \Aomebo\Configuration::getSetting('framework,name'));
+		    $view->attachVariable('version', \Aomebo\Configuration::getSetting('framework,version'));
+		    $view->attachVariable('locales',
+		                          \Aomebo\Internationalization\System::getLocalesFromDirectory(
+			                          __DIR__ . '/Locales'));
+		    $view->setFile('views/view.twig');
+		    $view->attachVariable('rewriteEnabled', \Aomebo\Dispatcher\System::isRewriteEnabled());
+
+		    return $view->parse();
+	    }
 
         /**
          * @internal
@@ -176,9 +163,9 @@ namespace Modules\Setup
          */
         private function _testLocale($locale)
         {
-            
+
             $tests = '';
-            
+
             \Aomebo\Internationalization\System::init();
 
             \Aomebo\Internationalization\System::addTextDomain(
@@ -257,7 +244,7 @@ namespace Modules\Setup
                 );
 
             }
- 
+
             return $tests;
 
         }

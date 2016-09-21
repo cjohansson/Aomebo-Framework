@@ -324,18 +324,16 @@ namespace Aomebo\Dispatcher
                     \Aomebo\Trigger\System::TRIGGER_KEY_BEFORE_DISPATCH);
 
                 if (!isset(self::$_rewriteEnabled)) {
-                    self::_parseServer();
+                    self::parseServer();
                 }
 
                 if (!isset(self::$_serverProtocol)
                     || !isset(self::$_serverProtocolVersion)
                 ) {
-                    self::_parseProtocol();
+                    self::parseProtocol();
                 }
 
-                if (\Aomebo\Response\Handler::isResponse('page')) {
-                    self::_parsePageRoutes();
-                }
+                self::parsePageRoutes();
 
                 if (!isset(self::$_requestUri)
                     || !isset(self::$_fullRequest)
@@ -344,14 +342,7 @@ namespace Aomebo\Dispatcher
                     || !isset(self::$_pageBaseUri)
                     || !isset(self::$_httpRequestMethod)
                 ) {
-                    self::_parseRequest();
-                }
-
-                if (\Aomebo\Response\Handler::isResponse('page')
-                    && !isset(self::$_page)
-                    && !self::isAjaxRequest()
-                ) {
-                    self::parsePage();
+                    self::parseRequest();
                 }
 
                 \Aomebo\Trigger\System::processTriggers(
@@ -361,20 +352,16 @@ namespace Aomebo\Dispatcher
         }
 
         /**
-         * @internal
          * @static
          */
-        private static function _parsePageRoutes()
+        public static function parsePageRoutes()
         {
-
             self::$_pageRoutes = array();
 
             foreach (self::$_routes as & $route)
             {
-
                 /** @var \Aomebo\Dispatcher\Route $route */
                 $name = strtolower($route->reference->getField('name'));
-
                 if ($pages =
                     \Aomebo\Interpreter\Engine::getPagesByRuntime($name)
                 ) {
@@ -394,7 +381,6 @@ namespace Aomebo\Dispatcher
                         self::$_pageRoutes[$route->page][$route->getHashKey()] = & $route;
                     }
                 }
-
             }
         }
 
@@ -1762,7 +1748,6 @@ namespace Aomebo\Dispatcher
         public static function buildUri($getArray = null,
             $page = null, $clear = true)
         {
-
             $uri = self::$_pageBaseUri;
 
             // Is rewrite enabled in server?
@@ -1775,7 +1760,6 @@ namespace Aomebo\Dispatcher
 
             // Is page specified?
             if (!empty($page)) {
-
                 $implicitPage = $page;
 
                 // Is specified page not default page?
@@ -1805,7 +1789,6 @@ namespace Aomebo\Dispatcher
 
             // Otherwise - no page specified
             } else {
-
                 $implicitPage = self::getPage();
 
                 // Is current page not file-not-found and not the default-page?
@@ -1905,7 +1888,6 @@ namespace Aomebo\Dispatcher
             }
 
             return $uri;
-
         }
 
         /**
@@ -2178,19 +2160,16 @@ namespace Aomebo\Dispatcher
         public static function buildFullUri($getArray = null,
             $page = null, $clear = true)
         {
-            return
-                self::getServerUri()
-                . self::buildUri($getArray, $page, $clear);
+            return self::getServerUri() . self::buildUri($getArray, $page, $clear);
         }
 
         /**
          * This method checks if apache mod_rewrite
          * is enabled or not.
          *
-         * @internal
          * @static
          */
-        private static function _parseServer()
+        public static function parseServer()
         {
             if (self::isShellRequest()) {
                 if (\Aomebo\Configuration::getSetting('site,mod_rewrite')) {
@@ -2211,10 +2190,9 @@ namespace Aomebo\Dispatcher
          * This method parses uri to find adress
          * and query-string data.
          *
-         * @internal
          * @static
          */
-        private static function _parseRequest()
+        public static function parseRequest()
         {
             if (!isset(self::$_baseUri)) {
                 self::setBaseUri(_PUBLIC_EXTERNAL_ROOT_);
@@ -2273,10 +2251,9 @@ namespace Aomebo\Dispatcher
         /**
          * This method parses server-protocol data.
          *
-         * @internal
          * @static
          */
-        private static function _parseProtocol()
+        public static function parseProtocol()
         {
 
             if (isset($_SERVER['SERVER_PROTOCOL'])) {
@@ -2299,7 +2276,6 @@ namespace Aomebo\Dispatcher
             }
 
             self::$_serverProtocolVersion = (float) $serverProtocolVersion;
-
         }
 
         /**

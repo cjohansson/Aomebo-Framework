@@ -49,16 +49,14 @@ namespace Aomebo\Response\Responses
                 \Aomebo\Configuration::getSetting('dispatch,allow ajax get requests');
             $ajaxMode =
                 \Aomebo\Configuration::getSetting('settings,ajax mode');
-            $requestMethod = (!empty($_SERVER['REQUEST_METHOD']) ?
-                           strtoupper($_SERVER['REQUEST_METHOD']) : 'GET');
             if (isset($_GET['mode'])
                 && $_GET['mode'] == $ajaxMode
                 && (($allowAjaxPostRequests
-                    && $requestMethod == 'POST'
+                     && \Aomebo\Request::$method == 'POST'
                     && (!empty($_POST['page']))
                     || !empty($_POST['_page']))
                 || ($allowAjaxGetRequests
-                    && $requestMethod == 'GET'
+                    && \Aomebo\Request::$method == 'GET'
                     && (!empty($_GET['page'])
                     || !empty($_GET['_page']))))
             ) {
