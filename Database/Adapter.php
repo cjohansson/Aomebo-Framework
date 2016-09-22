@@ -1243,7 +1243,6 @@ namespace Aomebo\Database
                 self::$_queryCount++;
 
                 if ($queryCount === 1) {
-
                     if ($unbuffered) {
                         $result = self::$_object->unbufferedQuery($sql);
                     } else {
@@ -1278,15 +1277,6 @@ namespace Aomebo\Database
                                 && (!isset($reconnect) || !empty($reconnect))
                                 && self::lostConnection()
                             ) {
-                                \Aomebo\Feedback\Debug::output(
-                                    sprintf(
-                                        self::systemTranslate(
-                                            'Query: "%s" returned error: "%s". Reconnecting..'
-                                        ),
-                                        $sql,
-                                        self::$_lastError
-                                    )
-                                );
                                 if (self::reconnect()) {
                                     return self::execute(
                                         $sql, $unbuffered, $sqlKey, $queryCount,
@@ -1338,15 +1328,6 @@ namespace Aomebo\Database
                                 && (!isset($reconnect) || !empty($reconnect))
                                 && self::lostConnection()
                             ) {
-                                \Aomebo\Feedback\Debug::output(
-                                    sprintf(
-                                        self::systemTranslate(
-                                            'Query: "%s" returned error: "%s". Reconnecting..'
-                                        ),
-                                        $sql,
-                                        self::$_object->getError()
-                                    )
-                                );
                                 if (self::reconnect()) {
                                     return self::execute(
                                         $sql, $unbuffered, $sqlKey, $queryCount,
