@@ -96,6 +96,19 @@ namespace Modules\Setup
 				    'database_autoupdate' => self::_getPostBoolean('database_autoupdate'),
 			    );
 
+			    $config = array(
+				    'database' => array(
+					    'host' => self::_getPostLiterals('database_host'),
+					    'database' => self::_getPostLiterals('database_database'),
+					    'username' => self::_getPostLiterals('database_username'),
+					    'password' => self::_getPostLiterals('database_password'),
+					    'type' => self::_getPostLiterals('database_type'),
+					    'options' => array(
+						    'dsn' => self::_getPostLiterals('database_dsn'),
+					    ),
+				    )
+			    );
+
 			    if ($submit['action'] == 'Test') {
 
 				    // Use locale?
@@ -123,8 +136,17 @@ namespace Modules\Setup
 				    }
 
 			    } else if ($submit['action'] == 'Export configuration.php') {
-				    // TODO: Export configuration here
-				    // \Aomebo\Configuration::gen()
+				    $data = \Aomebo\Configuration::generatePhpData($config);
+				    \Aomebo\Dispatcher\System::setHttpHeaderField(
+					    'Content-Disposition',
+					    'attachment; filename="configuration.php"'
+				    );
+				    \Aomebo\Dispatcher\System::setHttpHeaderField(
+					    'Content-Type',
+					    'text/php'
+				    );
+				    \Aomebo\Dispatcher\System::outputHttpHeaders();
+				    die($data);
 			    }
 
 		    } else {

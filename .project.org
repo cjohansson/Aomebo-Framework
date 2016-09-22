@@ -1,4 +1,8 @@
+* DONE Check why parameter routes doesn't build correctly in ajax responses
+
+
 * TODO Finish README.md for one example, use Bootstrap
 * TODO Use PhpUnit for tests in GUI
 * TODO Add lazy loading for database connection, first question connects database
-* TODO Check why parameter routes doesn't build correctly in ajax responses
+* DONE Make it possible to export a configuration
+* TODO Dont log database reconnects, just failures of connect

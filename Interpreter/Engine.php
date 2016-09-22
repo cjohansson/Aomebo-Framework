@@ -981,7 +981,7 @@ namespace Aomebo\Interpreter
                     self::$_insertPoints = array();
                     self::$_output = self::_interpretNode($processed);
 
-                    if (self::_hasOKStatus()) {
+                    if (self::_hasOkStatus()) {
                         \Aomebo\Trigger\System::processTriggers(
                             \Aomebo\Trigger\System::TRIGGER_KEY_AFTER_INTERPRETATION);
                         $session = \Aomebo\Session\Handler::getInstance();
@@ -1218,7 +1218,7 @@ namespace Aomebo\Interpreter
          * @static
          * @return bool
          */
-        private static function _hasOKStatus()
+        private static function _hasOkStatus()
         {
             return (self::$_interpretationStatus ==
                 self::INTERPRETATION_STATUS_OK);
@@ -1342,7 +1342,7 @@ namespace Aomebo\Interpreter
          */
         private static function _interpretNode(& $node, & $parent = null)
         {
-            if (self::_hasOKStatus()) {
+            if (self::_hasOkStatus()) {
 
                 $output = '';
                 $parameters = array();
@@ -1452,7 +1452,7 @@ namespace Aomebo\Interpreter
         private static function _getNodeRuntimes(& $node,
             & $parent = null, & $runtimes = array())
         {
-            if (self::_hasOKStatus()) {
+            if (self::_hasOkStatus()) {
                 if (is_array($node)) {
                     foreach ($node as $child)
                     {
@@ -1552,7 +1552,7 @@ namespace Aomebo\Interpreter
         private static function _evaluateRuntime($name,
             $parameters = null, $output = null)
         {
-            if (self::_hasOKStatus()) {
+            if (self::_hasOkStatus()) {
                 if ($runtime =
                     self::getRuntimeByName($name)
                 ) {

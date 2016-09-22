@@ -713,7 +713,6 @@ namespace Aomebo\Dispatcher
                 // HTTP End of headers
                 self::setEndOfHeaders();
                 self::setHasOutputtedHeaders(true);
-
             }
         }
 
@@ -1188,8 +1187,8 @@ namespace Aomebo\Dispatcher
          * @param string $value
          * @see https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
          */
-        public static function setHttpHeaderField($field, $value)
-        {
+	    public static function setHttpHeaderField($field, $value)
+	    {
             self::$_httpHeaderFields[ucfirst($field)] = $value;
         }
 
