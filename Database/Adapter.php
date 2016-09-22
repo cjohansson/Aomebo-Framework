@@ -1277,6 +1277,21 @@ namespace Aomebo\Database
                                 && (!isset($reconnect) || !empty($reconnect))
                                 && self::lostConnection()
                             ) {
+	                            if (\Aomebo\Configuration::getSetting(
+		                            'database,log lost connections',
+		                            false)
+	                            ) {
+		                            \Aomebo\Feedback\Debug::log(
+			                            sprintf(
+				                            self::systemTranslate(
+					                            'Query: "%s" returned error: "%s". Reconnecting..'
+				                            ),
+				                            $sql,
+				                            self::$_object->getError()
+			                            )
+		                            );
+	                            }
+
                                 if (self::reconnect()) {
                                     return self::execute(
                                         $sql, $unbuffered, $sqlKey, $queryCount,
@@ -1328,6 +1343,21 @@ namespace Aomebo\Database
                                 && (!isset($reconnect) || !empty($reconnect))
                                 && self::lostConnection()
                             ) {
+	                            if (\Aomebo\Configuration::getSetting(
+		                            'database,log lost connections',
+		                            false)
+	                            ) {
+		                            \Aomebo\Feedback\Debug::log(
+			                            sprintf(
+				                            self::systemTranslate(
+					                            'Query: "%s" returned error: "%s". Reconnecting..'
+				                            ),
+				                            $sql,
+				                            self::$_object->getError()
+			                            )
+		                            );
+	                            }
+
                                 if (self::reconnect()) {
                                     return self::execute(
                                         $sql, $unbuffered, $sqlKey, $queryCount,
