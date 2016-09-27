@@ -926,6 +926,12 @@ return array(
                 'required' => true,
                 'default' => 3,
             ),
+            'log lost connections' =>
+            array(
+                'type' => 'boolean',
+                'required' => true,
+                'default' => false,
+            ),
         ),
     'cache' =>
         array(

@@ -3,54 +3,64 @@
   * @var array tests
  **#}
 <div id="{{ F }}">
-    <h2>{{ __('Configuration', 'setup') }}</h2>
+    <h2>{{ __('Tests', 'test') }}</h2>
     <div>
-        {{  __('Fill in form below to test or export configuration.', 'setup') }}
+        {{  __('Run unit tests here. Enter database setting to perform database tests.', 'test') }}
     </div>
-    <form action="{{ url({ _page: 'setup' }) }}" method="post" enctype="application/x-www-form-urlencoded">
+    <div>
+        <p>
+            {{ __('This image is served with a Filesystem response and is located outside of public root:', 'test') }}
+        </p>
+        <a href="{{ url({ _default: true }) }}ran-dom"><img width="64" height="64" alt="" src="{{ url({ _default: true }) }}ran-dom" /></a>
+        <p>
+            <a href="{{ url({ _default: true }) }}regular/p-h-p">{{ __('Click here to get a PHP-file response', 'test') }}</a>
+        </p>
+    </div>
+	<h3>{{ __('Test setup', 'test') }}</h3>
+    <form action="" method="post" enctype="application/x-www-form-urlencoded">
         <fieldset>
-            <legend>{{ __('Localization', 'setup') }}</legend>
+            <legend>{{ __('Localization', 'test') }}</legend>
             <div>
                 <p>
-                    <label for="localization_locale">{{ __('Locale', 'setup') }}</label>
+                    <label for="localization_locale">{{ __('Locale', 'test') }}</label>
                 </p>
                 <select name="localization_locale" id="localization_locale">
                     <option> </option>
                     {%  for locale in locales %}
-                        <option{% if submit.locale == locale %} selected="selected"{%  endif %} value="{{  locale|escape }}">{{ __(locale, 'setup') }}</option>
+                        <option{% if submit.locale == locale %} selected="selected"{%  endif %} value="{{  locale|escape }}">{{ __(locale, 'test') }}</option>
                     {%  endfor %}
                 </select>
             </div>
         </fieldset>
         <fieldset>
-            <legend>{{ __('Database', 'setup') }}</legend>
+            <legend>{{ __('Database', 'test') }}</legend>
             <div>
                 <p>
-                    <label for="database_host">{{ __('Host', 'setup') }}</label>
+                    <label for="database_host">{{ __('Host', 'test') }}</label>
                 </p>
                 <input type="text" name="database_host" id="database_host" value="{{ submit.database_host|escape }}" />
             </div>
             <div>
                 <p>
-                    <label for="database_database">{{ __('Database (Optional)', 'setup') }}</label>
+                    <label for="database_database">{{ __('Database (Optional)', 'test') }}</label>
                 </p>
                 <input type="text" name="database_database" id="database_database" value="{{ submit.database_database|escape }}" />
             </div>
             <div>
                 <p>
-                    <label for="database_username">{{ __('Username', 'setup') }}</label>
+                    <label for="database_username">{{ __('Username', 'test') }}</label>
                 </p>
                 <input type="text" name="database_username" id="database_username" value="{{ submit.database_username|escape }}" />
             </div>
             <div>
                 <p>
-                    <label for="database_password">{{ __('Password', 'setup') }}</label>
+                    <label for="database_password">{{ __('Password', 'test') }}</label>
                 </p>
                 <input type="text" name="database_password" id="database_password" value="{{ submit.database_password|escape }}" />
             </div>
             <div>
                 <p>
-                    <label for="database_type">{{ __('Type', 'setup') }}</label>
+                    <label for="database_type">{{ __('Type', 'test') }}</label>
                 </p>
                 <select name="database_type" id="database_type">
                     <option value="mysqli"{% if submit.database_type == 'mysqli' %} selected="selected"{% endif %}>{{ __('MySQLi') }}</option>
@@ -59,43 +69,54 @@
             </div>
             <div>
                 <p>
-                    <label for="database_dsn">{{  __('DSN', 'setup') }}</label>
+                    <label for="database_dsn">{{  __('DSN', 'test') }}</label>
                 </p>
                 <input type="text" name="database_dsn" id="database_dsn" value="{{ submit.database_dsn|escape }}" />
             </div>
             <div>
                 <label for="database_autoinstall">
                     <input type="checkbox" name="database_autoinstall" id="database_autoinstall" value="1" {% if not submit.database_autoinstall is empty %}checked="checked" {% endif %}/>
-                    {{ __('Perform system auto-install', 'setup') }}
+                    {{ __('Perform system auto-install', 'test') }}
                 </label>
             </div>
             <div>
                 <label for="database_autouninstall">
                     <input type="checkbox" name="database_autouninstall" id="database_autouninstall" value="1" {% if not submit.database_autouninstall is empty %}checked="checked" {% endif %}/>
-                    {{ __('Perform system auto-uninstall', 'setup') }}
+                    {{ __('Perform system auto-uninstall', 'test') }}
                 </label>
             </div>
             <div>
                 <label for="database_autoupdate">
                     <input type="checkbox" name="database_autoupdate" id="database_autoupdate" value="1" {% if not submit.database_autoupdate is empty %}checked="checked" {% endif %}/>
-                    {{ __('Perform system auto-update', 'setup') }}
+                    {{ __('Perform system auto-update', 'test') }}
                 </label>
             </div>
         </fieldset>
         <div>
             <input type="submit" name="action" value="Test" />
-            <input type="submit" name="action" value="Export configuration.php" />
         </div>
         {%  if tests|length > 0 %}
             <fieldset>
-                <legend>{{  __('Tests', 'setup') }}</legend>
+                <legend>{{  __('Tests', 'test') }}</legend>
                 {%  for test in tests %}
                     <div>{{  test|escape }}</div>
                 {% endfor %}
             </fieldset>
         {%  endif %}
     </form>
+    <div id="ajax-tests">
+	<h2>{{ __('Ajax tests') }}</h2>
+	<strong>{{ __('Expected', 'test') }}</strong>
+	<div class="expected">{{ ajax|raw }}</div>
+	<strong>{{ __('Given', 'test') }}</strong>
+	<div class="given"></div>
+	<strong>{{ __('Result', 'test') }}</strong>
+	<div class="result">
+	    <span class="success">{{ __('Success', 'test') }}</span>
+	    <span class="error">{{ __('Error', 'test') }}</span>
+	</div>
+    </div>
     <div>
-	<a href="{{ url({ _page: 'test'  }) }}">{{ __('Tests', 'setup') }}</a>
+	<a href="{{ url({ _page: 'setup' }) }}">{{ __('Setup', 'setup') }}</a>
     </div>
 </div>

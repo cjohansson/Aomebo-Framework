@@ -1720,18 +1720,15 @@ namespace Aomebo\Interpreter
                         $cacheParameters,
                         $cacheKey)
                     ) {
-
                         self::$_pagesToData[$page] = \Aomebo\Cache\System::loadCache(
                             $cacheParameters,
                             $cacheKey,
                             \Aomebo\Cache\System::FORMAT_JSON_ENCODE
                         );
-
                         return (!empty($returnContents) ?
                             self::$_pagesToData[$page] : true);
 
                     } else {
-
                         \Aomebo\Cache\System::clearCache(
                             $cacheParameters,
                             null,
@@ -1742,9 +1739,7 @@ namespace Aomebo\Interpreter
                         $adapter = null;
                         foreach (self::$_adapters as $adapter)
                         {
-
                             /** @var \Aomebo\Interpreter\Adapters\Base $adapter */
-
                             if (file_exists($path . $adapter->getFileSuffix())) {
                                 $pageData = \Aomebo\Filesystem::getFileContents(
                                     $path . $adapter->getFileSuffix());
@@ -1758,19 +1753,15 @@ namespace Aomebo\Interpreter
                             if ($processed = self::_processPageData(
                                 $pageData, $adapter)
                             ) {
-
                                 \Aomebo\Cache\System::saveCache(
                                     $cacheParameters,
                                     $cacheKey,
                                     $processed,
                                     \Aomebo\Cache\System::FORMAT_JSON_ENCODE
                                 );
-
                                 self::$_pagesToData[$page] = $processed;
-
                                 return (!empty($returnContents) ?
                                     self::$_pagesToData[$page] : true);
-
                             } else {
                                 Throw new \Exception(
                                     sprintf(

@@ -3,7 +3,12 @@
 * DONE Make it possible to export a configuration
 * DONE Don't log database reconnects, just failures of connect
 
-* TODO Finish README.md for one example, use Bootstrap
-* TODO Use PhpUnit for tests in GUI
+* DONE Use PhpUnit for tests in GUI
+
+* DONE Make a test module that uses PhpUnit on framework for selected functions
+
+
+* TODO Use Bootstrap for GUI
+* TODO Finish README.md for one example
 * TODO Add lazy loading for database connection, first question connects database
-* TODO Use self-documenting configuration and setup generated out of this
+* TODO Use self-documenting configuration and create a setup generated out of this

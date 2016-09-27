@@ -45,3 +45,8 @@ Thumbs.db
 .dir-locals.el
 .ac-php-conf.json
 .tern-port
+
+# Composer Files #
+#####################
+vendor/
+composer.lock

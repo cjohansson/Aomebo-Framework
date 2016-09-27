@@ -402,8 +402,7 @@ namespace Aomebo
          */
         public static function passExecutionGuards()
         {
-            self::$_freeMemoryAtInit =
-                                     \Aomebo\System\Memory::getSystemFreeMemory();
+            self::$_freeMemoryAtInit = \Aomebo\System\Memory::getSystemFreeMemory();
 
             // Do we have a list of concurrent requests?
             if ($requests = self::getApplicationData('requests')) {
