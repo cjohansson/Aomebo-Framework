@@ -14,43 +14,16 @@ namespace Modules\Setup
      */
     class Module extends \Aomebo\Runtime\Module implements
         \Aomebo\Runtime\Executable,
-        \Aomebo\Runtime\Routable,
         \Aomebo\Runtime\Pageable,
         \Aomebo\Runtime\Internationalized
     {
-
-        /**
-         * @return array
-         */
-        public function getRoutes()
-        {
-            return array(
-                new \Aomebo\Dispatcher\Route(
-                    null,
-                    '/^([\w]+)$/',
-                    '%s',
-                    array('page')
-                ),
-                new \Aomebo\Dispatcher\Route(
-                    null,
-                    '/^([\w]+)\/([\w]+)$/',
-                    '%s/%s',
-                    array('parameter1', 'parameter2')
-                ),
-                new \Aomebo\Dispatcher\Route(
-                    null,
-                    '/^([\w]+)\/([\w]+)\/([\w]+)$/',
-                    '%s/%s/%s',
-                    array('parameter1', 'parameter2', 'parameter3')
-                ),
-            );
-        }
 
 	    /**
 	     * @return string
 	     */
 	    public function execute()
 	    {
+		    \Modules\Html\Module::setTitle(__('Setup', 'setup'));
 		    if (\Aomebo\Dispatcher\System::isHttpPostRequestWithPostData()) {
 			    $config = array(
 				    'database' => array(
@@ -116,20 +89,24 @@ namespace Modules\Setup
                             ),
                             array(
                                 'key' => 'body',
-                                'value' =>
-                                array(
+                                'value' => array(
 	                                array(
-		                                'key' => 'header',
-		                                'value' => '',
+		                                'key' => 'wrapper',
+		                                'value' => array(
+			                                array(
+				                                'key' => 'header',
+				                                'value' => '',
+			                                ),
+			                                array(
+				                                'key' => 'setup',
+				                                'value' => '',
+			                                ),
+			                                array(
+				                                'key' => 'footer',
+				                                'value' => '',
+			                                )
+		                                ),
 	                                ),
-                                    array(
-                                        'key' => 'setup',
-                                        'value' => '',
-                                    ),
-                                    array(
-	                                    'key' => 'footer',
-	                                    'value' => '',
-                                    )
                                 ),
                             ),
                         ),

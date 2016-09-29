@@ -1,3 +1,11 @@
-<div id="{{ F }}">
-    <h1>{{ title }} {{ version }}</h1>
+<div id="{{ F }}" class="text-center">
+	<div>
+		<h1>{{ title }}</h1>
+		<span class="font-small">{{ version }}</span>
+	</div>
+	<ul class="nav nav-pills">
+		{% for item in menu %}
+			<li role="presentation" class="{% if item.active %}active{% endif %}"><a href="{{ item.uri }}">{{ item.title }}</a></li>
+		{% endfor %}
+	</ul>
 </div>

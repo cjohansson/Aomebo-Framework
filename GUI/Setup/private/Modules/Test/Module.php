@@ -54,6 +54,7 @@ namespace Modules\Test
 		    if (\Aomebo\Response\Handler::isResponse('ajax')) {
 			    return $this->_ajax();
 		    } else {
+			    \Modules\Html\Module::setTitle(__('Test', 'test'));
 			    return $this->_test();
 		    }
 	    }
@@ -653,20 +654,24 @@ namespace Modules\Test
                             ),
                             array(
                                 'key' => 'body',
-                                'value' =>
-                                array(
+                                'value' => array(
 	                                array(
-		                                'key' => 'header',
-		                                'value' => '',
+		                                'key' => 'wrapper',
+		                                'value' => array(
+			                                array(
+				                                'key' => 'header',
+				                                'value' => '',
+			                                ),
+			                                array(
+				                                'key' => 'test',
+				                                'value' => '',
+			                                ),
+			                                array(
+				                                'key' => 'footer',
+				                                'value' => '',
+			                                ),
+		                                ),
 	                                ),
-                                    array(
-                                        'key' => 'test',
-                                        'value' => '',
-                                    ),
-                                    array(
-	                                    'key' => 'footer',
-	                                    'value' => '',
-                                    )
                                 ),
                             ),
                         ),

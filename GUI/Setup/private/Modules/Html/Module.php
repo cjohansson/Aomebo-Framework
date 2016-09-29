@@ -30,7 +30,9 @@ namespace Modules\Html
         public function getDependencies()
         {
             return array(
-                new \Aomebo\Associatives\Dependent('jQuery'));
+	            new \Aomebo\Associatives\Dependent('jQuery'),
+	            new \Aomebo\Associatives\Dependent('Bootstrap'),
+            );
         }
 
         /**

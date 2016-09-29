@@ -1296,6 +1296,17 @@ namespace Aomebo
             }
         }
 
+	    /**
+	     * @return string
+	     */
+	    public static function getVersion()
+	    {
+		    if (file_exists(__DIR__ . '/.git/refs/heads/master')) {
+			    return file_get_contents(__DIR__ . '/.git/refs/heads/master');
+		    }
+		    return '-';
+	    }
+
         /**
          * @static
          */

@@ -1,11 +1,4 @@
-/**
- * footer
- *
- * @namespace #footer
- */
-#footer
-{
-    margin: 40px;
-    padding: 0;
-    line-height: 2.0;
+#footer {
+	margin: 40px 0 60px 0;
+	text-align: center;
 }

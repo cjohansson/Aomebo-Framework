@@ -25,7 +25,8 @@ namespace Modules\Header
             $view->setFile('views/view.twig');
             $view->attachVariables(array(
 	            'title' => \Aomebo\Configuration::getSetting('framework,name'),
-	            'version' => \Aomebo\Configuration::getSetting('framework,version'),
+	            'version' => \Aomebo\Application::getVersion(),
+	            'menu' => Model::getMenu(),
             ));
             return $view->parse();
         }
