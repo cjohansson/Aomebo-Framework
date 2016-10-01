@@ -66,7 +66,12 @@ namespace Modules\Setup
 		    }
 
 		    $view = self::_getTwigView();
-		    $view->attachVariable('submit', $submit);
+		    $view->attachVariables(array(
+			    'submit' => $submit,
+			    'locales' => \Aomebo\Internationalization\System::getLocalesFromDirectory(
+				    __DIR__ . '/Locales'),
+
+		    ));
 		    $view->setFile('views/view.twig');
 		    return $view->parse();
 	    }

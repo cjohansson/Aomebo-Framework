@@ -1297,6 +1297,46 @@ namespace Aomebo
         }
 
 	    /**
+	     * Update framework. Requires connection to GIT repo.
+	     *
+	     * @return string
+	     */
+	    public function update()
+	    {
+		    $command = escapeshellarg(_SYSTEM_ROOT_ . 'update.sh');
+		    $result = str_replace(
+			    "\n",
+			    "\n<br />",
+			    shell_exec($command)
+		    );
+		    return sprintf(
+			    "<strong>Update (%s):</strong>\n<p>%s</p>\n",
+			    $command,
+			    $result
+		    );
+	    }
+
+	    /**
+	     * Requires `composer install` in root directory.
+	     *
+	     * @return string
+	     */
+	    public function test()
+	    {
+		    $command = escapeshellarg(_SYSTEM_ROOT_ . 'test.sh');
+		    $result = str_replace(
+			    "\n",
+			    "\n<br />",
+			    shell_exec($command)
+		    );
+		    return sprintf(
+			    "<strong>Unit Tests (%s):</strong>\n<p>%s</p>\n",
+			    $command,
+			    $result
+		    );
+	    }
+
+	    /**
 	     * @return string
 	     */
 	    public static function getVersion()

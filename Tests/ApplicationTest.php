@@ -17,7 +17,18 @@ namespace Aomebo
 	     */
 	    public function testSetup()
 	    {
-		    $this->assertTrue(true == true, 'Its true');
+		    ob_start();
+		    require_once(dirname(__DIR__) . '/Application.php');
+		    new \Aomebo\Application(array(
+			    \Aomebo\Application::PARAMETER_PUBLIC_INTERNAL_PATH => dirname(__DIR__),
+			    \Aomebo\Application::PARAMETER_SHOW_SETUP => true,
+		    ));
+		    $test = ob_end_flush();
+
+		    $this->assertNotEmpty(
+			    $test,
+			    'Setup Request was not empty'
+		    );
 	    }
 
 	}

@@ -79,8 +79,7 @@ namespace Modules\Test
 		    $tests = array();
 		    $this->_testTriggers();
 
-		    $command = escapeshellarg(_SYSTEM_ROOT_ . 'test.sh');
-		    $tests[] = shell_exec($command);
+		    $tests[] = \Aomebo\Application::test();
 
 		    if (\Aomebo\Dispatcher\System::isHttpPostRequestWithPostData()) {
 
@@ -96,19 +95,6 @@ namespace Modules\Test
 				    'database_autoinstall' => self::_getPostBoolean('database_autoinstall'),
 				    'database_autouninstall' => self::_getPostBoolean('database_autouninstall'),
 				    'database_autoupdate' => self::_getPostBoolean('database_autoupdate'),
-			    );
-
-			    $config = array(
-				    'database' => array(
-					    'host' => self::_getPostLiterals('database_host'),
-					    'database' => self::_getPostLiterals('database_database'),
-					    'username' => self::_getPostLiterals('database_username'),
-					    'password' => self::_getPostLiterals('database_password'),
-					    'type' => self::_getPostLiterals('database_type'),
-					    'options' => array(
-						    'dsn' => self::_getPostLiterals('database_dsn'),
-					    ),
-				    )
 			    );
 
 			    if ($submit['action'] == 'Test') {
@@ -366,7 +352,7 @@ namespace Modules\Test
                     $databaseTests .= sprintf(__('ERROR: SQL escaping methods produced different escaped SQL "%s" and "%s". ', 'test'), $preparedSql, $preparedSql2);
                 }
 
-                $table = \Modules\Setup\Table::getInstance();
+                $table = Table::getInstance();
 
                 if (!empty($autoInstall)) {
                     if (\Aomebo\Application::autoInstall()) {

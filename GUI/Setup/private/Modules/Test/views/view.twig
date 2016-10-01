@@ -113,7 +113,7 @@
             <fieldset>
                 <legend>{{  __('Tests', 'test') }}</legend>
                 {%  for test in tests %}
-                    <div>{{  test|escape }}</div>
+                    <div>{{ test|raw }}</div>
                 {% endfor %}
             </fieldset>
         {%  endif %}
