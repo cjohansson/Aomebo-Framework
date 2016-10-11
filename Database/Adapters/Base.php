@@ -56,11 +56,12 @@ namespace Aomebo\Database\Adapters
          * @param string $user
          * @param string $password
          * @param string $database
-         * @param array $options
+         * @param string [$dsn = '']
+         * @param array [$options = array()]
          * @return bool
          */
         abstract public function connect($host, $user, $password,
-            $database, $options);
+                                         $database, $dsn = '', $options = array());
 
         /**
          * @param string $useAnsiQuotes

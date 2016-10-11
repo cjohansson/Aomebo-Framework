@@ -70,6 +70,7 @@ namespace Modules\Setup
 			    'submit' => $submit,
 			    'locales' => \Aomebo\Internationalization\System::getLocalesFromDirectory(
 				    __DIR__ . '/Locales'),
+                'structure' => \Aomebo\Configuration::getStructure(),
 
 		    ));
 		    $view->setFile('views/view.twig');

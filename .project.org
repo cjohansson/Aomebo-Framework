@@ -9,7 +9,6 @@
 
 * DONE Use Bootstrap for GUI
 
-* TODO Finish README.md for one example
 * TODO Use self-documenting configuration and create a setup generated out of this
-
+* TODO Finish README.md for one example
 * TODO Add lazy loading for database connection, first question connects database

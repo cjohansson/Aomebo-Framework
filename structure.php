@@ -932,6 +932,12 @@ return array(
                 'required' => true,
                 'default' => false,
             ),
+            'dsn' =>
+            array(
+                'type' => 'string',
+                'required' => false,
+                'default' => '',
+            ),
         ),
     'cache' =>
         array(

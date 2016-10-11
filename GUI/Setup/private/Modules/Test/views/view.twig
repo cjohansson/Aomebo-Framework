@@ -68,7 +68,15 @@
 						<label for="database_password">{{ __('Password', 'setup') }}</label>
 					</div>
 					<div class="col-md-8 col-xs-12">
-						<input type="text" class="form-control" name="database_password" id="database_password" value="{{ submit.database_password|escape }}" />
+						<input type="password" class="form-control" name="database_password" id="database_password" value="{{ submit.database_password|escape }}" />
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-4 col-xs-12">
+						<label for="database_dsn">{{ __('DSN', 'setup') }}</label>
+					</div>
+					<div class="col-md-8 col-xs-12">
+						<input type="text" class="form-control" name="database_dsn" id="database_dsn" value="{{ submit.database_dsn|escape }}" />
 					</div>
 				</div>
 				<div class="row">

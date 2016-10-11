@@ -42,12 +42,13 @@ namespace Aomebo\Database\Adapters\Mysqli
          * @param string $user
          * @param string $password
          * @param string $database
-         * @param array $options
+         * @param string [$dsn = '']
+         * @param array [$options = array()]
          * @throws \Exception
          * @return bool
          */
         public function connect($host, $user, $password,
-            $database, $options)
+                                $database, $dsn = '', $options = array())
         {
             $this->_options = $options;
             $this->_con = new \mysqli($host, $user, $password);

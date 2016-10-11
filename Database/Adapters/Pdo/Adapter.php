@@ -67,14 +67,15 @@ namespace Aomebo\Database\Adapters\Pdo
          * @param string $user
          * @param string $password
          * @param string $database
-         * @param array $options
+         * @param strign [$dsn = '']
+         * @param array [$options = array()]
          * @throws \Exception
          * @return bool
          * @link http://php.net/manual/en/pdo.construct.php
          * @link http://php.net/manual/en/pdo.connections.php
          */
         public function connect($host, $user, $password,
-            $database, $options)
+                                $database, $dsn = '', $options = array())
         {
 
             if (isset($options['dsn'])) {

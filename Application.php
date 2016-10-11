@@ -1319,9 +1319,10 @@ namespace Aomebo
 	    /**
 	     * Requires `composer install` in root directory.
 	     *
+         * @static
 	     * @return string
 	     */
-	    public function test()
+	    public static function test()
 	    {
 		    $command = escapeshellarg(_SYSTEM_ROOT_ . 'test.sh');
 		    $result = str_replace(
@@ -1337,6 +1338,7 @@ namespace Aomebo
 	    }
 
 	    /**
+         * @static
 	     * @return string
 	     */
 	    public static function getVersion()

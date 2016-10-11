@@ -61,6 +61,13 @@ namespace Aomebo\Database
         /**
          * @internal
          * @static
+         * @var string
+         */
+        private static $_dsn = '';
+
+        /**
+         * @internal
+         * @static
          * @var array
          */
         private static $_options = array();
@@ -232,6 +239,7 @@ namespace Aomebo\Database
                         $databaseConfiguration['username'],
                         $databaseConfiguration['password'],
                         $databaseConfiguration['database'],
+                        $databaseConfiguration['dsn'],
                         (isset($databaseConfiguration['options']) ? $databaseConfiguration['options'] : null),
                         $databaseConfiguration['reconnect max retries'],
                         $databaseConfiguration['reconnect retry delay']
@@ -1210,8 +1218,8 @@ namespace Aomebo\Database
         {
 	        return self::connect(
 		        self::$_host, self::$_username,
-		        self::$_password, self::$_database, self::$_options,
-		        self::$_select, self::$_reconnectIterations,
+		        self::$_password, self::$_database, self::$_dsn,
+                self::$_options, self::$_select, self::$_reconnectIterations,
 		        self::$_reconnectDelay, false
 	        );
         }
@@ -1404,6 +1412,7 @@ namespace Aomebo\Database
          * @param string $username
          * @param string $password
          * @param string $database
+         * @param string [$dns = '']
          * @param array|null [$options = null]
          * @param bool [$select = true]
          * @param int|null [$iterations = null]
@@ -1414,7 +1423,8 @@ namespace Aomebo\Database
          */
         public static function connect(
 	        $host, $username,
-            $password, $database, $options = null,
+            $password, $database,
+            $dsn = '', $options = null,
 	        $select = true, $iterations = null,
 	        $delay = null, $delayAfterOrBefore = true)
         {
@@ -1438,7 +1448,7 @@ namespace Aomebo\Database
 	                if (self::_connect(
 	                    $host, $username,
 	                    $password, $database,
-	                    $options, $select,
+                        $dsn, $options, $select,
 	                    $iterations, $delay)
                     ) {
                         return true;
@@ -1467,6 +1477,7 @@ namespace Aomebo\Database
          * @param string $username
          * @param string $password
          * @param string $database
+         * @param string [$dsn = '']
          * @param array|null [$options = null]
          * @param bool [$select = true]
          * @param int $iterations
@@ -1476,7 +1487,8 @@ namespace Aomebo\Database
          */
         private static function _connect(
 	        $host, $username,
-            $password, $database, $options = null,
+            $password, $database, $dsn = '',
+            $options = null,
 	        $select = true, $iterations, $delay)
         {
             self::_instanciate();
@@ -1513,6 +1525,7 @@ namespace Aomebo\Database
                     $username,
                     $password,
                     $database,
+                    $dsn,
                     $options)
                 ) {
 
@@ -1520,6 +1533,7 @@ namespace Aomebo\Database
                     self::$_host = $host;
                     self::$_username = $username;
                     self::$_password = $password;
+                    self::$_dsn = $dsn;
                     self::$_options = $options;
                     self::$_select = $select;
                     self::$_reconnectIterations = $iterations;

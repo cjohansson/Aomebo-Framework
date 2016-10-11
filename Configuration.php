@@ -759,6 +759,15 @@ namespace Aomebo
         }
 
         /**
+         * @static
+         * @return array
+         */
+        public static function getStructure()
+        {
+            return self::$_structure;
+        }
+
+        /**
          * This method save a single settings key and value.
          *
          * @static
@@ -945,9 +954,7 @@ namespace Aomebo
                                 Throw new \Exception(
                                     sprintf(
                                         self::systemTranslate(
-                                            'Configuration value for "%s" '
-                                            . 'has invalid value "%s" '
-                                            . 'in structure node: "%s"'),
+                                            'Configuration value for "%s" has invalid value "%s" in structure node: "%s"'),
                                         $key . '.' . self::STRUCTURE_KEY_REQUIRED,
                                         $value[self::STRUCTURE_KEY_REQUIRED],
                                         print_r($node, true) . '"'

@@ -272,15 +272,12 @@ namespace Modules\Test
 
             \Aomebo\Configuration::saveSetting('database,adapter', $type);
 
-            $options = array(
-                'dsn' => $dsn,
-            );
-
             if (\Aomebo\Database\Adapter::connect(
                 $host,
                 $username,
                 $password,
                 $database,
+                $dsn,
                 $options,
                 true)
             )  {
