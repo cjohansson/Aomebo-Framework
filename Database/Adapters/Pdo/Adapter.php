@@ -78,7 +78,9 @@ namespace Aomebo\Database\Adapters\Pdo
                                 $database, $dsn = '', $options = array())
         {
 
-            if (isset($options['dsn'])) {
+            if (!empty($dsn)
+                || !empty($options['dsn'])
+            ) {
 
                 $this->_options = $options;
 
@@ -96,7 +98,7 @@ namespace Aomebo\Database\Adapters\Pdo
 
                 try {
                     $this->_con = new \PDO(
-                        $options['dsn'],
+                        (!empty($dsn) ? $dsn : $options['dsn']),
                         $user,
                         $password,
                         $dbOptions
@@ -117,7 +119,6 @@ namespace Aomebo\Database\Adapters\Pdo
             } else {
               Throw new \Exception(self::systemTranslate('Missing database-engine DSN.'));
             }
-
         }
 
         /**
