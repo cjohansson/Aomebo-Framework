@@ -233,10 +233,13 @@ namespace Aomebo
                 // Set public internal path based on back-trace
                 $backtrace = self::getDebugBacktrace(2);
 
-                if (isset($backtrace[1]['file'])) {
+                if (!self::hasParameter(self::PARAMETER_PUBLIC_INTERNAL_PATH)
+                    && isset($backtrace[1]['file'])
+                ) {
                     self::setParameter(
                         self::PARAMETER_PUBLIC_INTERNAL_PATH,
-                        dirname($backtrace[1]['file']));
+                        dirname($backtrace[1]['file'])
+                    );
                 }
 
                 /**
@@ -244,31 +247,38 @@ namespace Aomebo
                  *
                  * Only possible for requests from web-server (not PHP-client)
                  */
-                if (isset($_SERVER['PHP_SELF'])
+                if (!self::hasParameter(self::PARAMETER_PUBLIC_EXTERNAL_PATH)
+                    && isset($_SERVER['PHP_SELF'])
                     && substr($_SERVER['PHP_SELF'], 0, 1) == '/'
                 ) {
                     self::setParameter(
                         self::PARAMETER_PUBLIC_EXTERNAL_PATH,
-                        $_SERVER['PHP_SELF']);
+                        $_SERVER['PHP_SELF']
+                    );
                 }
 
                 // Don't show setup by default
                 if (!self::hasParameter(self::PARAMETER_SHOW_SETUP)) {
                     self::setParameter(
                         self::PARAMETER_SHOW_SETUP,
-                        false);
+                        false
+                    );
                 }
 
                 // Pass execution guards by default
                 if (!self::hasParameter(self::PARAMETER_PASS_EXECUTION_GUARDS)) {
                     self::setParameter(
-                        self::PARAMETER_PASS_EXECUTION_GUARDS, true);
+                        self::PARAMETER_PASS_EXECUTION_GUARDS,
+                        true
+                    );
                 }
 
                 // Respond by default
                 if (!self::hasParameter(self::PARAMETER_RESPOND)) {
                     self::setParameter(
-                        self::PARAMETER_RESPOND, true);
+                        self::PARAMETER_RESPOND,
+                        true
+                    );
                 }
 
                 // Any parameters specified?
@@ -723,8 +733,7 @@ namespace Aomebo
          */
         public static function hasParameter($key)
         {
-            return (isset($key)
-                && isset(self::$_parameters[$key]));
+            return isset($key, self::$_parameters, self::$_parameters[$key]);
         }
 
         /**

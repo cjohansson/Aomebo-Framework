@@ -3,28 +3,28 @@
 Aomebo Framework (AF) is a **open-source (OS) object-oriented (OO) PHP: Hypertext Preprocessor (PHP) Model-View-Controller (MVC) framework**.
 
 The framework is built to be compatible with all types of applications (even shell applications) and is fully scalable.
-Only loads the stuff **you need** for your project and tries to place as few limits as possible on the developer. The main idea of the framework is to enable swift development by using easy patterns and supporting a wide variety of programming styles.
-It only requires PHP 5.3 or later with standard modules.
+Only loads the stuff **you need** for your project and tries to place as few limits as possible on the developer. The main idea of the framework is to enable swift development by using common and easy patterns and supporting a wide variety of programming styles.
+
+It only requires PHP 5.3 or later with PHP standard modules.
 
 The framework is built with time-, space- and memory-complexity in mind which makes it memory-efficient, CPU-efficient, storage-efficient and fast.
 
 With optional features such as:
 
-* Built-in concurrency-support, supports communication between requests, limit concurrent requests and load-queues (optional)
-* Advanced and easy-to-use trigger and filter system (Like Wordpress) (optional)
-* Internationalization and localization with adapters and supports multiple simulatenous text-domains (Gettext adapter like Wordpress for .mo and .po files and PHP) (optional)
-* Multiple template adapters (Smarty 3, Twig, PHP) (optional)
+* Built-in concurrency-support, supports communication between requests, limit concurrent requests (optional)
+* Advanced and easy-to-use queued trigger and filter system (Like Wordpress) (optional)
+* Internationalization and localization with adapters and supports multiple simulatenous text-domains and languages (Gettext adapter like Wordpress for .mo and .po files and PHP) (optional)
+* Multiple template adapters built-in (Smarty 3, Twig, PHP) (optional)
 * Support for Models, Controllers, Modules, Views, Libraries (Centralized MVC, Decentralized MVC or combined MVC design like Zend Framework)
 * Dependency-support and automatic CSS and Javascript generation (optional)
-* Built-in support for PHPUnit and Xdebug (optional)
-* Works out of the box with APC
+* Works out of the box with APC, Xdebug and PHPUnit
 * Extensive support for URL-generation and routing (with or without mod_rewrite) (optional)
 * Support for different database adapters, preparing, escaping and transactions and to run without database too (MySQLi and PDO) (optional)
 * Cache-system for filesystem or database which supports raw, JSON or serialized data (optional)
 * Feedback and debug functions (optional)
-* Built-in support for dynamic indexing (optional)
+* Built-in support for dynamic sitemap indexing (optional)
 * Built-in support for different session setups (filesystem, native PHP or database) (optional)
-* **All this super-fast, even with database-support execution-times in a few hundred of miliseconds for large-scale sites**.
+* **All this super-fast, even with database-support and cache disabled execution-times around 30ms to a few hundred of miliseconds for large-scale sites**.
 
 The framework has been successfully used for:
 
@@ -58,20 +58,13 @@ new \Aomebo\Application(
 
 3. Create some modules
 
-We are going to create 4 modules: *Html*, *Footer*, *Header*, *Wrapper* and all paths from now on will be relative to **/var/www/MyWebSite/**.
+We are going to create 4 modules: *Html*, *Header*, *Footer*, *Wrapper* and all paths from now on will be relative to **/var/www/MyWebSite/**.
 
 ### Html
 `private/Modules/Html/Module.php`
 
 ``` php
 <?php
-/**
- *
- */
-
-/**
- *
- */
 namespace Modules\Html
 {
 
@@ -162,182 +155,26 @@ namespace Modules\Html
 `private/Modules/Html/Associatives/script.js`
 
 ``` javascript
-/**
- *
- */
-
-/**
- *
- */
 $(document).ready(function(event) {
-
+console.log('Site started');
 });
 
 ```
 
-`private/Modules/Html/Associatives/base.css`
+`private/Modules/Html/Associatives/style.css`
 
 ``` css
-/**
- *
- */
 body
 {
-    background: white none top left repeat scroll;
-    color: black;
-    text-align: left;
-    line-height: 1.5;
-    position: relative;
-}
-body a,
-body a:visited,
-body a:active
-{
-    color: blue;
-    text-decoration: underline;
-}
-body a:hover
-{
-    color: red;
-    text-decoration: none;
-}
-body,
-body input,
-body textarea
-{
-    font-family: 'Georgia', 'Helvetica', sans-serif;
-    font-size: 12px;
-}
-body label
-{
-    font-weight: bold;
-}
-body h1
-{
-    font-size: 40px;
-    letter-spacing: 3px;
-    color: gray;
-}
-body h1 a,
-body h1 a:visited,
-body h1 a:hover
-{
-    color: gray;
-    text-decoration: none;
-}
-body h2
-{
-    font-size: 25px;
-    margin: 5px 0 0 0;
-    color: gray;
-}
-body h3
-{
-    font-size: 18px;
-    line-height: 2.0;
-    text-transform: lowercase;
-    margin: 0 0 10px 0;
-    color: gray;
-}
-body h3+div,
-body h3+p
-{
-    margin: 0 0 30px 0;
-}
-body h2,
-body h3
-{
-    line-height: 1.5;
-    letter-spacing: 1px;
-}
-body h1,
-body h2,
-body h3
-{
-    font-family: 'Arial', sans-serif;
-}
-```
-
-`private/Modules/Html/Associatives/reset.css`
-
-``` css
-/**
- *
- */
-html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, abbr, address, cite, code, del, dfn, em, img, ins, kbd, q, samp, small, strong, sub, sup, var, b, i, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, figcaption, figure, footer, header, menu, nav, section, summary, time, mark, audio, video
-{
-    margin: 0;
-    padding: 0;
-    border: 0;
-    outline: 0;
-    font-size: 100%;
-    vertical-align: baseline;
-}
-body
-{
-    line-height: 1;
-}
-article, aside, details, figcaption, figure, footer, header, menu, nav, section
-{
-    display: block;
-}
-nav ul
-{
-    list-style: none;
-}
-blockquote, q
-{
-    quotes: none;
-}
-blockquote:before, blockquote:after, q:before, q:after
-{
-    content: none;
-}
-a
-{
-    margin: 0;
-    padding: 0;
-    font-size: 100%;
-    vertical-align: baseline;
-    background: transparent;
-}
-*
-{
-    padding: 0;
-    margin: 0;
-}
-html
-{
-    width: 100%;
-    margin: 0;
-    padding: 0;
-}
-body
-{
-    height: auto;
-    width: auto;
-    margin: 0;
-    padding: 0;
-}
-a img
-{
-    border: none;
 }
 ```
 
 ### Header
 
-`/var/www/MyWebSite/private/Modules/Header/Module.php`
+`private/Modules/Header/Module.php`
 
 ``` php
 <?php
-/**
- *
- */
-
-/**
- *
- */
 namespace Modules\Header
 {
 
@@ -366,7 +203,7 @@ namespace Modules\Header
 }
 ```
 
-`/var/www/MyWebSite/private/Modules/Header/views/view.twig`
+`private/Modules/Header/views/view.twig`
 
 ``` twig
 <div id="{{ F }}">
@@ -375,6 +212,60 @@ namespace Modules\Header
 </div>
 ```
 
+### Footer
+
+
+`private/Modules/Footer/Module.php`
+
+``` php
+<?php
+namespace Modules\Footer
+{
+
+    /**
+     * @method static \Modules\Footer\Module getInstance()
+     */
+    class Module extends \Aomebo\Runtime\Module implements
+        \Aomebo\Runtime\Executable
+    {
+
+        /**
+         * @return string
+         */
+        public function execute()
+        {
+            $view = self::_getTwigView();
+            $view->setFile('views/view.twig');
+            $view->attachVariables(array(
+                'website' => \Aomebo\Configuration::getSetting('framework,website'),
+                'year' => date('Y'),
+            ));
+            return $view->parse();
+        }
+
+    }
+
+}
+```
+
+`private/Modules/Footer/views/view.twig`
+
+``` twig
+<div id="{{ F }}" class="text-center">
+    &copy; {{ year }}
+    <br /><a href="{{ website }}" target="_blank">{{ website }}</a>
+</div>
+```
+
+`private/Modules/Footer/Associatives/style.css`
+
+``` css
+#footer {
+    margin: 60px 0 40px;
+}
+```
+
+`
 
 4. Create some pages
 

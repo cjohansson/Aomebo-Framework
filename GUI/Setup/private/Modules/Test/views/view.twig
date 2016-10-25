@@ -5,137 +5,144 @@
 <div id="{{ F }}">
     <h2>{{ __('Tests', 'test') }}</h2>
     <div>
-        {{  __('Run unit tests here. Enter database setting to perform database tests.', 'test') }}
+        {{  __('Run tests here. Enter database setting to perform database tests.', 'test') }}
     </div>
-    <div>
-        <p>
-            {{ __('This image is served with a Filesystem response and is located outside of public root:', 'test') }}
-        </p>
-        <a href="{{ url({ _default: true }) }}ran-dom"><img width="64" height="64" alt="" src="{{ url({ _default: true }) }}ran-dom" /></a>
-        <p>
-            <a href="{{ url({ _default: true }) }}regular/p-h-p">{{ __('Click here to get a PHP-file response', 'test') }}</a>
-        </p>
+
+    <div id="response-type-tests">
+        <h3>{{ __('Response type tests') }}</h3>
+        <div>
+            <p>
+                {{ __('This image is served with a Filesystem response and is located outside of public root:', 'test') }}
+            </p>
+            <a href="{{ url({ _default: true }) }}ran-dom"><img width="64" height="64" alt="" src="{{ url({ _default: true }) }}ran-dom" /></a>
+            <p>
+                <a href="{{ url({ _default: true }) }}regular/p-h-p">{{ __('Click here to get a PHP-file response', 'test') }}</a>
+            </p>
+        </div>
     </div>
-	<h3>{{ __('Test setup', 'test') }}</h3>
+
+	  <h3>{{ __('Test setup', 'test') }}</h3>
     <form action="{{ url({ _page: 'test' }) }}" method="post" enctype="application/x-www-form-urlencoded">
         <fieldset>
             <legend>{{ __('Localization', 'setup') }}</legend>
-			<div class="col-md-6 col-xs-12">
-				<div class="row">
-					<div class="col-md-4 col-xs-12">
-						<label for="localization_locale">{{ __('Locale', 'setup') }}</label>
-					</div>
-					<div class="col-md-8 col-xs-12">
-						<select class="form-control" name="localization_locale" id="localization_locale">
-							<option> </option>
-							{%  for locale in locales %}
-								<option{% if submit.locale == locale %} selected="selected"{%  endif %} value="{{  locale|escape }}">{{ __(locale, 'setup') }}</option>
-							{%  endfor %}
-						</select>
-					</div>
-				</div>
-			</div>
+			      <div class="col-md-6 col-xs-12">
+				        <div class="row">
+					          <div class="col-md-4 col-xs-12">
+						            <label for="localization_locale">{{ __('Locale', 'setup') }}</label>
+					          </div>
+					          <div class="col-md-8 col-xs-12">
+						            <select class="form-control" name="localization_locale" id="localization_locale">
+							              <option> </option>
+							              {%  for locale in locales %}
+								                <option{% if submit.locale == locale %} selected="selected"{%  endif %} value="{{  locale|escape }}">{{ __(locale, 'setup') }}</option>
+							              {%  endfor %}
+						            </select>
+					          </div>
+				        </div>
+			      </div>
         </fieldset>
         <fieldset>
             <legend>{{ __('Database', 'setup') }}</legend>
-			<div class="col-md-6 col-xs-12">
-				<div class="row">
-					<div class="col-md-4 col-xs-12">
-						<label for="database_host">{{ __('Host', 'setup') }}</label>
-					</div>
-					<div class="col-md-8 col-xs-12">
-						<input class="form-control" type="text" name="database_host" id="database_host" value="{{ submit.database_host|escape }}" />
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-4 col-xs-12">
-						<label for="database_database">{{ __('Database (Optional)', 'setup') }}</label>
-					</div>
-					<div class="col-md-8 col-xs-12">
-						<input type="text" class="form-control" name="database_database" id="database_database" value="{{ submit.database_database|escape }}" />
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-4 col-xs-12">
-						<label for="database_username">{{ __('Username', 'setup') }}</label>
-					</div>
-					<div class="col-md-8 col-xs-12">
-						<input type="text" class="form-control" name="database_username" id="database_username" value="{{ submit.database_username|escape }}" />
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-4 col-xs-12">
-						<label for="database_password">{{ __('Password', 'setup') }}</label>
-					</div>
-					<div class="col-md-8 col-xs-12">
-						<input type="password" class="form-control" name="database_password" id="database_password" value="{{ submit.database_password|escape }}" />
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-4 col-xs-12">
-						<label for="database_dsn">{{ __('DSN', 'setup') }}</label>
-					</div>
-					<div class="col-md-8 col-xs-12">
-						<input type="text" class="form-control" name="database_dsn" id="database_dsn" value="{{ submit.database_dsn|escape }}" />
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-4 col-xs-12">
-						<label for="database_type">{{ __('Type', 'setup') }}</label>
-					</div>
-					<div class="col-md-8 col-xs-12">
-						<select name="database_type" class="form-control" id="database_type">
-							<option value="mysqli"{% if submit.database_type == 'mysqli' %} selected="selected"{% endif %}>{{ __('MySQLi') }}</option>
-							<option value="pdo"{%  if submit.database_type == 'pdo' %} selected="selected"{% endif %}>{{ __('PDO') }}</option>
-						</select>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-xs-12">
-						<p>
-							<label>
-								<input type="checkbox" name="database_autoinstall" id="database_autoinstall" value="1" {% if not submit.database_autoinstall is empty %}checked="checked" {% endif %}/>
-								{{ __('Perform system auto-install', 'setup') }}
-							</label>
-						</p>
-						<p>
-							<label>
-								<input type="checkbox" name="database_autouninstall" id="database_autouninstall" value="1" {% if not submit.database_autouninstall is empty %}checked="checked" {% endif %}/>
-								{{ __('Perform system auto-uninstall', 'setup') }}
-							</label>
-						</p>
-						<p>
-							<label>
-								<input type="checkbox" name="database_autoupdate" id="database_autoupdate" value="1" {% if not submit.database_autoupdate is empty %}checked="checked" {% endif %}/>
-								{{ __('Perform system auto-update', 'setup') }}
-							</label>
-						</p>
-					</div>
-				</div>
-			</div>
+			      <div class="col-md-6 col-xs-12">
+				        <div class="row">
+					          <div class="col-md-4 col-xs-12">
+						            <label for="database_host">{{ __('Host', 'setup') }}</label>
+					          </div>
+					          <div class="col-md-8 col-xs-12">
+						            <input class="form-control" type="text" name="database_host" id="database_host" value="{{ submit.database_host|escape }}" />
+					          </div>
+				        </div>
+				        <div class="row">
+					          <div class="col-md-4 col-xs-12">
+						            <label for="database_database">{{ __('Database (Optional)', 'setup') }}</label>
+					          </div>
+					          <div class="col-md-8 col-xs-12">
+						            <input type="text" class="form-control" name="database_database" id="database_database" value="{{ submit.database_database|escape }}" />
+					          </div>
+				        </div>
+				        <div class="row">
+					          <div class="col-md-4 col-xs-12">
+						            <label for="database_username">{{ __('Username', 'setup') }}</label>
+					          </div>
+					          <div class="col-md-8 col-xs-12">
+						            <input type="text" class="form-control" name="database_username" id="database_username" value="{{ submit.database_username|escape }}" />
+					          </div>
+				        </div>
+				        <div class="row">
+					          <div class="col-md-4 col-xs-12">
+						            <label for="database_password">{{ __('Password', 'setup') }}</label>
+					          </div>
+					          <div class="col-md-8 col-xs-12">
+						            <input type="password" class="form-control" name="database_password" id="database_password" value="{{ submit.database_password|escape }}" />
+					          </div>
+				        </div>
+				        <div class="row">
+					          <div class="col-md-4 col-xs-12">
+						            <label for="database_dsn">{{ __('DSN', 'setup') }}</label>
+					          </div>
+					          <div class="col-md-8 col-xs-12">
+						            <input type="text" class="form-control" name="database_dsn" id="database_dsn" value="{{ submit.database_dsn|escape }}" />
+					          </div>
+				        </div>
+				        <div class="row">
+					          <div class="col-md-4 col-xs-12">
+						            <label for="database_type">{{ __('Type', 'setup') }}</label>
+					          </div>
+					          <div class="col-md-8 col-xs-12">
+						            <select name="database_type" class="form-control" id="database_type">
+							              <option value="mysqli"{% if submit.database_type == 'mysqli' %} selected="selected"{% endif %}>{{ __('MySQLi') }}</option>
+							              <option value="pdo"{%  if submit.database_type == 'pdo' %} selected="selected"{% endif %}>{{ __('PDO') }}</option>
+						            </select>
+					          </div>
+				        </div>
+				        <div class="row">
+					          <div class="col-xs-12">
+						            <p>
+							              <label>
+								                <input type="checkbox" name="database_autoinstall" id="database_autoinstall" value="1" {% if not submit.database_autoinstall is empty %}checked="checked" {% endif %}/>
+								                {{ __('Perform system auto-install', 'setup') }}
+							              </label>
+						            </p>
+						            <p>
+							              <label>
+								                <input type="checkbox" name="database_autouninstall" id="database_autouninstall" value="1" {% if not submit.database_autouninstall is empty %}checked="checked" {% endif %}/>
+								                {{ __('Perform system auto-uninstall', 'setup') }}
+							              </label>
+						            </p>
+						            <p>
+							              <label>
+								                <input type="checkbox" name="database_autoupdate" id="database_autoupdate" value="1" {% if not submit.database_autoupdate is empty %}checked="checked" {% endif %}/>
+								                {{ __('Perform system auto-update', 'setup') }}
+							              </label>
+						            </p>
+					          </div>
+				        </div>
+			      </div>
         </fieldset>
         <div>
             <input class="btn btn-primary" type="submit" name="action" value="{{ __('Test', 'test') }}" />
         </div>
-        {%  if tests|length > 0 %}
-            <fieldset>
-                <legend>{{  __('Tests', 'test') }}</legend>
-                {%  for test in tests %}
-                    <div>{{ test|raw }}</div>
-                {% endfor %}
-            </fieldset>
-        {%  endif %}
     </form>
+
+    {%  if tests|length > 0 %}
+        <div id="test-results">
+            <h3>{{  __('Tests', 'test') }}</h3>
+            {%  for test in tests %}
+                <div>{{ test|raw }}</div>
+            {% endfor %}
+        </div>
+    {%  endif %}
+
     <div id="ajax-tests">
-		<h2>{{ __('Ajax tests') }}</h2>
-		<strong>{{ __('Expected', 'test') }}</strong>
-		<div class="expected">{{ ajax|raw }}</div>
-		<strong>{{ __('Given', 'test') }}</strong>
-		<div class="given"></div>
-		<strong>{{ __('Result', 'test') }}</strong>
-		<div class="result">
-			<span class="success">{{ __('Success', 'test') }}</span>
-			<span class="error">{{ __('Error', 'test') }}</span>
-		</div>
+		    <h3>{{ __('Ajax tests') }}</h3>
+		    <strong>{{ __('Expected', 'test') }}</strong>
+		    <div class="expected">{{ ajax|raw }}</div>
+		    <strong>{{ __('Given', 'test') }}</strong>
+		    <div class="given"></div>
+		    <strong>{{ __('Result', 'test') }}</strong>
+		    <div class="result">
+			      <span class="success">{{ __('Success', 'test') }}</span>
+			      <span class="error">{{ __('Error', 'test') }}</span>
+		    </div>
     </div>
 </div>
