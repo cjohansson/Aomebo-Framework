@@ -40,6 +40,8 @@ The framework is licensed by the Open license LGPL version 3.
 
 ## A easy example
 
+This example should take about 15min to implement and should give you a basic site to start with that uses jQuery and Bootstrap via CDN.
+
 1. Let's say we want to have the framework at `/usr/share/aomebo-framework/` and we have our public root at `/var/www/MyWebSite/public/`, we want our application to be located outside of public root at `/var/www/MyWebSite/private/`
 2. Clone git repository `git clone https://github.com/cjohansson/Aomebo-Framework.git /usr/share/aomebo-framework/`
 3. Create a `index.php` in your public root like this and tell Aomebo Framework where your applications private files are located by passing the `PARAMETER_SITE_PATH` parameter to the Aomebo Application constructor like this
@@ -56,15 +58,70 @@ new \Aomebo\Application(
 );
 ```
 
-3. Create some modules
+3. Create the application
 
-We are going to create 4 modules: *Html*, *Header*, *Footer*, *Wrapper* and all paths from now on will be relative to **/var/www/MyWebSite/**.
+We are going to create **5** modules: *Html*, *Header*, *Footer*, *Wrapper*, *Blog* and **2** client-side dependencies. All paths from now on will be relative to **/var/www/MyWebSite/**.
 
-### Html
+### Dependencies
+
+#### jQuery
+
+`private/Dependencies/jQuery/Dependency.php`
+
+``` php
+<?php
+/**
+ *
+ */
+
+/**
+ *
+ */
+namespace Dependencies\jQuery
+{
+
+    /**
+     *
+     */
+    class Dependency extends \Aomebo\Associatives\Dependency
+    {
+
+        /**
+         * @var array
+         */
+        protected $_options = array(
+            'inline.html' => array(
+                'mode' => parent::MODE_INLINE,
+            ),
+        );
+
+    }
+}
+```
+
+`private/Dependencies/jQuery/inline.html`
+
+``` html
+<script src="http://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+```
+
+#### Bootstrap
+
+
+### Modules
+
+#### Html
 `private/Modules/Html/Module.php`
 
 ``` php
 <?php
+/**
+ *
+ */
+ 
+/**
+ *
+ */
 namespace Modules\Html
 {
 
@@ -89,7 +146,9 @@ namespace Modules\Html
         public function getDependencies()
         {
             return array(
-                new \Aomebo\Associatives\Dependent('jQuery'));
+	            new \Aomebo\Associatives\Dependent('jQuery'),
+	            new \Aomebo\Associatives\Dependent('Bootstrap'),
+            );
         }
 
         /**
@@ -169,7 +228,7 @@ body
 }
 ```
 
-### Header
+#### Header
 
 `private/Modules/Header/Module.php`
 
@@ -212,8 +271,7 @@ namespace Modules\Header
 </div>
 ```
 
-### Footer
-
+#### Footer
 
 `private/Modules/Footer/Module.php`
 
@@ -265,7 +323,7 @@ namespace Modules\Footer
 }
 ```
 
-`
+#### Wrapper
 
 4. Create some pages
 
@@ -276,3 +334,7 @@ namespace Modules\Footer
 7. Try again
 
 8. Create some routes
+
+9. Try again
+
+10. Done

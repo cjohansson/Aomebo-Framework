@@ -66,7 +66,7 @@ return array(
                 array(
                     'type' => 'integer',
                     'required' => true,
-                    'default' => 86400,
+                    'default' => 0,
                 ),
         ),
     'interpreter' =>

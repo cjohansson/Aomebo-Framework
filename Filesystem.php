@@ -82,7 +82,7 @@ namespace Aomebo
             if (!empty($path)) {
                 if ($baseDirs = self::getBasedirs())
                 {
-                    foreach (self::getBasedirs() as $baseDir)
+                    foreach ($baseDirs as $baseDir)
                     {
                         if (strlen($path) >= strlen($baseDir)) {
                             if (substr($path, 0, strlen($baseDir)) ==
@@ -125,18 +125,16 @@ namespace Aomebo
             $throwExceptions = true,
             $trailingIsDirectory = false)
         {
-
             $accBool = true;
-            
             if (\Aomebo\Application::isWritingnabled()) {
                 if ($components = explode(
                     DIRECTORY_SEPARATOR, $absolutePath)
                 ) {
-    
+
                     $path = '';
                     $pathIndex = 0;
-                    $pathSize = sizeof($components);
-    
+                    $pathSize = count($components);
+
                     foreach ($components as $component)
                     {
                         if ($component !== '') {
@@ -384,7 +382,6 @@ namespace Aomebo
                 if (!empty($absolutePath)
                     && file_exists($absolutePath)
                 ) {
-                    
                     try {
                         return file_get_contents($absolutePath);
                     } catch (\Exception $e) {
@@ -399,7 +396,7 @@ namespace Aomebo
                         }
                         return false;
                     }
-                    
+
                 } else {
                     if ($throwException) {
                         Throw new \Exception(
@@ -408,9 +405,7 @@ namespace Aomebo
                     }
                 }
             }
-
             return '';
-
         }
 
         /**
@@ -465,7 +460,6 @@ namespace Aomebo
                 && \Aomebo\Application::isWritingnabled()
                 && self::isPathInBasedir($absolutePath)
             ) {
-                
                 self::makeDirectories($absolutePath);
 
                 if (self::_writeFile(
@@ -477,7 +471,6 @@ namespace Aomebo
                 ) {
                     return true;
                 }
-                
             }
             return false;
 
@@ -557,7 +550,7 @@ namespace Aomebo
                         $items = scandir($absolutePath);
                         if (isset($items)
                             && is_array($items)
-                            && sizeof($items) > 2
+                            && count($items) > 2
                         ) {
                             return true;
                         }
@@ -687,7 +680,7 @@ namespace Aomebo
                                 $path,
                                 $octChmod
                             )
-                        );     
+                        );
                     }
                 }
 
@@ -754,12 +747,10 @@ namespace Aomebo
          */
         public static function loadCache()
         {
-
             $cacheExpiration = \Aomebo\Configuration::
                 getSetting('framework,fileemtime_expiration');
 
             if ($cacheExpiration > 0) {
-
                 $cacheParameters = 'Filesystem/Filemtimes';
                 $cacheKey = $cacheExpiration . '-'
                     . floor(time() / $cacheExpiration);
@@ -768,16 +759,13 @@ namespace Aomebo
                     $cacheParameters,
                     $cacheKey)
                 ) {
-                    self::$_filemtimesCache =
-                        \Aomebo\Cache\System::loadCache(
-                            $cacheParameters,
-                            $cacheKey,
-                            \Aomebo\Cache\System::FORMAT_JSON_ENCODE
-                        );
+                    self::$_filemtimesCache = \Aomebo\Cache\System::loadCache(
+                        $cacheParameters,
+                        $cacheKey,
+                        \Aomebo\Cache\System::FORMAT_JSON_ENCODE
+                    );
                 }
-
             }
-
         }
 
         /**

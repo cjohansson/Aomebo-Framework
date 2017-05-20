@@ -2255,18 +2255,10 @@ namespace Aomebo\Dispatcher
         public static function parseProtocol()
         {
 
-            if (isset($_SERVER['SERVER_PROTOCOL'])) {
-                $serverProtocolData = strtolower($_SERVER['SERVER_PROTOCOL']);
-                $serverProtocol =
-                    substr($serverProtocolData, 0, strpos($serverProtocolData, '/'));
-                $serverProtocolVersion =
-                    substr($serverProtocolData, strpos($serverProtocolData, '/') + 1);
-            } else {
-                $serverProtocol =
-                    \Aomebo\Configuration::getSetting('site,protocol');
-                $serverProtocolVersion =
-                    \Aomebo\Configuration::getSetting('site,protocol version');
-            }
+            $serverProtocol =
+                            \Aomebo\Configuration::getSetting('site,protocol');
+            $serverProtocolVersion =
+                                   \Aomebo\Configuration::getSetting('site,protocol version');
 
             if ($serverProtocol == 'http') {
                 self::$_serverProtocol = self::SERVER_PROTOCOL_HTTP;

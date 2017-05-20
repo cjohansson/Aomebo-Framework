@@ -1,0 +1,11 @@
+#test section {
+    margin-bottom: 40px;
+}
+#test fieldset {
+    border: 1px #eee solid;
+}
+#test #test-results > div {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 12px;
+}

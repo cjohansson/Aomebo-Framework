@@ -27,16 +27,15 @@ namespace Aomebo
                 \Aomebo\Application::PARAMETER_PUBLIC_EXTERNAL_PATH => '/',
 			    \Aomebo\Application::PARAMETER_SHOW_SETUP => true,
 		    ));
-            $response = ob_get_contents();
+            $test = ob_get_contents();
 		    ob_end_clean();
 
 		    $this->assertNotEmpty(
-			    $response,
-			    'Setup Request Response was not empty'
+			    $test,
+			    'Setup Request was not empty'
 		    );
             $this->assertTrue(
-                strpos($response, '<h1>Aomebo Framework</h1>') !== false,
-                'Setup Request Response contains expected header'
+                strpos($test, '<h1>Aomebo Framework</h1>') !== false
             );
 	    }
 
