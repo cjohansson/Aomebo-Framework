@@ -132,17 +132,15 @@ namespace Aomebo
                     urldecode($_SERVER['REQUEST_URI']),
                     strlen(_PUBLIC_EXTERNAL_ROOT_)
                 );
-            } else if (isset($_SERVER['PHP_SELF'])
-                       && substr($_SERVER['PHP_SELF'], 0, 1) == '/'
+            } else if (isset($_SERVER['SCRIPT_NAME'])
+                       && substr($_SERVER['SCRIPT_NAME'], 0, 1) == '/'
             ) {
-                self::$uri = basename($_SERVER['PHP_SELF']);
+                self::$uri = basename($_SERVER['SCRIPT_NAME']);
             } else {
                 self::$uri = 'index.php';
             }
 
-            if ($strrpos = strpos(
-                self::$uri, '/')
-            ) {
+            if ($strrpos = strpos(self::$uri, '/')) {
                 self::$requestUri = substr(self::$uri, 0, $strrpos);
                 self::$queryString = substr(self::$uri, ($strrpos + 1));
             } else {

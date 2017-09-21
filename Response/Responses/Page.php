@@ -53,11 +53,9 @@ namespace Aomebo\Response\Responses
 		            && \Aomebo\Configuration::getSetting(
 			            'dispatch,use default page for uris starting with question-mark'))
 		        || preg_match(
-                    \Aomebo\Configuration::getSetting(
-                        'dispatch,page syntax regexp'),
+                    \Aomebo\Configuration::getSetting('dispatch,page syntax regexp'),
                     \Aomebo\Request::$requestUri) === 1
-		        || \Aomebo\Configuration::getSetting(
-			        'dispatch,use default page for invalid page syntax uris');
+		        || \Aomebo\Configuration::getSetting('dispatch,use default page for invalid page syntax uris');
         }
 
         /**

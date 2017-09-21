@@ -3,9 +3,9 @@
 Aomebo Framework (AF) is a **open-source (OS) object-oriented (OO) PHP: Hypertext Preprocessor (PHP) Model-View-Controller (MVC) framework**.
 
 The framework is built to be compatible with all types of applications (even shell applications) and is fully scalable.
-Only loads the stuff **you need** for your project and tries to place as few limits as possible on the developer. The main idea of the framework is to enable swift development by using common and easy patterns and supporting a wide variety of programming styles.
+Uses lazy loading to only loads the stuff **you need** for your project and tries to place as few limits as possible on the developer. The main idea of the framework is to enable swift development by using common and easy programming patterns and supporting a wide variety of programming styles.
 
-It only requires PHP 5.3 or later with PHP standard modules.
+It only requires PHP 5.3 or later with PHP default modules.
 
 The framework is built with time-, space- and memory-complexity in mind which makes it memory-efficient, CPU-efficient, storage-efficient and fast.
 
@@ -28,13 +28,13 @@ With optional features such as:
 
 The framework has been successfully used for:
 
-* Internationalized and localized sites.
-* Internationalized and localized communities.
-* Accounting and bookkeeping software.
-* Internationalized and localized e-commerce systems.
-* REST APIs.
-* Blogs.
-* Company homepages.
+* Internationalized and localized sites
+* Internationalized and localized communities
+* Accounting and bookkeeping software
+* Internationalized and localized e-commerce systems
+* REST APIs
+* Blogs
+* Company homepages
 
 The framework is licensed by the Open license LGPL version 3.
 
@@ -42,9 +42,9 @@ The framework is licensed by the Open license LGPL version 3.
 
 This example should take about 15min to implement and should give you a basic site to start with that uses jQuery and Bootstrap via CDN.
 
-1. Let's say we want to have the framework at `/usr/share/aomebo-framework/` and we have our public root at `/var/www/MyWebSite/public/`, we want our application to be located outside of public root at `/var/www/MyWebSite/private/`
+1. Let's say we want to store the framework at `/usr/share/aomebo-framework/` and we have our public root at `/var/www/MyWebSite/public/`. We want our application to be located outside of public root at `/var/www/MyWebSite/private/`
 2. Clone git repository `git clone https://github.com/cjohansson/Aomebo-Framework.git /usr/share/aomebo-framework/`
-3. Create a `index.php` in your public root like this and tell Aomebo Framework where your applications private files are located by passing the `PARAMETER_SITE_PATH` parameter to the Aomebo Application constructor like this
+3. Create a `index.php` in your public root like this to tell Aomebo Framework where your applications private files are located by passing the `PARAMETER_SITE_PATH` parameter to the Aomebo Application constructor like this
 
 Let's say that this is `/var/www/MyWebSite/public/index.php`
 ``` php
@@ -60,7 +60,7 @@ new \Aomebo\Application(
 
 3. Create the application
 
-We are going to create **5** modules: *Html*, *Header*, *Footer*, *Wrapper*, *Blog* and **2** client-side dependencies. All paths from now on will be relative to **/var/www/MyWebSite/**.
+We are going to create **5** modules: *Html*, *Header*, *Footer*, *Wrapper*, *Blog* and **2** client-side dependencies. All paths from now on will be relative to **/var/www/MyWebSite/**. We will be using jQuery, Bootstrap and the Twig template system.
 
 ### Dependencies
 
@@ -118,7 +118,7 @@ namespace Dependencies\jQuery
 /**
  *
  */
- 
+
 /**
  *
  */

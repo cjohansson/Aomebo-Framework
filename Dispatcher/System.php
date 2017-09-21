@@ -321,7 +321,8 @@ namespace Aomebo\Dispatcher
             if (!$this->_isConstructed()) {
 
                 \Aomebo\Trigger\System::processTriggers(
-                    \Aomebo\Trigger\System::TRIGGER_KEY_BEFORE_DISPATCH);
+                    \Aomebo\Trigger\System::TRIGGER_KEY_BEFORE_DISPATCH
+                );
 
                 if (!isset(self::$_rewriteEnabled)) {
                     self::parseServer();
@@ -346,7 +347,8 @@ namespace Aomebo\Dispatcher
                 }
 
                 \Aomebo\Trigger\System::processTriggers(
-                    \Aomebo\Trigger\System::TRIGGER_KEY_AFTER_DISPATCH);
+                    \Aomebo\Trigger\System::TRIGGER_KEY_AFTER_DISPATCH
+                );
                 $this->_flagThisConstructed();
             }
         }
@@ -785,18 +787,18 @@ namespace Aomebo\Dispatcher
 
         }
 
-	    /**
+        /**
          * This method stops interpretating and
          * changes pages to file-not-found.
          *
          * @static
          * @param bool [$restartInterpretation = true]
-         * @deprecated
-	     */
-	    public static function fileNotFound($restartInterpretation = true)
-	    {
-		    self::setFileNotFound($restartInterpretation);
-	    }
+         * @deprecated Use setFileNotFound() instead
+         */
+        public static function fileNotFound($restartInterpretation = true)
+        {
+            self::setFileNotFound($restartInterpretation);
+        }
 
         /**
          * This method stops interpretating and
@@ -808,7 +810,8 @@ namespace Aomebo\Dispatcher
         public static function setFileNotFound($restartInterpretation = true)
         {
             $page = \Aomebo\Configuration::getSetting(
-                'dispatch,file not found page');
+                'dispatch,file not found page'
+            );
             if ($page) {
                 self::setPage($page);
             }
@@ -821,7 +824,7 @@ namespace Aomebo\Dispatcher
             }
             self::removeCurrentUriFromIndexing();
             if ($page) {
-	            self::setHttpResponseStatus404NotFound();
+                self::setHttpResponseStatus404NotFound();
             }
 
             // Should we redirect to 404 page?
@@ -829,8 +832,9 @@ namespace Aomebo\Dispatcher
                 && \Aomebo\Configuration::getSetting(
                 'dispatch,redirect to file not found page')
             ) {
-                self::setHttpHeaderField('Location',
-                    self::buildUri(null, self::getPage()));
+                self::setHttpHeaderFieldLocation(
+                    self::buildUri(null, $page)
+                );
             }
         }
 
@@ -868,27 +872,29 @@ namespace Aomebo\Dispatcher
         }
 
         /**
-         * A corresponding 3xx, 201 or 202 should be
-         * specified before using location.
-         *
          * @static
          * @param string $location      Should be an absolute URI
          * @see http://en.wikipedia.org/wiki/HTTP_location
+         * @deprecated
          */
         public static function setHeaderLocation($location)
         {
-            self::setHttpHeaderField(
-                'Location',
-                $location);
+            self::setHttpHeaderFieldLocation($location);
         }
 
         /**
+         * A corresponding 3xx, 201 or 202 should be
+         * specified before using location.
+         *
          * @static
          * @param string $location
          */
         public static function setHttpHeaderFieldLocation($location)
         {
-            self::setHttpHeaderField('Location', $location);
+            self::setHttpHeaderField(
+                'Location',
+                $location
+            );
             self::setIsRedirecting(true);
         }
 
@@ -1187,8 +1193,8 @@ namespace Aomebo\Dispatcher
          * @param string $value
          * @see https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
          */
-	    public static function setHttpHeaderField($field, $value)
-	    {
+        public static function setHttpHeaderField($field, $value)
+        {
             self::$_httpHeaderFields[ucfirst($field)] = $value;
         }
 
@@ -2213,10 +2219,10 @@ namespace Aomebo\Dispatcher
                         urldecode($_SERVER['REQUEST_URI']),
                         strlen(self::$_baseUri)
                     ));
-                } else if (isset($_SERVER['PHP_SELF'])
-                    && substr($_SERVER['PHP_SELF'], 0, 1) == '/'
+                } else if (isset($_SERVER['SCRIPT_NAME'])
+                    && substr($_SERVER['SCRIPT_NAME'], 0, 1) == '/'
                 ) {
-                    self::setFullRequest(basename($_SERVER['PHP_SELF']));
+                    self::setFullRequest(basename($_SERVER['SCRIPT_NAME']));
                 } else {
                     self::setFullRequest('index.php');
                 }
@@ -2228,8 +2234,15 @@ namespace Aomebo\Dispatcher
                 if ($strrpos = strpos(
                     self::$_fullRequest, '/')
                 ) {
-                    self::setRequestUri(substr(self::$_fullRequest, 0, $strrpos));
-                    self::setQueryString(substr(self::$_fullRequest, ($strrpos + 1)));
+                    self::setRequestUri(substr(
+                        self::$_fullRequest,
+                        0,
+                        $strrpos
+                    ));
+                    self::setQueryString(substr(
+                        self::$_fullRequest,
+                        ($strrpos + 1)
+                    ));
                 } else {
                     self::setRequestUri(self::$_fullRequest);
                     self::setQueryString('');
@@ -2239,10 +2252,12 @@ namespace Aomebo\Dispatcher
             if (!isset(self::$_httpRequestMethod)) {
                 if (empty($_SERVER['REQUEST_METHOD'])) {
                     self::setHttpRequestMethod(
-                        self::HTTP_REQUEST_TYPE_GET);
+                        self::HTTP_REQUEST_TYPE_GET
+                    );
                 } else {
                     self::setHttpRequestMethod(
-                        strtoupper($_SERVER['REQUEST_METHOD']));
+                        strtoupper($_SERVER['REQUEST_METHOD'])
+                    );
                 }
             }
         }
@@ -2477,7 +2492,7 @@ namespace Aomebo\Dispatcher
          * @return bool
          * @throws \Exception
          */
-        public static function addUrisToPages($urisToPages, 
+        public static function addUrisToPages($urisToPages,
             $replaceExisting = false)
         {
             if (isset($urisToPages)
@@ -2487,7 +2502,7 @@ namespace Aomebo\Dispatcher
                 $accBool = true;
                 foreach ($urisToPages as $uri => $page)
                 {
-                    $accBool = ($accBool 
+                    $accBool = ($accBool
                         && self::addUriToPage($uri, $page, $replaceExisting)
                     );
                 }
@@ -2505,7 +2520,7 @@ namespace Aomebo\Dispatcher
          * @return bool
          * @throws \Exception
          */
-        public static function addUriToPage($uri, $page, 
+        public static function addUriToPage($uri, $page,
             $replaceExisting = false)
         {
             if (!empty($uri)
@@ -2609,7 +2624,7 @@ namespace Aomebo\Dispatcher
             if (!$defaultPage
                 && count($uriToPages)
             ) {
-	            $defaultPage = reset($uriToPages);
+                $defaultPage = reset($uriToPages);
             }
             self::setFileNotFoundFlag(false);
 

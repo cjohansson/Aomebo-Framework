@@ -841,7 +841,11 @@ namespace Aomebo
                 }
             } else {
                 Throw new \Exception(
-                    self::systemTranslate('Invalid parameters')
+                    sprintf(
+                        self::systemTranslate('Settings need a key (%s) and a value (%s)'),
+                        $key,
+                        $value
+                    )
                 );
             }
         }

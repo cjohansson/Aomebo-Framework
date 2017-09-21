@@ -248,12 +248,12 @@ namespace Aomebo
                  * Only possible for requests from web-server (not PHP-client)
                  */
                 if (!self::hasParameter(self::PARAMETER_PUBLIC_EXTERNAL_PATH)
-                    && isset($_SERVER['PHP_SELF'])
-                    && substr($_SERVER['PHP_SELF'], 0, 1) == '/'
+                    && isset($_SERVER['SCRIPT_NAME'])
+                    && substr($_SERVER['SCRIPT_NAME'], 0, 1) == '/'
                 ) {
                     self::setParameter(
                         self::PARAMETER_PUBLIC_EXTERNAL_PATH,
-                        $_SERVER['PHP_SELF']
+                        $_SERVER['SCRIPT_NAME']
                     );
                 }
 
@@ -317,7 +317,7 @@ namespace Aomebo
                     if (substr($parameters[self::PARAMETER_SITE_PATH], -1) != DIRECTORY_SEPARATOR) {
                         $parameters[self::PARAMETER_SITE_PATH] .= DIRECTORY_SEPARATOR;
                     }
-                    if (!isset($_SERVER['PHP_SELF'])) {
+                    if (!isset($_SERVER['SCRIPT_NAME'])) {
                         $parameters[self::PARAMETER_PUBLIC_EXTERNAL_PATH] = DIRECTORY_SEPARATOR;
                     }
                     if (empty($parameters[self::PARAMETER_CONFIGURATION_INTERNAL_FILENAME])) {
