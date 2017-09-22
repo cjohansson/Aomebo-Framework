@@ -8,6 +8,7 @@ return array(
 	),
     'dispatch' => array(
         'default page' => 'setup',
+        'file not found page' => 'file_not_found'
     ),
     'php_responses' => array(
         'regular/p-h-p' => 'GUI/Setup/private/Modules/Test/Associatives/phpfile.php',

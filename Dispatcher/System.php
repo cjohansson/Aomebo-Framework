@@ -828,13 +828,19 @@ namespace Aomebo\Dispatcher
             }
 
             // Should we redirect to 404 page?
-            if ($page
-                && \Aomebo\Configuration::getSetting(
+            if (\Aomebo\Configuration::getSetting(
                 'dispatch,redirect to file not found page')
             ) {
-                self::setHttpHeaderFieldLocation(
-                    self::buildUri(null, $page)
-                );
+                if ($page) {
+                    self::setHttpHeaderFieldLocation(
+                        self::buildUri(null, $page)
+                    );
+                } else {
+                    Throw new \Exception(sprintf(
+                        'Trying to redirect to file not found page without having a defined file not found page, pages: %s',
+                        print_r(\Aomebo\Configuration::getSetting('dispatch'), true)
+                    ));
+                }
             }
         }
 
@@ -2733,7 +2739,7 @@ namespace Aomebo\Dispatcher
 
                                 if (!$hit) {
                                     // Flag that file could not be found and restart interpretation
-                                    self::fileNotFound(true);
+                                    self::setFileNotFound(true);
                                 }
                             }
                         }

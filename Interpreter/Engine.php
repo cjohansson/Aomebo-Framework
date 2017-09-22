@@ -1665,9 +1665,10 @@ namespace Aomebo\Interpreter
                     } else {
                         Throw new \Exception(sprintf(
                             self::systemTranslate(
-                                'Found no page to interpret for request, pages: %s'
+                                'Found no page to interpret for request, pages: %s, file-not-found flag: %s'
                             ),
-                            print_r(self::$_pagesToData, true)
+                            print_r(self::$_pagesToData, true),
+                            $dispatcher::getFileNotFoundFlag()
                         ));
                     }
                 }

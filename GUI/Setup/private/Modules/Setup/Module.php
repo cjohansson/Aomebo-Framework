@@ -92,7 +92,7 @@ namespace Modules\Setup
                         'value' => array(
                             array(
                                 'key' => 'title',
-                                'value' => 'Another Setup',
+                                'value' => 'Framework Setup',
                             ),
                             array(
                                 'key' => 'body',
@@ -118,7 +118,40 @@ namespace Modules\Setup
                             ),
                         ),
                     ),
-                )
+                ),
+                'file_not_found' => array(
+                    array(
+                        'key' => 'html',
+                        'value' => array(
+                            array(
+                                'key' => 'title',
+                                'value' => 'File Not Found',
+                            ),
+                            array(
+                                'key' => 'body',
+                                'value' => array(
+                                    array(
+                                        'key' => 'wrapper',
+                                        'value' => array(
+                                            array(
+                                                'key' => 'header',
+                                                'value' => '',
+                                            ),
+                                            array(
+                                                'key' => 'setup',
+                                                'value' => '',
+                                            ),
+                                            array(
+                                                'key' => 'footer',
+                                                'value' => '',
+                                            )
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
             );
         }
 
@@ -131,6 +164,7 @@ namespace Modules\Setup
         {
             return array(
                 'setup' => 'setup',
+                'file-not-found' => 'file_not_found',
             );
         }
 
@@ -143,6 +177,7 @@ namespace Modules\Setup
         {
             return array(
                 'setup' => 'setup',
+                'file_not_found' => 'file-not-found',
             );
         }
 

@@ -628,18 +628,13 @@ return array(
                 array(
                     'type' => 'associative array',
                     'required' => true,
-                    'default' =>
-                        array(
-                            'index' => 'index.php',
-                        ),
+                    'default' => array(),
                 ),
             'uri pages' =>
                 array(
                     'type' => 'associative array',
                     'required' => true,
-                    'default' => array(
-                        'home' => 'index',
-                    ),
+                    'default' => array(),
                 ),
             'default page' =>
                 array(
