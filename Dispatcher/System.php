@@ -832,9 +832,11 @@ namespace Aomebo\Dispatcher
                 'dispatch,redirect to file not found page')
             ) {
                 if ($page) {
+                    self::setHttpResponseStatus301MovedPermanently();
                     self::setHttpHeaderFieldLocation(
                         self::buildUri(null, $page)
                     );
+                    exit;
                 } else {
                     Throw new \Exception(sprintf(
                         'Trying to redirect to file not found page without having a defined file not found page, pages: %s',
