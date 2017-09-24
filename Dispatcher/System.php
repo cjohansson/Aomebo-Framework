@@ -866,15 +866,10 @@ namespace Aomebo\Dispatcher
          */
         public static function getServerProtocolString()
         {
-            $protocolString = '';
-            if (self::$_serverProtocol == self::SERVER_PROTOCOL_HTTP) {
-                $protocolString .= 'HTTP';
-            } else if (self::$_serverProtocol == self::SERVER_PROTOCOL_HTTPS) {
-                $protocolString .= 'HTTPS';
-            }
+            $protocolString = 'HTTP';
             if (isset(self::$_serverProtocolVersion)) {
                 $protocolString .= '/'
-                    . number_format(self::$_serverProtocolVersion, 1);
+                                . number_format(self::$_serverProtocolVersion, 1);
             }
             return $protocolString;
         }
