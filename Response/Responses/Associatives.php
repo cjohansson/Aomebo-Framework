@@ -53,7 +53,9 @@ namespace Aomebo\Response\Responses
 	                         && stripos($_SERVER['HTTP_REFERER'], \Aomebo\Configuration::getSetting('site,server name')) !== false))
 	                    && (\Aomebo\Request::$method == 'GET'
 	                        || \Aomebo\Request::$method == 'POST')
-	                ));
+	                )
+                    && (!empty($_GET['fs'])
+                        || !empty($_GET['ds'])));
         }
 
         /**
