@@ -112,13 +112,13 @@ namespace Aomebo
          * @var string
          */
         const PARAMETER_PASS_EXECUTION_GUARDS =
-                                              'pass_execution_guards';
+            'pass_execution_guards';
 
         /**
          * @var string
          */
         const PARAMETER_RESPOND =
-                                'respond';
+            'respond';
 
         /**
          * @internal
@@ -417,8 +417,10 @@ namespace Aomebo
             // Do we have a list of concurrent requests?
             if ($requests = self::getApplicationData('requests')) {
 
-                $maximumConcurrentRequests = \Aomebo\Configuration::getSetting('application,maximum concurrent requests');
-                $maximumConcurrentRequestsPeriod = \Aomebo\Configuration::getSetting('application,maximum concurrent requests period');
+                $maximumConcurrentRequests = \Aomebo\Configuration::getSetting(
+                    'application,maximum concurrent requests');
+                $maximumConcurrentRequestsPeriod = \Aomebo\Configuration::getSetting(
+                    'application,maximum concurrent requests period');
 
                 if (!is_array($requests)) {
                     $requests = array();
@@ -449,7 +451,7 @@ namespace Aomebo
                         $requests = self::getApplicationData('requests', true);
                     }
                 } while($maximumConcurrentRequests > 0
-                        && count($requests) > $maximumConcurrentRequests
+                    && count($requests) > $maximumConcurrentRequests
                 );
 
                 self::setApplicationData(
@@ -962,7 +964,7 @@ namespace Aomebo
                 $cacheParameters = 'Application/Runtimes';
                 $cacheKey = md5('last_mod=' . $runtimesLastModificationTime
                     . '&framework=' . \Aomebo\Filesystem::getDirectoryLastModificationTime(
-                        __DIR__, false, 0, false)
+                    __DIR__, false, 0, false)
                 );
             }
 
@@ -973,9 +975,9 @@ namespace Aomebo
             if ($useRuntimeCache
                 && self::isWritingnabled()
                 && \Aomebo\Cache\System::cacheExists(
-                $cacheParameters,
-                $cacheKey,
-                \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM)
+                    $cacheParameters,
+                    $cacheKey,
+                    \Aomebo\Cache\System::CACHE_STORAGE_LOCATION_FILESYSTEM)
             ) {
                 if ($data = \Aomebo\Cache\System::loadCache(
                     $cacheParameters,
@@ -1169,7 +1171,7 @@ namespace Aomebo
                 if ($foundFile) {
 
                     /** @var string $foundFileName */
-	                $foundClass = false;
+                    $foundClass = false;
                     try
                     {
                         require_once($foundFileName);
@@ -1296,7 +1298,7 @@ namespace Aomebo
                         /** @define string _PUBLIC_EXTERNAL_ROOT_       Browser root */
                         define('_PUBLIC_EXTERNAL_ROOT_',
                             dirname($parameters[self::PARAMETER_PUBLIC_EXTERNAL_PATH])
-                            . DIRECTORY_SEPARATOR);
+                                . DIRECTORY_SEPARATOR);
 
                     }
                 }
@@ -1305,58 +1307,58 @@ namespace Aomebo
             }
         }
 
-	    /**
-	     * Update framework. Requires connection to GIT repo.
-	     *
-	     * @return string
-	     */
-	    public function update()
-	    {
-		    $command = escapeshellarg(_SYSTEM_ROOT_ . 'update.sh');
-		    $result = str_replace(
-			    "\n",
-			    "\n<br />",
-			    shell_exec($command)
-		    );
-		    return sprintf(
-			    "<strong>Update (%s):</strong>\n<p>%s</p>\n",
-			    $command,
-			    $result
-		    );
-	    }
+        /**
+         * Update framework. Requires connection to GIT repo.
+         *
+         * @return string
+         */
+        public function update()
+        {
+            $command = escapeshellarg(_SYSTEM_ROOT_ . 'update.sh');
+            $result = str_replace(
+                "\n",
+                "\n<br />",
+                shell_exec($command)
+            );
+            return sprintf(
+                "<strong>Update (%s):</strong>\n<p>%s</p>\n",
+                $command,
+                $result
+            );
+        }
 
-	    /**
-	     * Requires `composer install` in root directory.
-	     *
+        /**
+         * Requires `composer install` in root directory.
+         *
          * @static
-	     * @return string
-	     */
-	    public static function test()
-	    {
-		    $command = escapeshellarg(_SYSTEM_ROOT_ . 'test.sh');
-		    $result = str_replace(
-			    "\n",
-			    "\n<br />",
-			    shell_exec($command)
-		    );
-		    return sprintf(
-			    "<strong>Unit Tests (%s):</strong>\n<p>%s</p>\n",
-			    $command,
-			    $result
-		    );
-	    }
+         * @return string
+         */
+        public static function test()
+        {
+            $command = escapeshellarg(_SYSTEM_ROOT_ . 'test.sh');
+            $result = str_replace(
+                "\n",
+                "\n<br />",
+                shell_exec($command)
+            );
+            return sprintf(
+                "<strong>Unit Tests (%s):</strong>\n<p>%s</p>\n",
+                $command,
+                $result
+            );
+        }
 
-	    /**
+        /**
          * @static
-	     * @return string
-	     */
-	    public static function getVersion()
-	    {
-		    if (file_exists(__DIR__ . '/.git/refs/heads/master')) {
-			    return file_get_contents(__DIR__ . '/.git/refs/heads/master');
-		    }
-		    return '-';
-	    }
+         * @return string
+         */
+        public static function getVersion()
+        {
+            if (file_exists(__DIR__ . '/.git/refs/heads/master')) {
+                return file_get_contents(__DIR__ . '/.git/refs/heads/master');
+            }
+            return '-';
+        }
 
         /**
          * @static
