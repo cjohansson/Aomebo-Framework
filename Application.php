@@ -1314,23 +1314,45 @@ namespace Aomebo
         }
 
         /**
+         * @static
+         * @return bool
+         */
+        public static function isExecEnabled() {
+            if (function_exists('shell_exec')) {
+                if (!in_array('exec', array_map('trim', explode(', ', ini_get('disable_functions'))))) {
+                    if (strtolower(ini_get('safe_mode')) != 1) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        /**
          * Update framework. Requires connection to GIT repo.
          *
          * @return string
+         * @throws \Exception
          */
         public function update()
         {
-            $command = escapeshellarg(_SYSTEM_ROOT_ . 'update.sh');
-            $result = str_replace(
-                "\n",
-                "\n<br />",
-                shell_exec($command)
-            );
-            return sprintf(
-                "<strong>Update (%s):</strong>\n<p>%s</p>\n",
-                $command,
-                $result
-            );
+            if (self::isExecEnabled()) {
+                $command = escapeshellarg(_SYSTEM_ROOT_ . 'update.sh');
+                $result = str_replace(
+                    "\n",
+                    "\n<br />",
+                    shell_exec($command)
+                );
+                return sprintf(
+                    "<strong>Update (%s):</strong>\n<p>%s</p>\n",
+                    $command,
+                    $result
+                );
+            } else {
+                throw new \Exception(__(
+                    'exec() needs to be enabled for this functionality.'
+                ));
+            }
         }
 
         /**
@@ -1338,20 +1360,27 @@ namespace Aomebo
          *
          * @static
          * @return string
+         * @throws \Exception
          */
         public static function test()
         {
-            $command = escapeshellarg(_SYSTEM_ROOT_ . 'test.sh');
-            $result = str_replace(
-                "\n",
-                "\n<br />",
-                shell_exec($command)
-            );
-            return sprintf(
-                "<strong>Unit Tests (%s):</strong>\n<p>%s</p>\n",
-                $command,
-                $result
-            );
+            if (self::isExecEnabled()) {
+                $command = escapeshellarg(_SYSTEM_ROOT_ . 'test.sh');
+                $result = str_replace(
+                    "\n",
+                    "\n<br />",
+                    shell_exec($command)
+                );
+                return sprintf(
+                    "<strong>Unit Tests (%s):</strong>\n<p>%s</p>\n",
+                    $command,
+                    $result
+                );
+            } else {
+                throw new \Exception(__(
+                    'exec() needs to be enabled for this functionality.'
+                ));
+            }
         }
 
         /**

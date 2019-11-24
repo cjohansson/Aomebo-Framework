@@ -729,17 +729,20 @@ namespace Aomebo
 
                 self::_clearCache();
             }
-
         }
 
         /**
          * @static
-         * @return string
+         * @return string|bool
          */
         public static function getSystemUser()
         {
-            $return = exec('whoami');
-            return $return;
+            if (\Aomebo\Application::isExecEnabled()) {
+                $return = shell_exec('whoami');
+                return $return;
+            } else {
+                return false;
+            }
         }
 
         /**
@@ -808,7 +811,10 @@ namespace Aomebo
          */
         public static function isSystemSuperUser()
         {
-            return (self::getSystemUser() === 'root');
+            if ($user = self::getSystemUser()) {
+                return ($user === 'root');
+            }
+            return false;
         }
 
         /**
