@@ -228,7 +228,9 @@ namespace Aomebo
                  */
                 date_default_timezone_set('UTC');
 
-                self::$_pid = posix_getpid();
+                if (function_exists('posix_getpid')) {
+                    self::$_pid = \posix_getpid();
+                }
 
                 // Set public internal path based on back-trace
                 $backtrace = self::getDebugBacktrace(2);
@@ -427,7 +429,9 @@ namespace Aomebo
                 }
 
                 // Add current request to list
-                $requests[self::$_pid] = _SYSTEM_START_TIME_;
+                if (isset(self::$_pid)) {
+                    $requests[self::$_pid] = _SYSTEM_START_TIME_;
+                }
                 $requestTimeout = _SYSTEM_START_TIME_ - $maximumConcurrentRequestsPeriod;
 
                 do
@@ -461,11 +465,13 @@ namespace Aomebo
                 );
 
             } else {
-                self::setApplicationData(
-                    'requests',
-                    array(self::$_pid => _SYSTEM_START_TIME_),
-                    true
-                );
+                if (isset(self::$_pid)) {
+                    self::setApplicationData(
+                        'requests',
+                        array(self::$_pid => _SYSTEM_START_TIME_),
+                        true
+                    );
+                }
             }
 
             // Wait until server has enough memory
