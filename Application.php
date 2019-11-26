@@ -544,21 +544,23 @@ namespace Aomebo
          */
         public function __destruct()
         {
-            if ($requests = self::getApplicationData('requests', true)) {
-                if (isset($requests[self::$_pid])) {
-                    unset($requests[self::$_pid]);
+            if (defined('_SITE_ROOT_')) {
+                if ($requests = self::getApplicationData('requests', true)) {
+                    if (isset($requests[self::$_pid])) {
+                        unset($requests[self::$_pid]);
+                        self::setApplicationData(
+                            'requests',
+                            $requests,
+                            true
+                        );
+                    }
+                } else {
                     self::setApplicationData(
                         'requests',
-                        $requests,
+                        array(),
                         true
                     );
                 }
-            } else {
-                self::setApplicationData(
-                    'requests',
-                    array(),
-                    true
-                );
             }
         }
 
