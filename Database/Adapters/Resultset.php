@@ -194,7 +194,7 @@ namespace Aomebo\Database\Adapters
          */
         public function __destruct()
         {
-            unset($this->_resultset, $this->_unbuffered, $this->_sql, $this);
+            unset($this->_resultset, $this->_unbuffered, $this->_sql);
         }
 
     }
