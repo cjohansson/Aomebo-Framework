@@ -59,7 +59,6 @@ namespace Aomebo\System
          */
         public static function getSystemMemoryLimit()
         {
-
             $memoryLimit = ini_get('memory_limit');
             if ($memoryLimit == '-1') {
                 $memoryLimitInMegaBytes = 1024*1024*1024;
@@ -75,10 +74,9 @@ namespace Aomebo\System
                 $memoryLimitRaw = (int) str_ireplace('M', '', $memoryLimit);
                 $memoryLimitInMegaBytes = (int) ($memoryLimitRaw * 1024);
             } else {
-                $memoryLimitInMegaBytes = 0;
+                $memoryLimitInMegaBytes = $memoryLimit;
             }
             return $memoryLimitInMegaBytes;
-
         }
 
         /**
