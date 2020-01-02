@@ -363,17 +363,19 @@ namespace Aomebo\Dispatcher
             foreach (self::$_routes as & $route)
             {
                 /** @var \Aomebo\Dispatcher\Route $route */
-                $name = strtolower($route->reference->getField('name'));
-                if ($pages =
-                    \Aomebo\Interpreter\Engine::getPagesByRuntime($name)
-                ) {
-                    foreach ($pages as $page)
-                    {
-                        if (!isset(self::$_pageRoutes[$page])) {
-                            self::$_pageRoutes[$page] = array();
-                        }
-                        if (!isset(self::$_pageRoutes[$page][$route->getHashKey()])) {
-                            self::$_pageRoutes[$page][$route->getHashKey()] = & $route;
+                if (isset($route->reference)) {
+                    $name = strtolower($route->reference->getField('name'));
+                    if ($pages =
+                        \Aomebo\Interpreter\Engine::getPagesByRuntime($name)
+                    ) {
+                        foreach ($pages as $page)
+                        {
+                            if (!isset(self::$_pageRoutes[$page])) {
+                                self::$_pageRoutes[$page] = array();
+                            }
+                            if (!isset(self::$_pageRoutes[$page][$route->getHashKey()])) {
+                                self::$_pageRoutes[$page][$route->getHashKey()] = & $route;
+                            }
                         }
                     }
                 }
