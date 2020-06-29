@@ -1339,7 +1339,7 @@ namespace Aomebo\Session
                             . '`session_http_accept_language` VARCHAR(100) NOT NULL,'
                             . '`session_http_accept_encoding` VARCHAR(100) NOT NULL,'
                             . '`session_http_connection` VARCHAR(100) NOT NULL,'
-                            . '`session_request_uri` VARCHAR(250) NOT NULL,'
+                            . '`session_request_uri` VARCHAR(2000) NOT NULL,'
                             . '`session_request_query_string` VARCHAR(100) NOT NULL,'
                             . '`session_request_path_info` VARCHAR(100) NOT NULL,'
                             . 'PRIMARY KEY (`session_id`)) ENGINE=InnoDB DEFAULT CHARSET={DATA CHARSET};'
