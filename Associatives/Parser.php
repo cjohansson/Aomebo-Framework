@@ -739,7 +739,7 @@ namespace Aomebo\Associatives
          * @param array $array      Associative array
          * @return array
          */
-        private function _getReplaceKeys($array)
+        private static function _getReplaceKeys($array)
         {
             $keys = array();
             if (isset($array)

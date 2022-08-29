@@ -1379,7 +1379,7 @@ namespace Aomebo\Associatives
                 // Sort script depdencies by script subdependencies ascending
                 uasort(
                     self::$_selectedDependencies,
-                    '\Associatives\Engine::dependencySortScripts'
+                    '\Aomebo\Associatives\Engine::dependencySortScripts'
                 );
 
                 $lastSubdependenciesCount = 0;
@@ -1585,7 +1585,7 @@ namespace Aomebo\Associatives
          * @param string|null [$media = null]
          * @return string
          */
-        private function _getAssociativeData($media = null)
+        private static function _getAssociativeData($media = null)
         {
 
             $return = '';

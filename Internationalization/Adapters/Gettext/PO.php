@@ -190,7 +190,15 @@ namespace Aomebo\Internationalization\Adapters\Gettext
             $lines = explode("\n", $string);
             // do not prepend the string on the last empty line, artefact by explode
             if ("\n" == substr($string, -1)) unset($lines[count($lines) - 1]);
-            $res = implode("\n", array_map(create_function('$x', "return $php_with.\$x;"), $lines));
+            $res = implode(
+                "\n",
+                array_map(
+                    function($x) use ($php_with) {
+                        return $php_with . $x;
+                    },
+                    $lines
+                )
+            );
             // give back the empty line, we ignored above
             if ("\n" == substr($string, -1)) $res .= "\n";
             return $res;
@@ -285,7 +293,9 @@ namespace Aomebo\Internationalization\Adapters\Gettext
             // can be: comment, msgctxt, msgid, msgid_plural, msgstr, msgstr_plural
             $context = '';
             $msgstr_index = 0;
-            $is_final = create_function('$context', 'return $context == "msgstr" || $context == "msgstr_plural";');
+            $is_final = function($context) {
+                return $context == 'msgstr' || $context == 'msgstr_plural';
+            };
             while (true) {
                 $lineno++;
                 $line = PO::read_line($f);
@@ -378,7 +388,14 @@ namespace Aomebo\Internationalization\Adapters\Gettext
                     return false;
                 }
             }
-            if (array() == array_filter($entry->translations, create_function('$t', 'return $t || "0" === $t;'))) {
+            if (
+                array() == array_filter(
+                    $entry->translations,
+                    function($t) {
+                        return $t || "0" === $t;
+                    }
+                )
+            ) {
                 $entry->translations = array();
             }
             return array('entry' => $entry, 'lineno' => $lineno);

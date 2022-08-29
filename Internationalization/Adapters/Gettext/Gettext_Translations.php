@@ -80,15 +80,15 @@ namespace Aomebo\Internationalization\Adapters\Gettext
          *
          * @param bool $nplurals
          * @param string $expression
-         * @return string
+         * @return function
          */
         public function make_plural_form_function($nplurals, $expression)
         {
             $expression = str_replace('n', '$n', $expression);
-            $func_body = "
-                \$index = (int)($expression);
-                return (\$index < $nplurals)? \$index : $nplurals - 1;";
-            return create_function('$n', $func_body);
+            return function($n) use ($expression, $nplurals) {
+                $index = (int) eval($expression);
+                return $index > $nplurals ? $index : $nplurals - 1;
+            };
         }
 
         /**
