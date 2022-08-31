@@ -1420,7 +1420,7 @@ namespace Aomebo
          * @param mixed [$default = null]
          * @return int|null
          */
-        protected function _getArrayInteger(& $array, $key, $default = null)
+        protected static function _getArrayInteger(& $array, $key, $default = null)
         {
             if (isset($array)
                 && !empty($key)

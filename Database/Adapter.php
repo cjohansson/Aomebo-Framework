@@ -1489,7 +1489,7 @@ namespace Aomebo\Database
 	        $host, $username,
             $password, $database, $dsn = '',
             $options = null,
-	        $select = true, $iterations, $delay)
+	        $select = true, $iterations = 1, $delay = 250)
         {
             self::_instanciate();
             self::$_connected = false;
